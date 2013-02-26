@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using JetBrains.ProjectModel;
+using JetBrains.Application;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -10,7 +10,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]
   [BaseTypeRequired(typeof(IPostfixTemplateProvider))]
-  public sealed class PostfixTemplateProviderAttribute : SolutionComponentAttribute
+  public sealed class PostfixTemplateProviderAttribute : ShellComponentAttribute
   {
     [NotNull] public string TemplateName { get; private set; }
     [NotNull] public string Description { get; private set; }

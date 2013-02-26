@@ -45,10 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LookupItems\NameSuggestionPostfixLookupItem.cs" />
-    <Compile Include="Settings\SurroundCompletionOptionsPage.cs" />
-    <Compile Include="CSharpSurroundItemProviderSmart.cs" />
+    <Compile Include="Settings\PostfixCompletionOptionsPage.cs" />
+    <Compile Include="CSharpPostfixItemProviderSmart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\SurroundCompletionSettings.cs" />
+    <Compile Include="Settings\PostfixCompletionSettings.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
     <Compile Include="TemplateProviders\AwaitExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />

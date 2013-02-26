@@ -1,5 +1,6 @@
 ﻿using System.Windows.Forms;
 using JetBrains.Annotations;
+using JetBrains.Application;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Resources;
@@ -16,53 +17,38 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
   {
     public const string PID = "PostfixCompletion";
 
-    //private readonly IProperty<bool> myIsEnabled = new Property<bool>("IsEnabled");
-
-    public PostfixCompletionOptionsPage([NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext smartContext,
-      [NotNull] FontsManager fontsManager, [NotNull] Lazy<ISolution> solution)
+    public PostfixCompletionOptionsPage(
+      [NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext smartContext,
+      [NotNull] FontsManager fontsManager, [NotNull] Shell shell)
       : base(lifetime, PID, fontsManager)
     {
-      if (solution.Value == null) return;
-
       var listView = new ListView();
+
       listView.View = View.Details;
       listView.CheckBoxes = true;
+      listView.Width = 450;
+      listView.Height = 300;
+      listView.Sorting = SortOrder.Ascending;
 
-      //listView.Anchor = AnchorStyles.Top;
-      //listView.Dock = DockStyle.Top;
+      listView.Columns.Add("Shortcut").Width = 100;
+      listView.Columns.Add("Description").Width = 350;
 
-
-      //listView.Sorting = SortOrder.Ascending;
-
-      listView.Columns.Add("Name");
-      listView.Columns.Add("Description");
-
-      var providers = solution.Value.GetComponents<IPostfixTemplateProvider>();
+      var providers = shell.GetComponents<IPostfixTemplateProvider>();
       foreach (var provider in providers)
       {
         var attributes = (PostfixTemplateProviderAttribute[])
           provider.GetType().GetCustomAttributes(typeof(PostfixTemplateProviderAttribute), false);
-
         if (attributes.Length == 1)
         {
-          var templateName = attributes[0].TemplateName;
-          listView.Items.Add(new ListViewItem(new[] { templateName, templateName + " description" }));
+          listView.Items.Add(new ListViewItem(new[]
+          {
+            attributes[0].TemplateName,
+            attributes[0].Description
+          }));
         }
       }
 
       Controls.Add(listView);
-
-      //smartContext.SetBinding(lifetime, (SurroundCompletionSettings x) => x.IsEnabled, myIsEnabled);
-
-
-
-      //var checkBoxEnabled = new Controls.CheckBox {
-      //  Text = "Enabled"
-      //};
-      //
-      //Controls.Add(checkBoxEnabled);
-      //
-      //new PropertyBinding<bool, bool>(lifetime, myIsEnabled, checkBoxEnabled.Checked, DataFlowDirection.BothWays);
     }
   }
 }

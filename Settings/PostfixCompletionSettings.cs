@@ -1,4 +1,5 @@
 ﻿using JetBrains.Application.Settings;
+using JetBrains.Application.Settings.Store;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 {
@@ -7,5 +8,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
   {
     [SettingsEntry(true, "Foo")]
     public bool IsEnabled;
+
+    //public IIndexedEntry<string, bool> DisabledAction
+
   }
 }

@@ -1,4 +1,5 @@
-﻿using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
+﻿using JetBrains.Application;
+using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
@@ -37,8 +38,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var exprRange = expression.GetDocumentRange().TextRange;
       var replaceRange = referenceExpression.GetDocumentRange().TextRange;
 
-      var solution = referenceExpression.GetSolution();
-      foreach (var provider in solution.GetComponents<IPostfixTemplateProvider>())
+      foreach (var provider in Shell.Instance.GetComponents<IPostfixTemplateProvider>())
       {
         foreach (var lookupItem in provider.CreateItems(
           referenceExpression, expression, qualifierType, canBeStatement))
