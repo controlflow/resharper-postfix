@@ -12,13 +12,13 @@ using JetBrains.Util.Lazy;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 {
   [OptionsPage(PID, "Postfix completion", typeof(ServicesThemedIcons.SurroundTemplate), ParentId = IntelliSensePage.PID)]
-  public sealed class SurroundCompletionOptionsPage : AStackPanelOptionsPage3
+  public sealed class PostfixCompletionOptionsPage : AStackPanelOptionsPage3
   {
     public const string PID = "PostfixCompletion";
 
     //private readonly IProperty<bool> myIsEnabled = new Property<bool>("IsEnabled");
 
-    public SurroundCompletionOptionsPage([NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext smartContext,
+    public PostfixCompletionOptionsPage([NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext smartContext,
       [NotNull] FontsManager fontsManager, [NotNull] Lazy<ISolution> solution)
       : base(lifetime, PID, fontsManager)
     {

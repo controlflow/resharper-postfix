@@ -10,7 +10,7 @@ using JetBrains.ProjectModel;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   [Language(typeof(CSharpLanguage))]
-  public class CSharpSurroundItemProviderSmart : CSharpItemsProviderBase<CSharpCodeCompletionContext>
+  public class CSharpPostfixItemProviderSmart : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
