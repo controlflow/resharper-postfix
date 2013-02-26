@@ -1,0 +1,91 @@
+﻿using System;
+using JetBrains.Annotations;
+using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.TextControl;
+using JetBrains.UI.Icons;
+using JetBrains.UI.RichText;
+using JetBrains.Util;
+
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
+{
+  public class PostfixLookupItem : ILookupItem
+  {
+    [NotNull] private readonly string myShortcut;
+    [NotNull] private readonly string myReplaceTemplate;
+    private TextRange myExpressionRange, myReplaceRange;
+
+    public PostfixLookupItem([NotNull] string shortcut, [NotNull] string replaceTemplate)
+    {
+      myShortcut = shortcut;
+      myReplaceTemplate = replaceTemplate;
+    }
+
+    public void InitializeRanges(TextRange expressionRange, TextRange replaceRange)
+    {
+      myExpressionRange = expressionRange;
+      myReplaceRange = replaceRange;
+    }
+
+    public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
+    {
+      return false;
+    }
+
+    public MatchingResult Match(string prefix, ITextControl textControl)
+    {
+      return LookupUtil.MatchesPrefixSimple(myShortcut, prefix);
+    }
+
+    public void Accept(
+      ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType,
+      Suffix suffix, ISolution solution, bool keepCaretStill)
+    {
+      if (!myReplaceRange.IsValid || !myExpressionRange.IsValid) return;
+
+      var replaceRange = myReplaceRange.Intersects(nameRange)
+        ? new TextRange(myReplaceRange.StartOffset, nameRange.EndOffset)
+        : myReplaceRange;
+
+      var expressionText = textControl.Document.GetText(myExpressionRange);
+      var targetText = myReplaceTemplate.Replace("$EXPR$", expressionText);
+
+      var caretOffset = targetText.IndexOf("$CARET$", StringComparison.Ordinal);
+      if (caretOffset == -1) caretOffset = targetText.Length;
+      else targetText = targetText.Replace("$CARET$", string.Empty);
+
+      textControl.Document.ReplaceText(replaceRange, targetText);
+      
+
+      var range = TextRange.FromLength(replaceRange.StartOffset, targetText.Length);
+      AfterCompletion(textControl, suffix, range, targetText, caretOffset);
+    }
+
+    protected virtual void AfterCompletion(
+      [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
+      TextRange resultRange, [NotNull] string targetText, int caretOffset)
+    {
+      textControl.Caret.MoveTo(
+        resultRange.StartOffset + caretOffset, CaretVisualPlacement.Generic);
+
+      suffix.Playback(textControl);
+    }
+
+    public IconId Image { get { return ServicesThemedIcons.LiveTemplate.Id; } }
+    public RichText DisplayName { get { return myShortcut; } }
+    public RichText DisplayTypeName { get { return null; } }
+
+    public TextRange GetVisualReplaceRange(ITextControl textControl, TextRange nameRange)
+    {
+      return TextRange.InvalidRange;
+    }
+
+    public bool CanShrink { get { return false; } }
+    public bool Shrink() { return false; }
+    public void Unshrink() { }
+
+    public string OrderingString { get { return myShortcut; } }
+    public string Identity { get { return myShortcut; } }
+  }
+}
