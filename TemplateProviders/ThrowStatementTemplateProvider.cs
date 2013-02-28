@@ -6,11 +6,11 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("throw", "Throw expression of Exception type")]
+  [PostfixTemplateProvider("throw", "Throw expression of 'Exception' type")]
   public class ThrowStatementTemplateProvider : IPostfixTemplateProvider
   {
     public IEnumerable<PostfixLookupItem> CreateItems(
-      IReferenceExpression referenceExpression, ICSharpExpression expression, IType expressionType, bool canBeStatement)
+      ICSharpExpression expression, IType expressionType, bool canBeStatement)
     {
       if (canBeStatement && !expressionType.IsUnknown)
       {

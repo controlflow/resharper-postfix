@@ -6,12 +6,15 @@ using JetBrains.ReSharper.Psi.CSharp.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("await", "Awaiting expressions of type Task inside async methods")]
+  [PostfixTemplateProvider("await", "Awaiting expressions of 'Task' type")]
   public class AwaitExpressionTemplateProvider : IPostfixTemplateProvider
   {
     public IEnumerable<PostfixLookupItem> CreateItems(
-      IReferenceExpression referenceExpression, ICSharpExpression expression, IType expressionType, bool canBeStatement)
+      ICSharpExpression expression, IType expressionType, bool canBeStatement)
     {
+      var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+      if (referenceExpression == null) yield break;
+
       var function = referenceExpression.GetContainingNode<ICSharpFunctionDeclaration>();
       if (function == null || !function.IsAsync) yield break;
 

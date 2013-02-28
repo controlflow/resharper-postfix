@@ -8,13 +8,14 @@ using JetBrains.ReSharper.Psi.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("for", "Iterating collections with length")]
+  [PostfixTemplateProvider("for", "Iterating over collections with length")]
   public class ForLoopTemplateProvider : IPostfixTemplateProvider
   {
     public IEnumerable<PostfixLookupItem> CreateItems(
-      IReferenceExpression referenceExpression, ICSharpExpression expression, IType expressionType, bool canBeStatement)
+      ICSharpExpression expression, IType expressionType, bool canBeStatement)
     {
-      if (!canBeStatement || expressionType.IsUnknown || !expression.IsPure()) yield break;
+      if (!canBeStatement || expressionType.IsUnknown) yield break;
+      if (!expression.IsPure()) yield break; // todo: better fix?
 
       string lengthProperty = null;
       if (expressionType is IArrayType) lengthProperty = "Length";

@@ -52,8 +52,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (completionSettings.DisabledProviders.TryGet(providerKey, out isEnabled) && !isEnabled)
           continue; // check disabled providers
 
-        foreach (var lookupItem in provider.CreateItems(
-          referenceExpression, expression, qualifierType, canBeStatement))
+        foreach (var lookupItem in provider.CreateItems(expression, qualifierType, canBeStatement))
         {
           lookupItem.InitializeRanges(exprRange, replaceRange);
           collector.AddAtDefaultPlace(lookupItem);

@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   public class UsingStatementTemplateProvider : IPostfixTemplateProvider
   {
     public IEnumerable<PostfixLookupItem> CreateItems(
-      IReferenceExpression referenceExpression, ICSharpExpression expression, IType expressionType, bool canBeStatement)
+      ICSharpExpression expression, IType expressionType, bool canBeStatement)
     {
       if (!canBeStatement) yield break;
 

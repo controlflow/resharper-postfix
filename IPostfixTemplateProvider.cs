@@ -24,9 +24,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
   public interface IPostfixTemplateProvider
   {
+    // todo: different behavior for auto/basic completion?
     [NotNull] IEnumerable<PostfixLookupItem> CreateItems(
-      [NotNull] IReferenceExpression referenceExpression,
-      [NotNull] ICSharpExpression expression,
-      [NotNull] IType expressionType, bool canBeStatement);
+      [NotNull] ICSharpExpression expression, [NotNull] IType expressionType, bool canBeStatement);
   }
 }

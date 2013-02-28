@@ -9,20 +9,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   public class IntroduceVariableTemplateProvider : IPostfixTemplateProvider
   {
     public IEnumerable<PostfixLookupItem> CreateItems(
-      IReferenceExpression referenceExpression, ICSharpExpression expression, IType expressionType, bool canBeStatement)
+      ICSharpExpression expression, IType expressionType, bool canBeStatement)
     {
-      if (canBeStatement)
-      {
-        var refExpr = expression as IReferenceExpression;
-        if (refExpr != null)
-        {
-          var declaredElement = refExpr.Reference.Resolve().DeclaredElement;
-          if (declaredElement is IParameter || declaredElement is ILocalVariable)
-            yield break;
-        }
+      // todo: relax this restriction
+      if (!canBeStatement) yield break;
 
-        yield return new NameSuggestionPostfixLookupItem("var", "var $NAME$ = $EXPR$", expression);
+      // filter out too simple locals expressions
+      var referenceExpression = expression as IReferenceExpression;
+      if (referenceExpression != null)
+      {
+        var declaredElement = referenceExpression.Reference.Resolve().DeclaredElement;
+        if (declaredElement is IParameter || declaredElement is ILocalVariable)
+          yield break;
       }
+
+      yield return new NameSuggestionPostfixLookupItem("var", "var $NAME$ = $EXPR$", expression);
     }
   }
 }

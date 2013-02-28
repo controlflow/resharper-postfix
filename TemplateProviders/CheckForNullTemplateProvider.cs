@@ -11,63 +11,49 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   public class CheckForNullTemplateProvider : IPostfixTemplateProvider
   {
     public IEnumerable<PostfixLookupItem> CreateItems(
-      IReferenceExpression referenceExpression, ICSharpExpression expression, IType expressionType, bool canBeStatement)
+      ICSharpExpression expression, IType expressionType, bool canBeStatement)
     {
-      if (!canBeStatement ||
-          expressionType.IsUnknown ||
-          expressionType.Classify != TypeClassification.REFERENCE_TYPE) yield break;
+      if (!canBeStatement || expressionType.IsUnknown) yield break;
+
+      var canBeNull = expressionType.IsNullable() ||
+        (expressionType.Classify == TypeClassification.REFERENCE_TYPE);
+      if (!canBeNull) yield break;
 
       IDeclaredElement declaredElement = null;
 
       var qualifier = expression as IReferenceExpression;
-      if (qualifier != null) declaredElement = qualifier.Reference.Resolve().DeclaredElement;
+      if (qualifier != null)
+        declaredElement = qualifier.Reference.Resolve().DeclaredElement;
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
 
-      var functionDeclaration = referenceExpression.GetContainingNode<ICSharpFunctionDeclaration>();
-      if (functionDeclaration != null && declaredElement != null)
+      var declaration = expression.GetContainingNode<ICSharpFunctionDeclaration>();
+      if (declaration != null && declaredElement != null)
       {
-        var re = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-        var graf = CSharpControlFlowBuilder.Build(functionDeclaration);
-        if (graf != null && re != null)
+        var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+        var graph = CSharpControlFlowBuilder.Build(declaration);
+        if (graph != null && referenceExpression != null)
         {
-          var result = graf.Inspect(ValueAnalysisMode.OPTIMISTIC);
+          var result = graph.Inspect(ValueAnalysisMode.OPTIMISTIC);
           if (!result.HasComplexityOverflow)
           {
-            foreach (var element in graf.AllElements)
+            foreach (var element in graph.GetLeafElementsFor(referenceExpression))
             {
-              if (element.SourceElement == re)
-              {
-                state = result.GetVariableStateAt(element, declaredElement);
-                break;
-              }
+              state = result.GetVariableStateAt(element, declaredElement); break;
             }
-
-            //ITreeNode node = expression;
-            //while (node != null)
-            //{
-            //  
-            //
-            //  foreach (var element in graf.GetLeafElementsFor(node))
-            //  {
-            //    
-            //    node = null;
-            //    break;
-            //  }
-            //
-            //  if (node != null) node = node.Parent;
-            //}
           }
-
-          
         }
       }
 
-      if (state == CSharpControlFlowNullReferenceState.UNKNOWN ||
-          state == CSharpControlFlowNullReferenceState.MAY_BE_NULL)
+      switch (state)
       {
-        yield return new PostfixLookupItem("notnull", "if ($EXPR$ != null) $CARET$");
-        yield return new PostfixLookupItem("null", "if ($EXPR$ == null) $CARET$");
+        case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
+        case CSharpControlFlowNullReferenceState.UNKNOWN:
+        {
+          yield return new PostfixLookupItem("notnull", "if ($EXPR$ != null) $CARET$");
+          yield return new PostfixLookupItem("null", "if ($EXPR$ == null) $CARET$");
+          break;
+        }
       }
     }
   }
