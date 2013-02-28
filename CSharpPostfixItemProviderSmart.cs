@@ -1,4 +1,6 @@
 ﻿using JetBrains.Application;
+using JetBrains.Application.Settings;
+using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -38,8 +40,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var exprRange = expression.GetDocumentRange().TextRange;
       var replaceRange = referenceExpression.GetDocumentRange().TextRange;
 
+      var settingsStore = expression.GetSettingsStore();
+      var completionSettings = settingsStore.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
+      completionSettings.DisabledProviders.SnapshotAndFreeze();
+
       foreach (var provider in Shell.Instance.GetComponents<IPostfixTemplateProvider>())
       {
+        var providerKey = provider.GetType().FullName;
+
+        bool isEnabled;
+        if (completionSettings.DisabledProviders.TryGet(providerKey, out isEnabled) && !isEnabled)
+          continue; // check disabled providers
+
         foreach (var lookupItem in provider.CreateItems(
           referenceExpression, expression, qualifierType, canBeStatement))
         {
@@ -50,5 +62,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       return true;
     }
+
+    // todo: transform?
   }
 }
