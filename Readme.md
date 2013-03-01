@@ -1,6 +1,6 @@
 ﻿Simple ReSharper code completion plugin.
 
-![using](/samples/using.png)
+![using](/img/using.png)
 
 TODO:
 
