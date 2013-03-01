@@ -1,11 +1,10 @@
 ﻿Simple ReSharper code completion plugin.
 
 
+TODO:
 
-.not
-.check?
+.check
 .yield
-.return
-.field?
+.field
 .switch
 .format
