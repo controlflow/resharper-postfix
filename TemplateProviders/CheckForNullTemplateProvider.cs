@@ -37,7 +37,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           var result = graph.Inspect(ValueAnalysisMode.OPTIMISTIC);
           if (!result.HasComplexityOverflow)
           {
-            foreach (var element in graph.GetLeafElementsFor(referenceExpression))
+            //foreach (var element in graph.GetLeafElementsFor(referenceExpression))
+            foreach (var element in graph.AllElements)
+            if (element.SourceElement == referenceExpression)
             {
               state = result.GetVariableStateAt(element, declaredElement); break;
             }
