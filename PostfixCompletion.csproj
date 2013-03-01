@@ -58,6 +58,7 @@
     <Compile Include="TemplateProviders\IfStatementTemplateProvider.cs" />
     <Compile Include="IPostfixTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceVariableTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\UsingStatementTemplateProvider.cs" />
@@ -66,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Samples\" />
   </ItemGroup>
   <PropertyGroup>
     <ReSharperSdkTargets Condition=" '$(ReSharperSdkTargets)' == '' ">$(MSBuildExtensionsPath)\JetBrains\ReSharper.SDK\v7.1</ReSharperSdkTargets>
