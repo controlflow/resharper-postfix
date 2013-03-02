@@ -67,7 +67,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       TextRange resultRange, [NotNull] string targetText, int caretOffset)
     {
       textControl.Caret.MoveTo(
-        resultRange.StartOffset + caretOffset, CaretVisualPlacement.Generic);
+        resultRange.StartOffset + caretOffset, CaretVisualPlacement.DontScrollIfVisible);
 
       suffix.Playback(textControl);
     }

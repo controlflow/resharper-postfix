@@ -65,9 +65,6 @@
     <Compile Include="TemplateProviders\WhileNotLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="ReadMe.txt" />
-  </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
     <ReSharperSdkTargets Condition=" '$(ReSharperSdkTargets)' == '' ">$(MSBuildExtensionsPath)\JetBrains\ReSharper.SDK\v7.1</ReSharperSdkTargets>
