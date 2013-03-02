@@ -59,7 +59,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
           bool isEnabled;
           isEnabled = !disabledProviders.TryGet(providerKey, out isEnabled) || isEnabled;
 
-          var item = new ListViewItem(new[] {attribute.TemplateName, attribute.Description});
+          var item = new ListViewItem(new[]
+          {
+            string.Join("/", attribute.TemplateNames),
+            attribute.Description
+          });
+
           item.Checked = isEnabled;
           item.Tag = providerKey;
 

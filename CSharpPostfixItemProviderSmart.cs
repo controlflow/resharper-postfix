@@ -1,20 +1,22 @@
-﻿using JetBrains.Application;
-using JetBrains.Application.Settings;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
+﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ProjectModel;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   [Language(typeof(CSharpLanguage))]
   public class CSharpPostfixItemProviderSmart : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {
+    [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
+
+    public CSharpPostfixItemProviderSmart([NotNull] PostfixTemplatesManager templatesManager)
+    {
+      myTemplatesManager = templatesManager;
+    }
+
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
       var completionType = context.BasicContext.CodeCompletionType;
@@ -26,42 +28,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     {
       var node = context.NodeInFile;
       if (node == null) return false;
-      if (!(node is ICSharpIdentifier) && !(node is ITokenNode)) return false;
 
-      var referenceExpression = node.Parent as IReferenceExpression;
-      if (referenceExpression == null) return false;
+      // todo: pass code completion type for template context
+      var items = myTemplatesManager.GetAvailableItems(node);
+      foreach (var lookupItem in items)
+        collector.AddAtDefaultPlace(lookupItem);
 
-      var expression = referenceExpression.QualifierExpression;
-      if (expression == null) return false;
-
-      var canBeStatement = (ExpressionStatementNavigator.GetByExpression(referenceExpression) != null);
-      var qualifierType = expression.Type();
-
-      var exprRange = expression.GetDocumentRange().TextRange;
-      var replaceRange = referenceExpression.GetDocumentRange().TextRange;
-
-      var settingsStore = expression.GetSettingsStore();
-      var completionSettings = settingsStore.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
-      completionSettings.DisabledProviders.SnapshotAndFreeze();
-
-      foreach (var provider in Shell.Instance.GetComponents<IPostfixTemplateProvider>())
-      {
-        var providerKey = provider.GetType().FullName;
-
-        bool isEnabled;
-        if (completionSettings.DisabledProviders.TryGet(providerKey, out isEnabled) && !isEnabled)
-          continue; // check disabled providers
-
-        foreach (var lookupItem in provider.CreateItems(expression, qualifierType, canBeStatement))
-        {
-          lookupItem.InitializeRanges(exprRange, replaceRange);
-          collector.AddAtDefaultPlace(lookupItem);
-        }
-      }
-
-      return true;
+      return items.Count > 0;
     }
 
     // todo: transform?
+    // todo: can items be hidden by .ForEach and friends?
   }
 }

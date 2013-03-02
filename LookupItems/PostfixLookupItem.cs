@@ -56,7 +56,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       else targetText = targetText.Replace("$CARET$", string.Empty);
 
       textControl.Document.ReplaceText(replaceRange, targetText);
-      
 
       var range = TextRange.FromLength(replaceRange.StartOffset, targetText.Length);
       AfterCompletion(textControl, suffix, range, targetText, caretOffset);
@@ -73,6 +72,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     }
 
     public IconId Image { get { return ServicesThemedIcons.LiveTemplate.Id; } }
+
     public RichText DisplayName { get { return myShortcut; } }
     public RichText DisplayTypeName { get { return null; } }
 

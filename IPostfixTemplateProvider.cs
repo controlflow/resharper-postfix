@@ -12,12 +12,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   [BaseTypeRequired(typeof(IPostfixTemplateProvider))]
   public sealed class PostfixTemplateProviderAttribute : ShellComponentAttribute
   {
-    [NotNull] public string TemplateName { get; private set; }
+    [NotNull] public string[] TemplateNames { get; private set; }
     [NotNull] public string Description { get; private set; }
 
     public PostfixTemplateProviderAttribute([NotNull] string templateName, [NotNull] string description)
     {
-      TemplateName = templateName;
+      TemplateNames = new[] {templateName};
+      Description = description;
+    }
+
+    public PostfixTemplateProviderAttribute([NotNull] string[] templateNames, [NotNull] string description)
+    {
+      TemplateNames = templateNames;
       Description = description;
     }
   }
@@ -25,6 +31,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   public interface IPostfixTemplateProvider
   {
     // todo: different behavior for auto/basic completion?
+    // todo: extract parameters to 'PostfixTemplateAcceptanceContext'
+
     [NotNull] IEnumerable<PostfixLookupItem> CreateItems(
       [NotNull] ICSharpExpression expression, [NotNull] IType expressionType, bool canBeStatement);
   }

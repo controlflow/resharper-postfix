@@ -9,3 +9,10 @@ TODO:
 .field
 .switch
 .format
+
+collections:
+.ifempty/empty
+.ifsingle/single
+.ifnonempty
+
+??

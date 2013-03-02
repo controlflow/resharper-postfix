@@ -11,10 +11,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider("using", "Wrap resource with using statement")]
   public class UsingStatementTemplateProvider : IPostfixTemplateProvider
   {
+    // todo: available here: var alreadyHasVar = smth.using
+
     public IEnumerable<PostfixLookupItem> CreateItems(
       ICSharpExpression expression, IType expressionType, bool canBeStatement)
     {
-      if (!canBeStatement) yield break;
+      if (!canBeStatement) yield break; // check declaration
 
       var predefined = expression.GetPsiModule().GetPredefinedType();
       var rule = expression.GetTypeConversionRule();
