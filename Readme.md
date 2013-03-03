@@ -7,9 +7,11 @@ The idea is to prevent caret jumps backwards while typing C# code.
 Iterting over all kinds of collections, reverese iteration:
 
 ![foreach](/img/foreach.png)
+
 Wrapping up boolean expressions with *if-statement*:
 
 ![if/ifnot](/img/if.png)
+
 Checking nullable expressions for *null*:
 
 ![null/notnull](/img/notnull.png)
