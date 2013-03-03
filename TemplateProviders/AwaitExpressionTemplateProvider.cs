@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
+using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
@@ -9,10 +10,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider("await", "Awaiting expressions of 'Task' type")]
   public class AwaitExpressionTemplateProvider : IPostfixTemplateProvider
   {
-    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
+    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var function = context.ContainingFunction;
-      if (function == null) yield break;
+      if (function == null) return;
 
       if (context.LooseChecks || function.IsAsync)
       if (context.ExpressionType.IsTask() || context.ExpressionType.IsGenericTask())
@@ -21,7 +22,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var awaitExpression = AwaitExpressionNavigator.GetByTask(
           context.ReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
         if (awaitExpression == null)
-          yield return new PostfixLookupItem("await", "await $EXPR$");
+          consumer.Add(new PostfixLookupItem(context, "await", "await $EXPR$"));
       }
     }
   }

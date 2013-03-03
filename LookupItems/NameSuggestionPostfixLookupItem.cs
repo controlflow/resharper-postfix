@@ -25,9 +25,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     private const string NamePlaceholder = "$NAME$";
 
     public NameSuggestionPostfixLookupItem(
-      [NotNull] string shortcut, [NotNull] string replaceTemplate, [NotNull] ICSharpExpression expression,
+      [NotNull] PostfixTemplateAcceptanceContext context, [NotNull] string shortcut,
+      [NotNull] string replaceTemplate, [NotNull] ICSharpExpression expression,
       PluralityKinds pluralityKinds = PluralityKinds.Single, ScopeKind scopeKind = ScopeKind.Common)
-      : base(shortcut, replaceTemplate)
+      : base(context, shortcut, replaceTemplate)
     {
       mySolution = expression.GetSolution();
       myNames = SuggestNamesFromExpression(expression, pluralityKinds, scopeKind);

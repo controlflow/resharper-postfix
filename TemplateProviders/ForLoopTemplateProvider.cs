@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
+using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Naming.Impl;
@@ -11,10 +12,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider("for", "Iterating over collections with length")]
   public class ForLoopTemplateProvider : IPostfixTemplateProvider
   {
-    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
+    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      if (!context.CanBeStatement || context.ExpressionType.IsUnknown) yield break;
-      if (!context.Expression.IsPure()) yield break; // todo: better fix?
+      if (!context.CanBeStatement || context.ExpressionType.IsUnknown) return;
+      if (!context.Expression.IsPure()) return; // todo: better fix?
 
       string lengthProperty = null;
       if (context.ExpressionType is IArrayType) lengthProperty = "Length";
@@ -26,15 +27,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           lengthProperty = "Count";
       }
 
-      if (lengthProperty != null)
-      {
-        var forTemplate = string.Format("for (var $NAME$ = 0; $NAME$ < $EXPR$.{0}; $NAME$++) $CARET$", lengthProperty);
-        var forrTemplate = string.Format("for (var $NAME$ = $EXPR$.{0}; $NAME$ >= 0; $NAME$--) $CARET$", lengthProperty);
-        yield return new NameSuggestionPostfixLookupItem(
-          "for", forTemplate, context.Expression, PluralityKinds.Plural, ScopeKind.LocalSelfScoped);
-        yield return new NameSuggestionPostfixLookupItem(
-          "forr", forrTemplate, context.Expression, PluralityKinds.Plural, ScopeKind.LocalSelfScoped);
-      }
+      if (lengthProperty == null) return;
+
+      var forTemplate = string.Format("for (var $NAME$ = 0; $NAME$ < $EXPR$.{0}; $NAME$++) ", lengthProperty);
+      var forrTemplate = string.Format("for (var $NAME$ = $EXPR$.{0}; $NAME$ >= 0; $NAME$--) ", lengthProperty);
+      consumer.Add(new NameSuggestionPostfixLookupItem(
+                     context, "for", forTemplate, context.Expression,
+                     PluralityKinds.Plural, ScopeKind.LocalSelfScoped));
+      consumer.Add(new NameSuggestionPostfixLookupItem(
+                     context, "forr", forrTemplate, context.Expression,
+                     PluralityKinds.Plural, ScopeKind.LocalSelfScoped));
     }
   }
 }

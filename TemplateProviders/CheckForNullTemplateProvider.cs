@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
+using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ControlFlow;
@@ -10,20 +11,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider(new[] { "null", "notnull" }, "Checks expressions for nulls")]
   public class CheckForNullTemplateProvider : IPostfixTemplateProvider
   {
-    // todo: loose!
-
-    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
+    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       if (context.ExpressionType.IsUnknown)
       {
-        if (!context.LooseChecks) yield break;
+        if (!context.LooseChecks) return;
       }
       else
       {
         var canBeNull = context.ExpressionType.IsNullable() ||
           (context.ExpressionType.Classify == TypeClassification.REFERENCE_TYPE);
 
-        if (!canBeNull) yield break;
+        if (!canBeNull) return;
       }
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
@@ -63,13 +62,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         {
           if (context.CanBeStatement)
           {
-            yield return new PostfixLookupItem("notnull", "if ($EXPR$ != null) ");
-            yield return new PostfixLookupItem("null", "if ($EXPR$ == null) ");
+            consumer.Add(new PostfixLookupItem(context, "notnull", "if ($EXPR$ != null) "));
+            consumer.Add(new PostfixLookupItem(context, "null", "if ($EXPR$ == null) "));
           }
           else
           {
-            yield return new PostfixLookupItem("notnull", "$EXPR$ != null");
-            yield return new PostfixLookupItem("null", "$EXPR$ == null");
+            consumer.Add(new PostfixLookupItem(context, "notnull", "$EXPR$ != null"));
+            consumer.Add(new PostfixLookupItem(context, "null", "$EXPR$ == null"));
           }
 
           break;

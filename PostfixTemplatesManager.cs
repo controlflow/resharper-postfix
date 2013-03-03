@@ -5,6 +5,7 @@ using JetBrains.Application;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
+using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -25,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull]
-    public IList<PostfixLookupItem> GetAvailableItems(
+    public IList<ILookupItem> GetAvailableItems(
       [NotNull] ITreeNode node, bool looseChecks, string templateName = null)
     {
       if (node is ICSharpIdentifier || node is ITokenNode)
@@ -97,11 +98,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         }
       }
 
-      return EmptyList<PostfixLookupItem>.InstanceList;
+      return EmptyList<ILookupItem>.InstanceList;
     }
 
     [NotNull]
-    private IList<PostfixLookupItem> CollectAvailableTemplates(
+    private IList<ILookupItem> CollectAvailableTemplates(
       [NotNull] IReferenceExpression referenceExpression, [NotNull] ICSharpExpression expression,
       TextRange replaceRange, bool canBeStatement, bool looseChecks, [CanBeNull] string templateName)
     {
@@ -109,13 +110,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var exprRange = expression.GetDocumentRange().TextRange;
 
       var acceptanceContext = new PostfixTemplateAcceptanceContext(
-        referenceExpression, expression, qualifierType, canBeStatement, looseChecks);
+        referenceExpression, expression, qualifierType,
+        replaceRange, exprRange, canBeStatement, looseChecks);
 
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var items = new LocalList<PostfixLookupItem>();
+      var items = new List<ILookupItem>();
+
       foreach (var provider in myTemplateProviders)
       {
         var providerType = provider.GetType();
@@ -137,17 +140,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             continue;
         }
 
-        foreach (var lookupItem in provider.CreateItems(acceptanceContext))
-        {
-          // todo: kill this shit
-          lookupItem.InitializeRanges(exprRange, replaceRange);
-
-          if (templateName == null || lookupItem.Identity == templateName)
-            items.Add(lookupItem);
-        }
+        provider.CreateItems(acceptanceContext, items);
       }
 
-      return items.ResultingList();
+      if (templateName != null)
+        items.RemoveAll(x => x.Identity != templateName);
+
+      return items;
     }
   }
 }

@@ -16,16 +16,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] private readonly string myReplaceTemplate;
     private TextRange myExpressionRange, myReplaceRange;
 
-    public PostfixLookupItem([NotNull] string shortcut, [NotNull] string replaceTemplate)
+    public PostfixLookupItem(
+      [NotNull] PostfixTemplateAcceptanceContext context,
+      [NotNull] string shortcut, [NotNull] string replaceTemplate)
     {
       myShortcut = shortcut;
       myReplaceTemplate = replaceTemplate;
-    }
-
-    public void InitializeRanges(TextRange expressionRange, TextRange replaceRange)
-    {
-      myExpressionRange = expressionRange;
-      myReplaceRange = replaceRange;
+      myReplaceRange = context.ReplaceRange;
+      myExpressionRange = context.ExpressionRange;
     }
 
     public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)

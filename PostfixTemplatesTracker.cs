@@ -4,7 +4,6 @@ using JetBrains.Application.CommandProcessing;
 using JetBrains.Application.DataContext;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
@@ -103,7 +102,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
 
       [CanBeNull]
-      private PostfixLookupItem GetTemplateFromTextControl(
+      private ILookupItem GetTemplateFromTextControl(
         [NotNull] ITextControl textControl, [NotNull] ISolution solution)
       {
         solution.GetPsiServices().PsiManager.CommitAllDocuments();
