@@ -128,8 +128,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         foreach (var lookupItem in provider.CreateItems(acceptanceContext))
         {
+          // todo: kill this shit
           lookupItem.InitializeRanges(exprRange, replaceRange);
-          items.Add(lookupItem);
+
+          if (templateName == null || lookupItem.Identity == templateName)
+            items.Add(lookupItem);
         }
       }
 
