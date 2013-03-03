@@ -1,8 +1,19 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
+using JetBrains.Application;
+using JetBrains.Application.DataContext;
+using JetBrains.DataFlow;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Refactorings.IntroduceVariable;
+using JetBrains.ReSharper.Refactorings.WorkflowNew;
+using JetBrains.TextControl;
+using JetBrains.TextControl.Coords;
+using JetBrains.Util;
+using DataConstants = JetBrains.DocumentModel.DataContext.DataConstants;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -11,20 +22,49 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      // todo: relax this restriction
-      if (!context.CanBeStatement) return;
-
-      // filter out too simple locals expressions
       var referenceExpression = context.Expression as IReferenceExpression;
       if (referenceExpression != null)
       {
+        // filter out too simple locals expressions
         var declaredElement = referenceExpression.Reference.Resolve().DeclaredElement;
         if (declaredElement is IParameter || declaredElement is ILocalVariable)
           return;
       }
 
-      consumer.Add(new NameSuggestionPostfixLookupItem(
-        context, "var", "var $NAME$ = $EXPR$", context.Expression));
+      if (context.CanBeStatement)
+      {
+        consumer.Add(new NameSuggestionPostfixLookupItem(
+          context, "var", "var $NAME$ = $EXPR$", context.Expression));
+      }
+      else if (context.LooseChecks)
+      {
+        consumer.Add(new IntroduceVariableLookupItem(context));
+      }
+    }
+
+    private class IntroduceVariableLookupItem : ProcessExpressionPostfixLookupItem
+    {
+      public IntroduceVariableLookupItem([NotNull] PostfixTemplateAcceptanceContext context)
+        : base(context, "var") { }
+
+      protected override void AcceptExpression(
+        ITextControl textControl, ISolution solution, TextRange resultRange, ICSharpExpression expression)
+      {
+        // set selection for introduce viriable
+        textControl.Selection.SetRanges(new[] { TextControlPosRange.FromDocRange(textControl, resultRange) });
+
+        const string name = "IntroVariableAction";
+        var rules = DataRules
+          .AddRule(name, ProjectModel.DataContext.DataConstants.SOLUTION, solution)
+          .AddRule(name, DataConstants.DOCUMENT, textControl.Document)
+          .AddRule(name, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl)
+          .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, expression);
+
+        Lifetimes.Using(lifetime =>
+          WorkflowExecuter.ExecuteBatch(
+            Shell.Instance.GetComponent<DataContexts>().CreateWithDataRules(lifetime, rules),
+            new IntroduceVariableWorkflow(solution, null)));
+      }
     }
   }
 }
