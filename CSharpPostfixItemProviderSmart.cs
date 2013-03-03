@@ -29,12 +29,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var node = context.NodeInFile;
       if (node == null) return false;
 
-      // todo: pass code completion type for template context
-      var items = myTemplatesManager.GetAvailableItems(node);
+      var looseChecks = (context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion);
+
+      var items = myTemplatesManager.GetAvailableItems(node, looseChecks);
       foreach (var lookupItem in items)
         collector.AddAtDefaultPlace(lookupItem);
 
-      return items.Count > 0;
+      return (items.Count > 0);
     }
 
     // todo: transform?

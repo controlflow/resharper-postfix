@@ -2,22 +2,27 @@
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider("throw", "Throw expression of 'Exception' type")]
   public class ThrowStatementTemplateProvider : IPostfixTemplateProvider
   {
-    public IEnumerable<PostfixLookupItem> CreateItems(
-      ICSharpExpression expression, IType expressionType, bool canBeStatement)
+    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
     {
-      if (canBeStatement && !expressionType.IsUnknown)
+      if (context.CanBeStatement)
       {
-        var conversionRule = expression.GetTypeConversionRule();
-        var predefinedType = expression.GetPsiModule().GetPredefinedType();
-        if (conversionRule.IsImplicitlyConvertibleTo(expressionType, predefinedType.Exception))
-          yield return new PostfixLookupItem("throw", "throw $EXPR$");
+        if (!context.LooseChecks)
+        {
+          if (context.ExpressionType.IsUnknown) yield break;
+
+          var rule = context.Expression.GetTypeConversionRule();
+          var predefinedType = context.Expression.GetPsiModule().GetPredefinedType();
+          if (!rule.IsImplicitlyConvertibleTo(context.ExpressionType, predefinedType.Exception))
+            yield break;
+        }
+
+        yield return new PostfixLookupItem("throw", "throw $EXPR$");
       }
     }
   }

@@ -10,22 +10,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider("not", "Negates boolean expression")]
   public class NotExpressionTemplateProvider : IPostfixTemplateProvider
   {
-    public IEnumerable<PostfixLookupItem> CreateItems(
-      ICSharpExpression expression, IType expressionType, bool canBeStatement)
+    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
     {
-      if (canBeStatement && expressionType.IsBool())
+      if (context.CanBeStatement)
       {
-        var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-        if (referenceExpression != null)
+        if (!context.LooseChecks)
         {
-          // do not show if expression is already negated
-          var unary = UnaryOperatorExpressionNavigator.GetByOperand(
-            referenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
-          if (unary != null && unary.OperatorSign.GetTokenType() != CSharpTokenType.EXCL)
+          if (context.ExpressionType.IsBool())
             yield break;
 
-          yield return new PostfixLookupItem("not", "!$EXPR$");
+          // do not show if expression is already negated
+          var unary = UnaryOperatorExpressionNavigator.GetByOperand(
+            context.ReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
+          if (unary != null && unary.OperatorSign.GetTokenType() != CSharpTokenType.EXCL)
+            yield break;
         }
+
+        yield return new PostfixLookupItem("not", "!$EXPR$");
       }
     }
   }

@@ -11,19 +11,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider("for", "Iterating over collections with length")]
   public class ForLoopTemplateProvider : IPostfixTemplateProvider
   {
-    public IEnumerable<PostfixLookupItem> CreateItems(
-      ICSharpExpression expression, IType expressionType, bool canBeStatement)
+    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
     {
-      if (!canBeStatement || expressionType.IsUnknown) yield break;
-      if (!expression.IsPure()) yield break; // todo: better fix?
+      if (!context.CanBeStatement || context.ExpressionType.IsUnknown) yield break;
+      if (!context.Expression.IsPure()) yield break; // todo: better fix?
 
       string lengthProperty = null;
-      if (expressionType is IArrayType) lengthProperty = "Length";
+      if (context.ExpressionType is IArrayType) lengthProperty = "Length";
       else
       {
-        var predefined = expression.GetPsiModule().GetPredefinedType();
-        var rule = expression.GetTypeConversionRule();
-        if (rule.IsImplicitlyConvertibleTo(expressionType, predefined.GenericICollection))
+        var predefined = context.Expression.GetPsiModule().GetPredefinedType();
+        var rule = context.Expression.GetTypeConversionRule();
+        if (rule.IsImplicitlyConvertibleTo(context.ExpressionType, predefined.GenericICollection))
           lengthProperty = "Count";
       }
 
@@ -32,9 +31,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var forTemplate = string.Format("for (var $NAME$ = 0; $NAME$ < $EXPR$.{0}; $NAME$++) $CARET$", lengthProperty);
         var forrTemplate = string.Format("for (var $NAME$ = $EXPR$.{0}; $NAME$ >= 0; $NAME$--) $CARET$", lengthProperty);
         yield return new NameSuggestionPostfixLookupItem(
-          "for", forTemplate, expression, PluralityKinds.Plural, ScopeKind.LocalSelfScoped);
+          "for", forTemplate, context.Expression, PluralityKinds.Plural, ScopeKind.LocalSelfScoped);
         yield return new NameSuggestionPostfixLookupItem(
-          "forr", forrTemplate, expression, PluralityKinds.Plural, ScopeKind.LocalSelfScoped);
+          "forr", forrTemplate, context.Expression, PluralityKinds.Plural, ScopeKind.LocalSelfScoped);
       }
     }
   }

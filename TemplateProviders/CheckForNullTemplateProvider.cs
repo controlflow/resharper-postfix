@@ -11,34 +11,35 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   public class CheckForNullTemplateProvider : IPostfixTemplateProvider
   {
     // todo: not only statements
+    // todo: loose!
 
-    public IEnumerable<PostfixLookupItem> CreateItems(
-      ICSharpExpression expression, IType expressionType, bool canBeStatement)
+    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
     {
-      if (!canBeStatement || expressionType.IsUnknown) yield break;
+      if (!context.CanBeStatement || context.ExpressionType.IsUnknown) yield break;
 
-      var canBeNull = expressionType.IsNullable() ||
-        (expressionType.Classify == TypeClassification.REFERENCE_TYPE);
+      var canBeNull = context.ExpressionType.IsNullable() ||
+        (context.ExpressionType.Classify == TypeClassification.REFERENCE_TYPE);
       if (!canBeNull) yield break;
 
       IDeclaredElement declaredElement = null;
 
-      var qualifier = expression as IReferenceExpression;
+      var qualifier = context.Expression as IReferenceExpression;
       if (qualifier != null)
         declaredElement = qualifier.Reference.Resolve().DeclaredElement;
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
 
-      var declaration = expression.GetContainingNode<ICSharpFunctionDeclaration>();
+      var declaration = context.ContainingFunction;
       if (declaration != null && declaredElement != null)
       {
-        var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
         var graph = CSharpControlFlowBuilder.Build(declaration);
-        if (graph != null && referenceExpression != null)
+        if (graph != null)
         {
           var result = graph.Inspect(ValueAnalysisMode.OPTIMISTIC);
           if (!result.HasComplexityOverflow)
           {
+            var referenceExpression = context.ReferenceExpression;
+
             //foreach (var element in graph.GetLeafElementsFor(referenceExpression))
             foreach (var element in graph.AllElements)
             if (element.SourceElement == referenceExpression)

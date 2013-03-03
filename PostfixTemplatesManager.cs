@@ -25,7 +25,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull]
-    public IList<PostfixLookupItem> GetAvailableItems([NotNull] ITreeNode node, string templateName = null)
+    public IList<PostfixLookupItem> GetAvailableItems(
+      [NotNull] ITreeNode node, bool looseChecks, string templateName = null)
     {
       if (node is ICSharpIdentifier || node is ITokenNode)
       {
@@ -37,7 +38,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           {
             var replaceRange = referenceExpression.GetDocumentRange().TextRange;
             var canBeStatement = (ExpressionStatementNavigator.GetByExpression(referenceExpression) != null);
-            return CollectAvailableTemplates(expression, replaceRange, canBeStatement, templateName);
+
+            return CollectAvailableTemplates(
+              referenceExpression, expression, replaceRange,
+              canBeStatement, looseChecks, templateName);
           }
         }
 
@@ -46,60 +50,37 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         // todo: prettify this shit
 
         var statement = node.Parent as ICSharpStatement;
-        if (statement != null && node.NextSibling is IErrorElement)
+        if (statement != null && statement.FirstChild == node && node.NextSibling is IErrorElement)
         {
           var expressionStatement = statement.PrevSibling as IExpressionStatement;
           if (expressionStatement != null)
           {
-            bool canBeStatement = true;
-            ICSharpExpression expr = null;
-
-            ITreeNode node1 = expressionStatement;
-            while (true)
+            ICSharpExpression expression = null;
+            for (ITreeNode treeNode = expressionStatement, last; expression == null; treeNode = last)
             {
-              var last = node1.LastChild;
+              last = treeNode.LastChild; // inspect all the last nodes traversing up tree
               if (last == null) break;
 
-              var re = last.Parent as IReferenceExpression;
-              if (re != null)
+              if (last is IErrorElement && last.Parent is IReferenceExpression)
               {
                 var prev = last.PrevSibling as ITokenNode;
-                if (last is IErrorElement && prev != null && prev.GetTokenType() == CSharpTokenType.DOT)
-                {
-                  var expre = prev.PrevSibling as ICSharpExpression;
-                  if (expre != null)
-                  {
-                    expr = expre;
-
-
-                    if (re != expressionStatement.Expression)
-                    {
-                      canBeStatement = false;
-                    }
-
-                    // FML!!!!!
-                    break;
-                  }
-                }
+                if (prev != null && prev.GetTokenType() == CSharpTokenType.DOT)
+                  expression = prev.PrevSibling as ICSharpExpression;
               }
 
-              while (last is IErrorElement)
-                last = last.PrevSibling;
-
+              // skip "expression statement is not closed with ';'" and friends
+              while (last is IErrorElement) last = last.PrevSibling;
               if (last == null) break;
-              node1 = last;
             }
 
-            //var expression = expr as IReferenceExpression;
-            //var canBe = (expression != null && expression.LastChild is IErrorElement);
-
-            if (expr != null)
+            var re = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+            if (expression != null && re != null)
             {
-              var replaceRange =
-                expr.GetDocumentRange().TextRange.SetEndTo(
-                node.GetDocumentRange().TextRange.EndOffset);
+              var canBeStatement = (expression.Parent == expressionStatement.Expression);
+              var replaceRange = expression.GetDocumentRange().TextRange.SetEndTo(
+                                       node.GetDocumentRange().TextRange.EndOffset);
 
-              return CollectAvailableTemplates(expr, replaceRange, canBeStatement, templateName);
+              return CollectAvailableTemplates(re, expression, replaceRange, canBeStatement, looseChecks, templateName);
             }
           }
         }
@@ -110,11 +91,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     [NotNull]
     private IList<PostfixLookupItem> CollectAvailableTemplates(
-      [NotNull] ICSharpExpression expression, TextRange replaceRange,
-      bool canBeStatement, [CanBeNull] string templateName)
+      [NotNull] IReferenceExpression referenceExpression, [NotNull] ICSharpExpression expression,
+      TextRange replaceRange, bool canBeStatement, bool looseChecks, [CanBeNull] string templateName)
     {
       var qualifierType = expression.Type();
       var exprRange = expression.GetDocumentRange().TextRange;
+
+      var acceptanceContext = new PostfixTemplateAcceptanceContext(
+        referenceExpression, expression, qualifierType, canBeStatement, looseChecks);
 
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
@@ -142,7 +126,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             continue;
         }
 
-        foreach (var lookupItem in provider.CreateItems(expression, qualifierType, canBeStatement))
+        foreach (var lookupItem in provider.CreateItems(acceptanceContext))
         {
           lookupItem.InitializeRanges(exprRange, replaceRange);
           items.Add(lookupItem);

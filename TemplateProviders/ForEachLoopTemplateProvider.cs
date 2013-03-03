@@ -10,23 +10,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider("foreach", "Iterating over expressions of collection type")]
   public class ForEachLoopTemplateProvider : IPostfixTemplateProvider
   {
-    public IEnumerable<PostfixLookupItem> CreateItems(
-      ICSharpExpression expression, IType expressionType, bool canBeStatement)
+    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
     {
-      if (!canBeStatement || expressionType.IsUnknown) yield break;
+      if (!context.CanBeStatement || context.ExpressionType.IsUnknown) yield break;
 
       // todo: check for 'foreach pattern'
       // todo: support untyped collections
       // todo: infer type by indexer like F#
 
-      var predefined = expression.GetPsiModule().GetPredefinedType();
+      var predefined = context.Expression.GetPsiModule().GetPredefinedType();
 
-      var rule = expression.GetTypeConversionRule();
-      if (rule.IsImplicitlyConvertibleTo(expressionType, predefined.IEnumerable))
+      var rule = context.Expression.GetTypeConversionRule();
+      if (rule.IsImplicitlyConvertibleTo(context.ExpressionType, predefined.IEnumerable))
       {
         yield return new NameSuggestionPostfixLookupItem(
           "foreach", "foreach (var $NAME$ in $EXPR$) $CARET$",
-          expression, PluralityKinds.Plural, ScopeKind.LocalSelfScoped);
+          context.Expression, PluralityKinds.Plural, ScopeKind.LocalSelfScoped);
       }
     }
   }

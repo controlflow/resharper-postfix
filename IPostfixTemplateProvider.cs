@@ -1,39 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using JetBrains.Application;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]
-  [BaseTypeRequired(typeof(IPostfixTemplateProvider))]
-  public sealed class PostfixTemplateProviderAttribute : ShellComponentAttribute
-  {
-    [NotNull] public string[] TemplateNames { get; private set; }
-    [NotNull] public string Description { get; private set; }
-
-    public PostfixTemplateProviderAttribute([NotNull] string templateName, [NotNull] string description)
-    {
-      TemplateNames = new[] {templateName};
-      Description = description;
-    }
-
-    public PostfixTemplateProviderAttribute([NotNull] string[] templateNames, [NotNull] string description)
-    {
-      TemplateNames = templateNames;
-      Description = description;
-    }
-  }
-
   public interface IPostfixTemplateProvider
   {
     // todo: different behavior for auto/basic completion?
     // todo: extract parameters to 'PostfixTemplateAcceptanceContext'
 
-    [NotNull] IEnumerable<PostfixLookupItem> CreateItems(
-      [NotNull] ICSharpExpression expression, [NotNull] IType expressionType, bool canBeStatement);
+    [NotNull]
+    IEnumerable<PostfixLookupItem> CreateItems([NotNull] PostfixTemplateAcceptanceContext context);
+  }
+
+  public class PostfixTemplateAcceptanceContext
+  {
+    public PostfixTemplateAcceptanceContext(
+      [NotNull] IReferenceExpression referenceExpression, [NotNull] ICSharpExpression expression,
+      [NotNull] IType expressionType, bool canBeStatement, bool looseChecks)
+    {
+      ReferenceExpression = referenceExpression;
+      Expression = expression;
+      ExpressionType = expressionType;
+      CanBeStatement = canBeStatement;
+      LooseChecks = looseChecks;
+    }
+
+    // todo: put expression/replace ranges here?
+    // todo: immutable PostfixLookupItem?
+
+    [NotNull] public IReferenceExpression ReferenceExpression { get; private set; } // "lines.Any().if"
+    [NotNull] public ICSharpExpression Expression { get; private set; } // "lines.Any()"
+    [NotNull] public IType ExpressionType { get; private set; } // boolean
+    public bool CanBeStatement { get; private set; }
+    public bool LooseChecks { get; private set; }
+
+    [CanBeNull]
+    public ICSharpFunctionDeclaration ContainingFunction
+    {
+      get { return Expression.GetContainingNode<ICSharpFunctionDeclaration>(); }
+    }
   }
 }

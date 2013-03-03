@@ -13,23 +13,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     // todo: available here: var alreadyHasVar = smth.using
 
-    public IEnumerable<PostfixLookupItem> CreateItems(
-      ICSharpExpression expression, IType expressionType, bool canBeStatement)
+    public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
     {
-      if (!canBeStatement) yield break; // check declaration
+      if (!context.CanBeStatement) yield break; // check declaration
 
-      var predefined = expression.GetPsiModule().GetPredefinedType();
-      var rule = expression.GetTypeConversionRule();
-      if (!rule.IsImplicitlyConvertibleTo(expressionType, predefined.IDisposable))
+      var predefined = context.Expression.GetPsiModule().GetPredefinedType();
+      var rule = context.Expression.GetTypeConversionRule();
+      if (!rule.IsImplicitlyConvertibleTo(context.ExpressionType, predefined.IDisposable))
         yield break;
 
       // check expression is local variable reference
       ILocalVariable usingVar = null;
-      var expr = expression as IReferenceExpression;
+      var expr = context.Expression as IReferenceExpression;
       if (expr != null && expr.QualifierExpression == null)
         usingVar = expr.Reference.Resolve().DeclaredElement as ILocalVariable;
 
-      ITreeNode node = expression;
+      ITreeNode node = context.Expression;
       while (true) // inspect containing using statements
       {
         var usingStatement = node.GetContainingNode<IUsingStatement>();
@@ -45,14 +44,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         // check expression is already in using statement expression
         if (declaration == null)
           foreach (var e in usingStatement.ExpressionsEnumerable)
-            if (MiscUtil.AreExpressionsEquivalent(e, expression))
+            if (MiscUtil.AreExpressionsEquivalent(e, context.Expression))
               yield break;
 
         node = usingStatement;
       }
 
       yield return new NameSuggestionPostfixLookupItem(
-        "using", "using (var $NAME$ = $EXPR$) $CARET$", expression);
+        "using", "using (var $NAME$ = $EXPR$) $CARET$", context.Expression);
     }
   }
 }
