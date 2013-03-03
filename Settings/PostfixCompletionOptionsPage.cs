@@ -1,6 +1,5 @@
 ﻿using System.Windows.Forms;
 using JetBrains.Annotations;
-using JetBrains.Application;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Features.Intellisense.Options;
@@ -20,7 +19,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
     [NotNull] private readonly OptionsSettingsSmartContext myStore;
 
     public PostfixCompletionOptionsPage([NotNull] Lifetime lifetime,
-      [NotNull] OptionsSettingsSmartContext store, [NotNull] FontsManager fontsManager, [NotNull] Shell shell)
+      [NotNull] OptionsSettingsSmartContext store, [NotNull] FontsManager fontsManager,
+      [NotNull] PostfixTemplatesManager templatesManager)
       : base(lifetime, PID, fontsManager)
     {
       myStore = store;
@@ -45,31 +45,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       listView.Columns.Add("Description").Width = 350;
       listView.ItemChecked += OnItemChecked;
 
-      foreach (var provider in shell.GetComponents<IPostfixTemplateProvider>())
+      foreach (var info in templatesManager.TemplateProvidersInfos)
       {
-        var providerType = provider.GetType();
-        var attributes = (PostfixTemplateProviderAttribute[])
-          providerType.GetCustomAttributes(typeof(PostfixTemplateProviderAttribute), false);
+        bool isEnabled;
+        isEnabled = !disabledProviders.TryGet(info.SettingsKey, out isEnabled) || isEnabled;
 
-        if (attributes.Length == 1)
-        {
-          var attribute = attributes[0];
-          var providerKey = providerType.FullName;
+        var items = new[] {string.Join("/", info.Metadata.TemplateNames), info.Metadata.Description};
+        var item = new ListViewItem(items) { Checked = isEnabled, Tag = info.SettingsKey };
 
-          bool isEnabled;
-          isEnabled = !disabledProviders.TryGet(providerKey, out isEnabled) || isEnabled;
-
-          var item = new ListViewItem(new[]
-          {
-            string.Join("/", attribute.TemplateNames),
-            attribute.Description
-          });
-
-          item.Checked = isEnabled;
-          item.Tag = providerKey;
-
-          listView.Items.Add(item);
-        }
+        listView.Items.Add(item);
       }
 
       Controls.Add(listView);

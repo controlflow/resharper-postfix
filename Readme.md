@@ -4,7 +4,7 @@ The idea is to prevent caret jumps backwards while typing C# code.
 
 ## Available templates
 
-Iterting over all kinds of collections, reverese iteration:
+Iterting over all kinds of collections, reverse iteration:
 
 ![foreach](/img/foreach.png)
 

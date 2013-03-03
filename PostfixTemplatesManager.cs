@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
@@ -17,13 +16,45 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   [ShellComponent]
   public class PostfixTemplatesManager
   {
-    [NotNull] private readonly IEnumerable<IPostfixTemplateProvider> myTemplateProviders;
+    [NotNull]
+    private readonly IList<TemplateProviderInfo> myTemplateProvidersInfos;
 
-    public PostfixTemplatesManager(
-      [NotNull] IEnumerable<IPostfixTemplateProvider> templateProviders)
+    public PostfixTemplatesManager([NotNull] IEnumerable<IPostfixTemplateProvider> providers)
     {
-      myTemplateProviders = templateProviders;
-      // todo: cache metadata
+      var infos = new List<TemplateProviderInfo>();
+      foreach (var provider in providers)
+      {
+        var providerType = provider.GetType();
+        var attributes = (PostfixTemplateProviderAttribute[])
+          providerType.GetCustomAttributes(typeof (PostfixTemplateProviderAttribute), false);
+        if (attributes.Length != 1) continue;
+        var info = new TemplateProviderInfo(provider, providerType.FullName, attributes[0]);
+        infos.Add(info);
+      }
+
+      myTemplateProvidersInfos = infos.AsReadOnly();
+    }
+
+    public sealed class TemplateProviderInfo
+    {
+      [NotNull] public IPostfixTemplateProvider Provider { get; private set; }
+      [NotNull] public string SettingsKey { get; private set; }
+      [NotNull] public PostfixTemplateProviderAttribute Metadata { get; set; }
+
+      public TemplateProviderInfo(
+        [NotNull] IPostfixTemplateProvider provider, [NotNull] string providerKey,
+        [NotNull] PostfixTemplateProviderAttribute metadata)
+      {
+        Provider = provider;
+        SettingsKey = providerKey;
+        Metadata = metadata;
+      }
+    }
+
+    [NotNull]
+    public IList<TemplateProviderInfo> TemplateProvidersInfos
+    {
+      get { return myTemplateProvidersInfos; }
     }
 
     [NotNull]
@@ -49,8 +80,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         // handle collisions with C# keyword names:
         // lines.foreach => ExpressionStatement(ReferenceExpression(lines.;Error));ForeachStatement(foreach;Error)
-        // todo: prettify this shit
-
         var statement = node.Parent as ICSharpStatement;
         if (statement != null && statement.FirstChild == node && node.NextSibling is IErrorElement)
         {
@@ -131,29 +160,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       settings.DisabledProviders.SnapshotAndFreeze();
 
       var items = new List<ILookupItem>();
-
-      foreach (var provider in myTemplateProviders)
+      foreach (var info in myTemplateProvidersInfos)
       {
-        var providerType = provider.GetType();
-        var providerKey = providerType.FullName;
-
         bool isEnabled;
-        if (settings.DisabledProviders.TryGet(providerKey, out isEnabled) && !isEnabled)
+        if (settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled) && !isEnabled)
           continue; // check disabled providers
 
         if (templateName != null)
         {
-          // cache
-          var attributes = (PostfixTemplateProviderAttribute[])
-            providerType.GetCustomAttributes(typeof (PostfixTemplateProviderAttribute), false);
-          if (attributes.Length != 1) continue;
-
-          var templateNames = attributes[0].TemplateNames;
+          var templateNames = info.Metadata.TemplateNames;
           if (!templateNames.Contains(templateName, StringComparer.Ordinal))
             continue;
         }
 
-        provider.CreateItems(acceptanceContext, items);
+        info.Provider.CreateItems(acceptanceContext, items);
       }
 
       if (templateName != null) // do not like it
