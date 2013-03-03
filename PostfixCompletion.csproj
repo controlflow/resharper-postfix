@@ -63,6 +63,7 @@
     <Compile Include="TemplateProviders\IntroduceVariableTemplateProvider.cs" />
     <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\StringInNotNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\UsingStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\WhileNotLoopTemplateProvider.cs" />

@@ -10,41 +10,47 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider(new[] { "null", "notnull" }, "Checks expressions for nulls")]
   public class CheckForNullTemplateProvider : IPostfixTemplateProvider
   {
-    // todo: not only statements
     // todo: loose!
 
     public IEnumerable<PostfixLookupItem> CreateItems(PostfixTemplateAcceptanceContext context)
     {
-      if (!context.CanBeStatement || context.ExpressionType.IsUnknown) yield break;
+      if (context.ExpressionType.IsUnknown)
+      {
+        if (!context.LooseChecks) yield break;
+      }
+      else
+      {
+        var canBeNull = context.ExpressionType.IsNullable() ||
+          (context.ExpressionType.Classify == TypeClassification.REFERENCE_TYPE);
 
-      var canBeNull = context.ExpressionType.IsNullable() ||
-        (context.ExpressionType.Classify == TypeClassification.REFERENCE_TYPE);
-      if (!canBeNull) yield break;
-
-      IDeclaredElement declaredElement = null;
-
-      var qualifier = context.Expression as IReferenceExpression;
-      if (qualifier != null)
-        declaredElement = qualifier.Reference.Resolve().DeclaredElement;
+        if (!canBeNull) yield break;
+      }
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
 
-      var declaration = context.ContainingFunction;
-      if (declaration != null && declaredElement != null)
+      if (!context.LooseChecks)
       {
-        var graph = CSharpControlFlowBuilder.Build(declaration);
-        if (graph != null)
-        {
-          var result = graph.Inspect(ValueAnalysisMode.OPTIMISTIC);
-          if (!result.HasComplexityOverflow)
-          {
-            var referenceExpression = context.ReferenceExpression;
+        IDeclaredElement declaredElement = null;
+        var qualifier = context.Expression as IReferenceExpression;
+        if (qualifier != null)
+          declaredElement = qualifier.Reference.Resolve().DeclaredElement;
 
-            //foreach (var element in graph.GetLeafElementsFor(referenceExpression))
-            foreach (var element in graph.AllElements)
-            if (element.SourceElement == referenceExpression)
+        var declaration = context.ContainingFunction;
+        if (declaration != null && declaredElement != null)
+        {
+          var graph = CSharpControlFlowBuilder.Build(declaration);
+          if (graph != null)
+          {
+            var result = graph.Inspect(ValueAnalysisMode.OPTIMISTIC);
+            if (!result.HasComplexityOverflow)
             {
-              state = result.GetVariableStateAt(element, declaredElement); break;
+              var referenceExpression = context.ReferenceExpression;
+
+              foreach (var element in graph.AllElements)
+              if (element.SourceElement == referenceExpression)
+              {
+                state = result.GetVariableStateAt(element, declaredElement); break;
+              }
             }
           }
         }
@@ -55,8 +61,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
         case CSharpControlFlowNullReferenceState.UNKNOWN:
         {
-          yield return new PostfixLookupItem("notnull", "if ($EXPR$ != null) $CARET$");
-          yield return new PostfixLookupItem("null", "if ($EXPR$ == null) $CARET$");
+          if (context.CanBeStatement)
+          {
+            yield return new PostfixLookupItem("notnull", "if ($EXPR$ != null) ");
+            yield return new PostfixLookupItem("null", "if ($EXPR$ == null) ");
+          }
+          else
+          {
+            yield return new PostfixLookupItem("notnull", "$EXPR$ != null");
+            yield return new PostfixLookupItem("null", "$EXPR$ == null");
+          }
+
           break;
         }
       }

@@ -11,6 +11,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (context.CanBeStatement)
       {
+        // todo: smart caret? stay in condition when loose?
+
         if (context.ExpressionType.IsBool() || context.LooseChecks)
           yield return new PostfixLookupItem("if", "if ($EXPR$) $CARET$");
       }
