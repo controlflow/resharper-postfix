@@ -16,8 +16,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   [ShellComponent]
   public class PostfixTemplatesManager
   {
-    [NotNull]
-    private readonly IList<TemplateProviderInfo> myTemplateProvidersInfos;
+    [NotNull] private readonly IList<TemplateProviderInfo> myTemplateProvidersInfos;
 
     public PostfixTemplatesManager([NotNull] IEnumerable<IPostfixTemplateProvider> providers)
     {
@@ -27,9 +26,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var providerType = provider.GetType();
         var attributes = (PostfixTemplateProviderAttribute[])
           providerType.GetCustomAttributes(typeof (PostfixTemplateProviderAttribute), false);
-        if (attributes.Length != 1) continue;
-        var info = new TemplateProviderInfo(provider, providerType.FullName, attributes[0]);
-        infos.Add(info);
+        if (attributes.Length == 1)
+        {
+          var info = new TemplateProviderInfo(provider, providerType.FullName, attributes[0]);
+          infos.Add(info);
+        }
       }
 
       myTemplateProvidersInfos = infos.AsReadOnly();
@@ -38,31 +39,29 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public sealed class TemplateProviderInfo
     {
       [NotNull] public IPostfixTemplateProvider Provider { get; private set; }
+      [NotNull] public PostfixTemplateProviderAttribute Metadata { get; private set; }
       [NotNull] public string SettingsKey { get; private set; }
-      [NotNull] public PostfixTemplateProviderAttribute Metadata { get; set; }
 
-      public TemplateProviderInfo(
-        [NotNull] IPostfixTemplateProvider provider, [NotNull] string providerKey,
-        [NotNull] PostfixTemplateProviderAttribute metadata)
+      public TemplateProviderInfo([NotNull] IPostfixTemplateProvider provider,
+        [NotNull] string providerKey, [NotNull] PostfixTemplateProviderAttribute metadata)
       {
         Provider = provider;
-        SettingsKey = providerKey;
         Metadata = metadata;
+        SettingsKey = providerKey;
       }
     }
 
-    [NotNull]
-    public IList<TemplateProviderInfo> TemplateProvidersInfos
+    [NotNull] public IList<TemplateProviderInfo> TemplateProvidersInfos
     {
       get { return myTemplateProvidersInfos; }
     }
 
-    [NotNull]
-    public IList<ILookupItem> GetAvailableItems(
+    [NotNull] public IList<ILookupItem> GetAvailableItems(
       [NotNull] ITreeNode node, bool looseChecks, string templateName = null)
     {
       if (node is ICSharpIdentifier || node is ITokenNode)
       {
+        // simple case: 'anyExpr.notKeyworkShortcut'
         var referenceExpression = node.Parent as IReferenceExpression;
         if (referenceExpression != null)
         {
@@ -78,47 +77,54 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           }
         }
 
-        // handle collisions with C# keyword names:
-        // lines.foreach => ExpressionStatement(ReferenceExpression(lines.;Error));ForeachStatement(foreach;Error)
+        // handle collisions with C# keyword names 'lines.foreach' =>
+        // ExpressionStatement(ReferenceExpression(lines.;Error);Error);ForeachStatement(foreach;Error)
         var statement = node.Parent as ICSharpStatement;
         if (statement != null && statement.FirstChild == node && node.NextSibling is IErrorElement)
         {
           var expressionStatement = statement.PrevSibling as IExpressionStatement;
           if (expressionStatement != null)
           {
-            ICSharpExpression expression = null;
-            for (ITreeNode treeNode = expressionStatement, last; expression == null; treeNode = last)
-            {
-              last = treeNode.LastChild; // inspect all the last nodes traversing up tree
-              if (last == null) break;
-
-              if (last is IErrorElement && last.Parent is IReferenceExpression)
-              {
-                var prev = last.PrevSibling as ITokenNode;
-                if (prev != null && prev.GetTokenType() == CSharpTokenType.DOT)
-                  expression = prev.PrevSibling as ICSharpExpression;
-              }
-
-              // skip "expression statement is not closed with ';'" and friends
-              while (last is IErrorElement) last = last.PrevSibling;
-              if (last == null) break;
-            }
-
-            var referenceExpressions = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-            if (expression != null && referenceExpressions != null)
+            var expression = FindExpressionBrokenByKeyword(expressionStatement);
+            var referenceExpr = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+            if (expression != null && referenceExpr != null)
             {
               var canBeStatement = (expression.Parent == expressionStatement.Expression);
               var replaceRange = expression.GetDocumentRange().TextRange.SetEndTo(
-                                       node.GetDocumentRange().TextRange.EndOffset);
+                node.GetDocumentRange().TextRange.EndOffset);
 
               return CollectAvailableTemplates(
-                referenceExpressions, expression, replaceRange, canBeStatement, looseChecks, templateName);
+                referenceExpr, expression, replaceRange, canBeStatement, looseChecks, templateName);
             }
           }
         }
       }
 
       return EmptyList<ILookupItem>.InstanceList;
+    }
+
+    [CanBeNull]
+    private static ICSharpExpression FindExpressionBrokenByKeyword([NotNull] IExpressionStatement expressionStatement)
+    {
+      ICSharpExpression expression = null;
+      for (ITreeNode treeNode = expressionStatement, last; expression == null; treeNode = last)
+      {
+        last = treeNode.LastChild; // inspect all the last nodes traversing up tree
+        if (last == null) break;
+
+        if (last is IErrorElement && last.Parent is IReferenceExpression)
+        {
+          var prev = last.PrevSibling as ITokenNode;
+          if (prev != null && prev.GetTokenType() == CSharpTokenType.DOT)
+            expression = prev.PrevSibling as ICSharpExpression;
+        }
+
+        // skip "expression statement is not closed with ';'" and friends
+        while (last is IErrorElement) last = last.PrevSibling;
+        if (last == null) break;
+      }
+
+      return expression;
     }
 
     private static bool CalculateCanBeStatement([NotNull] ICSharpExpression expression)
@@ -143,23 +149,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [NotNull] IReferenceExpression referenceExpression, [NotNull] ICSharpExpression expression,
       TextRange replaceRange, bool canBeStatement, bool looseChecks, [CanBeNull] string templateName)
     {
-      // hide templates lhs expression is type reference
-      var ree = expression as IReferenceExpression;
-      if (ree != null && ree.Reference.Resolve().DeclaredElement is ITypeElement)
-        return EmptyList<ILookupItem>.InstanceList;
-
-      var qualifierType = expression.Type();
-      var exprRange = expression.GetDocumentRange().TextRange;
+      var expressionRange = expression.GetDocumentRange().TextRange;
 
       var acceptanceContext = new PostfixTemplateAcceptanceContext(
-        referenceExpression, expression, qualifierType,
-        replaceRange, exprRange, canBeStatement, looseChecks);
+        referenceExpression, expression, replaceRange,
+        expressionRange, canBeStatement, looseChecks);
 
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
+      var isTypeExpression = acceptanceContext.ExpressionReferencedElement is ITypeElement;
       var items = new List<ILookupItem>();
+
       foreach (var info in myTemplateProvidersInfos)
       {
         bool isEnabled;
@@ -172,6 +174,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           if (!templateNames.Contains(templateName, StringComparer.Ordinal))
             continue;
         }
+
+        if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
 
         info.Provider.CreateItems(acceptanceContext, items);
       }

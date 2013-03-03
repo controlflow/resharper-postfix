@@ -22,11 +22,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      var referenceExpression = context.Expression as IReferenceExpression;
-      if (referenceExpression != null)
+      if (context.Expression is IReferenceExpression)
       {
         // filter out too simple locals expressions
-        var target = referenceExpression.Reference.Resolve().DeclaredElement;
+        var target = context.ExpressionReferencedElement;
         if (target == null || target is IParameter || target is ILocalVariable)
           return;
       }

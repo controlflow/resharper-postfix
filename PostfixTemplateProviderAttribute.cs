@@ -10,7 +10,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     [NotNull] public string[] TemplateNames { get; private set; }
     [NotNull] public string Description { get; private set; }
-    public bool AllowOnTypes { get; set; }
+    public bool WorksOnTypes { get; set; }
 
     public PostfixTemplateProviderAttribute([NotNull] string templateName, [NotNull] string description)
     {

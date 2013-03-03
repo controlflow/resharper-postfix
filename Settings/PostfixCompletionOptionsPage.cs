@@ -36,7 +36,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       {
         View = View.Details,
         CheckBoxes = true,
-        Width = 460,
+        Width = 480,
         Height = 300,
         Sorting = SortOrder.Ascending,
       };

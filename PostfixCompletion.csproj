@@ -64,6 +64,8 @@
     <Compile Include="IPostfixTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceFieldTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceVariableTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ListTypeExpressionTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ObjectCreationTypeTemplateProvider.cs" />
     <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\StringInNotNullTemplateProvider.cs" />

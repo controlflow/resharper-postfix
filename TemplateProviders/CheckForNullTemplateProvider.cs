@@ -29,11 +29,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       if (!context.LooseChecks)
       {
-        IDeclaredElement declaredElement = null;
-        var qualifier = context.Expression as IReferenceExpression;
-        if (qualifier != null)
-          declaredElement = qualifier.Reference.Resolve().DeclaredElement;
-
+        var declaredElement = context.ExpressionReferencedElement;
         var declaration = context.ContainingFunction;
         if (declaration != null && declaredElement != null)
         {
