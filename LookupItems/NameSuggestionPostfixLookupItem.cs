@@ -35,7 +35,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     }
 
     protected override void AfterCompletion(
-      ITextControl textControl, Suffix suffix, TextRange resultRange, string targetText, int caretOffset)
+      ITextControl textControl, ISolution solution, Suffix suffix,
+      TextRange resultRange, string targetText, int caretOffset)
     {
       var placeholders = new List<TextRange>();
       for (var index = 0;; index++)
@@ -49,7 +50,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
       if (placeholders.Count == 0)
       {
-        base.AfterCompletion(textControl, suffix, resultRange, targetText, caretOffset);
+        base.AfterCompletion(textControl, solution, suffix, resultRange, targetText, caretOffset);
       }
       else
       {
@@ -83,9 +84,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         PluralityKinds.Single, CSharpLanguage.Instance, false, sourceFile);
 
       collection.Add(expression, new EntryOptions {
-          SubrootPolicy = SubrootPolicy.Decompose,
-          PluralityKind = kind
-        });
+          SubrootPolicy = SubrootPolicy.Decompose, PluralityKind = kind });
 
       collection.Prepare(NamedElementKinds.Locals, scopeKind,
         new SuggestionOptions { DefaultName = "x", UniqueNameContext = expression });

@@ -6,6 +6,7 @@ using JetBrains.Application.Settings;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -38,18 +39,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           if (expression != null)
           {
             var replaceRange = referenceExpression.GetDocumentRange().TextRange;
-            var canBeStatement = (ExpressionStatementNavigator.GetByExpression(referenceExpression) != null);
-            if (!canBeStatement)
-            {
-              var containingStatement = referenceExpression.GetContainingNode<ICSharpStatement>();
-              if (containingStatement != null)
-              {
-                var a = referenceExpression.GetTreeStartOffset();
-                var b = containingStatement.GetTreeStartOffset();
-                if (a == b)
-                  canBeStatement = true;
-              }
-            }
+            var canBeStatement = CalculateCanBeStatement(referenceExpression);
 
             return CollectAvailableTemplates(
               referenceExpression, expression, replaceRange,
@@ -85,14 +75,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
               if (last == null) break;
             }
 
-            var re = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-            if (expression != null && re != null)
+            var referenceExpressions = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+            if (expression != null && referenceExpressions != null)
             {
               var canBeStatement = (expression.Parent == expressionStatement.Expression);
               var replaceRange = expression.GetDocumentRange().TextRange.SetEndTo(
                                        node.GetDocumentRange().TextRange.EndOffset);
 
-              return CollectAvailableTemplates(re, expression, replaceRange, canBeStatement, looseChecks, templateName);
+              return CollectAvailableTemplates(
+                referenceExpressions, expression, replaceRange, canBeStatement, looseChecks, templateName);
             }
           }
         }
@@ -101,11 +92,33 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return EmptyList<ILookupItem>.InstanceList;
     }
 
+    private static bool CalculateCanBeStatement([NotNull] ICSharpExpression expression)
+    {
+      if (ExpressionStatementNavigator.GetByExpression(expression) != null)
+        return true;
+
+      // handle broken trees like: "lines.     \r\n   NextLineStatemement();"
+      var containingStatement = expression.GetContainingNode<ICSharpStatement>();
+      if (containingStatement != null)
+      {
+        var a = expression.GetTreeStartOffset();
+        var b = containingStatement.GetTreeStartOffset();
+        return (a == b);
+      }
+
+      return false;
+    }
+
     [NotNull]
     private IList<ILookupItem> CollectAvailableTemplates(
       [NotNull] IReferenceExpression referenceExpression, [NotNull] ICSharpExpression expression,
       TextRange replaceRange, bool canBeStatement, bool looseChecks, [CanBeNull] string templateName)
     {
+      // hide templates lhs expression is type reference
+      var ree = expression as IReferenceExpression;
+      if (ree != null && ree.Reference.Resolve().DeclaredElement is ITypeElement)
+        return EmptyList<ILookupItem>.InstanceList;
+
       var qualifierType = expression.Type();
       var exprRange = expression.GetDocumentRange().TextRange;
 
@@ -143,7 +156,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         provider.CreateItems(acceptanceContext, items);
       }
 
-      if (templateName != null)
+      if (templateName != null) // do not like it
         items.RemoveAll(x => x.Identity != templateName);
 
       return items;

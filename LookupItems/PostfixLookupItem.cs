@@ -56,11 +56,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       textControl.Document.ReplaceText(replaceRange, targetText);
 
       var range = TextRange.FromLength(replaceRange.StartOffset, targetText.Length);
-      AfterCompletion(textControl, suffix, range, targetText, caretOffset);
+      AfterCompletion(textControl, solution, suffix, range, targetText, caretOffset);
     }
 
     protected virtual void AfterCompletion(
-      [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
+      [NotNull] ITextControl textControl, ISolution solution, [NotNull] Suffix suffix,
       TextRange resultRange, [NotNull] string targetText, int caretOffset)
     {
       textControl.Caret.MoveTo(

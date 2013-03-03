@@ -8,6 +8,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   [PostfixTemplateProvider("if", "Checks boolean expression to be 'true'")]
   public class IfStatementTemplateProvider : IPostfixTemplateProvider
   {
+    // todo: detect relational expressions
+
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       if (context.CanBeStatement)
