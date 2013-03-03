@@ -38,6 +38,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           {
             var replaceRange = referenceExpression.GetDocumentRange().TextRange;
             var canBeStatement = (ExpressionStatementNavigator.GetByExpression(referenceExpression) != null);
+            if (!canBeStatement)
+            {
+              var containingStatement = referenceExpression.GetContainingNode<ICSharpStatement>();
+              if (containingStatement != null)
+              {
+                var a = referenceExpression.GetTreeStartOffset();
+                var b = containingStatement.GetTreeStartOffset();
+                if (a == b)
+                  canBeStatement = true;
+              }
+            }
 
             return CollectAvailableTemplates(
               referenceExpression, expression, replaceRange,
