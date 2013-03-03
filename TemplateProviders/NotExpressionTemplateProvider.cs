@@ -13,20 +13,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      if (context.CanBeStatement)
+      if (!context.LooseChecks)
       {
-        if (!context.LooseChecks)
-        {
-          if (context.ExpressionType.IsBool()) return;
+        if (!context.ExpressionType.IsBool()) return;
 
-          // do not show if expression is already negated
-          var unary = UnaryOperatorExpressionNavigator.GetByOperand(
-            context.ReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
-          if (unary != null && unary.OperatorSign.GetTokenType() != CSharpTokenType.EXCL) return;
-        }
-
-        consumer.Add(new PostfixLookupItem(context, "not", "!$EXPR$"));
+        // do not show if expression is already negated
+        var unary = UnaryOperatorExpressionNavigator.GetByOperand(
+          context.ReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
+        if (unary != null && unary.OperatorSign.GetTokenType() != CSharpTokenType.EXCL)
+          return;
       }
+
+      consumer.Add(new PostfixLookupItem(context, "not", "!$EXPR$"));
     }
   }
 }

@@ -1,8 +1,21 @@
-﻿Simple ReSharper code completion plugin.
+﻿Simple ReSharper code completion/templating plugin.
+The idea is to prevent caret jumps backwards when typing C# code.
 
+Currently available templates:
+
+![foreach](/img/foreach.png)
+![if/ifnot](/img/if.png)
+![null/notnull](/img/notnull.png)
 ![using](/img/using.png)
+![await](/img/await.png)
+.var
+.field
+.not
+.return
+.throw
+.while/.whilenot
 
-TODO:
+Future work:
 
 .check
 .yield
@@ -15,6 +28,11 @@ collections:
 .ifsingle/single
 .ifnonempty
 
-??
+types:
+int.list => List<int>?
+Foo.new => new Foo()
 
-types? int.list => List<int>?
+
+Feedback:
+
+alexander.shvedov[at]jetbrain.com

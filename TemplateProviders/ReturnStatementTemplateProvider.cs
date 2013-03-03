@@ -32,6 +32,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           consumer.Add(new PostfixLookupItem(context, "return", "return $EXPR$"));
         }
       }
+
+      // todo: yield
     }
   }
 }
