@@ -2,6 +2,11 @@
 
 The idea is to prevent caret jumps backwards while typing C# code.
 
+## Download
+
+| ReSharper 7.0 | [debug](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Debug/PostfixCompletion.dll)    | [release](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Release/PostfixCompletion.dll) |
+| ReSharper 8.0 | [debug](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Debug/PostfixCompletion.dll) | [release](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Release/PostfixCompletion.dll) |
+
 ## Available templates
 
 Iterting over all kinds of collections, reverse iteration:
@@ -61,13 +66,6 @@ types:
 int.list => List<int>?
 
 Foo.new => new Foo()
-
-## Download
-
-| Tables | Debug | Release |
-| ------ | ----- | ------- |
-| ReSharper 7.0 | [dll](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Debug/PostfixCompletion.dll)    | [dll](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Release/PostfixCompletion.dll) |
-| ReSharper 8.0 | [dll](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Debug/PostfixCompletion.dll) | [dll](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Release/PostfixCompletion.dll) |
 
 ## Feedback
 
