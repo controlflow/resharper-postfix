@@ -62,6 +62,13 @@ int.list => List<int>?
 
 Foo.new => new Foo()
 
+## Download
+
+| Tables | Debug | Release |
+| ------ | ----- | ------- |
+| ReSharper 7.0 | [dll](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Debug/PostfixCompletion.dll)    | [dll](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Release/PostfixCompletion.dll) |
+| ReSharper 8.0 | [dll](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Debug/PostfixCompletion.dll) | [dll](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Release/PostfixCompletion.dll) |
+
 ## Feedback
 
 alexander.shvedov[at]jetbrain.com
