@@ -4,6 +4,8 @@ The idea is to prevent caret jumps backwards while typing C# code.
 
 ## Download
 
+| Version |   |   |
+| ------- | - | - |
 | ReSharper 7.0 | [debug](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Debug/PostfixCompletion.dll)    | [release](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Release/PostfixCompletion.dll) |
 | ReSharper 8.0 | [debug](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Debug/PostfixCompletion.dll) | [release](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Release/PostfixCompletion.dll) |
 
