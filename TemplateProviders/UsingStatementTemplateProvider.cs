@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (!context.CanBeStatement) return; // check declaration
 
-      var predefined = context.Expression.GetPsiModule().GetPredefinedType();
+      var predefined = context.Expression.GetPredefinedType();
       var rule = context.Expression.GetTypeConversionRule();
       if (!rule.IsImplicitlyConvertibleTo(context.ExpressionType, predefined.IDisposable))
         return;

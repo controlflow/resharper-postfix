@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4D819C18-FAF7-4775-8A4A-FAC27DFF0761}</ProjectGuid>
+    <ProjectGuid>{50365433-AAE1-4755-9562-B777F23B7C23}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JetBrains.ReSharper.ControlFlow.PostfixCompletion</RootNamespace>
@@ -18,16 +18,16 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>JET_MODE_ASSERT;DEBUG;TRACE</DefineConstants>
+    <OutputPath>bin.R8\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;JET_MODE_ASSERT; RESHARPER8</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>bin.R8\Release\</OutputPath>
+    <DefineConstants>TRACE;RESHARPER8</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -44,41 +44,42 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LookupItems\ProcessExpressionPostfixLookupItem.cs" />
+    <Compile Include="CSharpPostfixItemProviderSmart.cs" />
+    <Compile Include="IPostfixTemplateProvider.cs" />
     <Compile Include="LookupItems\NameSuggestionPostfixLookupItem.cs" />
+    <Compile Include="LookupItems\PostfixLookupItem.cs" />
+    <Compile Include="LookupItems\ProcessExpressionPostfixLookupItem.cs" />
     <Compile Include="PostfixTemplateAcceptanceContext.cs" />
     <Compile Include="PostfixTemplateProviderAttribute.cs" />
     <Compile Include="PostfixTemplatesManager.cs" />
     <Compile Include="PostfixTemplatesTracker.cs" />
-    <Compile Include="Settings\PostfixCompletionOptionsPage.cs" />
-    <Compile Include="CSharpPostfixItemProviderSmart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\PostfixCompletionOptionsPage.cs" />
     <Compile Include="Settings\PostfixCompletionSettings.cs" />
-    <Compile Include="LookupItems\PostfixLookupItem.cs" />
     <Compile Include="TemplateProviders\AwaitExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ForEachLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ForLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfNotStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfStatementTemplateProvider.cs" />
-    <Compile Include="IPostfixTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceFieldTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceVariableTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ListTypeExpressionTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\ObjectCreationTypeTemplateProvider.cs" />
     <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ObjectCreationTypeTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\StringInNotNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\UsingStatementTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\WhileNotLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\WhileNotLoopTemplateProvider.cs" />
+    <Compile Include="Utils\PortabilityExtensions.R8.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
   </ItemGroup>
   <PropertyGroup>
-    <ReSharperSdkTargets Condition=" '$(ReSharperSdkTargets)' == '' ">$(MSBuildExtensionsPath)\JetBrains\ReSharper.SDK\v7.1</ReSharperSdkTargets>
+    <ReSharperSdkTargets Condition=" '$(ReSharperSdkTargets)' == '' ">$(MSBuildExtensionsPath)\JetBrains\ReSharper.SDK\v8.0</ReSharperSdkTargets>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(ReSharperSdkTargets)\Plugin.Targets" />

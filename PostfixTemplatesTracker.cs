@@ -105,7 +105,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       private ILookupItem GetTemplateFromTextControl(
         [NotNull] ITextControl textControl, [NotNull] ISolution solution)
       {
-        solution.GetPsiServices().PsiManager.CommitAllDocuments();
+        solution.GetPsiServices().CommitAllDocuments();
 
         var caretOffset = textControl.Caret.Offset();
         var genericPrefix = LiveTemplatesManager.GetPrefix(textControl.Document, caretOffset);

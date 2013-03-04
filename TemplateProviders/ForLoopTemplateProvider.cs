@@ -21,7 +21,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       if (context.ExpressionType is IArrayType) lengthProperty = "Length";
       else
       {
-        var predefined = context.Expression.GetPsiModule().GetPredefinedType();
+        var predefined = context.Expression.GetPredefinedType();
         var rule = context.Expression.GetTypeConversionRule();
         if (rule.IsImplicitlyConvertibleTo(context.ExpressionType, predefined.GenericICollection))
           lengthProperty = "Count";

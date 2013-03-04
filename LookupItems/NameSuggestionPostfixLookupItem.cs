@@ -62,11 +62,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           mySolution, endRange, textControl, LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
         if (!suffix.IsEmpty)
-          session.Finished += (_, terminationType) =>
+        {
+          session.HotspotUpdated += delegate
           {
-            if (terminationType == TerminationType.Finished)
+            if (session.IsFinished)
               suffix.Playback(textControl);
           };
+        }
 
         session.Execute();
       }

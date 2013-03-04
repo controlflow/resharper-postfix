@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Features.Intellisense.Options;
-using JetBrains.UI.CommonControls.Fonts;
 using JetBrains.UI.Options;
 using JetBrains.UI.Options.Helpers;
 using JetBrains.Application.Settings;
@@ -18,10 +17,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 
     [NotNull] private readonly OptionsSettingsSmartContext myStore;
 
-    public PostfixCompletionOptionsPage([NotNull] Lifetime lifetime,
-      [NotNull] OptionsSettingsSmartContext store, [NotNull] FontsManager fontsManager,
-      [NotNull] PostfixTemplatesManager templatesManager)
+    public PostfixCompletionOptionsPage(
+      [NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext store,
+      [NotNull] PostfixTemplatesManager templatesManager,
+
+#if RESHARPER8
+      [NotNull] UI.Components.UIApplicationEnvironment environment)
+      : base(lifetime, environment, PID)
+#else
+      [NotNull] UI.CommonControls.Fonts.FontsManager fontsManager)
       : base(lifetime, PID, fontsManager)
+#endif
     {
       myStore = store;
 

@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       // todo: support untyped collections
       // todo: infer type by indexer like F#
 
-      var predefined = context.Expression.GetPsiModule().GetPredefinedType();
+      var predefined = context.Expression.GetPredefinedType();
 
       var rule = context.Expression.GetTypeConversionRule();
       if (rule.IsImplicitlyConvertibleTo(context.ExpressionType, predefined.IEnumerable))

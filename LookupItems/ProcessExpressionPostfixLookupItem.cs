@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ITextControl textControl, ISolution solution, Suffix suffix,
       TextRange resultRange, string targetText, int caretOffset)
     {
-      solution.GetPsiServices().PsiManager.CommitAllDocuments();
+      solution.GetPsiServices().CommitAllDocuments();
 
       var expressions = TextControlToPsi
         .GetSelectedElements<ICSharpExpression>(solution, textControl.Document, resultRange);
