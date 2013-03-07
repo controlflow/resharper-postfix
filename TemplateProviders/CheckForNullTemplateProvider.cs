@@ -31,7 +31,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         var declaredElement = context.ExpressionReferencedElement;
         var declaration = context.ContainingFunction;
-        if (declaration != null && declaredElement != null)
+        if (declaration != null && declaredElement != null && declaration.IsPhysical())
         {
           var graph = CSharpControlFlowBuilder.Build(declaration);
           if (graph != null)
