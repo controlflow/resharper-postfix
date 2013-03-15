@@ -32,6 +32,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       ITreeNode node = context.Expression;
       while (true) // inspect containing using statements
       {
+        // todo: get out of ISandBox?
+
         var usingStatement = node.GetContainingNode<IUsingStatement>();
         if (usingStatement == null) break;
 

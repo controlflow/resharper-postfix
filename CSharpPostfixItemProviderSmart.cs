@@ -1,9 +1,13 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
@@ -29,9 +33,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var node = context.NodeInFile;
       if (node == null) return false;
 
+      ReparsedCodeCompletionContext completionContext = null;
+
+      // foo.{caret}  var bar = ...; fuck my life
+      var referenceName = node.Parent as IReferenceName;
+      if (referenceName != null)
+      {
+        completionContext = context.UnterminatedContext;
+        node = completionContext.TreeNode;
+        if (node == null) return false;
+      }
+
       var looseChecks = (context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion);
 
-      var items = myTemplatesManager.GetAvailableItems(node, looseChecks);
+      var items = myTemplatesManager.GetAvailableItems(node, looseChecks, completionContext);
       foreach (var lookupItem in items)
         collector.AddAtDefaultPlace(lookupItem);
 
