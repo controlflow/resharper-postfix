@@ -84,6 +84,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     public void Unshrink() { }
 
     public string OrderingString { get { return myShortcut; } }
+#if RESHARPER8
+    public int Multiplier { get; set; }
+    public bool IsDynamic { get { return false; } }
+#endif
     public string Identity { get { return myShortcut; } }
   }
 }
