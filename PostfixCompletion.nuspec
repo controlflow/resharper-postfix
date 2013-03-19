@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>PostfixCompletion</id>
-    <version>0.7.0.0</version>
+    <version>0.7.0.2</version>
     <authors>Shvedov Alexander</authors>
     <owners>Shvedov Alexander</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Code completion plugin</description>
+    <description>ReSharper code completion plugin</description>
     <dependencies>
-      <dependency id="ReSharper" version="7.1.2" />
+      <dependency id="ReSharper" version="8.0" />
     </dependencies>
   </metadata>
   <files>
