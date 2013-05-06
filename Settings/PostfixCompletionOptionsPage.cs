@@ -22,8 +22,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       [NotNull] PostfixTemplatesManager templatesManager,
 
 #if RESHARPER8
-      [NotNull] UI.Components.UIApplicationEnvironment environment)
-      : base(lifetime, environment, PID)
+      [NotNull] UI.Application.IUIApplication application)
+      : base(lifetime, application, PID)
 #else
       [NotNull] UI.CommonControls.Fonts.FontsManager fontsManager)
       : base(lifetime, PID, fontsManager)

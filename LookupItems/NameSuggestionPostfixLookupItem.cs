@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
@@ -38,13 +39,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ITextControl textControl, ISolution solution, Suffix suffix,
       TextRange resultRange, string targetText, int caretOffset)
     {
+#if RESHARPER8
+      var placeholders = new List<DocumentRange>();
+#else
       var placeholders = new List<TextRange>();
+#endif
+
       for (var index = 0;; index++)
       {
         index = targetText.IndexOf(NamePlaceholder, index, StringComparison.Ordinal);
         if (index == -1) break;
 
+#if RESHARPER8
+        var range = new DocumentRange(textControl.Document, resultRange.StartOffset + index);
+#else
         var range = new TextRange(resultRange.StartOffset + index);
+#endif
+
         placeholders.Add(range.ExtendRight(NamePlaceholder.Length));
       }
 
