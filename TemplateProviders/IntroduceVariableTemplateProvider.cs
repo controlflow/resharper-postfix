@@ -30,12 +30,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           return;
       }
 
-      if (context.CanBeStatement)
-      {
-        consumer.Add(new NameSuggestionPostfixLookupItem(
-          context, "var", "var $NAME$ = $EXPR$", context.Expression));
-      }
-      else if (context.LooseChecks)
+      if (context.CanBeStatement || context.LooseChecks)
       {
         consumer.Add(new IntroduceVariableLookupItem(context));
       }
