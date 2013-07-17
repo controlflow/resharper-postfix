@@ -48,7 +48,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       var items = myTemplatesManager.GetAvailableItems(node, looseChecks, completionContext);
       foreach (var lookupItem in items)
+      {
         collector.AddAtDefaultPlace(lookupItem);
+      }
 
       return (items.Count > 0);
     }

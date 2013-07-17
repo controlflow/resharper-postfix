@@ -42,6 +42,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
     public MatchingResult Match(string prefix, ITextControl textControl)
     {
+      // todo: match "nn" with "notnull"
       return LookupUtil.MatchesPrefixSimple(myShortcut, prefix);
     }
 
@@ -80,7 +81,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           if (IsMarkerExpressionStatement(statement, "POSTFIX"))
           {
             var factory = CSharpElementFactory.GetInstance(psiModule);
-            var ifStatement = (IIfStatement)factory.CreateStatement("if (expr) { CARET; }");
+            var ifStatement = (IIfStatement)factory.CreateStatement("if (expr) CARET;");
 
             var c = new RecursiveElementCollector<IExpressionStatement>(es => IsMarkerExpressionStatement(es, "CARET"));
             var cm = new TreeNodeMarker<IExpressionStatement>();
@@ -112,10 +113,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         
       });
 
-      if (caretPos != null)
-      {
-        textControl.Caret.MoveTo(caretPos.Value, CaretVisualPlacement.DontScrollIfVisible);
-      }
+
+      AfterComplete(textControl, suffix, caretPos);
+    }
+
+    protected virtual void AfterComplete(
+      [NotNull] ITextControl textControl, [NotNull] Suffix suffix, int? caretPosition)
+    {
+      if (caretPosition != null)
+        textControl.Caret.MoveTo(caretPosition.Value, CaretVisualPlacement.DontScrollIfVisible);
+
+      suffix.Playback(textControl);
     }
 
     private static bool IsMarkerExpressionStatement(
@@ -128,46 +136,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           && reference.NameIdentifier.Name == markerName;
     }
 
-    //public void Accept(
-    //  ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType,
-    //  Suffix suffix, ISolution solution, bool keepCaretStill)
-    //{
-    //  if (!myReplaceRange.IsValid || !myExpressionRange.IsValid) return;
-    //
-    //  var replaceRange = myReplaceRange.Intersects(nameRange)
-    //    ? new TextRange(myReplaceRange.StartOffset, nameRange.EndOffset)
-    //    : myReplaceRange;
-    //
-    //  var expressionText = textControl.Document.GetText(myExpressionRange);
-    //  var targetText = myReplaceTemplate.Replace("$EXPR$", expressionText);
-    //
-    //  var caretOffset = targetText.IndexOf("$CARET$", StringComparison.Ordinal);
-    //  if (caretOffset == -1) caretOffset = targetText.Length;
-    //  else targetText = targetText.Replace("$CARET$", string.Empty);
-    //
-    //  textControl.Document.ReplaceText(replaceRange, targetText);
-    //
-    //  var range = TextRange.FromLength(replaceRange.StartOffset, targetText.Length);
-    //  AfterCompletion(textControl, solution, suffix, range, targetText, caretOffset);
-    //}
-
-    //protected virtual void AfterCompletion(
-    //  [NotNull] ITextControl textControl, ISolution solution, [NotNull] Suffix suffix,
-    //  TextRange resultRange, [NotNull] string targetText, int caretOffset)
-    //{
-    //  textControl.Caret.MoveTo(
-    //    resultRange.StartOffset + caretOffset, CaretVisualPlacement.DontScrollIfVisible);
-    //
-    //  suffix.Playback(textControl);
-    //}
-
     public IconId Image { get { return ServicesThemedIcons.LiveTemplate.Id; } }
     public RichText DisplayName { get { return myShortcut; } }
     public RichText DisplayTypeName { get { return null; } }
 
     public TextRange GetVisualReplaceRange(ITextControl textControl, TextRange nameRange)
     {
-      // todo: highlight expression?
+      // note: prefix highlighter disallows highlighting to be any position
       return TextRange.InvalidRange;
     }
 
@@ -182,5 +157,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     public bool IgnoreSoftOnSpace { get; set; }
 #endif
     public string Identity { get { return myShortcut; } }
+  }
+
+  public class PostfixStatementLookupItem : PostfixLookupItem2
+  {
+    public PostfixStatementLookupItem(
+      [NotNull] PostfixTemplateAcceptanceContext context, [NotNull] string shortcut)
+      : base(context, shortcut) { }
+
+
   }
 }

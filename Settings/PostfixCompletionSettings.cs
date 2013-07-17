@@ -6,7 +6,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
   [SettingsKey(typeof(EnvironmentSettings), "Postfix completion settings")]
   public class PostfixCompletionSettings
   {
-    [SettingsIndexedEntry("Template providers list disabled/enabled list. Every provider is enabled by default.")]
+    [SettingsIndexedEntry("Template providers list disabled/enabled list")]
     public IIndexedEntry<string, bool> DisabledProviders;
+
+    public bool UseBlocksForEmbeddedStatements;
   }
 }

@@ -121,12 +121,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [CanBeNull]
-    private static ICSharpExpression FindExpressionBrokenByKeyword([NotNull] IExpressionStatement expressionStatement)
+    private static ICSharpExpression FindExpressionBrokenByKeyword([NotNull] IExpressionStatement statement)
     {
       ICSharpExpression expression = null;
       var errorFound = false;
 
-      for (ITreeNode treeNode = expressionStatement, last; expression == null; treeNode = last)
+      for (ITreeNode treeNode = statement, last; expression == null; treeNode = last)
       {
         last = treeNode.LastChild; // inspect all the last nodes traversing up tree
         if (last == null) break;
@@ -137,7 +137,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         {
           var dot = (last is IErrorElement ? last.PrevSibling : last) as ITokenNode;
           if (dot != null && dot.GetTokenType() == CSharpTokenType.DOT)
-            expression = dot.PrevSibling as ICSharpExpression; //todo: comments?
+          {
+            ITreeNode node = dot;
+
+            // skip whitespace in case of "expr   .if"
+            var wsToken = dot.PrevSibling as ITokenNode;
+            if (wsToken != null && wsToken.GetTokenType() == CSharpTokenType.WHITE_SPACE) node = wsToken;
+
+            expression = node.PrevSibling as ICSharpExpression; //todo: comments?
+          }
         }
 
         // skip "expression statement is not closed with ';'" and friends
