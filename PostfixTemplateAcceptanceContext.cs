@@ -5,6 +5,10 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
+  // todo: move from ranges to psi
+  // todo: move from single expression to IEnumerable of containing expressions+types
+  // todo: NodesToReplace?
+
   public class PostfixTemplateAcceptanceContext
   {
     public PostfixTemplateAcceptanceContext(
@@ -21,12 +25,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       CanBeStatement = canBeStatement;
       LooseChecks = looseChecks;
 
-      ContainingFunction = Expression.GetContainingNode<ICSharpFunctionDeclaration>();
-
       var expressionReference = expression as IReferenceExpression;
       if (expressionReference != null)
       {
-        ExpressionReferencedElement = expressionReference.Reference.Resolve().DeclaredElement;
+        ReferencedElement = expressionReference.Reference.Resolve().DeclaredElement;
       }
       else
       {
@@ -35,7 +37,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         {
           var typeName = typeExpression.PredefinedTypeName;
           if (typeName != null)
-            ExpressionReferencedElement = typeName.Reference.Resolve().DeclaredElement;
+            ReferencedElement = typeName.Reference.Resolve().DeclaredElement;
         }
       }
     }
@@ -43,12 +45,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull] public IReferenceExpression ReferenceExpression { get; private set; } // "lines.Any().if"
     [NotNull] public ICSharpExpression Expression { get; private set; } // "lines.Any()"
     [NotNull] public IType ExpressionType { get; private set; } // boolean
-    [CanBeNull] public IDeclaredElement ExpressionReferencedElement { get; set; } // lines: LocalVar
-    public TextRange ReplaceRange { get; set; }
-    public TextRange ExpressionRange { get; set; }
+    [CanBeNull] public IDeclaredElement ReferencedElement { get; set; } // lines: LocalVar
+    public TextRange ReplaceRange { get; set; } // todo: remove
+    public TextRange ExpressionRange { get; set; } // todo: remove
     public bool CanBeStatement { get; private set; }
-    public bool LooseChecks { get; private set; }
+    public bool LooseChecks { get; private set; } // rename
 
-    [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction { get; private set; }
+    [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
+    {
+      get { return Expression.GetContainingNode<ICSharpFunctionDeclaration>(); }
+    }
   }
 }

@@ -21,4 +21,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
     }
   }
+
+  [PostfixTemplateProvider("if2", "Checks boolean expression to be 'true'")]
+  public class IfStatementTemplateProvider2 : IPostfixTemplateProvider
+  {
+    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+    {
+      if (context.CanBeStatement)
+      {
+        if (context.ExpressionType.IsBool() || context.LooseChecks)
+          consumer.Add(new PostfixLookupItem2(context, "if2"));
+      }
+    }
+  }
 }

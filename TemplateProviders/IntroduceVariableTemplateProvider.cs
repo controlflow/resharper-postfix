@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       if (context.Expression is IReferenceExpression)
       {
         // filter out too simple locals expressions
-        var target = context.ExpressionReferencedElement;
+        var target = context.ReferencedElement;
         if (target == null || target is IParameter || target is ILocalVariable)
           return;
       }

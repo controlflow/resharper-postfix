@@ -171,7 +171,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var isTypeExpression = acceptanceContext.ExpressionReferencedElement is ITypeElement;
+      var isTypeExpression = acceptanceContext.ReferencedElement is ITypeElement;
       var items = new List<ILookupItem>();
 
       foreach (var info in myTemplateProvidersInfos)

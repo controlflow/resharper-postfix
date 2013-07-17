@@ -2,7 +2,6 @@
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ControlFlow;
 using JetBrains.ReSharper.Psi.ControlFlow.CSharp;
 
@@ -29,7 +28,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       if (!context.LooseChecks)
       {
-        var declaredElement = context.ExpressionReferencedElement;
+        var declaredElement = context.ReferencedElement;
         var declaration = context.ContainingFunction;
         if (declaration != null && declaredElement != null && declaration.IsPhysical())
         {

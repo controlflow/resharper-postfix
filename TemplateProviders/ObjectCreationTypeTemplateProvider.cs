@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      var typeElement = context.ExpressionReferencedElement as ITypeElement;
+      var typeElement = context.ReferencedElement as ITypeElement;
       if (typeElement is IStruct || typeElement is IEnum || typeElement is IClass)
       {
         // filter out abstract classes
