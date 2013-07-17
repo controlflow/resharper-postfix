@@ -67,7 +67,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     [NotNull] public IList<ILookupItem> GetAvailableItems(
       [NotNull] ITreeNode node, bool looseChecks,
-      [CanBeNull] ReparsedCodeCompletionContext completionContext = null,
+      [CanBeNull] ReparsedCodeCompletionContext reparseContext = null,
       [CanBeNull] string templateName = null)
     {
       if (node is ICSharpIdentifier || node is ITokenNode)
@@ -79,8 +79,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expression = referenceExpression.QualifierExpression;
           if (expression != null)
           {
-            var replaceRange = GetTextRange(referenceExpression, completionContext);
-            var expressionRange = GetTextRange(expression, completionContext);
+            var replaceRange = GetTextRange(referenceExpression, reparseContext);
+            var expressionRange = GetTextRange(expression, reparseContext);
             var canBeStatement = CalculateCanBeStatement(referenceExpression);
 
             return CollectAvailableTemplates(
@@ -92,8 +92,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         // handle collisions with C# keyword names 'lines.foreach' =>
         // ExpressionStatement(ReferenceExpression(lines.;Error);Error);ForeachStatement(foreach;Error)
         var statement = node.Parent as ICSharpStatement;
-        if (statement != null && statement.FirstChild == node && node.NextSibling is IErrorElement && completionContext == null)
+        if (statement != null && statement.FirstChild == node &&
+            node.NextSibling is IErrorElement && reparseContext == null)
         {
+          // todo: more constrained check? what to remove?
+
           var expressionStatement = statement.PrevSibling as IExpressionStatement;
           if (expressionStatement != null)
           {
@@ -103,7 +106,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             {
               var canBeStatement = (expression.Parent == expressionStatement.Expression);
               var expressionRange = expression.GetDocumentRange().TextRange;
-              var replaceRange = expression.GetDocumentRange().TextRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
+              var replaceRange = expressionRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
+
 
               return CollectAvailableTemplates(
                 referenceExpr, expression, replaceRange, expressionRange,
@@ -120,16 +124,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     private static ICSharpExpression FindExpressionBrokenByKeyword([NotNull] IExpressionStatement expressionStatement)
     {
       ICSharpExpression expression = null;
+      var errorFound = false;
+
       for (ITreeNode treeNode = expressionStatement, last; expression == null; treeNode = last)
       {
         last = treeNode.LastChild; // inspect all the last nodes traversing up tree
         if (last == null) break;
 
-        if (last is IErrorElement && last.Parent is IReferenceExpression)
+        if (!errorFound) errorFound = last is IErrorElement;
+
+        if (errorFound && last.Parent is IReferenceExpression)
         {
-          var prev = last.PrevSibling as ITokenNode;
-          if (prev != null && prev.GetTokenType() == CSharpTokenType.DOT)
-            expression = prev.PrevSibling as ICSharpExpression;
+          var dot = (last is IErrorElement ? last.PrevSibling : last) as ITokenNode;
+          if (dot != null && dot.GetTokenType() == CSharpTokenType.DOT)
+            expression = dot.PrevSibling as ICSharpExpression; //todo: comments?
         }
 
         // skip "expression statement is not closed with ';'" and friends

@@ -5,32 +5,32 @@ using JetBrains.ReSharper.Psi;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  //[PostfixTemplateProvider("if", "Checks boolean expression to be 'true'")]
+  //public class IfStatementTemplateProvider : IPostfixTemplateProvider
+  //{
+  //  // todo: detect relational expressions
+  //
+  //  public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+  //  {
+  //    if (context.CanBeStatement)
+  //    {
+  //      // todo: smart caret? stay in condition when loose?
+  //
+  //      if (context.ExpressionType.IsBool() || context.LooseChecks)
+  //        consumer.Add(new PostfixLookupItem(context, "if", "if ($EXPR$) $CARET$"));
+  //    }
+  //  }
+  //}
+
   [PostfixTemplateProvider("if", "Checks boolean expression to be 'true'")]
-  public class IfStatementTemplateProvider : IPostfixTemplateProvider
-  {
-    // todo: detect relational expressions
-
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      if (context.CanBeStatement)
-      {
-        // todo: smart caret? stay in condition when loose?
-
-        if (context.ExpressionType.IsBool() || context.LooseChecks)
-          consumer.Add(new PostfixLookupItem(context, "if", "if ($EXPR$) $CARET$"));
-      }
-    }
-  }
-
-  [PostfixTemplateProvider("if2", "Checks boolean expression to be 'true'")]
   public class IfStatementTemplateProvider2 : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      if (context.CanBeStatement)
+      //if (context.CanBeStatement)
       {
         if (context.ExpressionType.IsBool() || context.LooseChecks)
-          consumer.Add(new PostfixLookupItem2(context, "if2"));
+          consumer.Add(new PostfixLookupItem2(context, "if"));
       }
     }
   }

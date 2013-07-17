@@ -16,21 +16,23 @@ using JetBrains.Util;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   [SolutionComponent]
-  public class PostfixTemplatesTracker
+  public sealed class PostfixTemplatesTracker
   {
     public PostfixTemplatesTracker(
       [NotNull] Lifetime lifetime, [NotNull] PostfixTemplatesManager templatesManager,
-      [NotNull] IActionManager actionManager, [NotNull] TextControlChangeUnitFactory changeUnitFactory,
-      [NotNull] ILookupWindowManager lookupWindowManager, [NotNull] ICommandProcessor commandProcessor)
+      [NotNull] IActionManager manager, [NotNull] TextControlChangeUnitFactory changeUnitFactory,
+      [NotNull] ILookupWindowManager lookupWindowManager, [NotNull] ICommandProcessor processor)
     {
       // override livetemplates expand action
-      var expandAction = actionManager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
-      if (expandAction != null)
-        expandAction.AddHandler(lifetime, new ExpandPostfixTemplateHandler(
-          changeUnitFactory, templatesManager, lookupWindowManager, commandProcessor));
+      var expandLiveTemplateAction = manager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
+      if (expandLiveTemplateAction != null)
+      {
+        expandLiveTemplateAction.AddHandler(lifetime, new ExpandPostfixTemplateHandler(
+          changeUnitFactory, templatesManager, lookupWindowManager, processor));
+      }
     }
 
-    public class ExpandPostfixTemplateHandler : IActionHandler
+    public sealed class ExpandPostfixTemplateHandler : IActionHandler
     {
       [NotNull] private readonly ILookupWindowManager myLookupWindowManager;
       [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
