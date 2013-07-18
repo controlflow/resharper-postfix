@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using JetBrains.Application;
 using JetBrains.Application.DataContext;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
