@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (context.ExpressionType.IsUnknown)
       {
-        if (!context.LooseChecks) return;
+        if (!context.ForceMode) return;
       }
       else
       {
@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
 
-      if (!context.LooseChecks)
+      if (!context.ForceMode)
       {
         var declaredElement = context.ReferencedElement;
         var declaration = context.ContainingFunction;

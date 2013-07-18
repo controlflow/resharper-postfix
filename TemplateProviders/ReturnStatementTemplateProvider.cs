@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       if (!context.CanBeStatement) return;
-      if (!context.LooseChecks && context.ExpressionType.IsUnknown) return;
+      if (!context.ForceMode && context.ExpressionType.IsUnknown) return;
 
       var declaration = context.ContainingFunction;
       if (declaration != null && !declaration.IsAsync && !declaration.IsIterator)
@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           var returnType = declaredElement.ReturnType;
           if (returnType.IsVoid()) return;
 
-          if (!context.LooseChecks)
+          if (!context.ForceMode)
           {
             var rule = context.Expression.GetTypeConversionRule();
             if (!rule.IsImplicitlyConvertibleTo(context.ExpressionType, returnType)) return;

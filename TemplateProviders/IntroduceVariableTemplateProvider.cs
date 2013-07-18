@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.DataContext;
 using JetBrains.DataFlow;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
@@ -15,8 +14,6 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
-using JetBrains.TextControl.Coords;
-using JetBrains.Util;
 using DataConstants = JetBrains.DocumentModel.DataContext.DataConstants;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -26,21 +23,45 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      if (context.Expression is IReferenceExpression)
+      // todo: what if inside var decl = ..here..?
+
+      var contexts = new List<PrefixExpressionContext>();
+      foreach (var expression in context.PossibleExpressions)
       {
-        // filter out too simple locals expressions
-        var target = context.ReferencedElement;
-        if (target == null || target is IParameter || target is ILocalVariable)
-          return;
+        if (expression.Expression is IReferenceExpression)
+        {
+          // filter out too simple locals expressions
+          var target = expression.ReferencedElement;
+          if (target == null || target is IParameter || target is ILocalVariable)
+            continue;
+        }
+
+        if (expression.ExpressionType.IsVoid())
+        {
+          continue;
+        }
+
+        contexts.Add(expression);
       }
 
-      if (context.CanBeStatement || context.LooseChecks)
+      if (contexts.Count == 0) return;
+
+      var a = contexts.FirstOrDefault(x => x.CanBeStatement) ?? contexts.FirstOrDefault();
+      if (a != null)
       {
-        consumer.Add(new IntroduceVariableLookupItem(context.PossibleExpressions.First()));
+        var canBeStatement = a.CanBeStatement;
+        if (canBeStatement || context.ForceMode)
+        {
+          //consumer.Add(canBeStatement
+          //  ? (ILookupItem)new IntroduceVariableLookupItem(a)
+          //  : new IntroduceVariableLookupItem2(a));
+
+          consumer.Add(new IntroduceVariableLookupItem2(a));
+        }
       }
     }
 
-    private class IntroduceVariableLookupItem : PostfixStatementLookupItem<IExpressionStatement>
+    private class IntroduceVariableLookupItem : StatementPostfixLookupItem<IExpressionStatement>
     {
       public IntroduceVariableLookupItem([NotNull] PrefixExpressionContext expression)
         : base("var", expression) { }
@@ -56,34 +77,73 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
 
       protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IExpressionStatement expressionStatement, int? caretPosition)
+        ITextControl textControl, Suffix suffix, IExpressionStatement statement, int? caretPosition)
       {
         // todo: suffix?
 
-        if (expressionStatement != null)
+        if (statement != null)
         {
           // set selection for introduce viriable
           // todo: do we need this?
-          textControl.Selection.SetRanges(new[] {
-            TextControlPosRange.FromDocRange(
-              textControl, expressionStatement.Expression.GetDocumentRange().TextRange)
-          });
+          //textControl.Selection.SetRanges(new[] {
+          //  TextControlPosRange.FromDocRange(
+          //    textControl, expressionStatement.Expression.GetDocumentRange().TextRange)
+          //});
 
           const string name = "IntroVariableAction";
-          var solution = expressionStatement.GetSolution();
+          var solution = statement.GetSolution();
           var rules = DataRules
             .AddRule(name, ProjectModel.DataContext.DataConstants.SOLUTION, solution)
             .AddRule(name, DataConstants.DOCUMENT, textControl.Document)
             .AddRule(name, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl)
-            .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, expressionStatement.Expression);
+            .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, statement.Expression);
 
           Lifetimes.Using(lifetime =>
             WorkflowExecuter.ExecuteBatch(
               Shell.Instance.GetComponent<DataContexts>().CreateWithDataRules(lifetime, rules),
               new IntroduceVariableWorkflow(solution, null)));
         }
+      }
+    }
 
-        
+    private class IntroduceVariableLookupItem2 : ExpressionPostfixLookupItem<ICSharpExpression>
+    {
+      public IntroduceVariableLookupItem2([NotNull] PrefixExpressionContext expression)
+        : base("var", expression) { }
+
+      protected override ICSharpExpression CreateExpression(
+        IPsiModule psiModule, CSharpElementFactory factory, ICSharpExpression expression)
+      {
+        return expression;
+      }
+
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
+      {
+        // todo: suffix?
+
+        if (expression != null)
+        {
+          // set selection for introduce viriable
+          // todo: do we need this?
+          //textControl.Selection.SetRanges(new[] {
+          //  TextControlPosRange.FromDocRange(
+          //    textControl, expressionStatement.Expression.GetDocumentRange().TextRange)
+          //});
+
+          const string name = "IntroVariableAction";
+          var solution = expression.GetSolution();
+          var rules = DataRules
+            .AddRule(name, ProjectModel.DataContext.DataConstants.SOLUTION, solution)
+            .AddRule(name, DataConstants.DOCUMENT, textControl.Document)
+            .AddRule(name, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl)
+            .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, expression);
+
+          Lifetimes.Using(lifetime =>
+            WorkflowExecuter.ExecuteBatch(
+              Shell.Instance.GetComponent<DataContexts>().CreateWithDataRules(lifetime, rules),
+              new IntroduceVariableWorkflow(solution, null)));
+        }
       }
     }
   }

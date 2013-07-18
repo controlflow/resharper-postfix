@@ -15,10 +15,10 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public abstract class PostfixStatementLookupItem<TStatement> : PostfixLookupItem
+  public abstract class StatementPostfixLookupItem<TStatement> : PostfixLookupItem
     where TStatement : class, ICSharpStatement
   {
-    protected PostfixStatementLookupItem(
+    protected StatementPostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext expression)
       : base(shortcut, expression) { }
 
@@ -34,7 +34,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       using (WriteLockCookie.Create())
       {
         var commandName = GetType().FullName + " expansion";
-        solution.GetPsiServices().Transactions.Execute(commandName, () =>
+        var transactions = solution.GetPsiServices().Transactions;
+        transactions.Execute(commandName, () =>
         {
           var expressionStatements = TextControlToPsi.GetElements<IExpressionStatement>(
             solution, textControl.Document, replaceRange.StartOffset);
@@ -75,7 +76,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     }
 
     protected virtual void AfterComplete(
-      ITextControl textControl, Suffix suffix,
+      [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
       [CanBeNull] TStatement newStatement, int? caretPosition)
     {
       AfterComplete(textControl, suffix, caretPosition);
@@ -83,6 +84,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
     [NotNull] protected abstract TStatement CreateStatement(
       [NotNull] IPsiModule psiModule, [NotNull] CSharpElementFactory factory);
+
     protected abstract void PutExpression(
       [NotNull] TStatement statement, [NotNull] ICSharpExpression expression);
 

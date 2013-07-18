@@ -28,7 +28,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   //      if (declaration == null) return;
   //
   //      // only in constructors by default
-  //      if (context.LooseChecks || declaration.DeclaredElement is IConstructor)
+  //      if (context.ForceMode || declaration.DeclaredElement is IConstructor)
   //      {
   //        consumer.Add(new IntroduceFieldLookupItem(context));
   //      }

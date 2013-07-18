@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [NotNull] IReferenceExpression referenceExpression,
       [NotNull] ICSharpExpression expression,
       TextRange replaceRange, TextRange expressionRange,
-      bool canBeStatement, bool looseChecks)
+      bool canBeStatement, bool forceMode)
     {
       ReferenceExpression = referenceExpression;
       Expression = expression;
@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       MinimalReplaceRange = replaceRange;
       ExpressionRange = expressionRange;
       CanBeStatement = canBeStatement;
-      LooseChecks = looseChecks;
+      ForceMode = forceMode;
       SettingsStore = expression.GetSettingsStore();
 
       var expressionReference = expression as IReferenceExpression;
@@ -59,14 +59,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         }
         else
         {
+          var leftRange = Expression.GetTreeEndOffset();
           ITreeNode node = Expression;
           while (node != null)
           {
+            // todo: check expression range
+
             var expr = node as ICSharpExpression;
             if (expr != null)
+            {
+              if (expr.GetTreeEndOffset() > leftRange) break;
+
               yield return new PrefixExpressionContext(
                 expr, node != Expression && ExpressionStatementNavigator.GetByExpression(expr) != null,
                 ReferenceExpression, MinimalReplaceRange);
+            }
 
             if (node is ICSharpStatement) break;
             node = node.Parent;
@@ -82,7 +89,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [Obsolete] public TextRange MinimalReplaceRange { get; set; }
     [Obsolete] public TextRange ExpressionRange { get; set; }
     [Obsolete] public bool CanBeStatement { get; private set; }
-    public bool LooseChecks { get; private set; } // rename
+    public bool ForceMode { get; private set; } // rename
 
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {

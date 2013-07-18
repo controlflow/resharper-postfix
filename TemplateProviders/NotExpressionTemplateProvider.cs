@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      if (!context.LooseChecks)
+      if (!context.ForceMode)
       {
         if (!context.ExpressionType.IsBool()) return;
 

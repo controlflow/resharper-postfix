@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     private readonly TextRange myReplaceRange;
 
     protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
-    protected const string CaretMarker = "CARET";
+    protected const string CaretMarker = "POSTFIX_COMPLETION_CARET";
 
     protected PostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext expression)

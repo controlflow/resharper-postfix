@@ -15,7 +15,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var function = context.ContainingFunction;
       if (function == null) return;
 
-      if (context.LooseChecks || function.IsAsync)
+      if (context.ForceMode || function.IsAsync)
       if (context.ExpressionType.IsTask() || context.ExpressionType.IsGenericTask())
       {
         // check expression is not already awaited

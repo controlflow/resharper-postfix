@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (context.CanBeStatement)
       {
-        if (context.LooseChecks || context.ExpressionType.IsBool())
+        if (context.ForceMode || context.ExpressionType.IsBool())
           consumer.Add(new PostfixLookupItemObsolete(context, "while", "while ($EXPR$) $CARET$"));
       }
     }

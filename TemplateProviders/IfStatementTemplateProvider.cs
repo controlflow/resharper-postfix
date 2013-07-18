@@ -13,7 +13,7 @@ using JetBrains.TextControl;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider("if", "Checks boolean expression to be 'true'")]
-  public class IfStatementTemplateProvider2 : IPostfixTemplateProvider
+  public class IfStatementTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
@@ -21,7 +21,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         if (!expression.CanBeStatement) continue;
 
-        if (context.LooseChecks ||
+        if (context.ForceMode ||
             expression.ExpressionType.IsBool() ||
             expression.Expression is IRelationalExpression)
         {
@@ -33,7 +33,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
     }
 
-    private sealed class IfStatementPostfixLookupItem : PostfixStatementLookupItem<IIfStatement>
+    private sealed class IfStatementPostfixLookupItem : StatementPostfixLookupItem<IIfStatement>
     {
       public IfStatementPostfixLookupItem(
         [NotNull] PrefixExpressionContext expression, bool bracesInsertion)

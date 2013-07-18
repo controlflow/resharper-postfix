@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (context.CanBeStatement)
       {
-        if (!context.LooseChecks)
+        if (!context.ForceMode)
         {
           if (context.ExpressionType.IsUnknown) return;
 
