@@ -70,9 +70,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       var providerKey = (string) args.Item.Tag;
       var isEnabled = args.Item.Checked;
       if (isEnabled)
-        myStore.RemoveIndexedValue((PostfixCompletionSettings x) => x.DisabledProviders, providerKey);
+        myStore.RemoveIndexedValue(PostfixCompletionSettingsAccessor.DisabledProviders, providerKey);
       else
-        myStore.SetIndexedValue((PostfixCompletionSettings x) => x.DisabledProviders, providerKey, false);
+        myStore.SetIndexedValue(PostfixCompletionSettingsAccessor.DisabledProviders, providerKey, false);
     }
   }
 }

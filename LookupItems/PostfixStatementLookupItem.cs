@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
@@ -16,9 +17,10 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public class PostfixStatementLookupItem : PostfixLookupItem
+  public abstract class PostfixStatementLookupItem<TStatement> : PostfixLookupItem
+    where TStatement : class, ICSharpStatement
   {
-    public PostfixStatementLookupItem([NotNull] string shortcut,
+    protected PostfixStatementLookupItem([NotNull] string shortcut,
       [NotNull] PostfixTemplateAcceptanceContext context,
       [NotNull] PrefixExpressionContext expression)
       : base(shortcut, context, expression) { }
@@ -27,51 +29,57 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ITextControl textControl, Suffix suffix, ISolution solution, TextRange replaceRange,
       IPsiModule psiModule, IContextBoundSettingsStore settings, ICSharpExpression expression)
     {
-      textControl.Document.ReplaceText(replaceRange, "POSTFIX;");
+      textControl.Document.ReplaceText(replaceRange, PostfixMarker + ";");
       solution.GetPsiServices().CommitAllDocuments();
 
-      int? caretPos = null;
-
+      int? caretPosition = null;
       using (WriteLockCookie.Create())
-        solution.GetPsiServices().Transactions.Execute("AAAA", () =>
+      {
+        var commandName = GetType().FullName + " expansion";
+        solution.GetPsiServices().Transactions.Execute(commandName, () =>
         {
-          var re = TextControlToPsi.GetElements<IExpressionStatement>(
+          var expressionStatements = TextControlToPsi.GetElements<IExpressionStatement>(
             solution, textControl.Document, replaceRange.StartOffset);
 
-          foreach (var statement in re)
+          foreach (var statement in expressionStatements)
           {
-            if (IsMarkerExpressionStatement(statement, "POSTFIX"))
+            if (!IsMarkerExpressionStatement(statement, PostfixMarker)) continue;
+
+            var factory = CSharpElementFactory.GetInstance(psiModule);
+            var newStatement = CreateStatement(psiModule, settings, factory);
+
+            // find caret marker in created statement
+            var caretMarker = new TreeNodeMarker<IExpressionStatement>();
+            var collector = new RecursiveElementCollector<IExpressionStatement>(
+              expressionStatement => IsMarkerExpressionStatement(expressionStatement, CaretMarker));
+            var caretNodes = collector.ProcessElement(newStatement).GetResults();
+            if (caretNodes.Count == 1) caretMarker.Mark(caretNodes[0]);
+
+            // replace marker statement with the new one
+            newStatement = statement.ReplaceBy(newStatement);
+            PutExpression(newStatement, expression);
+
+            // find and remove caret marker node
+            var caretNode = caretMarker.FindMarkedNode(newStatement);
+            if (caretNode != null)
             {
-              var factory = CSharpElementFactory.GetInstance(psiModule);
-              var ifStatement = (IIfStatement)factory.CreateStatement("if (expr){CARET;}");
-
-              var c = new RecursiveElementCollector<IExpressionStatement>(es => IsMarkerExpressionStatement(es, "CARET"));
-              var cm = new TreeNodeMarker<IExpressionStatement>();
-
-              var caretNode = c.ProcessElement(ifStatement).GetResults();
-              if (caretNode.Count == 1)
-              {
-                cm.Mark(caretNode[0]);
-              }
-
-              ifStatement = statement.ReplaceBy(ifStatement);
-              ifStatement.Condition.ReplaceBy(expression);
-
-              var cnode = cm.FindMarkedNode(ifStatement);
-              if (cnode != null)
-              {
-                var pos = cnode.GetDocumentRange().TextRange.StartOffset;
-                LowLevelModificationUtil.DeleteChild(cnode);
-                caretPos = pos;
-              }
-
-              cm.Dispose(ifStatement);
+              caretPosition = caretNode.GetDocumentRange().TextRange.StartOffset;
+              LowLevelModificationUtil.DeleteChild(caretNode);
             }
+
+            caretMarker.Dispose(newStatement);
+            break;
           }
         });
+      }
 
-      AfterComplete(textControl, suffix, caretPos);
+      AfterComplete(textControl, suffix, caretPosition);
     }
+
+    [NotNull] protected abstract TStatement CreateStatement([NotNull] IPsiModule psiModule,
+      [NotNull] IContextBoundSettingsStore settings, [NotNull] CSharpElementFactory factory);
+    protected abstract void PutExpression(
+      [NotNull] TStatement statement, [NotNull] ICSharpExpression expression);
 
     private static bool IsMarkerExpressionStatement(
       [NotNull] IExpressionStatement expressionStatement, [NotNull] string markerName)

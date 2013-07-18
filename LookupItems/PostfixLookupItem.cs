@@ -24,6 +24,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] private readonly ITreeNodePointer<IReferenceExpression> myReference;
     private readonly TextRange myReplaceRange;
 
+    protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
+    protected const string CaretMarker = "CARET";
+
     protected PostfixLookupItem([NotNull] string shortcut,
       [NotNull] PostfixTemplateAcceptanceContext context,
       [NotNull] PrefixExpressionContext expression)
