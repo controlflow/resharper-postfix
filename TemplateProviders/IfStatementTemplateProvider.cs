@@ -8,6 +8,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Modules;
+using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -18,38 +19,52 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       foreach (var expression in context.PossibleExpressions)
       {
-        if (expression.CanBeStatement)
+        if (!expression.CanBeStatement) continue;
+
+        if (context.LooseChecks ||
+            expression.ExpressionType.IsBool() ||
+            expression.Expression is IRelationalExpression)
         {
-          if (expression.ExpressionType.IsBool() || context.LooseChecks ||
-              expression.Expression is IRelationalExpression)
-          {
-            consumer.Add(new IfStatementPostfixLookupItem("if", context, expression));
-          }
+          var bracesInsertion = context.SettingsStore.GetValue(
+            PostfixCompletionSettingsAccessor.UseBracesForEmbeddedStatements);
+          consumer.Add(new IfStatementPostfixLookupItem(expression, bracesInsertion));
+          break;
         }
       }
     }
 
     private sealed class IfStatementPostfixLookupItem : PostfixStatementLookupItem<IIfStatement>
     {
-      public IfStatementPostfixLookupItem([NotNull] string shortcut,
-        [NotNull] PostfixTemplateAcceptanceContext context,
-        [NotNull] PrefixExpressionContext expression)
-        : base(shortcut, context, expression) { }
+      public IfStatementPostfixLookupItem(
+        [NotNull] PrefixExpressionContext expression, bool bracesInsertion)
+        : base("if", expression)
+      {
+        BracesInsertion = bracesInsertion;
+      }
+
+      private bool BracesInsertion { get; set; }
 
       protected override IIfStatement CreateStatement(
-        IPsiModule psiModule, IContextBoundSettingsStore settings, CSharpElementFactory factory)
+        IPsiModule psiModule, CSharpElementFactory factory)
       {
-        if (settings.GetValue(PostfixCompletionSettingsAccessor.UseBracesForEmbeddedStatements))
-        {
-          return (IIfStatement)factory.CreateStatement("if (expr){" + CaretMarker + ";}");
-        }
+        var template = BracesInsertion
+          ? "if (expr){" + CaretMarker + ";}"
+          : "if (expr)" + CaretMarker + ";";
 
-        return (IIfStatement)factory.CreateStatement("if (expr)" + CaretMarker + ";");
+        return (IIfStatement) factory.CreateStatement(template);
       }
 
       protected override void PutExpression(IIfStatement statement, ICSharpExpression expression)
       {
         statement.Condition.ReplaceBy(expression);
+      }
+
+      protected override void ReplaySuffix(ITextControl textControl, Suffix suffix)
+      {
+        if (BracesInsertion && suffix.HasPresentation && suffix.Presentation == '{')
+          return;
+
+        base.ReplaySuffix(textControl, suffix);
       }
     }
   }

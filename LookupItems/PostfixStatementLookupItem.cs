@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.Application;
-using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -20,19 +18,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
   public abstract class PostfixStatementLookupItem<TStatement> : PostfixLookupItem
     where TStatement : class, ICSharpStatement
   {
-    protected PostfixStatementLookupItem([NotNull] string shortcut,
-      [NotNull] PostfixTemplateAcceptanceContext context,
-      [NotNull] PrefixExpressionContext expression)
-      : base(shortcut, context, expression) { }
+    protected PostfixStatementLookupItem(
+      [NotNull] string shortcut, [NotNull] PrefixExpressionContext expression)
+      : base(shortcut, expression) { }
 
     protected override void ExpandPostfix(
       ITextControl textControl, Suffix suffix, ISolution solution, TextRange replaceRange,
-      IPsiModule psiModule, IContextBoundSettingsStore settings, ICSharpExpression expression)
+      IPsiModule psiModule, ICSharpExpression expression)
     {
       textControl.Document.ReplaceText(replaceRange, PostfixMarker + ";");
       solution.GetPsiServices().CommitAllDocuments();
 
       int? caretPosition = null;
+      TStatement newStatement = null;
       using (WriteLockCookie.Create())
       {
         var commandName = GetType().FullName + " expansion";
@@ -46,7 +44,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
             if (!IsMarkerExpressionStatement(statement, PostfixMarker)) continue;
 
             var factory = CSharpElementFactory.GetInstance(psiModule);
-            var newStatement = CreateStatement(psiModule, settings, factory);
+            newStatement = CreateStatement(psiModule, factory);
 
             // find caret marker in created statement
             var caretMarker = new TreeNodeMarker<IExpressionStatement>();
@@ -73,11 +71,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         });
       }
 
+      AfterComplete(textControl, suffix, newStatement, caretPosition);
+    }
+
+    protected virtual void AfterComplete(
+      ITextControl textControl, Suffix suffix,
+      [CanBeNull] TStatement newStatement, int? caretPosition)
+    {
       AfterComplete(textControl, suffix, caretPosition);
     }
 
-    [NotNull] protected abstract TStatement CreateStatement([NotNull] IPsiModule psiModule,
-      [NotNull] IContextBoundSettingsStore settings, [NotNull] CSharpElementFactory factory);
+    [NotNull] protected abstract TStatement CreateStatement(
+      [NotNull] IPsiModule psiModule, [NotNull] CSharpElementFactory factory);
     protected abstract void PutExpression(
       [NotNull] TStatement statement, [NotNull] ICSharpExpression expression);
 
@@ -86,9 +91,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       var reference = expressionStatement.Expression as IReferenceExpression;
       return reference != null
-             && reference.QualifierExpression == null
-             && reference.Delimiter == null
-             && reference.NameIdentifier.Name == markerName;
+          && reference.QualifierExpression == null
+          && reference.Delimiter == null
+          && reference.NameIdentifier.Name == markerName;
     }
   }
 }

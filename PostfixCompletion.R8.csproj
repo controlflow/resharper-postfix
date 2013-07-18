@@ -55,6 +55,7 @@
     <Compile Include="PostfixTemplateProviderAttribute.cs" />
     <Compile Include="PostfixTemplatesManager.cs" />
     <Compile Include="PostfixTemplatesTracker.cs" />
+    <Compile Include="PrefixExpressionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\PostfixCompletionOptionsPage.cs" />
     <Compile Include="Settings\PostfixCompletionSettings.cs" />

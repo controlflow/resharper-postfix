@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       myShortcut = shortcut;
       myReplaceTemplate = replaceTemplate;
-      myReplaceRange = context.ReplaceRange;
+      myReplaceRange = context.MinimalReplaceRange;
       myExpressionRange = context.ExpressionRange;
     }
 

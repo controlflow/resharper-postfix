@@ -27,14 +27,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
     protected const string CaretMarker = "CARET";
 
-    protected PostfixLookupItem([NotNull] string shortcut,
-      [NotNull] PostfixTemplateAcceptanceContext context,
-      [NotNull] PrefixExpressionContext expression)
+    protected PostfixLookupItem(
+      [NotNull] string shortcut, [NotNull] PrefixExpressionContext expression)
     {
       myShortcut = shortcut;
       myExpression = expression.Expression.CreateTreeElementPointer();
-      myReference = context.ReferenceExpression.CreateTreeElementPointer();
-      myReplaceRange = context.ReplaceRange; // note: this is minimum replace range
+      myReference = expression.Reference.CreateTreeElementPointer();
+      myReplaceRange = expression.ReplaceRange;
     }
 
     public MatchingResult Match(string prefix, ITextControl textControl)
@@ -51,18 +50,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
       // take required component while tree is valid
       var psiModule = expression.GetPsiModule();
-      var settingsStore = expression.GetSettingsStore();
 
       // calculate textual range to remove
-      var exprRange = myReplaceRange.JoinLeft(expression.GetDocumentRange().TextRange);
-      var replaceRange = exprRange.Intersects(nameRange) ? exprRange.JoinRight(nameRange) : exprRange;
+      var replaceRange = myReplaceRange.Intersects(nameRange)
+        ? myReplaceRange.JoinRight(nameRange) : myReplaceRange;
+
+      var reference = myReference.GetTreeNode();
 
       // fix "x > 0.if" to "x > 0"
-      var reference = myReference.GetTreeNode();
-      if (reference == null) return;
-
       ICSharpExpression expressionCopy;
-      if (expression.Contains(reference))
+      if (reference != null && expression.Contains(reference))
       {
         var marker = new TreeNodeMarker<IReferenceExpression>(reference);
         expressionCopy = expression.Copy(expression);
@@ -78,30 +75,32 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         expressionCopy = expression.Copy(expression);
       }
 
-      ExpandPostfix(
-        textControl, suffix, solution, replaceRange,
-        psiModule, settingsStore, expressionCopy);
+      ExpandPostfix(textControl, suffix, solution, replaceRange, psiModule, expressionCopy);
     }
 
     protected abstract void ExpandPostfix([NotNull] ITextControl textControl,
       [NotNull] Suffix suffix, [NotNull] ISolution solution, TextRange replaceRange,
-      [NotNull] IPsiModule psiModule, [NotNull] IContextBoundSettingsStore settings,
-      [NotNull] ICSharpExpression expression);
+      [NotNull] IPsiModule psiModule, [NotNull] ICSharpExpression expression);
 
     protected virtual void AfterComplete(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix, int? caretPosition)
     {
       if (caretPosition != null)
-        textControl.Caret.MoveTo(caretPosition.Value, CaretVisualPlacement.DontScrollIfVisible);
+      {
+        textControl.Caret.MoveTo(
+          caretPosition.Value, CaretVisualPlacement.DontScrollIfVisible);
+      }
 
+      ReplaySuffix(textControl, suffix);
+    }
+
+    protected virtual void ReplaySuffix(
+      [NotNull] ITextControl textControl, [NotNull] Suffix suffix)
+    {
       suffix.Playback(textControl);
     }
 
-    public IconId Image
-    {
-      get { return ServicesThemedIcons.LiveTemplate.Id; }
-    }
-
+    public IconId Image { get { return ServicesThemedIcons.LiveTemplate.Id; } }
     public RichText DisplayName { get { return myShortcut; } }
     public RichText DisplayTypeName { get { return null; } }
     public string OrderingString { get { return myShortcut; } }
