@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
             return;
         }
 
-        consumer.Add(new PostfixLookupItem(context, "throw", "throw $EXPR$"));
+        consumer.Add(new PostfixLookupItemObsolete(context, "throw", "throw $EXPR$"));
       }
     }
   }

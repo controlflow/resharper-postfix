@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var awaitExpression = AwaitExpressionNavigator.GetByTask(
           context.ReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
         if (awaitExpression == null)
-          consumer.Add(new PostfixLookupItem(context, "await", "await $EXPR$"));
+          consumer.Add(new PostfixLookupItemObsolete(context, "await", "await $EXPR$"));
       }
     }
   }

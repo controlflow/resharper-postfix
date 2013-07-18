@@ -18,7 +18,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public sealed class NameSuggestionPostfixLookupItem : PostfixLookupItem
+  public sealed class NameSuggestionPostfixLookupItem : PostfixLookupItemObsolete
   {
     [NotNull] private readonly ISolution mySolution;
     [NotNull] private readonly IList<string> myNames;

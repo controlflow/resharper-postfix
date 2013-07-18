@@ -29,7 +29,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
             if (!rule.IsImplicitlyConvertibleTo(context.ExpressionType, returnType)) return;
           }
 
-          consumer.Add(new PostfixLookupItem(context, "return", "return $EXPR$"));
+          consumer.Add(new PostfixLookupItemObsolete(context, "return", "return $EXPR$"));
         }
       }
 

@@ -24,7 +24,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           return;
       }
 
-      consumer.Add(new PostfixLookupItem(context, "not", "!$EXPR$"));
+      consumer.Add(new PostfixLookupItemObsolete(context, "not", "!$EXPR$"));
     }
   }
 }

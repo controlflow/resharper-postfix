@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         {
           if (!constructor.IsStatic && AccessUtil.IsSymbolAccessible(constructor, accessContext))
           {
-            consumer.Add(new PostfixLookupItem(context, "new", "new $EXPR$($CARET$)"));
+            consumer.Add(new PostfixLookupItemObsolete(context, "new", "new $EXPR$($CARET$)"));
             break;
           }
         }

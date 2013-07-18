@@ -46,9 +46,10 @@
   <ItemGroup>
     <Compile Include="CSharpPostfixItemProviderSmart.cs" />
     <Compile Include="IPostfixTemplateProvider.cs" />
-    <Compile Include="LookupItems\PostfixLookupItem2.cs" />
-    <Compile Include="LookupItems\NameSuggestionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
+    <Compile Include="LookupItems\NameSuggestionPostfixLookupItem.cs" />
+    <Compile Include="LookupItems\PostfixLookupItemObsolete.cs" />
+    <Compile Include="LookupItems\PostfixStatementLookupItem.cs" />
     <Compile Include="LookupItems\ProcessExpressionPostfixLookupItem.cs" />
     <Compile Include="PostfixTemplateAcceptanceContext.cs" />
     <Compile Include="PostfixTemplateProviderAttribute.cs" />

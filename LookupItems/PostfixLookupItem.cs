@@ -1,8 +1,15 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExtensionsAPI;
+using JetBrains.ReSharper.Psi.Modules;
+using JetBrains.ReSharper.Psi.Pointers;
+using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
@@ -10,20 +17,100 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public class PostfixLookupItem : ILookupItem
+  public abstract class PostfixLookupItem : ILookupItem
   {
     [NotNull] private readonly string myShortcut;
-    [NotNull] private readonly string myReplaceTemplate;
-    private TextRange myExpressionRange, myReplaceRange;
+    [NotNull] private readonly ITreeNodePointer<ICSharpExpression> myExpression;
+    [NotNull] private readonly ITreeNodePointer<IReferenceExpression> myReference;
+    private readonly TextRange myReplaceRange;
 
-    public PostfixLookupItem(
+    protected PostfixLookupItem([NotNull] string shortcut,
       [NotNull] PostfixTemplateAcceptanceContext context,
-      [NotNull] string shortcut, [NotNull] string replaceTemplate)
+      [NotNull] PrefixExpressionContext expression)
     {
       myShortcut = shortcut;
-      myReplaceTemplate = replaceTemplate;
-      myReplaceRange = context.ReplaceRange;
-      myExpressionRange = context.ExpressionRange;
+      myExpression = expression.Expression.CreateTreeElementPointer();
+      myReference = context.ReferenceExpression.CreateTreeElementPointer();
+      myReplaceRange = context.ReplaceRange; // note: this is minimum replace range
+    }
+
+    public MatchingResult Match(string prefix, ITextControl textControl)
+    {
+      // todo: match "nn" with "notnull"
+      return LookupUtil.MatchesPrefixSimple(myShortcut, prefix);
+    }
+
+    public void Accept(ITextControl textControl, TextRange nameRange,
+      LookupItemInsertType insertType, Suffix suffix, ISolution solution, bool keepCaretStill)
+    {
+      var expression = myExpression.GetTreeNode();
+      if (expression == null) return;
+
+      // take required component while tree is valid
+      var psiModule = expression.GetPsiModule();
+      var settingsStore = expression.GetSettingsStore();
+
+      // calculate textual range to remove
+      var exprRange = myReplaceRange.JoinLeft(expression.GetDocumentRange().TextRange);
+      var replaceRange = exprRange.Intersects(nameRange) ? exprRange.JoinRight(nameRange) : exprRange;
+
+      // fix "x > 0.if" to "x > 0"
+      var reference = myReference.GetTreeNode();
+      if (reference == null) return;
+
+      ICSharpExpression expressionCopy;
+      if (expression.Contains(reference))
+      {
+        var marker = new TreeNodeMarker<IReferenceExpression>(reference);
+        expressionCopy = expression.Copy(expression);
+        var copy = marker.GetAndDispose(expressionCopy);
+        var exprToFix = copy.QualifierExpression.NotNull();
+
+        LowLevelModificationUtil.ReplaceChildRange(copy, copy, exprToFix);
+        if (exprToFix.NextSibling is IErrorElement)
+          LowLevelModificationUtil.DeleteChild(exprToFix.NextSibling);
+      }
+      else
+      {
+        expressionCopy = expression.Copy(expression);
+      }
+
+      ExpandPostfix(
+        textControl, suffix, solution, replaceRange,
+        psiModule, settingsStore, expressionCopy);
+    }
+
+    protected abstract void ExpandPostfix([NotNull] ITextControl textControl,
+      [NotNull] Suffix suffix, [NotNull] ISolution solution, TextRange replaceRange,
+      [NotNull] IPsiModule psiModule, [NotNull] IContextBoundSettingsStore settings,
+      [NotNull] ICSharpExpression expression);
+
+    protected virtual void AfterComplete(
+      [NotNull] ITextControl textControl, [NotNull] Suffix suffix, int? caretPosition)
+    {
+      if (caretPosition != null)
+        textControl.Caret.MoveTo(caretPosition.Value, CaretVisualPlacement.DontScrollIfVisible);
+
+      suffix.Playback(textControl);
+    }
+
+    public IconId Image
+    {
+      get { return ServicesThemedIcons.LiveTemplate.Id; }
+    }
+
+    public RichText DisplayName { get { return myShortcut; } }
+    public RichText DisplayTypeName { get { return null; } }
+    public string OrderingString { get { return myShortcut; } }
+    public string Identity { get { return myShortcut; } }
+    public bool CanShrink { get { return false; } }
+    public bool Shrink() { return false; }
+    public void Unshrink() { }
+
+    public TextRange GetVisualReplaceRange(ITextControl textControl, TextRange nameRange)
+    {
+      // note: prefix highlighter disallows highlighting to be any position
+      return TextRange.InvalidRange;
     }
 
     public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
@@ -31,64 +118,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return false;
     }
 
-    public MatchingResult Match(string prefix, ITextControl textControl)
-    {
-      return LookupUtil.MatchesPrefixSimple(myShortcut, prefix);
-    }
-
-    public void Accept(
-      ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType,
-      Suffix suffix, ISolution solution, bool keepCaretStill)
-    {
-      if (!myReplaceRange.IsValid || !myExpressionRange.IsValid) return;
-
-      var replaceRange = myReplaceRange.Intersects(nameRange)
-        ? new TextRange(myReplaceRange.StartOffset, nameRange.EndOffset)
-        : myReplaceRange;
-
-      var expressionText = textControl.Document.GetText(myExpressionRange);
-      var targetText = myReplaceTemplate.Replace("$EXPR$", expressionText);
-
-      var caretOffset = targetText.IndexOf("$CARET$", StringComparison.Ordinal);
-      if (caretOffset == -1) caretOffset = targetText.Length;
-      else targetText = targetText.Replace("$CARET$", string.Empty);
-
-      textControl.Document.ReplaceText(replaceRange, targetText);
-
-      var range = TextRange.FromLength(replaceRange.StartOffset, targetText.Length);
-      AfterCompletion(textControl, solution, suffix, range, targetText, caretOffset);
-    }
-
-    protected virtual void AfterCompletion(
-      [NotNull] ITextControl textControl, ISolution solution, [NotNull] Suffix suffix,
-      TextRange resultRange, [NotNull] string targetText, int caretOffset)
-    {
-      textControl.Caret.MoveTo(
-        resultRange.StartOffset + caretOffset, CaretVisualPlacement.DontScrollIfVisible);
-
-      suffix.Playback(textControl);
-    }
-
-    public IconId Image { get { return ServicesThemedIcons.LiveTemplate.Id; } }
-
-    public RichText DisplayName { get { return myShortcut; } }
-    public RichText DisplayTypeName { get { return null; } }
-
-    public TextRange GetVisualReplaceRange(ITextControl textControl, TextRange nameRange)
-    {
-      return TextRange.InvalidRange;
-    }
-
-    public bool CanShrink { get { return false; } }
-    public bool Shrink() { return false; }
-    public void Unshrink() { }
-
-    public string OrderingString { get { return myShortcut; } }
 #if RESHARPER8
     public int Multiplier { get; set; }
     public bool IsDynamic { get { return false; } }
     public bool IgnoreSoftOnSpace { get; set; }
 #endif
-    public string Identity { get { return myShortcut; } }
   }
 }

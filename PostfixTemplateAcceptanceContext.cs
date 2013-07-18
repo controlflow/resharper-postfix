@@ -46,13 +46,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
     }
 
-    public IEnumerable<PrefixExpression> PossibleExpressions
+    public IEnumerable<PrefixExpressionContext> PossibleExpressions
     {
       get
       {
         if (CanBeStatement)
         {
-          yield return new PrefixExpression(Expression, true);
+          yield return new PrefixExpressionContext(Expression, true);
         }
         else
         {
@@ -61,7 +61,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           {
             var expr = node as ICSharpExpression;
             if (expr != null)
-              yield return new PrefixExpression(
+              yield return new PrefixExpressionContext(
                 expr, node != Expression && ExpressionStatementNavigator.GetByExpression(expr) != null);
 
             if (node is ICSharpStatement) break;
@@ -86,9 +86,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
   }
 
-  public sealed class PrefixExpression
+  public sealed class PrefixExpressionContext
   {
-    public PrefixExpression([NotNull] ICSharpExpression expression, bool canBeStatement)
+    public PrefixExpressionContext([NotNull] ICSharpExpression expression, bool canBeStatement)
     {
       Expression = expression;
       ExpressionType = expression.Type(); // todo: maybe use NULL to indicate that expression is broken and types do not works

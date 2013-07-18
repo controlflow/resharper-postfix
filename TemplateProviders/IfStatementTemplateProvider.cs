@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   //      // todo: smart caret? stay in condition when loose?
   //
   //      if (context.ExpressionType.IsBool() || context.LooseChecks)
-  //        consumer.Add(new PostfixLookupItem(context, "if", "if ($EXPR$) $CARET$"));
+  //        consumer.Add(new PostfixLookupItemObsolete(context, "if", "if ($EXPR$) $CARET$"));
   //    }
   //  }
   //}
@@ -36,7 +36,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
               context.LooseChecks ||
               expression.Expression is IRelationalExpression)
           {
-            consumer.Add(new PostfixLookupItem2(context, expression, "if"));
+            consumer.Add(new PostfixStatementLookupItem("if", context, expression));
           }
         }
       }

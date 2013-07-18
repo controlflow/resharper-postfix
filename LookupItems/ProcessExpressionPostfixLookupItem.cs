@@ -9,7 +9,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public abstract class ProcessExpressionPostfixLookupItem : PostfixLookupItem
+  public abstract class ProcessExpressionPostfixLookupItem : PostfixLookupItemObsolete
   {
     protected ProcessExpressionPostfixLookupItem(
       [NotNull] PostfixTemplateAcceptanceContext context, [NotNull] string shortcut)

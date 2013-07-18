@@ -57,13 +57,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         {
           if (context.CanBeStatement)
           {
-            consumer.Add(new PostfixLookupItem(context, "notnull", "if ($EXPR$ != null) "));
-            consumer.Add(new PostfixLookupItem(context, "null", "if ($EXPR$ == null) "));
+            consumer.Add(new PostfixLookupItemObsolete(context, "notnull", "if ($EXPR$ != null) "));
+            consumer.Add(new PostfixLookupItemObsolete(context, "null", "if ($EXPR$ == null) "));
           }
           else
           {
-            consumer.Add(new PostfixLookupItem(context, "notnull", "$EXPR$ != null"));
-            consumer.Add(new PostfixLookupItem(context, "null", "$EXPR$ == null"));
+            consumer.Add(new PostfixLookupItemObsolete(context, "notnull", "$EXPR$ != null"));
+            consumer.Add(new PostfixLookupItemObsolete(context, "null", "$EXPR$ == null"));
           }
 
           break;

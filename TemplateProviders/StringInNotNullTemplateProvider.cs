@@ -13,8 +13,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       if (context.ExpressionType.IsString())
       {
         consumer.Add(context.CanBeStatement
-          ? new PostfixLookupItem(context, "ifempty", "if (string.IsNullOrEmpty($EXPR$)) ")
-          : new PostfixLookupItem(context, "ifempty", "string.IsNullOrEmpty($EXPR$)"));
+          ? new PostfixLookupItemObsolete(context, "ifempty", "if (string.IsNullOrEmpty($EXPR$)) ")
+          : new PostfixLookupItemObsolete(context, "ifempty", "string.IsNullOrEmpty($EXPR$)"));
       }
     }
   }
