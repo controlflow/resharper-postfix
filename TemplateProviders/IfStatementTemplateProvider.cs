@@ -13,7 +13,7 @@ using JetBrains.TextControl;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider("if", "Checks boolean expression to be 'true'")]
-  public class IfStatementTemplateProvider : IPostfixTemplateProvider
+  public sealed class IfStatementTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
@@ -27,15 +27,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         {
           var bracesInsertion = context.SettingsStore.GetValue(
             PostfixCompletionSettingsAccessor.UseBracesForEmbeddedStatements);
-          consumer.Add(new IfStatementPostfixLookupItem(expression, bracesInsertion));
+          consumer.Add(new LookupItem(expression, bracesInsertion));
           break;
         }
       }
     }
 
-    private sealed class IfStatementPostfixLookupItem : StatementPostfixLookupItem<IIfStatement>
+    private sealed class LookupItem : StatementPostfixLookupItem<IIfStatement>
     {
-      public IfStatementPostfixLookupItem(
+      public LookupItem(
         [NotNull] PrefixExpressionContext expression, bool bracesInsertion)
         : base("if", expression)
       {

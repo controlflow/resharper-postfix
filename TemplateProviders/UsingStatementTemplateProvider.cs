@@ -9,6 +9,8 @@ using JetBrains.ReSharper.Psi.Xaml.Impl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // todo: check ..using bug
+
   [PostfixTemplateProvider("using", "Wrap resource with using statement")]
   public class UsingStatementTemplateProvider : IPostfixTemplateProvider
   {
