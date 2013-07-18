@@ -4,10 +4,8 @@ The idea is to prevent caret jumps backwards while typing C# code.
 
 ## Download
 
-| Version | debug | release |
-| ------- | ----- | ------- |
-| ReSharper 7.0 | [debug](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Debug/PostfixCompletion.dll)    | [release](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin/Release/PostfixCompletion.dll) |
-| ReSharper 8.0 | [debug](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Debug/PostfixCompletion.dll) | [release](https://dl.dropbox.com/u/2209105/PostfixCompletion/bin.R8/Release/PostfixCompletion.dll) |
+Will be available in ReSharper 8.0 extension gallery soon.
+ReSharper 7.1 version will came shortly after.
 
 ## Available templates
 
@@ -31,44 +29,29 @@ Awaiting expressions of *'Task<T>'* type:
 
 ![await](/img/await.png)
 
-.var
-
-.field
-
-.not
-
-.return
-
-.throw
-
-.while/.whilenot
+* .var
+* .field
+* .not
+* .return
+* .throw
+* .while/.whilenot
 
 ## Future work
 
-.check
-
-.yield
-
-.field
-
-.switch
-
-.format
-
+* .check
+* .yield
+* .field
+* .switch
+* .format
 collections:
-
-.ifempty/empty
-
-.ifsingle/single
-
-.ifnonempty
+* .ifempty/empty
+* .ifsingle/single
+* .ifnonempty
 
 types:
-
-int.list => List<int>?
-
-Foo.new => new Foo()
+* int.list => List<int>?
+* Foo.new => new Foo()
 
 ## Feedback
 
-alexander.shvedov[at]jetbrain.com
+alexander.shvedov[at]jetbrains.com

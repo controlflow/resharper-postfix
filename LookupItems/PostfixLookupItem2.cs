@@ -8,7 +8,6 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
-using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
@@ -27,17 +26,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     private TextRange myReplaceRange;
 
     public PostfixLookupItem2(
-      [NotNull] PostfixTemplateAcceptanceContext context, [NotNull] string shortcut)
+      [NotNull] PostfixTemplateAcceptanceContext context,
+      [NotNull] PrefixExpression prefixExpression,
+      [NotNull] string shortcut)
     {
       myShortcut = shortcut;
-      myExpression = context.Expression.CreateTreeElementPointer();
+      myExpression = prefixExpression.Expression.CreateTreeElementPointer();
       myReplaceExpression = context.ReferenceExpression.CreateTreeElementPointer();
-      myReplaceRange = context.ReplaceRange;
-    }
-
-    public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
-    {
-      return false;
+      myReplaceRange = context.ReplaceRange; // note: minimum replace range
     }
 
     public MatchingResult Match(string prefix, ITextControl textControl)
@@ -50,11 +46,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType,
       Suffix suffix, ISolution solution, bool keepCaretStill)
     {
-      //var referenceExpression = myReplaceExpression.GetTreeNode();
-      //if (referenceExpression == null) return;
+      var referenceExpression = myReplaceExpression.GetTreeNode();
+      if (referenceExpression == null) return;
 
       var expression = myExpression.GetTreeNode();
       if (expression == null) return;
+
+      
+
       // will be removed from tree
 
       var psiServices = expression.GetPsiServices();
@@ -63,6 +62,27 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var replaceRange = myReplaceRange.Intersects(nameRange)
         ? new TextRange(myReplaceRange.StartOffset, nameRange.EndOffset)
         : myReplaceRange;
+
+      var expressionRange = expression.GetDocumentRange().TextRange;
+      replaceRange = expressionRange.JoinRight(replaceRange); // mmm
+
+      if (expression.Contains(referenceExpression))
+      {
+        var mm = new TreeNodeMarker<IReferenceExpression>(referenceExpression);
+        var copy = expression.Copy(expression);
+        var rr = mm.GetAndDispose(copy);
+
+        var toFix = rr.QualifierExpression;
+        LowLevelModificationUtil.ReplaceChildRange(rr, rr, toFix);
+        if (toFix.NextSibling is IErrorElement)
+          LowLevelModificationUtil.DeleteChild(toFix.NextSibling);
+
+        expression = copy;
+      }
+      else
+      {
+        expression = expression.Copy(expression);
+      }
 
       // todo: replace with 'POSTFIX' for expression-based providers
       textControl.Document.ReplaceText(replaceRange, "POSTFIX;");
@@ -74,7 +94,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       psiServices.Transactions.Execute("AAAA", () =>
       {
         var re = TextControlToPsi.GetElements<IExpressionStatement>(
-          solution, textControl.Document, myReplaceRange.StartOffset);
+          solution, textControl.Document, replaceRange.StartOffset);
 
         foreach (var statement in re)
         {
@@ -91,7 +111,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
             {
               cm.Mark(caretNode[0]);
             }
-            
+
+            //if (expression.Contains(referenceExpression))
+            {
+              expression.SetResolveContextForSandBox(statement, SandBoxContextType.Child);
+
+              
+            }
+
             ifStatement = statement.ReplaceBy(ifStatement);
             ifStatement.Condition.ReplaceBy(expression);
 
@@ -136,7 +163,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           && reference.NameIdentifier.Name == markerName;
     }
 
-    public IconId Image { get { return ServicesThemedIcons.LiveTemplate.Id; } }
+    public IconId Image
+    {
+      get { return ServicesThemedIcons.LiveTemplate.Id; }
+    }
+
     public RichText DisplayName { get { return myShortcut; } }
     public RichText DisplayTypeName { get { return null; } }
 
@@ -146,25 +177,31 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return TextRange.InvalidRange;
     }
 
+    public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
+    {
+      return false;
+    }
+
     public bool CanShrink { get { return false; } }
     public bool Shrink() { return false; }
     public void Unshrink() { }
 
     public string OrderingString { get { return myShortcut; } }
+    public string Identity { get { return myShortcut; } }
+
 #if RESHARPER8
     public int Multiplier { get; set; }
     public bool IsDynamic { get { return false; } }
     public bool IgnoreSoftOnSpace { get; set; }
 #endif
-    public string Identity { get { return myShortcut; } }
   }
 
-  public class PostfixStatementLookupItem : PostfixLookupItem2
-  {
-    public PostfixStatementLookupItem(
-      [NotNull] PostfixTemplateAcceptanceContext context, [NotNull] string shortcut)
-      : base(context, shortcut) { }
-
-
-  }
+  //public class PostfixStatementLookupItem : PostfixLookupItem2
+  //{
+  //  public PostfixStatementLookupItem(
+  //    [NotNull] PostfixTemplateAcceptanceContext context, [NotNull] string shortcut)
+  //    : base(context, shortcut) { }
+  //
+  //
+  //}
 }

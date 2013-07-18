@@ -2,6 +2,7 @@
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -27,11 +28,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      //if (context.CanBeStatement)
+      foreach (var expression in context.PossibleExpressions)
       {
-        if (context.ExpressionType.IsBool() || context.LooseChecks)
-          consumer.Add(new PostfixLookupItem2(context, "if"));
+        if (expression.CanBeStatement)
+        {
+          if (expression.ExpressionType.IsBool() ||
+              context.LooseChecks ||
+              expression.Expression is IRelationalExpression)
+          {
+            consumer.Add(new PostfixLookupItem2(context, expression, "if"));
+          }
+        }
       }
+
+      
     }
   }
 }

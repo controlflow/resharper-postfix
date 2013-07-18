@@ -9,6 +9,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
     [SettingsIndexedEntry("Template providers list disabled/enabled list")]
     public IIndexedEntry<string, bool> DisabledProviders;
 
-    public bool UseBlocksForEmbeddedStatements;
+    //[SettingsEntry(true, "Insert braces for embedded statements")]
+    //public bool UseBracesForEmbeddedStatements;
   }
 }
