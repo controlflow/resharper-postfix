@@ -18,8 +18,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     private sealed class IntroducePropertyLookupItem : IntroduceMemberLookupItem
     {
       public IntroducePropertyLookupItem(
-        [NotNull] PrefixExpressionContext expression, bool isStatic)
-        : base("prop", expression, expression.ExpressionType, isStatic) { }
+        [NotNull] PrefixExpressionContext context, bool isStatic)
+        : base("prop", context, context.ExpressionType, isStatic) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {

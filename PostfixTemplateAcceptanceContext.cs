@@ -59,7 +59,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         }
         else
         {
-          var leftRange = Expression.GetTreeEndOffset();
+          var leftRange = ReferenceExpression.GetTreeEndOffset();
           ITreeNode node = Expression;
           while (node != null)
           {

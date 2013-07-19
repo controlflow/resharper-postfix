@@ -19,8 +19,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     where TExpression : class, ICSharpExpression
   {
     protected ExpressionPostfixLookupItem(
-      [NotNull] string shortcut, [NotNull] PrefixExpressionContext expression)
-      : base(shortcut, expression) { }
+      [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
+      : base(shortcut, context) { }
 
     protected override void ExpandPostfix(
       ITextControl textControl, Suffix suffix, ISolution solution, TextRange replaceRange,

@@ -7,7 +7,7 @@ using JetBrains.ReSharper.Psi.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("new", "Invokes the constructor of type", WorksOnTypes = true)]
+  //[PostfixTemplateProvider("new", "Invokes the constructor of type", WorksOnTypes = true)]
   public class ObjectCreationTypeTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

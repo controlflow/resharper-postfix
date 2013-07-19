@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.Xaml.Impl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("foreach", "Iterating over expressions of collection type")]
+  //[PostfixTemplateProvider("foreach", "Iterating over expressions of collection type")]
   public class ForEachLoopTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

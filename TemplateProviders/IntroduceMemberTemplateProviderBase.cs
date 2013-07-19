@@ -64,9 +64,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       [CanBeNull] private IDeclaration myMemberDeclaration;
 
       protected IntroduceMemberLookupItem(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext expression,
+        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
         [NotNull] IType expressionType, bool isStatic)
-        : base(shortcut, expression)
+        : base(shortcut, context)
       {
         IsStatic = isStatic;
         ExpressionType = expressionType;

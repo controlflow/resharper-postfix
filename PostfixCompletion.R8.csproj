@@ -60,10 +60,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\PostfixCompletionOptionsPage.cs" />
     <Compile Include="Settings\PostfixCompletionSettings.cs" />
-    <Compile Include="TemplateProviders\AwaitExpressionTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\ForEachLoopTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\ForLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\AwaitExpressionTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\CheckForNullTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\ForEachLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\ForLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfNotStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceFieldTemplateProvider.cs" />
@@ -71,13 +71,13 @@
     <Compile Include="TemplateProviders\IntroducePropertyTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceVariableTemplateProvider.cs" />
     <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\ObjectCreationTypeTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\StringInNotNullTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\UsingStatementTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\WhileNotLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\ObjectCreationTypeTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\ReturnStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\StringInNotNullTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\ThrowStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\UsingStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\WhileLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\Obsolete\WhileNotLoopTemplateProvider.cs" />
     <Compile Include="Utils\PortabilityExtensions.R8.cs" />
   </ItemGroup>
   <ItemGroup>

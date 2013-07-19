@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.CSharp.Impl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("return", "Returns expression")]
+  //[PostfixTemplateProvider("return", "Returns expression")]
   public class ReturnStatementTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

@@ -18,9 +18,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     private sealed class IntroduceFieldLookupItem : IntroduceMemberLookupItem
     {
       public IntroduceFieldLookupItem(
-        [NotNull] PrefixExpressionContext expression,
+        [NotNull] PrefixExpressionContext context,
         [NotNull] IType expressionType, bool isStatic)
-        : base("field", expression, expressionType, isStatic) { }
+        : base("field", context, expressionType, isStatic) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {

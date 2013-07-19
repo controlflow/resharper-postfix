@@ -7,7 +7,7 @@ using JetBrains.ReSharper.Psi.ControlFlow.CSharp;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(new[] { "null", "notnull" }, "Checks expressions for nulls")]
+  //[PostfixTemplateProvider(new[] { "null", "notnull" }, "Checks expressions for nulls")]
   public class CheckForNullTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

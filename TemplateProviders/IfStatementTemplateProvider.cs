@@ -36,8 +36,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     private sealed class LookupItem : StatementPostfixLookupItem<IIfStatement>
     {
       public LookupItem(
-        [NotNull] PrefixExpressionContext expression, bool bracesInsertion)
-        : base("if", expression)
+        [NotNull] PrefixExpressionContext context, bool bracesInsertion)
+        : base("if", context)
       {
         BracesInsertion = bracesInsertion;
       }

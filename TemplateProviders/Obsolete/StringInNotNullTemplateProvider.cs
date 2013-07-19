@@ -5,7 +5,7 @@ using JetBrains.ReSharper.Psi;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("ifempty", "Checks string for null or empty string")]
+  //[PostfixTemplateProvider("ifempty", "Checks string for null or empty string")]
   public class StringInNotNullTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

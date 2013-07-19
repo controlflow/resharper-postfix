@@ -5,7 +5,7 @@ using JetBrains.ReSharper.Psi;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("whilenot", "Iterating while boolean statement is not true")]
+  //[PostfixTemplateProvider("whilenot", "Iterating while boolean statement is not true")]
   public class WhileNotLoopTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

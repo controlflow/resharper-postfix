@@ -47,8 +47,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public LookupItem([NotNull] PrefixExpressionContext expression)
-        : base("var", expression) { }
+      public LookupItem([NotNull] PrefixExpressionContext context)
+        : base("var", context) { }
 
       protected override ICSharpExpression CreateExpression(
         IPsiModule psiModule, CSharpElementFactory factory, ICSharpExpression expression)

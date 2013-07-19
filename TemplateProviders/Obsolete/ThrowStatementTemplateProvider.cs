@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.CSharp.Impl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("throw", "Throw expression of 'Exception' type")]
+  //[PostfixTemplateProvider("throw", "Throw expression of 'Exception' type")]
   public class ThrowStatementTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
