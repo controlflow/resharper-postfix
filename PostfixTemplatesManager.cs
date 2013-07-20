@@ -108,7 +108,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
               var expressionRange = expression.GetDocumentRange().TextRange;
               var replaceRange = expressionRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
 
-
               return CollectAvailableTemplates(
                 referenceExpr, expression, replaceRange, expressionRange,
                 canBeStatement, looseChecks, templateName);
@@ -176,12 +175,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull]
     private IList<ILookupItem> CollectAvailableTemplates(
       [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression,
-      TextRange replaceRange, TextRange expressionRange,
-      bool canBeStatement, bool looseChecks, [CanBeNull] string templateName)
+      TextRange replaceRange, TextRange expressionRange, bool canBeStatement,
+      bool forceMode, [CanBeNull] string templateName)
     {
       var acceptanceContext = new PostfixTemplateAcceptanceContext(
-        reference, expression, replaceRange,
-        expressionRange, canBeStatement, looseChecks);
+        reference, expression, replaceRange, expressionRange, canBeStatement, forceMode);
 
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
@@ -193,8 +191,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       foreach (var info in myTemplateProvidersInfos)
       {
         bool isEnabled;
-        if (settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled) && !isEnabled)
-          continue; // check disabled providers
+        if (!settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled))
+        {
+          if (info.Metadata.DisabledByDefault) continue;
+        }
+
+        if (!isEnabled) continue; // check disabled providers
 
         if (templateName != null)
         {

@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull] public string Description { get; private set; }
 
     public bool WorksOnTypes { get; set; }
-    public bool DisabledByDefault { get; set; } // todo: use me
+    public bool DisabledByDefault { get; set; }
 
     public PostfixTemplateProviderAttribute(
       [NotNull] string templateName, [NotNull] string description)

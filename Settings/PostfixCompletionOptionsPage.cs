@@ -54,7 +54,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       foreach (var info in templatesManager.TemplateProvidersInfos)
       {
         bool isEnabled;
-        isEnabled = !disabledProviders.TryGet(info.SettingsKey, out isEnabled) || isEnabled;
+        isEnabled = (!disabledProviders.TryGet(info.SettingsKey, out isEnabled) &&
+                     !info.Metadata.DisabledByDefault) || isEnabled;
 
         var items = new[] {string.Join("/", info.Metadata.TemplateNames), info.Metadata.Description};
         var item = new ListViewItem(items) { Checked = isEnabled, Tag = info.SettingsKey };
@@ -69,10 +70,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
     {
       var providerKey = (string) args.Item.Tag;
       var isEnabled = args.Item.Checked;
-      if (isEnabled)
-        myStore.RemoveIndexedValue(PostfixCompletionSettingsAccessor.DisabledProviders, providerKey);
-      else
-        myStore.SetIndexedValue(PostfixCompletionSettingsAccessor.DisabledProviders, providerKey, false);
+
+      myStore.SetIndexedValue(PostfixCompletionSettingsAccessor.DisabledProviders, providerKey, isEnabled);
     }
   }
 }
