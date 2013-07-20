@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
@@ -102,9 +103,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         if (tNode != null)
         {
           var range = tNode.GetDocumentRange().TextRange;
-          if (range == markerRange || (ShortcutIsCSharpStatementKeyword
-            ? range == markerRange.SetEndTo(nameRange.StartOffset)
-            : range == markerRange.JoinRight(nameRange)))
+          if (range == markerRange ||
+              range == markerRange.JoinRight(nameRange) ||
+              // special hack for ".i{caret:f}" and ".whil{caret:e}"
+              (ShortcutIsCSharpStatementKeyword &&
+               myShortcut.Length - nameRange.Length <= 1 &&
+               range == markerRange.SetEndTo(nameRange.StartOffset)))
           {
             return tNode;
           }
