@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 
@@ -14,6 +15,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public static void CommitAllDocuments([NotNull] this IPsiServices services)
     {
       services.Files.CommitAllDocuments();
+    }
+
+    public static void DoTransaction(
+      [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull] Action action)
+    {
+      services.Transactions.Execute(commandName, action);
     }
   }
 }

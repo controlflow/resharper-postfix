@@ -87,7 +87,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [Obsolete] public TextRange ExpressionRange { get; set; }
     [Obsolete] public bool CanBeStatement { get; private set; }
     public bool ForceMode { get; private set; }
-    public bool KeywordBroken { get; private set; }
 
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {

@@ -6,13 +6,17 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
-using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
+#if RESHARPER7
+using JetBrains.ReSharper.Psi;
+#else
+using JetBrains.ReSharper.Psi.Modules;
+#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {

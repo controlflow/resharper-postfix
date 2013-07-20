@@ -1,17 +1,19 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
-using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
+#if RESHARPER8
+using JetBrains.ReSharper.Psi.Modules;
+#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
@@ -34,8 +36,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       using (WriteLockCookie.Create())
       {
         var commandName = GetType().FullName + " expansion";
-        var transactions = solution.GetPsiServices().Transactions;
-        transactions.Execute(commandName, () =>
+        solution.GetPsiServices().DoTransaction(commandName, () =>
         {
           var expressionStatements = TextControlToPsi.GetElements<IExpressionStatement>(
             solution, textControl.Document, replaceRange.StartOffset);
@@ -48,7 +49,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
             newStatement = CreateStatement(psiModule, factory);
 
             // find caret marker in created statement
-            var caretMarker = new TreeNodeMarker<IExpressionStatement>();
+            var caretMarker = new TreeNodeMarker(Guid.NewGuid().ToString());
             var collector = new RecursiveElementCollector<IExpressionStatement>(
               expressionStatement => IsMarkerExpressionStatement(expressionStatement, CaretMarker));
             var caretNodes = collector.ProcessElement(newStatement).GetResults();
@@ -66,7 +67,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
               LowLevelModificationUtil.DeleteChild(caretNode);
             }
 
-            caretMarker.Dispose(newStatement);
+            caretMarker.Unmark(newStatement);
             break;
           }
         });

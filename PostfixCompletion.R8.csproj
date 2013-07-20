@@ -82,6 +82,7 @@
     <Compile Include="Utils\PortabilityExtensions.R8.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="PostfixCompletion.nuspec" />
     <None Include="Readme.md" />
   </ItemGroup>
   <PropertyGroup>

@@ -8,12 +8,14 @@ using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Naming.Extentions;
 using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
+#if RESHARPER8
+using JetBrains.ReSharper.Psi.Modules;
+#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -118,11 +120,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         if (newStatement == null || myMemberDeclaration == null) return;
 
         var assignment = (IAssignmentExpression) newStatement.Expression;
+        var memberIdentifier = ((IReferenceExpression) assignment.Dest).NameIdentifier;
+        var suggestionsExpression = new NameSuggestionsExpression(myMemberNames);
 
         var hotspotInfo = new HotspotInfo(
-          new TemplateField("memberName", new NameSuggestionsExpression(myMemberNames), 0),
-          ((IReferenceExpression) assignment.Dest).NameIdentifier.GetDocumentRange(),
-          myMemberDeclaration.GetNameDocumentRange());
+          new TemplateField("memberName", suggestionsExpression, 0),
+#if RESHARPER7
+          memberIdentifier.GetDocumentRange().TextRange,
+          myMemberDeclaration.GetNameDocumentRange().TextRange
+#else
+          memberIdentifier.GetDocumentRange(),
+          myMemberDeclaration.GetNameDocumentRange()
+#endif
+          );
 
         var endSelectionRange = newStatement.GetDocumentRange().EndOffsetRange().TextRange;
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
