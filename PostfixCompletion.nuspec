@@ -6,11 +6,16 @@
     <title>ReSharper Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
     <owners>controlflow</owners>
+    <projectUrl>https://github.com/controlflow/postfixcompletion</projectUrl>
+    <iconUrl>https://raw.github.com/controlflow/postfixcompletion/master/img/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>ReSharper code completion plugin</description>
+    <description>
+      ReSharper code completion plugin
+    </description>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
     </dependencies>
+    <tags>postfix code completion templates surround</tags>
   </metadata>
   <files>
     <file src="bin.R8\Debug\" target="ReSharper\v8.0" />
