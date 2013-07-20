@@ -13,13 +13,14 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
-using DataConstants = JetBrains.DocumentModel.DataContext.DataConstants;
 #if RESHARPER8
 using JetBrains.ReSharper.Psi.Modules;
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // todo: support for occurances?
+
   [PostfixTemplateProvider("var", "Introduces variable for expression")]
   public sealed class IntroduceVariableTemplateProvider : IPostfixTemplateProvider
   {
@@ -69,7 +70,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var solution = expression.GetSolution();
         var rules = DataRules
           .AddRule(name, ProjectModel.DataContext.DataConstants.SOLUTION, solution)
-          .AddRule(name, DataConstants.DOCUMENT, textControl.Document)
+          .AddRule(name, DocumentModel.DataContext.DataConstants.DOCUMENT, textControl.Document)
           .AddRule(name, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl)
           .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, expression);
 

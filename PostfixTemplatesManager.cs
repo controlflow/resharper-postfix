@@ -192,9 +192,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       {
         bool isEnabled;
         if (!settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled))
-        {
-          if (info.Metadata.DisabledByDefault) continue;
-        }
+          isEnabled = !info.Metadata.DisabledByDefault;
 
         if (!isEnabled) continue; // check disabled providers
 

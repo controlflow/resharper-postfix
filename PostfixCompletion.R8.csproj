@@ -63,7 +63,7 @@
     <Compile Include="TemplateProviders\BooleanExpressionProviderBase.cs" />
     <Compile Include="TemplateProviders\Obsolete\AwaitExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\ForEachLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ForEachLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ForLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfNotStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfStatementTemplateProvider.cs" />
