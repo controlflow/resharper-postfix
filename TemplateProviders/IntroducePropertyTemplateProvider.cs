@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       public IntroducePropertyLookupItem(
         [NotNull] PrefixExpressionContext context, bool isStatic)
-        : base("prop", context, context.ExpressionType, isStatic) { }
+        : base("prop", context, context.Type, isStatic) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {

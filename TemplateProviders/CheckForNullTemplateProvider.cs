@@ -8,61 +8,50 @@ using JetBrains.ReSharper.Psi.ControlFlow;
 using JetBrains.ReSharper.Psi.ControlFlow.CSharp;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: split?
-
   [PostfixTemplateProvider(new[] { "null", "notnull" }, "Checks expressions for nulls")]
   public class CheckForNullTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      var outer = context.PossibleExpressions.LastOrDefault();
-      if (outer == null || !outer.CanBeStatement) return;
+      var exprContext = context.PossibleExpressions.LastOrDefault();
+      if (exprContext == null || !exprContext.CanBeStatement) return;
 
-      if (outer.ExpressionType.IsUnknown)
+      // check expression type
+      if (exprContext.Type.IsUnknown)
       {
         if (!context.ForceMode) return;
       }
       else
       {
-        if (!IsNullableType(outer.ExpressionType)) return;
+        if (!IsNullableType(exprContext.Type)) return;
       }
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
 
       if (!context.ForceMode)
       {
-        var declaredElement = outer.ReferencedElement;
-        var declaration = outer.Expression.GetContainingNode<ICSharpFunctionDeclaration>();
-        if (declaration != null && declaredElement != null)
+        var declaredElement = exprContext.ReferencedElement;
+        var function = exprContext.Expression.GetContainingNode<ICSharpFunctionDeclaration>();
+        if (function != null && declaredElement != null && function.IsPhysical())
         {
-          if (declaration.IsPhysical())
+          var graph = CSharpControlFlowBuilder.Build(function);
+          if (graph != null)
           {
-            // todo: can always be physical?
-            var graph = CSharpControlFlowBuilder.Build(declaration);
-            if (graph != null)
+            var result = graph.Inspect(ValueAnalysisMode.OPTIMISTIC);
+            if (!result.HasComplexityOverflow)
             {
-              var result = graph.Inspect(ValueAnalysisMode.OPTIMISTIC);
-              if (!result.HasComplexityOverflow)
-              {
-                var referenceExpression = outer.Expression;
+              var referenceExpression = exprContext.Expression;
 
-                foreach (var element in graph.AllElements)
-                  if (element.SourceElement == referenceExpression)
-                  {
-                    state = result.GetVariableStateAt(element, declaredElement);
-                    break;
-                  }
+              foreach (var element in graph.AllElements)
+              if (element.SourceElement == referenceExpression)
+              {
+                state = result.GetVariableStateAt(element, declaredElement);
+                break;
               }
             }
-          }
-          else
-          {
-            System.GC.KeepAlive(this);
-            MessageBox.ShowError("LOL");
           }
         }
       }
@@ -71,11 +60,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
         case CSharpControlFlowNullReferenceState.UNKNOWN:
-        {
-          consumer.Add(new LookupItem("notnull", outer, "expr != null"));
-          consumer.Add(new LookupItem("null", outer, "expr == null"));
+          consumer.Add(new LookupItem("notnull", exprContext, "expr != null"));
+          consumer.Add(new LookupItem("null", exprContext, "expr == null"));
           break;
-        }
       }
     }
 
@@ -90,8 +77,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       private readonly string myCondition;
 
-      public LookupItem(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context, [NotNull] string condition)
+      public LookupItem([NotNull] string shortcut,
+        [NotNull] PrefixExpressionContext context, [NotNull] string condition)
         : base(shortcut, context)
       {
         myCondition = condition;
@@ -100,9 +87,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       protected override void PlaceExpression(
         IIfStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
-        var checkedExpression = (IEqualityExpression) factory.CreateExpression(myCondition);
-        checkedExpression = statement.Condition.ReplaceBy(checkedExpression);
-        checkedExpression.LeftOperand.ReplaceBy(expression);
+        var newCheckExpr = (IEqualityExpression) factory.CreateExpression(myCondition);
+        var checkedExpr = statement.Condition.ReplaceBy(newCheckExpr);
+        checkedExpr.LeftOperand.ReplaceBy(expression);
       }
     }
   }

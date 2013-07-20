@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     {
       Expression = expression;
       Reference = referenceExpression;
-      ExpressionType = expression.Type();
+      Type = expression.Type();
       CanBeStatement = canBeStatement;
       ReplaceRange = expression.GetDocumentRange().TextRange.JoinRight(replaceRange);
 
@@ -42,7 +42,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     [NotNull] public ICSharpExpression Expression { get; private set; } // "lines.Any()"
     [NotNull] public IReferenceExpression Reference { get; private set; } // "lines.Any().if"
-    [NotNull] public IType ExpressionType { get; private set; } // Boolean
+    [NotNull] public IType Type { get; private set; } // Boolean
     [CanBeNull] public IDeclaredElement ReferencedElement { get; set; } // lines: LocalVar
     public bool CanBeStatement { get; private set; }
     public TextRange ReplaceRange { get; private set; }

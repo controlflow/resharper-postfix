@@ -34,7 +34,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         foreach (var expression in context.PossibleExpressions)
         {
-          if (expression.ExpressionType.IsUnknown) continue;
+          if (expression.Type.IsUnknown) continue;
           if (!expression.CanBeStatement) continue;
 
           var reference = expression.Expression as IReferenceExpression;
@@ -46,7 +46,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           }
 
           var lookupItem = CreateLookupItem(
-            expression, expression.ExpressionType, functionDeclaration.IsStatic);
+            expression, expression.Type, functionDeclaration.IsStatic);
           consumer.Add(lookupItem);
           break;
         }

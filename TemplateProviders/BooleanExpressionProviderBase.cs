@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       foreach (var expressionContext in context.PossibleExpressions)
       {
         var expression = expressionContext.Expression;
-        var expressionType = expressionContext.ExpressionType;
+        var expressionType = expressionContext.Type;
         if (context.ForceMode
           || expressionType.IsBool()
           || expression is IRelationalExpression

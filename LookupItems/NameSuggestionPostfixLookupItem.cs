@@ -14,7 +14,7 @@ using JetBrains.ReSharper.Psi.Naming.Settings;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER7
+#if RESHARPER8
 using JetBrains.DocumentModel;
 #endif
 

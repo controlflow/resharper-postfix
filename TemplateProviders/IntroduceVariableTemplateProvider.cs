@@ -35,7 +35,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           if (target == null || target is IParameter || target is ILocalVariable) continue;
         }
 
-        if (expression.ExpressionType.IsVoid()) continue;
+        if (expression.Type.IsVoid()) continue;
         contexts.Add(expression);
       }
 
