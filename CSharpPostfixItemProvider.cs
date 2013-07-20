@@ -1,6 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion;
+﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
@@ -11,12 +9,14 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
+  // todo: R# 8.0 automatic completion + ctrl+space = no force mode items
+
   [Language(typeof(CSharpLanguage))]
-  public class CSharpPostfixItemProviderSmart : CSharpItemsProviderBase<CSharpCodeCompletionContext>
+  public class CSharpPostfixItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {
     [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
 
-    public CSharpPostfixItemProviderSmart([NotNull] PostfixTemplatesManager templatesManager)
+    public CSharpPostfixItemProvider([NotNull] PostfixTemplatesManager templatesManager)
     {
       myTemplatesManager = templatesManager;
     }

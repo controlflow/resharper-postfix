@@ -44,14 +44,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CSharpPostfixItemProviderSmart.cs" />
+    <Compile Include="CSharpPostfixItemProvider.cs" />
     <Compile Include="IPostfixTemplateProvider.cs" />
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
     <Compile Include="LookupItems\NameSuggestionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItemObsolete.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
-    <Compile Include="LookupItems\ProcessExpressionPostfixLookupItem.cs" />
     <Compile Include="PostfixTemplateAcceptanceContext.cs" />
     <Compile Include="PostfixTemplateProviderAttribute.cs" />
     <Compile Include="PostfixTemplatesManager.cs" />
@@ -60,8 +59,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\PostfixCompletionOptionsPage.cs" />
     <Compile Include="Settings\PostfixCompletionSettings.cs" />
+    <Compile Include="TemplateProviders\BooleanExpressionProviderBase.cs" />
+    <Compile Include="LookupItems\IfStatementPostfixLookupItemBase.cs" />
     <Compile Include="TemplateProviders\Obsolete\AwaitExpressionTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\CheckForNullTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ForEachLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ForLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfNotStatementTemplateProvider.cs" />

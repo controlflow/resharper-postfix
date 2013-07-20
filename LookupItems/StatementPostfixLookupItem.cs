@@ -56,7 +56,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
             // replace marker statement with the new one
             newStatement = statement.ReplaceBy(newStatement);
-            PutExpression(newStatement, expression);
+            PlaceExpression(newStatement, expression, factory);
 
             // find and remove caret marker node
             var caretNode = caretMarker.FindMarkedNode(newStatement);
@@ -85,8 +85,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] protected abstract TStatement CreateStatement(
       [NotNull] IPsiModule psiModule, [NotNull] CSharpElementFactory factory);
 
-    protected abstract void PutExpression(
-      [NotNull] TStatement statement, [NotNull] ICSharpExpression expression);
+    protected abstract void PlaceExpression(
+      [NotNull] TStatement statement, [NotNull] ICSharpExpression expression,
+      [NotNull] CSharpElementFactory factory);
 
     private static bool IsMarkerExpressionStatement(
       [NotNull] IExpressionStatement expressionStatement, [NotNull] string markerName)

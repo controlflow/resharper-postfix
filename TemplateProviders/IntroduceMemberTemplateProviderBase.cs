@@ -79,12 +79,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         return (IExpressionStatement) factory.CreateStatement("__ = expression;");
       }
 
-      protected override void PutExpression(IExpressionStatement statement, ICSharpExpression expression)
+      protected override void PlaceExpression(
+        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
         var classDeclaration = statement.GetContainingNode<IClassDeclaration>().NotNull();
         var anchor = GetAnchorMember(classDeclaration.MemberDeclarations);
 
-        var factory = CSharpElementFactory.GetInstance(classDeclaration);
         var newDeclaration = CreateMemberDeclaration(factory);
         var newMember = classDeclaration.AddClassMemberDeclarationAfter(
           newDeclaration, (IClassMemberDeclaration) anchor);

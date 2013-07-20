@@ -54,8 +54,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (CanBeStatement)
         {
           yield return new PrefixExpressionContext(
-            Expression, true,
-            ReferenceExpression, MinimalReplaceRange);
+            Expression, true, ReferenceExpression, MinimalReplaceRange);
         }
         else
         {
@@ -63,8 +62,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           ITreeNode node = Expression;
           while (node != null)
           {
-            // todo: check expression range
-
             var expr = node as ICSharpExpression;
             if (expr != null)
             {
@@ -89,7 +86,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [Obsolete] public TextRange MinimalReplaceRange { get; set; }
     [Obsolete] public TextRange ExpressionRange { get; set; }
     [Obsolete] public bool CanBeStatement { get; private set; }
-    public bool ForceMode { get; private set; } // rename
+    public bool ForceMode { get; private set; }
+    public bool KeywordBroken { get; private set; }
 
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {

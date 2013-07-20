@@ -7,12 +7,15 @@ using JetBrains.Util;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   // todo: maybe use NULL to indicate that expression is broken and types do not works
+  // todo: pass parent context
+  // todo: calculate CanBeExpression?
 
   public sealed class PrefixExpressionContext
   {
     public PrefixExpressionContext(
       [NotNull] ICSharpExpression expression, bool canBeStatement,
-      [NotNull] IReferenceExpression referenceExpression, TextRange replaceRange)
+      [NotNull] IReferenceExpression referenceExpression,
+      TextRange replaceRange)
     {
       Expression = expression;
       Reference = referenceExpression;
@@ -39,10 +42,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     [NotNull] public ICSharpExpression Expression { get; private set; } // "lines.Any()"
     [NotNull] public IReferenceExpression Reference { get; private set; } // "lines.Any().if"
-    [NotNull] public IType ExpressionType { get; private set; } // boolean
+    [NotNull] public IType ExpressionType { get; private set; } // Boolean
     [CanBeNull] public IDeclaredElement ReferencedElement { get; set; } // lines: LocalVar
     public bool CanBeStatement { get; private set; }
-
     public TextRange ReplaceRange { get; private set; }
   }
 }

@@ -1,30 +1,41 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp.Parsing;
+using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
+using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider("not", "Negates boolean expression")]
-  public class NotExpressionTemplateProvider : IPostfixTemplateProvider
+  public class NotExpressionTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
   {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+    protected override bool CreateBooleanItems(
+      PrefixExpressionContext expression, ICollection<ILookupItem> consumer)
     {
-      if (!context.ForceMode)
-      {
-        if (!context.ExpressionType.IsBool()) return;
+      consumer.Add(new LookupItem(expression));
+      return true;
+    }
 
-        // do not show if expression is already negated
-        var unary = UnaryOperatorExpressionNavigator.GetByOperand(
-          context.ReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
-        if (unary != null && unary.OperatorSign.GetTokenType() != CSharpTokenType.EXCL)
-          return;
+    private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    {
+      public LookupItem([NotNull] PrefixExpressionContext context) : base("not", context) { }
+
+      protected override ICSharpExpression CreateExpression(
+        IPsiModule psiModule, CSharpElementFactory factory, ICSharpExpression expression)
+      {
+        return expression;
       }
 
-      consumer.Add(new PostfixLookupItemObsolete(context, "not", "!$EXPR$"));
+      protected override ICSharpExpression ProcessExpression(ICSharpExpression expression)
+      {
+        var negatedExpression = CSharpExpressionUtil.CreateLogicallyNegatedExpression(expression);
+        if (negatedExpression == null) return expression;
+
+        return expression.ReplaceBy(negatedExpression);
+      }
     }
   }
 }
