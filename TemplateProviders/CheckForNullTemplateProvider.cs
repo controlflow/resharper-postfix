@@ -73,7 +73,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return type.Classify == TypeClassification.REFERENCE_TYPE;
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItemBase
+    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IIfStatement>
     {
       [NotNull] private readonly string myCondition;
 

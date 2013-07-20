@@ -22,15 +22,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return false;
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItemBase
+    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IWhileStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
+      public LookupItem([NotNull] PrefixExpressionContext context) : base("while", context) { }
 
       protected override string Keyword { get { return "while"; } }
       public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
 
       protected override void PlaceExpression(
-        IIfStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
+        IWhileStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
         statement.Condition.ReplaceBy(expression);
       }

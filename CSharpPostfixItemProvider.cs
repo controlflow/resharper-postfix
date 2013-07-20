@@ -9,8 +9,6 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  // todo: R# 8.0 automatic completion + ctrl+space = no force mode items
-
   [Language(typeof(CSharpLanguage))]
   public class CSharpPostfixItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {
@@ -28,7 +26,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           || completionType == CodeCompletionType.BasicCompletion;
     }
 
-    protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
+#if RESHARPER8
+    public override bool IsAvailableEx(
+      CodeCompletionType[] codeCompletionTypes, CSharpCodeCompletionContext specificContext)
+    {
+      return true; // enable in double basic completion
+    }
+#endif
+
+    protected override bool AddLookupItems(
+      CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
       var node = context.NodeInFile;
       if (node == null) return false;
@@ -44,9 +51,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (node == null) return false;
       }
 
-      var looseChecks = (context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion);
+      var completionType = context.BasicContext.CodeCompletionType;
+      var forceMode = (completionType == CodeCompletionType.BasicCompletion);
 
-      var items = myTemplatesManager.GetAvailableItems(node, looseChecks, completionContext);
+      var items = myTemplatesManager.GetAvailableItems(node, forceMode, completionContext);
       foreach (var lookupItem in items)
       {
         collector.AddAtDefaultPlace(lookupItem);

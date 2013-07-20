@@ -14,9 +14,11 @@ using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  internal abstract class KeywordStatementPostfixLookupItemBase : StatementPostfixLookupItem<IIfStatement>
+  internal abstract class KeywordStatementPostfixLookupItem<TStatement>
+    : StatementPostfixLookupItem<TStatement>
+    where TStatement : class, ICSharpStatement
   {
-    protected KeywordStatementPostfixLookupItemBase(
+    protected KeywordStatementPostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context)
     {
@@ -27,19 +29,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected bool BracesInsertion { get; set; }
     protected abstract string Keyword { get; }
 
-    protected override IIfStatement CreateStatement(
+    protected override TStatement CreateStatement(
       IPsiModule psiModule, CSharpElementFactory factory)
     {
       var template = BracesInsertion
         ? Keyword + "(expr){" + CaretMarker + ";}"
         : Keyword + "(expr)" + CaretMarker + ";";
 
-      return (IIfStatement) factory.CreateStatement(template);
+      return (TStatement) factory.CreateStatement(template);
     }
 
     // force inheritors to override
     protected abstract override void PlaceExpression(
-      IIfStatement statement, ICSharpExpression expression, CSharpElementFactory factory);
+      TStatement statement, ICSharpExpression expression, CSharpElementFactory factory);
 
     protected override void ReplaySuffix(ITextControl textControl, Suffix suffix)
     {

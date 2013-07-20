@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="CSharpPostfixItemProvider.cs" />
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
-    <Compile Include="LookupItems\IfStatementPostfixLookupItemBase.cs" />
+    <Compile Include="LookupItems\KeywordStatementPostfixLookupItem.cs" />
     <Compile Include="LookupItems\NameSuggestionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItemObsolete.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
@@ -76,11 +76,9 @@
     <Compile Include="TemplateProviders\Obsolete\ForLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ObjectCreationTypeTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ReturnStatementTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\StringInNotNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ThrowStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\UsingStatementTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\WhileLoopTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\WhileNotLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />
     <Compile Include="Utils\PortabilityExtensions.R7.cs" />
     <None Include="PostfixCompletion.nuspec" />
     <None Include="Readme.md" />

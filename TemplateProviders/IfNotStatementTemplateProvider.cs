@@ -24,7 +24,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return false;
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItemBase
+    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IIfStatement>
     {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("ifnot", context) { }
 
