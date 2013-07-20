@@ -60,7 +60,7 @@
     <Compile Include="Settings\PostfixCompletionOptionsPage.cs" />
     <Compile Include="Settings\PostfixCompletionSettings.cs" />
     <Compile Include="TemplateProviders\BooleanExpressionProviderBase.cs" />
-    <Compile Include="LookupItems\IfStatementPostfixLookupItemBase.cs" />
+    <Compile Include="LookupItems\KeywordStatementPostfixLookupItemBase.cs" />
     <Compile Include="TemplateProviders\Obsolete\AwaitExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ForEachLoopTemplateProvider.cs" />
@@ -77,8 +77,7 @@
     <Compile Include="TemplateProviders\Obsolete\StringInNotNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ThrowStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\UsingStatementTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\WhileLoopTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\WhileNotLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />
     <Compile Include="Utils\PortabilityExtensions.R8.cs" />
   </ItemGroup>
   <ItemGroup>

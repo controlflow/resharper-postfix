@@ -73,9 +73,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return type.Classify == TypeClassification.REFERENCE_TYPE;
     }
 
-    private sealed class LookupItem : IfStatementPostfixLookupItemBase
+    private sealed class LookupItem : KeywordStatementPostfixLookupItemBase
     {
-      private readonly string myCondition;
+      [NotNull] private readonly string myCondition;
+
+      protected override string Keyword { get { return "if"; } }
 
       public LookupItem([NotNull] string shortcut,
         [NotNull] PrefixExpressionContext context, [NotNull] string condition)

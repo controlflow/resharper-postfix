@@ -7,8 +7,8 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("if", "Checks boolean expression to be 'true'")]
-  public sealed class IfStatementTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
+  [PostfixTemplateProvider("while", "Iterating while boolean statement is 'true'")]
+  public sealed class WhileLoopTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
   {
     protected override bool CreateBooleanItems(
       PrefixExpressionContext expression, ICollection<ILookupItem> consumer)
@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
 
-      protected override string Keyword { get { return "if"; } }
+      protected override string Keyword { get { return "while"; } }
       public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
 
       protected override void PlaceExpression(

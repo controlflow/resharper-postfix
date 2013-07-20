@@ -14,9 +14,9 @@ using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  internal abstract class IfStatementPostfixLookupItemBase : StatementPostfixLookupItem<IIfStatement>
+  internal abstract class KeywordStatementPostfixLookupItemBase : StatementPostfixLookupItem<IIfStatement>
   {
-    protected IfStatementPostfixLookupItemBase(
+    protected KeywordStatementPostfixLookupItemBase(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context)
     {
@@ -25,13 +25,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     }
 
     protected bool BracesInsertion { get; set; }
+    protected abstract string Keyword { get; }
 
     protected override IIfStatement CreateStatement(
       IPsiModule psiModule, CSharpElementFactory factory)
     {
       var template = BracesInsertion
-        ? "if (expr){" + CaretMarker + ";}"
-        : "if (expr)" + CaretMarker + ";";
+        ? Keyword + "(expr){" + CaretMarker + ";}"
+        : Keyword + "(expr)" + CaretMarker + ";";
 
       return (IIfStatement) factory.CreateStatement(template);
     }
