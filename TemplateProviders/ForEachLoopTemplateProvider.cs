@@ -14,9 +14,7 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER7
-using JetBrains.ReSharper.Psi;
-#else
+#if RESHARPER8
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 #endif
 
@@ -46,9 +44,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         {
           var typeElement = declaredType.GetTypeElement();
           if (typeElement != null && typeElement.IsForeachEnumeratorPatternType())
-          {
             typeIsEnumerable = true;
-          }
         }
       }
 
@@ -58,7 +54,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
     }
 
-    // todo: special behavior for [.] suffix?
     private sealed class LookupItem : KeywordStatementPostfixLookupItem<IForeachStatement>
     {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("foreach", context) { }
@@ -98,6 +93,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
           newStatement.GetSolution(), new TextRange(caretPosition.Value), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { typeSpot, nameSpot });
+
+        // special case: handle [.] suffix
+        if (suffix.HasPresentation && suffix.Presentation == '.')
+        {
+#if RESHARPER7
+          session.Closed += (_, terminationType) => {
+            if (terminationType != TerminationType.Finished) return;
+#else
+          session.Closed.Advise(session.Lifetime, args => {
+            if (args.TerminationType != TerminationType.Finished) return;
+#endif
+            var nameValue = session.Hotspots[1].CurrentValue;
+            textControl.Document.InsertText(textControl.Caret.Offset(), nameValue);
+            suffix.Playback(textControl);
+          }
+#if RESHARPER8
+          ) // very sad panda
+#endif
+          ;
+        }
 
         session.Execute();
       }
