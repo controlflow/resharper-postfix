@@ -47,7 +47,6 @@
     <Compile Include="CSharpPostfixItemProvider.cs" />
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\KeywordStatementPostfixLookupItem.cs" />
-    <Compile Include="LookupItems\PostfixLookupItemObsolete.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
     <Compile Include="PostfixTemplateAcceptanceContext.cs" />
     <Compile Include="PostfixTemplateProviderAttribute.cs" />

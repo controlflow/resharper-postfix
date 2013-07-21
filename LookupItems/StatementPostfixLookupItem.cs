@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
@@ -10,7 +11,6 @@ using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
-using JetBrains.Util;
 #if RESHARPER8
 using JetBrains.ReSharper.Psi.Modules;
 #endif
@@ -25,10 +25,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       : base(shortcut, context) { }
 
     protected override void ExpandPostfix(
-      ITextControl textControl, Suffix suffix, ISolution solution, TextRange replaceRange,
+      ITextControl textControl, Suffix suffix, ISolution solution, DocumentRange replaceRange,
       IPsiModule psiModule, ICSharpExpression expression)
     {
-      textControl.Document.ReplaceText(replaceRange, PostfixMarker + ";");
+      textControl.Document.ReplaceText(replaceRange.TextRange, PostfixMarker + ";");
       solution.GetPsiServices().CommitAllDocuments();
 
       int? caretPosition = null;
@@ -39,7 +39,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         solution.GetPsiServices().DoTransaction(commandName, () =>
         {
           var expressionStatements = TextControlToPsi.GetElements<IExpressionStatement>(
-            solution, textControl.Document, replaceRange.StartOffset);
+            solution, textControl.Document, replaceRange.TextRange.StartOffset);
 
           foreach (var statement in expressionStatements)
           {

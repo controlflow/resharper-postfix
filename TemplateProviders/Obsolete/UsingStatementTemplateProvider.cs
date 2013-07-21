@@ -20,18 +20,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   //  {
   //    if (!context.CanBeStatement) return; // check declaration
   //
-  //    var predefined = context.Expression.GetPredefinedType();
-  //    var rule = context.Expression.GetTypeConversionRule();
+  //    var predefined = context.MostInnerExpression.GetPredefinedType();
+  //    var rule = context.MostInnerExpression.GetTypeConversionRule();
   //    if (!rule.IsImplicitlyConvertibleTo(context.ExpressionType, predefined.IDisposable))
   //      return;
   //
   //    // check expression is local variable reference
   //    ILocalVariable usingVar = null;
-  //    var expr = context.Expression as IReferenceExpression;
+  //    var expr = context.MostInnerExpression as IReferenceExpression;
   //    if (expr != null && expr.QualifierExpression == null)
   //      usingVar = expr.Reference.Resolve().DeclaredElement as ILocalVariable;
   //
-  //    ITreeNode node = context.Expression;
+  //    ITreeNode node = context.MostInnerExpression;
   //    while (true) // inspect containing using statements
   //    {
   //      // todo: get out of ISandBox?
@@ -49,14 +49,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   //      // check expression is already in using statement expression
   //      if (declaration == null)
   //        foreach (var e in usingStatement.ExpressionsEnumerable)
-  //          if (MiscUtil.AreExpressionsEquivalent(e, context.Expression))
+  //          if (MiscUtil.AreExpressionsEquivalent(e, context.MostInnerExpression))
   //            return;
   //
   //      node = usingStatement;
   //    }
   //
   //    consumer.Add(new NameSuggestionPostfixLookupItem(
-  //      context, "using", "using (var $NAME$ = $EXPR$) $CARET$", context.Expression));
+  //      context, "using", "using (var $NAME$ = $EXPR$) $CARET$", context.MostInnerExpression));
   //  }
   //}
 }

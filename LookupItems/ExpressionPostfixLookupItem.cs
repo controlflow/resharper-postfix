@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
@@ -25,10 +26,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       : base(shortcut, context) { }
 
     protected override void ExpandPostfix(
-      ITextControl textControl, Suffix suffix, ISolution solution, TextRange replaceRange,
-      IPsiModule psiModule, ICSharpExpression expression)
+      ITextControl textControl, Suffix suffix, ISolution solution,
+      DocumentRange replaceRange, IPsiModule psiModule, ICSharpExpression expression)
     {
-      textControl.Document.ReplaceText(replaceRange, PostfixMarker);
+      textControl.Document.ReplaceText(replaceRange.TextRange, PostfixMarker);
       solution.GetPsiServices().CommitAllDocuments();
 
       int? caretPosition = null;
@@ -39,7 +40,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         solution.GetPsiServices().DoTransaction(commandName, () =>
         {
           var referenceExpressions = TextControlToPsi.GetElements<IReferenceExpression>(
-            solution, textControl.Document, replaceRange.StartOffset);
+            solution, textControl.Document, replaceRange.TextRange.StartOffset);
 
           foreach (var reference in referenceExpressions)
           {

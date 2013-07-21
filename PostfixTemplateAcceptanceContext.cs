@@ -1,48 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
-using JetBrains.ReSharper.Psi;
+using JetBrains.DocumentModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  // todo: remove obsolete shit
-
   public sealed class PostfixTemplateAcceptanceContext
   {
+    private readonly ReparsedCodeCompletionContext myReparsedContext;
+
     public PostfixTemplateAcceptanceContext(
       [NotNull] IReferenceExpression referenceExpression,
       [NotNull] ICSharpExpression expression,
-      TextRange replaceRange, TextRange expressionRange,
+      DocumentRange replaceRange,
+      [CanBeNull] ReparsedCodeCompletionContext context,
       bool canBeStatement, bool forceMode)
     {
-      ReferenceExpression = referenceExpression;
-      Expression = expression;
-      ExpressionType = expression.Type();
-      MinimalReplaceRange = replaceRange;
-      ExpressionRange = expressionRange;
-      CanBeStatement = canBeStatement;
+      myReparsedContext = context;
+
+      PostfixReferenceExpression = referenceExpression;
+      MostInnerExpression = expression;
+      MostInnerReplaceRange = replaceRange.IsValid() ? replaceRange : ToDocumentRange(referenceExpression);
+
+      CanBeStatement = canBeStatement; // better to remove
       ForceMode = forceMode;
       SettingsStore = expression.GetSettingsStore();
+    }
 
-      var expressionReference = expression as IReferenceExpression;
-      if (expressionReference != null)
-      {
-        ReferencedElement = expressionReference.Reference.Resolve().DeclaredElement;
-      }
-      else
-      {
-        var typeExpression = expression as IPredefinedTypeExpression;
-        if (typeExpression != null)
-        {
-          var typeName = typeExpression.PredefinedTypeName;
-          if (typeName != null)
-            ReferencedElement = typeName.Reference.Resolve().DeclaredElement;
-        }
-      }
+    public DocumentRange ToDocumentRange([NotNull] ITreeNode treeNode)
+    {
+      var documentRange = treeNode.GetDocumentRange();
+      if (myReparsedContext == null) return documentRange;
+
+      var originalRange = myReparsedContext.ToDocumentRange(treeNode.GetTreeTextRange());
+      return new DocumentRange(documentRange.Document, originalRange);
     }
 
     public IContextBoundSettingsStore SettingsStore { get; private set; }
@@ -53,44 +47,45 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       {
         if (CanBeStatement)
         {
-          yield return new PrefixExpressionContext(
-            Expression, true, ReferenceExpression, MinimalReplaceRange);
+          yield return new PrefixExpressionContext(this, MostInnerExpression, true);
+          yield break;
         }
-        else
+
+        var leftRange = PostfixReferenceExpression.GetTreeEndOffset();
+        ITreeNode node = MostInnerExpression;
+        while (node != null)
         {
-          var leftRange = ReferenceExpression.GetTreeEndOffset();
-          ITreeNode node = Expression;
-          while (node != null)
+          var expr = node as ICSharpExpression;
+          if (expr != null)
           {
-            var expr = node as ICSharpExpression;
-            if (expr != null)
-            {
-              if (expr.GetTreeEndOffset() > leftRange) break;
+            if (expr.GetTreeEndOffset() > leftRange) break;
 
-              yield return new PrefixExpressionContext(
-                expr, node != Expression && ExpressionStatementNavigator.GetByExpression(expr) != null,
-                ReferenceExpression, MinimalReplaceRange);
-            }
-
-            if (node is ICSharpStatement) break;
-            node = node.Parent;
+            yield return new PrefixExpressionContext(this,
+              expr, node != MostInnerExpression && ExpressionStatementNavigator.GetByExpression(expr) != null);
           }
+
+          if (node is ICSharpStatement) break;
+          node = node.Parent;
         }
       }
     }
 
-    [Obsolete] [NotNull] public IReferenceExpression ReferenceExpression { get; private set; } // "lines.Any().if"
-    [Obsolete] [NotNull] public ICSharpExpression Expression { get; private set; } // "lines.Any()"
-    [Obsolete] [NotNull] public IType ExpressionType { get; private set; } // boolean
-    [Obsolete] [CanBeNull] public IDeclaredElement ReferencedElement { get; set; } // lines: LocalVar
-    [Obsolete] public TextRange MinimalReplaceRange { get; set; }
-    [Obsolete] public TextRange ExpressionRange { get; set; }
-    [Obsolete] public bool CanBeStatement { get; private set; }
+    [NotNull] public IReferenceExpression PostfixReferenceExpression { get; private set; }
+    [NotNull] public ICSharpExpression MostInnerExpression { get; private set; }
+
+    public DocumentRange MostInnerReplaceRange { get; private set; }
+    public DocumentRange PostfixReferenceRange
+    {
+      get { return ToDocumentRange(PostfixReferenceExpression); }
+    }
+
+    // todo: remove from here?
+    public bool CanBeStatement { get; private set; }
     public bool ForceMode { get; private set; }
 
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {
-      get { return Expression.GetContainingNode<ICSharpFunctionDeclaration>(); }
+      get { return MostInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
     }
   }
 }

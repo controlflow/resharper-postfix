@@ -1,32 +1,28 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   // todo: maybe use NULL to indicate that expression is broken and types do not works
-  // todo: pass parent context
   // todo: calculate CanBeExpression?
 
   public sealed class PrefixExpressionContext
   {
     public PrefixExpressionContext(
-      [NotNull] ICSharpExpression expression, bool canBeStatement,
-      [NotNull] IReferenceExpression referenceExpression,
-      TextRange replaceRange)
+      [NotNull] PostfixTemplateAcceptanceContext parent,
+      [NotNull] ICSharpExpression expression, bool canBeStatement)
     {
+      Parent = parent;
       Expression = expression;
-      Reference = referenceExpression;
       Type = expression.Type();
-      CanBeStatement = canBeStatement;
-      ReplaceRange = expression.GetDocumentRange().TextRange.JoinRight(replaceRange);
+      CanBeStatement = canBeStatement; // calculate here?
 
-      var reference = expression as IReferenceExpression;
-      if (reference != null)
+      var referenceExpression1 = expression as IReferenceExpression;
+      if (referenceExpression1 != null)
       {
-        ReferencedElement = reference.Reference.Resolve().DeclaredElement;
+        ReferencedElement = referenceExpression1.Reference.Resolve().DeclaredElement;
       }
       else
       {
@@ -40,11 +36,30 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
     }
 
-    [NotNull] public ICSharpExpression Expression { get; private set; } // "lines.Any()"
-    [NotNull] public IReferenceExpression Reference { get; private set; } // "lines.Any().if"
-    [NotNull] public IType Type { get; private set; } // Boolean
-    [CanBeNull] public IDeclaredElement ReferencedElement { get; set; } // lines: LocalVar
+    [NotNull] public PostfixTemplateAcceptanceContext Parent { get; private set; }
+
+    // "lines.Any()" : Boolean
+    [NotNull] public ICSharpExpression Expression { get; private set; }
+    [NotNull] public IType Type { get; private set; }
+    [CanBeNull] public IDeclaredElement ReferencedElement { get; private set; }
+
     public bool CanBeStatement { get; private set; }
-    public TextRange ReplaceRange { get; private set; }
+
+    // "lines.Any().if"
+    [NotNull] public IReferenceExpression Reference
+    {
+      get { return Parent.PostfixReferenceExpression; }
+    }
+
+    // ranges
+    public DocumentRange ExpressionRange
+    {
+      get { return Parent.ToDocumentRange(Expression); }
+    }
+
+    public DocumentRange ReplaceRange
+    {
+      get { return ExpressionRange.JoinRight(Parent.MostInnerReplaceRange); }
+    }
   }
 }

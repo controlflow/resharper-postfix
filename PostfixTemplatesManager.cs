@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -79,12 +80,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expression = referenceExpression.QualifierExpression;
           if (expression != null)
           {
-            var replaceRange = GetTextRange(referenceExpression, reparseContext);
-            var expressionRange = GetTextRange(expression, reparseContext);
-            var canBeStatement = CalculateCanBeStatement(referenceExpression);
+            //var replaceRange = GetTextRange(referenceExpression, reparseContext);
+            //var expressionRange = GetTextRange(expression, reparseContext);
+            var canBeStatement = CalculateCanBeStatement(referenceExpression); // wtf?
+
+            
 
             return CollectAvailableTemplates(
-              referenceExpression, expression, replaceRange, expressionRange,
+              referenceExpression, expression, DocumentRange.InvalidRange, reparseContext,
               canBeStatement, looseChecks, templateName);
           }
         }
@@ -105,11 +108,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             if (expression != null && referenceExpr != null)
             {
               var canBeStatement = (expression.Parent == expressionStatement.Expression);
-              var expressionRange = expression.GetDocumentRange().TextRange;
+              var expressionRange = expression.GetDocumentRange();
               var replaceRange = expressionRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
 
               return CollectAvailableTemplates(
-                referenceExpr, expression, replaceRange, expressionRange,
+                referenceExpr, expression, replaceRange, null,
                 canBeStatement, looseChecks, templateName);
             }
           }
@@ -175,17 +178,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull]
     private IList<ILookupItem> CollectAvailableTemplates(
       [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression,
-      TextRange replaceRange, TextRange expressionRange, bool canBeStatement,
+      DocumentRange replaceRange, [CanBeNull] ReparsedCodeCompletionContext context, bool canBeStatement,
       bool forceMode, [CanBeNull] string templateName)
     {
       var acceptanceContext = new PostfixTemplateAcceptanceContext(
-        reference, expression, replaceRange, expressionRange, canBeStatement, forceMode);
+        reference, expression, replaceRange, context, canBeStatement, forceMode);
 
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var isTypeExpression = acceptanceContext.ReferencedElement is ITypeElement;
+      //var isTypeExpression = acceptanceContext.ReferencedElement is ITypeElement;
+      bool isTypeExpression = false; // todo: bring it back
       var items = new List<ILookupItem>();
 
       foreach (var info in myTemplateProvidersInfos)

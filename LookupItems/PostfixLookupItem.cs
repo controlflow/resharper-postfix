@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] private readonly string myShortcut;
     [NotNull] private readonly IRangeMarker myExpressionRange;
     [NotNull] private readonly IRangeMarker myReferenceRange;
-    private readonly TextRange myReplaceRange;
+    private readonly DocumentRange myReplaceRange;
 
     protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
     protected const string CaretMarker = "POSTFIX_COMPLETION_CARET";
@@ -34,8 +34,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
     {
       myShortcut = shortcut;
-      myExpressionRange = context.Expression.GetDocumentRange().CreateRangeMarker();
-      myReferenceRange = context.Reference.GetDocumentRange().CreateRangeMarker();
+      myExpressionRange = context.ExpressionRange.CreateRangeMarker();
+      myReferenceRange = context.Parent.PostfixReferenceRange.CreateRangeMarker();
       myReplaceRange = context.ReplaceRange;
     }
 
@@ -61,8 +61,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var psiModule = expression.GetPsiModule();
 
       // calculate textual range to remove
-      var replaceRange = myReplaceRange.Intersects(nameRange)
-        ? myReplaceRange.JoinRight(nameRange)
+      var nameDocumentRange = new DocumentRange(textControl.Document, nameRange);
+      var replaceRange = myReplaceRange.Intersects(nameDocumentRange)
+        ? myReplaceRange.JoinRight(nameDocumentRange)
         : myReplaceRange;
 
       var reference = FindMarkedNode<IReferenceExpression>(
@@ -120,7 +121,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     }
 
     protected abstract void ExpandPostfix([NotNull] ITextControl textControl,
-      [NotNull] Suffix suffix, [NotNull] ISolution solution, TextRange replaceRange,
+      [NotNull] Suffix suffix, [NotNull] ISolution solution, DocumentRange replaceRange,
       [NotNull] IPsiModule psiModule, [NotNull] ICSharpExpression expression);
 
     protected virtual void AfterComplete(

@@ -8,22 +8,22 @@ using JetBrains.ReSharper.Psi.CSharp.Util;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   //[PostfixTemplateProvider("await", "Awaiting expressions of 'Task' type")]
-  public class AwaitExpressionTemplateProvider : IPostfixTemplateProvider
-  {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      var function = context.ContainingFunction;
-      if (function == null) return;
-
-      if (context.ForceMode || function.IsAsync)
-      if (context.ExpressionType.IsTask() || context.ExpressionType.IsGenericTask())
-      {
-        // check expression is not already awaited
-        var awaitExpression = AwaitExpressionNavigator.GetByTask(
-          context.ReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
-        if (awaitExpression == null)
-          consumer.Add(new PostfixLookupItemObsolete(context, "await", "await $EXPR$"));
-      }
-    }
-  }
+  //public class AwaitExpressionTemplateProvider : IPostfixTemplateProvider
+  //{
+  //  public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+  //  {
+  //    var function = context.ContainingFunction;
+  //    if (function == null) return;
+  //
+  //    if (context.ForceMode || function.IsAsync)
+  //    if (context.ExpressionType.IsTask() || context.ExpressionType.IsGenericTask())
+  //    {
+  //      // check expression is not already awaited
+  //      var awaitExpression = AwaitExpressionNavigator.GetByTask(
+  //        context.ReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
+  //      //if (awaitExpression == null)
+  //      //  consumer.Add(new PostfixLookupItemObsolete(context, "await", "await $EXPR$"));
+  //    }
+  //  }
+  //}
 }

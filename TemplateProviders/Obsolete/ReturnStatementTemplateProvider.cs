@@ -7,33 +7,33 @@ using JetBrains.ReSharper.Psi.CSharp.Impl;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   //[PostfixTemplateProvider("return", "Returns expression")]
-  public class ReturnStatementTemplateProvider : IPostfixTemplateProvider
-  {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      if (!context.CanBeStatement) return;
-      if (!context.ForceMode && context.ExpressionType.IsUnknown) return;
-
-      var declaration = context.ContainingFunction;
-      if (declaration != null && !declaration.IsAsync && !declaration.IsIterator)
-      {
-        var declaredElement = declaration.DeclaredElement;
-        if (declaredElement != null)
-        {
-          var returnType = declaredElement.ReturnType;
-          if (returnType.IsVoid()) return;
-
-          if (!context.ForceMode)
-          {
-            var rule = context.Expression.GetTypeConversionRule();
-            if (!rule.IsImplicitlyConvertibleTo(context.ExpressionType, returnType)) return;
-          }
-
-          consumer.Add(new PostfixLookupItemObsolete(context, "return", "return $EXPR$"));
-        }
-      }
-
-      // todo: yield
-    }
-  }
+  //public class ReturnStatementTemplateProvider : IPostfixTemplateProvider
+  //{
+  //  public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+  //  {
+  //    if (!context.CanBeStatement) return;
+  //    if (!context.ForceMode && context.ExpressionType.IsUnknown) return;
+  //
+  //    var declaration = context.ContainingFunction;
+  //    if (declaration != null && !declaration.IsAsync && !declaration.IsIterator)
+  //    {
+  //      var declaredElement = declaration.DeclaredElement;
+  //      if (declaredElement != null)
+  //      {
+  //        var returnType = declaredElement.ReturnType;
+  //        if (returnType.IsVoid()) return;
+  //
+  //        if (!context.ForceMode)
+  //        {
+  //          var rule = context.MostInnerExpression.GetTypeConversionRule();
+  //          if (!rule.IsImplicitlyConvertibleTo(context.ExpressionType, returnType)) return;
+  //        }
+  //
+  //        consumer.Add(new PostfixLookupItemObsolete(context, "return", "return $EXPR$"));
+  //      }
+  //    }
+  //
+  //    // todo: yield
+  //  }
+  //}
 }
