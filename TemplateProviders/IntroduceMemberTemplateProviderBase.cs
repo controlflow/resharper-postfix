@@ -126,14 +126,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
         var hotspotInfo = new HotspotInfo(
           new TemplateField("memberName", suggestionsExpression, 0),
-#if RESHARPER7
-          memberIdentifier.GetDocumentRange().TextRange,
-          myMemberDeclaration.GetNameDocumentRange().TextRange
-#else
-          memberIdentifier.GetDocumentRange(),
-          myMemberDeclaration.GetNameDocumentRange()
-#endif
-          );
+          memberIdentifier.GetDocumentRange().GetHotspotRange(),
+          myMemberDeclaration.GetNameDocumentRange().GetHotspotRange());
 
         var endSelectionRange = newStatement.GetDocumentRange().EndOffsetRange().TextRange;
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(

@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 
@@ -21,6 +22,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull] Action action)
     {
       services.Transactions.Execute(commandName, action);
+    }
+
+    public static DocumentRange GetHotspotRange(this DocumentRange documentRange)
+    {
+      return documentRange;
     }
   }
 }

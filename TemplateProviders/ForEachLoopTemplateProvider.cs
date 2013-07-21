@@ -1,24 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using JetBrains.Application;
-using JetBrains.DocumentModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Naming.Extentions;
-using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
+using JetBrains.Util;
 #if RESHARPER7
 using JetBrains.ReSharper.Psi;
 #else
 using JetBrains.ReSharper.Psi.Modules;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -62,8 +61,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       protected override IForeachStatement CreateStatement(IPsiModule psiModule, CSharpElementFactory factory)
       {
         var template = Keyword + (BracesInsertion
-        ? "(var x in expr){" + CaretMarker + ";}"
-        : "(var x in expr)" + CaretMarker + ";");
+          ? "(var x in expr){" + CaretMarker + ";}"
+          : "(var x in expr)" + CaretMarker + ";");
 
         return (IForeachStatement) factory.CreateStatement(template);
       }
@@ -77,56 +76,31 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix, IForeachStatement newStatement, int? caretPosition)
       {
-        if (newStatement == null) return;
+        if (newStatement == null || caretPosition == null) return;
 
         var iterator = newStatement.IteratorDeclaration;
-        var collection = newStatement.Collection;
 
-        var suggestionManager = newStatement.GetPsiServices().Naming.Suggestion;
-        var suggestion = suggestionManager.CreateEmptyCollection(
-          PluralityKinds.Single, newStatement.Language, true, newStatement);
-
-        suggestion.Add(collection, new EntryOptions {
-          //PluralityKind = PluralityKinds.Plural,
-          // SubrootPolicy = SubrootPolicy.Decompose
-        });
-
-        suggestion.Prepare(iterator.DeclaredElement,
-          new SuggestionOptions { UniqueNameContext = newStatement, DefaultName = "x" });
-
-        var caretFoo = new DocumentRange(textControl.Document, caretPosition.Value).CreateRangeMarker();
-
-        // ????
-        using (WriteLockCookie.Create())
-          newStatement.GetPsiServices().DoTransaction("Boo", () =>
-            iterator.SetName(suggestion.FirstName()));
-
-        var memberNames = suggestion.AllNames();
-
-        var suggestionsExpression = new NameSuggestionsExpression(memberNames);
-
-        var hotspotInfo = new HotspotInfo(
-          new TemplateField("memberName", suggestionsExpression, 0),
 #if RESHARPER7
-          iterator.NameIdentifier.GetDocumentRange().TextRange
+        var typeExpression = new MacroCallExpression(new SuggestVariableTypeMacro());;
+        var nameExpression = new MacroCallExpression(new SuggestVariableNameMacro());;
 #else
-          iterator.NameIdentifier.GetDocumentRange()
+        var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
+        var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
 #endif
-);
-        // todo: fix
-        
 
-        var endSelectionRange = newStatement.GetDocumentRange().EndOffsetRange().TextRange;
+        var typeSpot = new HotspotInfo(
+          new TemplateField("type", typeExpression, 0),
+          iterator.VarKeyword.GetDocumentRange().GetHotspotRange());
+
+        var nameSpot = new HotspotInfo(
+          new TemplateField("name", nameExpression, 0),
+          iterator.NameIdentifier.GetDocumentRange().GetHotspotRange());
+
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
-          newStatement.GetSolution(), endSelectionRange, textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { hotspotInfo });
+          newStatement.GetSolution(), new TextRange(caretPosition.Value), textControl,
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { typeSpot, nameSpot });
 
         session.Execute();
-        session.Closed.Advise(session.Lifetime, args =>
-          textControl.Caret.MoveTo(
-            caretFoo.Range.StartOffset, CaretVisualPlacement.DontScrollIfVisible));
-
-        
       }
     }
   }
