@@ -32,9 +32,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected override TStatement CreateStatement(
       IPsiModule psiModule, CSharpElementFactory factory)
     {
-      var template = BracesInsertion
-        ? Keyword + "(expr){" + CaretMarker + ";}"
-        : Keyword + "(expr)" + CaretMarker + ";";
+      var template = Keyword + (BracesInsertion
+        ? "(expr){" + CaretMarker + ";}"
+        : "(expr)" + CaretMarker + ";");
 
       return (TStatement) factory.CreateStatement(template);
     }
