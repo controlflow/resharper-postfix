@@ -47,32 +47,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           lengthPropertyName = "Count";
         }
 
-        consumer.Add(new LookupItem(exprContext, lengthPropertyName));
+        consumer.Add(new ForLookupItem(exprContext, lengthPropertyName));
+        consumer.Add(new ReverseForLookupItem(exprContext, lengthPropertyName));
       }
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IForStatement>
+    private abstract class ForLookupItemBase : KeywordStatementPostfixLookupItem<IForStatement>
     {
-      [NotNull] private readonly string myLengthPropertyName;
-
-      public LookupItem(
+      protected ForLookupItemBase([NotNull] string shortcut,
         [NotNull] PrefixExpressionContext context, [NotNull] string lengthPropertyName)
-        : base("for", context)
+        : base(shortcut, context)
       {
-        myLengthPropertyName = lengthPropertyName;
+        LengthPropertyName = lengthPropertyName;
       }
 
-      protected override string Template { get { return "for(var x = 0; x < expr; x++)"; } }
-      public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
-
-      protected override void PlaceExpression(
-        IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        var condition = (IRelationalExpression) forStatement.Condition;
-        var lengthAccess = factory.CreateReferenceExpression("expr.$0", myLengthPropertyName);
-        lengthAccess = condition.RightOperand.ReplaceBy(lengthAccess);
-        lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
-      }
+      [NotNull] protected string LengthPropertyName { get; private set; }
 
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix, IForStatement newStatement, int? caretPosition)
@@ -100,6 +89,49 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { nameSpot });
 
         session.Execute();
+      }
+    }
+
+    private sealed class ForLookupItem : ForLookupItemBase
+    {
+      public ForLookupItem(
+        [NotNull] PrefixExpressionContext context, [NotNull] string lengthPropertyName)
+        : base("for", context, lengthPropertyName) { }
+
+      // todo: for(var x=expr;x>=0;x--)
+      protected override string Template { get { return "for(var x=0;x<expr;x++)"; } }
+      public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
+
+      protected override void PlaceExpression(
+        IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
+      {
+        var condition = (IRelationalExpression) forStatement.Condition;
+        var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthPropertyName);
+        lengthAccess = condition.RightOperand.ReplaceBy(lengthAccess);
+        lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
+      }
+    }
+
+    private sealed class ReverseForLookupItem : ForLookupItemBase
+    {
+      public ReverseForLookupItem(
+        [NotNull] PrefixExpressionContext context, [NotNull] string lengthPropertyName)
+        : base("forr", context, lengthPropertyName) { }
+
+      protected override string Template { get { return "for(var x=expr;x>=0;x--)"; } }
+      public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
+
+      protected override void PlaceExpression(
+        IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
+      {
+        var variable = (ILocalVariableDeclaration) forStatement.Initializer.Declaration.Declarators[0];
+        var initializer = (IExpressionInitializer) variable.Initial;
+
+        var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthPropertyName);
+        lengthAccess = initializer.Value.ReplaceBy(lengthAccess);
+        lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
+
+        lengthAccess.ReplaceBy(factory.CreateExpression("$0 - 1", lengthAccess));
       }
     }
   }

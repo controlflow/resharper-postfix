@@ -58,6 +58,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
     }
 
+    // todo: special behavior for [.] suffix?
     private sealed class LookupItem : KeywordStatementPostfixLookupItem<IForeachStatement>
     {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("foreach", context) { }
