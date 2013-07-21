@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("while", context) { }
 
-      protected override string Keyword { get { return "while"; } }
+      protected override string Template { get { return "while(expr)"; } }
       public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
 
       protected override void PlaceExpression(

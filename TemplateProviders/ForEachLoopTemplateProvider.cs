@@ -10,7 +10,6 @@ using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
@@ -18,7 +17,6 @@ using JetBrains.Util;
 #if RESHARPER7
 using JetBrains.ReSharper.Psi;
 #else
-using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 #endif
 
@@ -64,17 +62,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("foreach", context) { }
 
-      protected override string Keyword { get { return "foreach"; } }
+      protected override string Template { get { return "foreach(var x in expr)"; } }
       public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
-
-      protected override IForeachStatement CreateStatement(IPsiModule psiModule, CSharpElementFactory factory)
-      {
-        var template = Keyword + (BracesInsertion
-          ? "(var x in expr){" + CaretMarker + ";}"
-          : "(var x in expr)" + CaretMarker + ";");
-
-        return (IForeachStatement) factory.CreateStatement(template);
-      }
 
       protected override void PlaceExpression(
         IForeachStatement statement, ICSharpExpression expression, CSharpElementFactory factory)

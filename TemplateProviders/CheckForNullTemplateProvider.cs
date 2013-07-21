@@ -60,8 +60,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
         case CSharpControlFlowNullReferenceState.UNKNOWN:
-          consumer.Add(new LookupItem("notnull", exprContext, "expr != null"));
-          consumer.Add(new LookupItem("null", exprContext, "expr == null"));
+          consumer.Add(new LookupItem("notnull", exprContext, "if(expr!=null)"));
+          consumer.Add(new LookupItem("null", exprContext, "if(expr==null)"));
           break;
       }
     }
@@ -75,21 +75,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class LookupItem : KeywordStatementPostfixLookupItem<IIfStatement>
     {
-      [NotNull] private readonly string myCondition;
-
-      protected override string Keyword { get { return "if"; } }
+      [NotNull] private readonly string myTemplate;
 
       public LookupItem([NotNull] string shortcut,
-        [NotNull] PrefixExpressionContext context, [NotNull] string condition)
+        [NotNull] PrefixExpressionContext context, [NotNull] string template)
         : base(shortcut, context)
       {
-        myCondition = condition;
+        myTemplate = template;
       }
+
+      protected override string Template { get { return myTemplate; } }
 
       protected override void PlaceExpression(
         IIfStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
-        var newCheckExpr = (IEqualityExpression) factory.CreateExpression(myCondition);
+        var newCheckExpr = (IEqualityExpression) factory.CreateExpression(myTemplate);
         var checkedExpr = statement.Condition.ReplaceBy(newCheckExpr);
         checkedExpr.LeftOperand.ReplaceBy(expression);
       }

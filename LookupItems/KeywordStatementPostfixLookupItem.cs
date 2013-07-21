@@ -27,14 +27,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     }
 
     protected bool BracesInsertion { get; set; }
-    protected abstract string Keyword { get; }
+    protected abstract string Template { get; }
 
     protected override TStatement CreateStatement(
       IPsiModule psiModule, CSharpElementFactory factory)
     {
-      var template = Keyword + (BracesInsertion
-        ? "(expr){" + CaretMarker + ";}"
-        : "(expr)" + CaretMarker + ";");
+      var template = Template;
+
+      if (BracesInsertion)
+        template += "{" + CaretMarker + ";}";
+      else
+        template += CaretMarker + ";";
 
       return (TStatement) factory.CreateStatement(template);
     }
