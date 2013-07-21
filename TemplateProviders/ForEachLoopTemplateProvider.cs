@@ -7,8 +7,10 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
@@ -22,10 +24,6 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: check for 'foreach pattern'
-  // todo: support untyped collections
-  // todo: infer type by indexer like F#
-
   [PostfixTemplateProvider("foreach", "Iterating over expressions of collection type")]
   public class ForEachLoopTemplateProvider : IPostfixTemplateProvider
   {
@@ -40,8 +38,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var predefined = exprContext.Expression.GetPredefinedType();
         var rule = exprContext.Expression.GetTypeConversionRule();
         if (rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.IEnumerable))
-        {
           typeIsEnumerable = true;
+      }
+
+      if (!typeIsEnumerable)
+      {
+        var declaredType = exprContext.Type as IDeclaredType;
+        if (declaredType != null && !declaredType.IsUnknown)
+        {
+          var typeElement = declaredType.GetTypeElement();
+          if (typeElement != null && CSharpDeclaredElementUtil.IsForeachEnumeratorPatternType(typeElement))
+          {
+            typeIsEnumerable = true;
+          }
         }
       }
 
