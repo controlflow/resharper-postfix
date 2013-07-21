@@ -1,27 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.Features.Intellisense.Options;
+using JetBrains.UI.CrossFramework;
+using JetBrains.UI.Options;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 {
-  /// <summary>
-  /// Interaction logic for PostfixCompletionPage2.xaml
-  /// </summary>
-  public partial class PostfixCompletionPage2 : UserControl
+  [OptionsPage(PID, "Postfix completion",
+    typeof(ServicesThemedIcons.SurroundTemplate),
+    ParentId = IntelliSensePage.PID)]
+  public sealed partial class PostfixCompletionOptionsPage2 : IOptionsPage
   {
-    public PostfixCompletionPage2()
+    public const string PID = "PostfixCompletion2";
+
+    public PostfixCompletionOptionsPage2()
     {
+      Control = this;
       InitializeComponent();
+    }
+
+    public EitherControl Control { get; private set; }
+    public string Id { get { return PID; } }
+
+    public bool OnOk()
+    {
+      return true;
+    }
+
+    public bool ValidatePage()
+    {
+      return true;
     }
   }
 }
