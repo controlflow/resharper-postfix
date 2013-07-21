@@ -56,7 +56,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class LookupItem : KeywordStatementPostfixLookupItem<IForeachStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("foreach", context) { }
+      public LookupItem([NotNull] PrefixExpressionContext context) : base("for|each", context) { }
 
       protected override string Template { get { return "foreach(var x in expr)"; } }
       public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }

@@ -116,7 +116,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       public ReverseForLookupItem(
         [NotNull] PrefixExpressionContext context, [NotNull] string lengthPropertyName)
-        : base("forr", context, lengthPropertyName) { }
+        : base("for|r", context, lengthPropertyName) { }
 
       protected override string Template { get { return "for(var x=expr;x>=0;x--)"; } }
       public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }

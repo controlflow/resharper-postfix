@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class LookupItem : KeywordStatementPostfixLookupItem<IIfStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("ifnot", context) { }
+      public LookupItem([NotNull] PrefixExpressionContext context) : base("if|not", context) { }
 
       protected override string Template { get { return "if(expr)"; } }
 

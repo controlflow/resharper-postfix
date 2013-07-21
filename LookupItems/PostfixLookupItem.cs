@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Text;
+using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
@@ -8,6 +9,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.Text;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
@@ -23,6 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
   public abstract class PostfixLookupItem : ILookupItem
   {
     [NotNull] private readonly string myShortcut;
+    [NotNull] private readonly string myIdentifier;
     [NotNull] private readonly IRangeMarker myExpressionRange;
     [NotNull] private readonly IRangeMarker myReferenceRange;
     private readonly DocumentRange myReplaceRange;
@@ -33,7 +36,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected PostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
     {
-      myShortcut = shortcut;
+      myShortcut = shortcut.Replace("|", string.Empty);
+      myIdentifier = (myShortcut.Length != shortcut.Length)
+        ? PrepareIdentifier(shortcut)
+        : myShortcut;
+
       myExpressionRange = context.ExpressionRange.CreateRangeMarker();
       myReferenceRange = context.Parent.PostfixReferenceRange.CreateRangeMarker();
       myReplaceRange = context.ReplaceRange;
@@ -41,8 +48,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
     public MatchingResult Match(string prefix, ITextControl textControl)
     {
-      // todo: match "nn" with "notnull"
-      return LookupUtil.MatchesPrefixSimple(myShortcut, prefix);
+      return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
     }
 
     public virtual bool ShortcutIsCSharpStatementKeyword
@@ -168,5 +174,24 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     public bool IsDynamic { get { return false; } }
     public bool IgnoreSoftOnSpace { get; set; }
 #endif
+
+    // "not|null" => "notNull"
+    [NotNull] private static string PrepareIdentifier([NotNull] string shortcut)
+    {
+      var sb = new StringBuilder();
+      var capitalize = false;
+
+      foreach (var c in shortcut)
+      {
+        if (c == '|') capitalize = true;
+        else
+        {
+          sb.Append(capitalize ? char.ToUpperInvariant(c) : c);
+          capitalize = false;
+        }
+      }
+
+      return sb.ToString();
+    }
   }
 }
