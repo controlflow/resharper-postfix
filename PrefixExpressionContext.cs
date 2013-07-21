@@ -17,7 +17,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       Parent = parent;
       Expression = expression;
       Type = expression.Type();
-      CanBeStatement = canBeStatement; // calculate here?
+      //CanBeStatement = canBeStatement; // calculate here?
+      CanBeStatement = CalculateCanBeStatement(expression);
 
       var referenceExpression1 = expression as IReferenceExpression;
       if (referenceExpression1 != null)
@@ -34,6 +35,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             ReferencedElement = typeName.Reference.Resolve().DeclaredElement;
         }
       }
+    }
+
+    private static bool CalculateCanBeStatement([NotNull] ICSharpExpression expression)
+    {
+      if (ExpressionStatementNavigator.GetByExpression(expression) != null)
+        return true;
+
+      // handle broken trees like: "lines.     \r\n   NextLineStatemement();"
+      var containingStatement = expression.GetContainingNode<ICSharpStatement>();
+      if (containingStatement != null)
+      {
+        var a = expression.GetTreeStartOffset();
+        var b = containingStatement.GetTreeStartOffset();
+        return (a == b);
+      }
+
+      return false;
     }
 
     [NotNull] public PostfixTemplateAcceptanceContext Parent { get; private set; }

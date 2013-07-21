@@ -21,7 +21,7 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("for", "Iterating over collections with length")]
+  [PostfixTemplateProvider(new[]{"for", "forr"}, "Iterating over collections with length")]
   public class ForLoopTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
@@ -98,7 +98,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         [NotNull] PrefixExpressionContext context, [NotNull] string lengthPropertyName)
         : base("for", context, lengthPropertyName) { }
 
-      // todo: for(var x=expr;x>=0;x--)
       protected override string Template { get { return "for(var x=0;x<expr;x++)"; } }
       public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
 
@@ -130,7 +129,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthPropertyName);
         lengthAccess = initializer.Value.ReplaceBy(lengthAccess);
         lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
-
         lengthAccess.ReplaceBy(factory.CreateExpression("$0 - 1", lengthAccess));
       }
     }

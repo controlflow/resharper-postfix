@@ -57,11 +57,12 @@
     <Compile Include="PostfixTemplatesTracker.cs" />
     <Compile Include="PrefixExpressionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\PostfixCompletionOptionsPage.cs" />
-    <Compile Include="Settings\PostfixCompletionOptionsPage2.xaml.cs">
-      <DependentUpon>PostfixCompletionOptionsPage2.xaml</DependentUpon>
+    <Compile Include="Settings\PostfixOptionsPage.xaml.cs">
+      <DependentUpon>PostfixOptionsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Settings\PostfixOptionsViewModel.cs" />
     <Compile Include="Settings\PostfixCompletionSettings.cs" />
+    <Compile Include="Settings\PostfixTemplateViewModel.cs" />
     <Compile Include="TemplateProviders\BooleanExpressionProviderBase.cs" />
     <Compile Include="TemplateProviders\Obsolete\AwaitExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />
@@ -86,7 +87,7 @@
     <None Include="Readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Settings\PostfixCompletionOptionsPage2.xaml">
+    <Page Include="Settings\PostfixOptionsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
