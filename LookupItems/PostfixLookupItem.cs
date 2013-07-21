@@ -62,6 +62,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
       // calculate textual range to remove
       var nameDocumentRange = new DocumentRange(textControl.Document, nameRange);
+      // ReSharper disable once ImpureMethodCallOnReadonlyValueField
       var replaceRange = myReplaceRange.Intersects(nameDocumentRange)
         ? myReplaceRange.JoinRight(nameDocumentRange)
         : myReplaceRange;

@@ -7,7 +7,6 @@ using JetBrains.DocumentModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -58,14 +57,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       get { return myTemplateProvidersInfos; }
     }
 
-    private static TextRange GetTextRange(ITreeNode node, ReparsedCodeCompletionContext context = null)
-    {
-      if (context == null)
-        return node.GetDocumentRange().TextRange;
-
-      return context.ToDocumentRange(node.GetTreeTextRange());
-    }
-
     [NotNull] public IList<ILookupItem> GetAvailableItems(
       [NotNull] ITreeNode node, bool looseChecks,
       [CanBeNull] ReparsedCodeCompletionContext reparseContext = null,
@@ -80,15 +71,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expression = referenceExpression.QualifierExpression;
           if (expression != null)
           {
-            //var replaceRange = GetTextRange(referenceExpression, reparseContext);
-            //var expressionRange = GetTextRange(expression, reparseContext);
             var canBeStatement = CalculateCanBeStatement(referenceExpression); // wtf?
 
-            
-
             return CollectAvailableTemplates(
-              referenceExpression, expression, DocumentRange.InvalidRange, reparseContext,
-              canBeStatement, looseChecks, templateName);
+              referenceExpression, expression, DocumentRange.InvalidRange,
+              reparseContext, canBeStatement, looseChecks, templateName);
           }
         }
 
@@ -178,8 +165,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull]
     private IList<ILookupItem> CollectAvailableTemplates(
       [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression,
-      DocumentRange replaceRange, [CanBeNull] ReparsedCodeCompletionContext context, bool canBeStatement,
-      bool forceMode, [CanBeNull] string templateName)
+      DocumentRange replaceRange, [CanBeNull] ReparsedCodeCompletionContext context,
+      bool canBeStatement, bool forceMode, [CanBeNull] string templateName)
     {
       var acceptanceContext = new PostfixTemplateAcceptanceContext(
         reference, expression, replaceRange, context, canBeStatement, forceMode);
