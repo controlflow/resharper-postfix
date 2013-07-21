@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
@@ -27,6 +28,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public static DocumentRange GetHotspotRange(this DocumentRange documentRange)
     {
       return documentRange;
+    }
+
+    public static bool IsForeachEnumeratorPatternType([NotNull] this ITypeElement typeElement)
+    {
+      return CSharpDeclaredElementUtil.IsForeachEnumeratorPatternType(typeElement);
     }
   }
 }

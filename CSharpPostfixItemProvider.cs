@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
@@ -65,7 +64,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var parameters = context.BasicContext.Parameters;
       if (forceMode && parameters.CodeCompletionTypes.Length > 1)
       {
-        idsToRemove = new JetHashSet<string>(StringComparer.Ordinal);
+        idsToRemove = new JetHashSet<string>(System.StringComparer.Ordinal);
 
         var autoItems = myTemplatesManager.GetAvailableItems(node, false, completionContext);
         if (autoItems.Count > 0)

@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Util;
+using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve;
+using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
@@ -28,6 +32,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public static TextRange GetHotspotRange(this DocumentRange documentRange)
     {
       return documentRange.TextRange;
+    }
+
+    public static bool IsForeachEnumeratorPatternType([NotNull] this ITypeElement typeElement)
+    {
+      var symbols = ResolveUtil
+        .GetSymbolTableByTypeElement(typeElement, SymbolTableMode.FULL, typeElement.Module)
+        .GetSymbolInfos("GetEnumerator");
+
+      foreach (var symbol in symbols)
+        if (CSharpDeclaredElementUtil.IsForeachEnumeratorPatternMember(symbol.GetDeclaredElement()))
+          return true;
+
+      return false;
     }
   }
 }

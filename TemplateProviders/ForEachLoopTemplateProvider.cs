@@ -47,7 +47,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         if (declaredType != null && !declaredType.IsUnknown)
         {
           var typeElement = declaredType.GetTypeElement();
-          if (typeElement != null && CSharpDeclaredElementUtil.IsForeachEnumeratorPatternType(typeElement))
+          if (typeElement != null && typeElement.IsForeachEnumeratorPatternType())
           {
             typeIsEnumerable = true;
           }
@@ -90,8 +90,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var iterator = newStatement.IteratorDeclaration;
 
 #if RESHARPER7
-        var typeExpression = new MacroCallExpression(new SuggestVariableTypeMacro());;
-        var nameExpression = new MacroCallExpression(new SuggestVariableNameMacro());;
+        var typeExpression = new MacroCallExpression(new SuggestVariableTypeMacro());
+        var nameExpression = new MacroCallExpression(new SuggestVariableNameMacro());
 #else
         var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
         var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
