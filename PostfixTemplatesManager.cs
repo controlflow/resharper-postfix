@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
@@ -7,6 +8,7 @@ using JetBrains.DocumentModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -58,7 +60,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull] public IList<ILookupItem> GetAvailableItems(
-      [NotNull] ITreeNode node, bool looseChecks,
+      [NotNull] ITreeNode node, bool forceMode,
       [CanBeNull] ReparsedCodeCompletionContext reparseContext = null,
       [CanBeNull] string templateName = null)
     {
@@ -71,11 +73,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expression = referenceExpression.QualifierExpression;
           if (expression != null)
           {
-            var canBeStatement = CalculateCanBeStatement(referenceExpression); // wtf?
-
             return CollectAvailableTemplates(
               referenceExpression, expression, DocumentRange.InvalidRange,
-              reparseContext, canBeStatement, looseChecks, templateName);
+              reparseContext, forceMode, templateName);
           }
         }
 
@@ -94,13 +94,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var referenceExpr = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
             if (expression != null && referenceExpr != null)
             {
-              var canBeStatement = (expression.Parent == expressionStatement.Expression);
               var expressionRange = expression.GetDocumentRange();
               var replaceRange = expressionRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
 
               return CollectAvailableTemplates(
-                referenceExpr, expression, replaceRange, null,
-                canBeStatement, looseChecks, templateName);
+                referenceExpr, expression, replaceRange,
+                null, forceMode, templateName);
             }
           }
         }
@@ -145,38 +144,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return expression;
     }
 
-    private static bool CalculateCanBeStatement([NotNull] ICSharpExpression expression)
-    {
-      if (ExpressionStatementNavigator.GetByExpression(expression) != null)
-        return true;
-
-      // handle broken trees like: "lines.     \r\n   NextLineStatemement();"
-      var containingStatement = expression.GetContainingNode<ICSharpStatement>();
-      if (containingStatement != null)
-      {
-        var a = expression.GetTreeStartOffset();
-        var b = containingStatement.GetTreeStartOffset();
-        return (a == b);
-      }
-
-      return false;
-    }
-
     [NotNull]
     private IList<ILookupItem> CollectAvailableTemplates(
       [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression,
       DocumentRange replaceRange, [CanBeNull] ReparsedCodeCompletionContext context,
-      bool canBeStatement, bool forceMode, [CanBeNull] string templateName)
+      bool forceMode, [CanBeNull] string templateName)
     {
       var acceptanceContext = new PostfixTemplateAcceptanceContext(
-        reference, expression, replaceRange, context, canBeStatement, forceMode);
+        reference, expression, replaceRange, context, forceMode);
 
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      //var isTypeExpression = acceptanceContext.ReferencedElement is ITypeElement;
-      bool isTypeExpression = false; // todo: bring it back
+      var isTypeExpression = acceptanceContext.PossibleExpressions.Last().ReferencedElement is ITypeElement;
       var items = new List<ILookupItem>();
 
       foreach (var info in myTemplateProvidersInfos)

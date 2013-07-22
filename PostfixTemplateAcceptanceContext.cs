@@ -15,24 +15,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     private readonly ReparsedCodeCompletionContext myReparsedContext;
 
     public PostfixTemplateAcceptanceContext(
-      [NotNull] IReferenceExpression referenceExpression,
-      [NotNull] ICSharpExpression expression,
-      DocumentRange replaceRange,
-      [CanBeNull] ReparsedCodeCompletionContext context,
-      bool canBeStatement, bool forceMode)
+      [NotNull] IReferenceExpression reference,
+      [NotNull] ICSharpExpression expression, DocumentRange replaceRange,
+      [CanBeNull] ReparsedCodeCompletionContext context, bool forceMode)
     {
       myReparsedContext = context;
 
-      PostfixReferenceExpression = referenceExpression;
+      PostfixReferenceExpression = reference;
       MostInnerExpression = expression;
 
       // todo: don't like it
       MostInnerReplaceRange = replaceRange.IsValid()
         ? replaceRange
-        : ToDocumentRange(referenceExpression.QualifierExpression)
-           .SetEndTo(ToDocumentRange(referenceExpression.Delimiter).TextRange.EndOffset);
+        : ToDocumentRange(reference.QualifierExpression)
+           .SetEndTo(ToDocumentRange(reference.Delimiter).TextRange.EndOffset);
 
-      CanBeStatement = canBeStatement; // better to remove
       ForceMode = forceMode;
       SettingsStore = expression.GetSettingsStore();
     }
@@ -52,13 +49,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     {
       get
       {
-        if (CanBeStatement) // todo: hmm?
-        {
-          yield return new PrefixExpressionContext(this, MostInnerExpression, true);
-          yield break;
-        }
-
-        var leftRange = PostfixReferenceExpression.GetTreeEndOffset();
         ITreeNode node = MostInnerExpression;
         while (node != null)
         {
@@ -68,7 +58,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             //if (expr.GetTreeEndOffset() > leftRange) break;
 
             yield return new PrefixExpressionContext(this,
-              expr, node != MostInnerExpression && ExpressionStatementNavigator.GetByExpression(expr) != null);
+              expr);
           }
 
           if (node is ICSharpStatement) break;

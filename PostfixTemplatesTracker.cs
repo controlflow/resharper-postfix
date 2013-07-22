@@ -117,7 +117,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         {
           // check exactly single item available
           var items = myTemplatesManager.GetAvailableItems(
-            token, looseChecks: true, templateName: genericPrefix);
+            token, forceMode: true, templateName: genericPrefix);
 
           if (items.Count == 1) return items[0];
         }

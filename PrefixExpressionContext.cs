@@ -12,12 +12,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     public PrefixExpressionContext(
       [NotNull] PostfixTemplateAcceptanceContext parent,
-      [NotNull] ICSharpExpression expression, bool canBeStatement)
+      [NotNull] ICSharpExpression expression)
     {
       Parent = parent;
       Expression = expression;
       Type = expression.Type();
-      //CanBeStatement = canBeStatement; // calculate here?
       CanBeStatement = CalculateCanBeStatement(expression);
 
       var referenceExpression1 = expression as IReferenceExpression;
@@ -46,9 +45,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var containingStatement = expression.GetContainingNode<ICSharpStatement>();
       if (containingStatement != null)
       {
-        var a = expression.GetTreeStartOffset();
-        var b = containingStatement.GetTreeStartOffset();
-        return (a == b);
+        var expressionOffset = expression.GetTreeStartOffset();
+        var statementOffset = containingStatement.GetTreeStartOffset();
+        return (expressionOffset == statementOffset);
       }
 
       return false;
