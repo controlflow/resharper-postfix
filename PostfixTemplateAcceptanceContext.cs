@@ -23,6 +23,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       PostfixReferenceExpression = referenceExpression;
       MostInnerExpression = expression;
+
+      // todo: don't like it
       MostInnerReplaceRange = replaceRange.IsValid()
         ? replaceRange
         : ToDocumentRange(referenceExpression.QualifierExpression)
@@ -48,7 +50,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     {
       get
       {
-        if (CanBeStatement)
+        if (CanBeStatement) // todo: hmm?
         {
           yield return new PrefixExpressionContext(this, MostInnerExpression, true);
           yield break;
@@ -74,6 +76,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull] public IReferenceExpression PostfixReferenceExpression { get; private set; }
+
+    // todo: review usages
     [NotNull] public ICSharpExpression MostInnerExpression { get; private set; }
 
     public DocumentRange MostInnerReplaceRange { get; private set; }
