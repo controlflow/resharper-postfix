@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>0.9.2-beta</version>
+    <version>0.9.3-beta</version>
     <title>ReSharper Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
     <owners>controlflow</owners>
-    <projectUrl>https://github.com/controlflow/postfixcompletion</projectUrl>
-    <iconUrl>https://raw.github.com/controlflow/postfixcompletion/master/img/icon.png</iconUrl>
+    <projectUrl>https://github.com/controlflow/PostfixCompletion</projectUrl>
+    <iconUrl>https://raw.github.com/controlflow/PostfixCompletion/master/Content/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       ReSharper code completion plugin

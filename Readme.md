@@ -11,23 +11,23 @@ ReSharper 7.1 version will came shortly after.
 
 Iterting over all kinds of collections, reverse iteration:
 
-![foreach](/img/foreach.png)
+![foreach](/Content/foreach.png)
 
 Wrapping up boolean expressions with *if-statement*:
 
-![if/ifnot](/img/if.png)
+![if/ifnot](/Content/if.png)
 
 Checking nullable expressions for *null*:
 
-![null/notnull](/img/notnull.png)
+![null/notnull](/Content/notnull.png)
 
 Surrounding *IDisposable* expressions with *using-statemenet*:
 
-![using](/img/using.png)
+![using](/Content/using.png)
 
 Awaiting expressions of *'Task<T>'* type:
 
-![await](/img/await.png)
+![await](/Content/await.png)
 
 * .var
 * .field
