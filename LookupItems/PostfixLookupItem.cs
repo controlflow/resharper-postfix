@@ -36,11 +36,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected PostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
     {
-      myShortcut = shortcut.Replace("|", string.Empty);
-      myIdentifier = (myShortcut.Length != shortcut.Length)
-        ? PrepareIdentifier(shortcut)
-        : myShortcut;
-
+      myIdentifier = shortcut;
+      myShortcut = shortcut.ToLowerInvariant();
       myExpressionRange = context.ExpressionRange.CreateRangeMarker();
       myReferenceRange = context.Parent.PostfixReferenceRange.CreateRangeMarker();
       myReplaceRange = context.ReplaceRange;
@@ -180,24 +177,5 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     public bool IsDynamic { get { return false; } }
     public bool IgnoreSoftOnSpace { get; set; }
 #endif
-
-    // "not|null" => "notNull"
-    [NotNull] private static string PrepareIdentifier([NotNull] string shortcut)
-    {
-      var sb = new StringBuilder();
-      var capitalize = false;
-
-      foreach (var c in shortcut)
-      {
-        if (c == '|') capitalize = true;
-        else
-        {
-          sb.Append(capitalize ? char.ToUpperInvariant(c) : c);
-          capitalize = false;
-        }
-      }
-
-      return sb.ToString();
-    }
   }
 }

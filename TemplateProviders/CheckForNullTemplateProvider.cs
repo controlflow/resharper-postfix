@@ -60,7 +60,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
         case CSharpControlFlowNullReferenceState.UNKNOWN:
-          consumer.Add(new LookupItem("not|null", exprContext, "if(expr!=null)"));
+          consumer.Add(new LookupItem("notNull", exprContext, "if(expr!=null)"));
           consumer.Add(new LookupItem("null", exprContext, "if(expr==null)"));
           break;
       }
