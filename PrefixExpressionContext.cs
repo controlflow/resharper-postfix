@@ -58,6 +58,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     // "lines.Any()" : Boolean
     [NotNull] public ICSharpExpression Expression { get; private set; }
+    // todo: review checks for Unknown
     [NotNull] public IType Type { get; private set; }
     [CanBeNull] public IDeclaredElement ReferencedElement { get; private set; }
 

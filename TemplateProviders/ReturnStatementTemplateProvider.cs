@@ -8,6 +8,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Modules;
+using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -17,10 +18,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var exprContext = context.PossibleExpressions.LastOrDefault();
-      if (exprContext == null) return;
-
-      if (!exprContext.CanBeStatement) return;
-      if (!context.ForceMode && exprContext.Type.IsUnknown) return;
+      if (exprContext == null || !exprContext.CanBeStatement) return;
 
       var declaration = context.ContainingFunction;
       if (declaration == null) return;
@@ -28,29 +26,44 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var function = declaration.DeclaredElement;
       if (function == null) return;
 
-      if (!context.ForceMode) // type check
+      if (context.ForceMode)
+      {
+        consumer.Add(new ReturnLookupItem(exprContext));
+        consumer.Add(new YieldLookupItem(exprContext));
+      }
+      else // types check
       {
         var returnType = function.ReturnType;
         if (returnType.IsVoid()) return;
 
-        if (declaration.IsAsync)
+        if (!declaration.IsIterator)
         {
-          if (returnType.IsTask()) return; // no return value
-
-          // unwrap return type from Task<T>
-          var genericTask = returnType as IDeclaredType;
-          if (genericTask != null && genericTask.IsGenericTask())
+          if (declaration.IsAsync)
           {
-            var element = genericTask.GetTypeElement();
-            if (element != null)
+            if (returnType.IsTask()) return; // no return value
+
+            // unwrap return type from Task<T>
+            var genericTask = returnType as IDeclaredType;
+            if (genericTask != null && genericTask.IsGenericTask())
             {
-              var typeParameters = element.TypeParameters;
-              if (typeParameters.Count == 1)
-                returnType = genericTask.GetSubstitution()[typeParameters[0]];
+              var element = genericTask.GetTypeElement();
+              if (element != null)
+              {
+                var typeParameters = element.TypeParameters;
+                if (typeParameters.Count == 1)
+                  returnType = genericTask.GetSubstitution()[typeParameters[0]];
+              }
             }
           }
+
+          var rule = exprContext.Expression.GetTypeConversionRule();
+          if (rule.IsImplicitlyConvertibleTo(exprContext.Type, returnType))
+          {
+            consumer.Add(new ReturnLookupItem(exprContext));
+          }
         }
-        else if (IsOrCanBecameIterator(declaration, returnType))
+
+        if (IsOrCanBecameIterator(declaration, returnType))
         {
           if (returnType.IsIEnumerable())
           {
@@ -71,20 +84,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
               }
             }
           }
+
+          var rule = exprContext.Expression.GetTypeConversionRule();
+          if (rule.IsImplicitlyConvertibleTo(exprContext.Type, returnType))
+          {
+            consumer.Add(new YieldLookupItem(exprContext));
+          }
         }
-
-        var rule = exprContext.Expression.GetTypeConversionRule();
-        if (!rule.IsImplicitlyConvertibleTo(exprContext.Type, returnType))
-          return;
-      }
-
-      if (!declaration.IsIterator)
-      {
-        consumer.Add(new ReturnLookupItem(exprContext));
-      }
-      else
-      {
-        consumer.Add(new YieldLookupItem(exprContext));
       }
     }
 
@@ -119,6 +125,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         statement.Value.ReplaceBy(expression);
       }
+
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix, int? caretPosition)
+      {
+        if (suffix.HasPresentation && suffix.Presentation == ';') suffix = Suffix.Empty;
+        base.AfterComplete(textControl, suffix, caretPosition);
+      }
     }
 
     private sealed class YieldLookupItem : StatementPostfixLookupItem<IYieldStatement>
@@ -136,6 +148,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         IYieldStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
         statement.Expression.ReplaceBy(expression);
+      }
+
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix, int? caretPosition)
+      {
+        if (suffix.HasPresentation && suffix.Presentation == ';') suffix = Suffix.Empty;
+        base.AfterComplete(textControl, suffix, caretPosition);
       }
     }
   }

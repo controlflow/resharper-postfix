@@ -8,6 +8,8 @@ using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
+  // todo: disable Foo(123.{here})
+
   public sealed class PostfixTemplateAcceptanceContext
   {
     private readonly ReparsedCodeCompletionContext myReparsedContext;
