@@ -48,7 +48,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
     }
 
-    public virtual bool ShortcutIsCSharpStatementKeyword
+    protected virtual bool ShortcutIsCSharpStatementKeyword
     {
       get { return false; }
     }

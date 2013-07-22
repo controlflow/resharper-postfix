@@ -77,7 +77,7 @@
     <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\ObjectCreationTypeTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\ThrowStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\Obsolete\UsingStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />
     <Compile Include="Utils\PortabilityExtensions.R8.cs" />

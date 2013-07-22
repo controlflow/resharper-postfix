@@ -59,7 +59,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       public LookupItem([NotNull] PrefixExpressionContext context) : base("forEach", context) { }
 
       protected override string Template { get { return "foreach(var x in expr)"; } }
-      public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
+      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
 
       protected override void PlaceExpression(
         IForeachStatement statement, ICSharpExpression expression, CSharpElementFactory factory)

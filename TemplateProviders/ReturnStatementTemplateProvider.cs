@@ -114,6 +114,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       public ReturnLookupItem([NotNull] PrefixExpressionContext context)
         : base("return", context) { }
 
+      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
+      protected override bool SupressCommaSuffix { get { return true; } }
+
       protected override IReturnStatement CreateStatement(
         IPsiModule psiModule, CSharpElementFactory factory)
       {
@@ -125,18 +128,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         statement.Value.ReplaceBy(expression);
       }
-
-      protected override void AfterComplete(ITextControl textControl, Suffix suffix, int? caretPosition)
-      {
-        if (suffix.HasPresentation && suffix.Presentation == ';') suffix = Suffix.Empty;
-        base.AfterComplete(textControl, suffix, caretPosition);
-      }
     }
 
     private sealed class YieldLookupItem : StatementPostfixLookupItem<IYieldStatement>
     {
       public YieldLookupItem([NotNull] PrefixExpressionContext context)
         : base("yield", context) { }
+
+      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
+      protected override bool SupressCommaSuffix { get { return true; } }
 
       protected override IYieldStatement CreateStatement(
         IPsiModule psiModule, CSharpElementFactory factory)
@@ -148,12 +148,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         IYieldStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
         statement.Expression.ReplaceBy(expression);
-      }
-
-      protected override void AfterComplete(ITextControl textControl, Suffix suffix, int? caretPosition)
-      {
-        if (suffix.HasPresentation && suffix.Presentation == ';') suffix = Suffix.Empty;
-        base.AfterComplete(textControl, suffix, caretPosition);
       }
     }
   }

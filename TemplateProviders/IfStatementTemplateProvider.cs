@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       public LookupItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
 
       protected override string Template { get { return "if(expr)"; } }
-      public override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
+      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
 
       protected override void PlaceExpression(
         IIfStatement statement, ICSharpExpression expression, CSharpElementFactory factory)

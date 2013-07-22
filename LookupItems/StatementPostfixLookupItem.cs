@@ -76,10 +76,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       AfterComplete(textControl, suffix, newStatement, caretPosition);
     }
 
+    protected virtual bool SupressCommaSuffix { get { return false; } }
+
     protected virtual void AfterComplete(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
       [CanBeNull] TStatement newStatement, int? caretPosition)
     {
+      if (SupressCommaSuffix && suffix.HasPresentation && suffix.Presentation == ';')
+      {
+        suffix = Suffix.Empty;
+      }
+
       AfterComplete(textControl, suffix, caretPosition);
     }
 
