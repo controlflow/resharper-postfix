@@ -83,10 +83,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
               var template = GetTemplateFromTextControl(textControl, solution);
               if (template != null)
               {
-                var nameRange = new TextRange(textControl.Caret.PositionValue.ToDocOffset()); // looks wrong?
+                var nameLength = template.Identity.Length;
+                var nameRange = TextRange.FromLength(
+                  textControl.Caret.Offset() - nameLength, nameLength);
+
                 // invoke item completion manually
-                template.Accept(textControl, nameRange,
-                  LookupItemInsertType.Replace, Suffix.Empty, solution, false);
+                template.Accept(
+                  textControl, nameRange, LookupItemInsertType.Replace,
+                  Suffix.Empty, solution, false);
+
                 return;
               }
 

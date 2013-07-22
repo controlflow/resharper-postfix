@@ -13,17 +13,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       foreach (var expressionContext in context.PossibleExpressions)
       {
         var expression = expressionContext.Expression;
-        var expressionType = expressionContext.Type;
-        if (context.ForceMode
-          || expressionType.IsBool()
+        if (expressionContext.Type.IsBool()
           || expression is IRelationalExpression
           || expression is IEqualityExpression
           || expression is IConditionalAndExpression
           || expression is IConditionalOrExpression
           || expression is IUnaryOperatorExpression)
         {
-          if (CreateBooleanItems(expressionContext, consumer))
-            break;
+          if (CreateBooleanItems(expressionContext, consumer)) return;
+        }
+      }
+
+      if (context.ForceMode)
+      {
+        foreach (var expressionContext in context.PossibleExpressions)
+        {
+          if (CreateBooleanItems(expressionContext, consumer)) return;
         }
       }
     }

@@ -111,7 +111,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         {
           var range = tNode.GetDocumentRange().TextRange;
           if (range == markerRange ||
-              range == markerRange.JoinRight(nameRange) ||
+              range == markerRange.SetEndTo(nameRange.EndOffset) ||
               range == markerRange.SetEndTo(nameRange.StartOffset) ||
 
 

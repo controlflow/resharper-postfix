@@ -49,20 +49,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     {
       get
       {
-        ITreeNode node = MostInnerExpression;
-        while (node != null)
+        for (ITreeNode node = MostInnerExpression; node != null; node = node.Parent)
         {
           var expr = node as ICSharpExpression;
           if (expr != null)
           {
-            //if (expr.GetTreeEndOffset() > leftRange) break;
+            //if (PostfixReferenceExpression == expr) break;
 
-            yield return new PrefixExpressionContext(this,
-              expr);
+            yield return new PrefixExpressionContext(this, expr);
           }
 
           if (node is ICSharpStatement) break;
-          node = node.Parent;
         }
       }
     }

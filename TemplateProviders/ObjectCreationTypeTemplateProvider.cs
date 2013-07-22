@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      var exprContext = context.PossibleExpressions.LastOrDefault();
+      var exprContext = context.PossibleExpressions.FirstOrDefault();
       if (exprContext == null) return;
 
       var typeElement = exprContext.ReferencedElement as ITypeElement;
@@ -54,7 +54,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       protected override IObjectCreationExpression CreateExpression(
         IPsiModule psiModule, CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IObjectCreationExpression) factory.CreateExpression("new $0()", myTypeText);
+        return (IObjectCreationExpression)
+          factory.CreateExpression("new $0(" + CaretMarker + ")", myTypeText);
       }
     }
   }
