@@ -18,13 +18,10 @@
     </Grid.RowDefinitions>
 
     <TextBlock Text="Available templates:" Margin="{StaticResource LabelMargin}" />
-    <!--
-    TODO: implement
     <TextBlock Grid.Row="0" TextAlignment="Right"
                Margin="{StaticResource LabelMargin}">
-      <Hyperlink>Reset</Hyperlink>
+      <Hyperlink Command="{Binding Reset}">Reset</Hyperlink>
     </TextBlock>
-    -->
 
     <ListView Grid.Row="1" Margin="2"
               HorizontalAlignment="Stretch"
