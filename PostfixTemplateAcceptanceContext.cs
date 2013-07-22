@@ -23,7 +23,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       PostfixReferenceExpression = referenceExpression;
       MostInnerExpression = expression;
-      MostInnerReplaceRange = replaceRange.IsValid() ? replaceRange : ToDocumentRange(referenceExpression);
+      MostInnerReplaceRange = replaceRange.IsValid()
+        ? replaceRange
+        : ToDocumentRange(referenceExpression.QualifierExpression)
+           .SetEndTo(ToDocumentRange(referenceExpression.Delimiter).TextRange.EndOffset);
 
       CanBeStatement = canBeStatement; // better to remove
       ForceMode = forceMode;
@@ -58,7 +61,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expr = node as ICSharpExpression;
           if (expr != null)
           {
-            if (expr.GetTreeEndOffset() > leftRange) break;
+            //if (expr.GetTreeEndOffset() > leftRange) break;
 
             yield return new PrefixExpressionContext(this,
               expr, node != MostInnerExpression && ExpressionStatementNavigator.GetByExpression(expr) != null);

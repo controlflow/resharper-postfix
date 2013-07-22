@@ -70,7 +70,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var nameDocumentRange = new DocumentRange(textControl.Document, nameRange);
       // ReSharper disable once ImpureMethodCallOnReadonlyValueField
       var replaceRange = myReplaceRange.Intersects(nameDocumentRange)
-        ? myReplaceRange.JoinRight(nameDocumentRange)
+        ? //myReplaceRange.JoinRight(nameDocumentRange)
+          myReplaceRange.SetEndTo(nameDocumentRange.TextRange.EndOffset)
         : myReplaceRange;
 
       var reference = FindMarkedNode<IReferenceExpression>(
@@ -80,6 +81,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ICSharpExpression exprCopy;
       if (reference != null && expression.Contains(reference))
       {
+        // todo: check this in case a > 0.if  \r\n  Console.WriteLine
+
         var marker = new TreeNodeMarker<IReferenceExpression>(reference);
         exprCopy = expression.Copy(expression);
         var copy = marker.GetAndDispose(exprCopy);
@@ -112,6 +115,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           var range = tNode.GetDocumentRange().TextRange;
           if (range == markerRange ||
               range == markerRange.JoinRight(nameRange) ||
+              range == markerRange.SetEndTo(nameRange.StartOffset) ||
+
+
               // special hack for ".i{caret:f}" and ".whil{caret:e}"
               (ShortcutIsCSharpStatementKeyword &&
                myShortcut.Length - nameRange.Length <= 1 &&
