@@ -1,10 +1,10 @@
-﻿using System.Text;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Services;
@@ -48,27 +48,33 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
     }
 
-    protected virtual bool ShortcutIsCSharpStatementKeyword
-    {
-      get { return false; }
-    }
-
-    public void Accept(ITextControl textControl, TextRange nameRange,
-      LookupItemInsertType insertType, Suffix suffix, ISolution solution, bool keepCaretStill)
+    public void Accept(
+      ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
+      Suffix suffix, ISolution solution, bool keepCaretStill)
     {
       var expression = FindMarkedNode<ICSharpExpression>(
         solution, textControl, myExpressionRange.Range, nameRange);
-      if (expression == null) return;
+      if (expression == null)
+      {
+        // still can be parsed as IReferenceName
+        var referenceName = FindMarkedNode<IReferenceName>(
+          solution, textControl, myExpressionRange.Range, nameRange);
+        if (referenceName == null) return;
+
+        expression = CSharpElementFactory
+          .GetInstance(referenceName, false)
+          .CreateExpression(referenceName.GetText());
+      }
 
       // take required component while tree is valid
       var psiModule = expression.GetPsiModule();
 
       // calculate textual range to remove
       var nameDocumentRange = new DocumentRange(textControl.Document, nameRange);
+
       // ReSharper disable once ImpureMethodCallOnReadonlyValueField
       var replaceRange = myReplaceRange.Intersects(nameDocumentRange)
-        ? //myReplaceRange.JoinRight(nameDocumentRange)
-          myReplaceRange.SetEndTo(nameDocumentRange.TextRange.EndOffset)
+        ? myReplaceRange.SetEndTo(nameDocumentRange.TextRange.EndOffset)
         : myReplaceRange;
 
       var reference = FindMarkedNode<IReferenceExpression>(
@@ -91,7 +97,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       }
       else
       {
-        exprCopy = expression.Copy(expression);
+        exprCopy = expression.IsPhysical()
+          ? expression.Copy(expression)
+          : expression;
       }
 
       ExpandPostfix(textControl, suffix, solution, replaceRange, psiModule, exprCopy);
@@ -112,13 +120,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           var range = tNode.GetDocumentRange().TextRange;
           if (range == markerRange ||
               range == markerRange.SetEndTo(nameRange.EndOffset) ||
-              range == markerRange.SetEndTo(nameRange.StartOffset) ||
-
-
-              // special hack for ".i{caret:f}" and ".whil{caret:e}"
-              (ShortcutIsCSharpStatementKeyword &&
-               myShortcut.Length - nameRange.Length <= 1 &&
-               range == markerRange.SetEndTo(nameRange.StartOffset)))
+              range == markerRange.SetEndTo(nameRange.StartOffset))
           {
             return tNode;
           }

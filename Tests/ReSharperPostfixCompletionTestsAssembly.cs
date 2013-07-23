@@ -12,6 +12,15 @@ using NUnit.Framework;
 [SetUpFixture]
 public class ReSharperPostfixCompletionTestsAssembly : ReSharperTestEnvironmentAssembly
 {
+  static ReSharperPostfixCompletionTestsAssembly()
+  {
+    var binPath = FileSystemPath.Parse(Environment.CurrentDirectory);
+    var parentDirectory = binPath.Directory.Directory;
+    TestDataPath = parentDirectory.Combine("Data").FullPath;
+  }
+
+  [NotNull] public readonly static string TestDataPath;
+
   [NotNull]
   private static IEnumerable<Assembly> GetAssembliesToLoad()
   {
@@ -27,17 +36,7 @@ public class ReSharperPostfixCompletionTestsAssembly : ReSharperTestEnvironmentA
       assemblyManager.LoadAssemblies(GetType().Name, GetAssembliesToLoad());
     });
 
-    SetupBaseTestPath();
-  }
-
-  private static void SetupBaseTestPath()
-  {
-    var binPath = FileSystemPath.Parse(Environment.CurrentDirectory);
-    var parentDirectory = binPath.Directory.Directory;
-    var testDataDirectory = parentDirectory.Combine("Data");
-
-    Environment.SetEnvironmentVariable("BASE_TEST_DATA", testDataDirectory.FullPath);
-    Environment.SetEnvironmentVariable("TEST_DATA", testDataDirectory.FullPath);
+    Environment.SetEnvironmentVariable("%BASE_TEST_DATA%", TestDataPath);
   }
 
   public override void TearDown()

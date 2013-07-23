@@ -38,9 +38,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       public LookupItem([NotNull] PrefixExpressionContext context)
         : base("throw", context) { }
 
-      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
       protected override bool SupressCommaSuffix { get { return true; } }
-
       protected override IThrowStatement CreateStatement(
         IPsiModule psiModule, CSharpElementFactory factory)
       {

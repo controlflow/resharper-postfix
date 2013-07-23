@@ -54,8 +54,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expr = node as ICSharpExpression;
           if (expr != null)
           {
-            //if (PostfixReferenceExpression == expr) break;
-
+            if (PostfixReferenceExpression == expr) continue;
             yield return new PrefixExpressionContext(this, expr);
           }
 

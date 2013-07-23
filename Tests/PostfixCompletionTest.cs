@@ -12,17 +12,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     protected override string RelativeTestDataPath
     {
-      get
-      {
-        var a = Environment.GetEnvironmentVariable("BASE_TEST_DATA");
-        return a + @"\Completion";
-      }
+      get { return ReSharperPostfixCompletionTestsAssembly.TestDataPath + @"\Completion"; }
     }
 
-    [Test]
-    public void TestIf01()
-    {
-      DoNamedTest();
-    }
+    [Test] public void TestIf01() { DoNamedTest(); }
   }
 }

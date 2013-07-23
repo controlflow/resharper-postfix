@@ -30,7 +30,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         if (classType != null && classType.IsAbstract) return;
   
         // check type has any constructor accessable
-        var accessContext = new ElementAccessContext(context.MostInnerExpression);
+        var accessContext = new ElementAccessContext(exprContext.Expression);
         foreach (var constructor in typeElement.Constructors)
         {
           if (!constructor.IsStatic && AccessUtil.IsSymbolAccessible(constructor, accessContext))

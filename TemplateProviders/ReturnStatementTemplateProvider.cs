@@ -115,7 +115,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       public ReturnLookupItem([NotNull] PrefixExpressionContext context)
         : base("return", context) { }
 
-      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
       protected override bool SupressCommaSuffix { get { return true; } }
 
       protected override IReturnStatement CreateStatement(
@@ -136,7 +135,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       public YieldLookupItem([NotNull] PrefixExpressionContext context)
         : base("yield", context) { }
 
-      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
       protected override bool SupressCommaSuffix { get { return true; } }
 
       protected override IYieldStatement CreateStatement(

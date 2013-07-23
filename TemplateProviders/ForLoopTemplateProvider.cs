@@ -99,7 +99,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         : base("for", context, lengthPropertyName) { }
 
       protected override string Template { get { return "for(var x=0;x<expr;x++)"; } }
-      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
 
       protected override void PlaceExpression(
         IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
@@ -118,7 +117,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         : base("forR", context, lengthPropertyName) { }
 
       protected override string Template { get { return "for(var x=expr;x>=0;x--)"; } }
-      protected override bool ShortcutIsCSharpStatementKeyword { get { return true; } }
 
       protected override void PlaceExpression(
         IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
