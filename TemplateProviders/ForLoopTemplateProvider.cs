@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
@@ -26,8 +25,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      var exprContext = context.PossibleExpressions.FirstOrDefault();
-      if (exprContext == null || !exprContext.CanBeStatement) return;
+      var exprContext = context.InnerExpression;
+      if (!exprContext.CanBeStatement) return;
 
       var expression = exprContext.Expression;
       if (context.ForceMode || expression.IsPure())

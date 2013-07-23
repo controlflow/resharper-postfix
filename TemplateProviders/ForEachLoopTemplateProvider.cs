@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      var exprContext = context.PossibleExpressions.LastOrDefault();
+      var exprContext = context.Expressions.LastOrDefault();
       if (exprContext == null || !exprContext.CanBeStatement) return;
 
       var typeIsEnumerable = context.ForceMode;

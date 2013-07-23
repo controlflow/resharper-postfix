@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;

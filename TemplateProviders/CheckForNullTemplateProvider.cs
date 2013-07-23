@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -16,8 +15,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      var exprContext = context.PossibleExpressions.LastOrDefault();
-      if (exprContext == null || !exprContext.CanBeStatement) return;
+      var exprContext = context.OuterExpression;
+      if (!exprContext.CanBeStatement) return;
 
       // check expression type
       if (exprContext.Type.IsUnknown)
@@ -60,9 +59,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
         case CSharpControlFlowNullReferenceState.UNKNOWN:
+        {
           consumer.Add(new LookupItem("notNull", exprContext, "if(expr!=null)"));
           consumer.Add(new LookupItem("null", exprContext, "if(expr==null)"));
           break;
+        }
       }
     }
 

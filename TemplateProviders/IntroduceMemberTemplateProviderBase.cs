@@ -32,7 +32,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       if (context.ForceMode || functionDeclaration.DeclaredElement is IConstructor)
       {
-        foreach (var expression in context.PossibleExpressions)
+        foreach (var expression in context.Expressions)
         {
           if (expression.Type.IsUnknown) continue;
           if (!expression.CanBeStatement) continue;

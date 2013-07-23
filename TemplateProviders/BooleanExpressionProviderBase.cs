@@ -10,7 +10,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      foreach (var expressionContext in context.PossibleExpressions)
+      foreach (var expressionContext in context.Expressions)
       {
         var expression = expressionContext.Expression;
         if (expressionContext.Type.IsBool()
@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       if (context.ForceMode)
       {
-        foreach (var expressionContext in context.PossibleExpressions)
+        foreach (var expressionContext in context.Expressions)
         {
           if (CreateBooleanItems(expressionContext, consumer)) return;
         }

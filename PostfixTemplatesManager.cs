@@ -150,14 +150,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       DocumentRange replaceRange, [CanBeNull] ReparsedCodeCompletionContext context,
       bool forceMode, [CanBeNull] string templateName)
     {
-      var acceptanceContext = new PostfixTemplateAcceptanceContext(
+      var postfixContext = new PostfixTemplateAcceptanceContext(
         reference, expression, replaceRange, context, forceMode);
 
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var isTypeExpression = acceptanceContext.PossibleExpressions.First().ReferencedElement is ITypeElement;
+      var isTypeExpression = postfixContext.InnerExpression.ReferencedElement is ITypeElement;
       var items = new List<ILookupItem>();
 
       foreach (var info in myTemplateProvidersInfos)
@@ -177,7 +177,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
 
-        info.Provider.CreateItems(acceptanceContext, items);
+        info.Provider.CreateItems(postfixContext, items);
       }
 
       if (templateName != null) // do not like it

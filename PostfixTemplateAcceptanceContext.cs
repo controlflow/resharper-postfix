@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -20,9 +19,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [CanBeNull] ReparsedCodeCompletionContext context, bool forceMode)
     {
       myReparsedContext = context;
-
       PostfixReferenceExpression = reference;
       MostInnerExpression = expression;
+      ForceMode = forceMode;
 
       // todo: don't like it
       MostInnerReplaceRange = replaceRange.IsValid()
@@ -30,8 +29,25 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         : ToDocumentRange(reference.QualifierExpression)
            .SetEndTo(ToDocumentRange(reference.Delimiter).TextRange.EndOffset);
 
-      ForceMode = forceMode;
-      SettingsStore = expression.GetSettingsStore();
+      // build expression contexts
+      var expressionContexts = new List<PrefixExpressionContext>();
+      for (ITreeNode node = expression; node != null; node = node.Parent)
+      {
+        var expr = node as ICSharpExpression;
+        if (expr != null)
+        {
+          if (PostfixReferenceExpression == expr) continue;
+          var expressionContext = new PrefixExpressionContext(this, expr);
+          expressionContexts.Add(expressionContext);
+          if (expressionContext.CanBeStatement) break;
+        }
+
+        if (node is ICSharpStatement) break;
+      }
+
+      Expressions = expressionContexts.AsReadOnly();
+      InnerExpression = expressionContexts[0];
+      OuterExpression = expressionContexts[expressionContexts.Count - 1];
     }
 
     public DocumentRange ToDocumentRange([NotNull] ITreeNode treeNode)
@@ -43,32 +59,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return new DocumentRange(documentRange.Document, originalRange);
     }
 
-    public IContextBoundSettingsStore SettingsStore { get; private set; }
-
-    public IEnumerable<PrefixExpressionContext> PossibleExpressions
-    {
-      get
-      {
-        for (ITreeNode node = MostInnerExpression; node != null; node = node.Parent)
-        {
-          var expr = node as ICSharpExpression;
-          if (expr != null)
-          {
-            if (PostfixReferenceExpression == expr) continue;
-            var context = new PrefixExpressionContext(this, expr);
-            yield return context;
-            if (context.CanBeStatement) break;
-          }
-
-          if (node is ICSharpStatement) break;
-        }
-      }
-    }
-
     [NotNull] public IReferenceExpression PostfixReferenceExpression { get; private set; }
-
-    // todo: review usages
     [NotNull] public ICSharpExpression MostInnerExpression { get; private set; }
+
+    [NotNull] public IEnumerable<PrefixExpressionContext> Expressions { get; private set; }
+    [NotNull] public PrefixExpressionContext InnerExpression { get; private set; }
+    [NotNull] public PrefixExpressionContext OuterExpression { get; private set; }
 
     public DocumentRange MostInnerReplaceRange { get; private set; }
     public DocumentRange PostfixReferenceRange
@@ -76,8 +72,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       get { return ToDocumentRange(PostfixReferenceExpression); }
     }
 
-    // todo: remove from here?
-    public bool CanBeStatement { get; private set; }
     public bool ForceMode { get; private set; }
 
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction

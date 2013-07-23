@@ -62,7 +62,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         if (referenceName == null) return;
 
         expression = CSharpElementFactory
-          .GetInstance(referenceName, false)
+          .GetInstance(referenceName.GetPsiModule(), false)
           .CreateExpression(referenceName.GetText());
       }
 

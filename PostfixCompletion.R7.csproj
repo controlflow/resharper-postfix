@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="Settings\PostfixOptionsViewModel.cs" />
     <Compile Include="Settings\PostfixTemplateViewModel.cs" />
+    <Compile Include="TemplateProviders\AwaitExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\BooleanExpressionProviderBase.cs" />
     <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ForEachLoopTemplateProvider.cs" />
@@ -76,10 +77,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TemplateProviders\ObjectCreationTypeTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\AwaitExpressionTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\Obsolete\UsingStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\UsingStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />
     <Compile Include="Utils\PortabilityExtensions.R7.cs" />
     <None Include="PostfixCompletion.nuspec">

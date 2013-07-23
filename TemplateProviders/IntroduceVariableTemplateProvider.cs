@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var contexts = new List<PrefixExpressionContext>();
-      foreach (var expression in context.PossibleExpressions)
+      foreach (var expression in context.Expressions)
       {
         if (expression.Expression is IReferenceExpression)
         {

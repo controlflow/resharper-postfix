@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -7,7 +6,9 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
+#if RESHARPER8
 using JetBrains.ReSharper.Psi.Modules;
+#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -16,24 +17,29 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
-      var exprContext = context.PossibleExpressions.FirstOrDefault();
-      if (exprContext == null) return;
-
+      var exprContext = context.InnerExpression;
       var function = context.ContainingFunction;
       if (function == null) return;
-  
-      if (context.ForceMode || function.IsAsync)
-      {
-        if (exprContext.Type.IsTask() || exprContext.Type.IsGenericTask() || context.ForceMode)
-        {
-          // check expression is not already awaited
-          var awaitExpression = AwaitExpressionNavigator.GetByTask(
-            context.PostfixReferenceExpression.GetContainingParenthesizedExpression() as IUnaryExpression);
 
-          if (awaitExpression == null)
-            consumer.Add(new LookupItem(exprContext));
+      if (!context.ForceMode)
+      {
+        if (!function.IsAsync) return;
+
+        var expressionType = exprContext.Type;
+        if (!expressionType.IsUnknown)
+        {
+          if (!(expressionType.IsTask() ||
+                expressionType.IsGenericTask())) return;
         }
       }
+
+      // check expression is not already awaited
+      var awaitExpression = AwaitExpressionNavigator.GetByTask(
+        context.PostfixReferenceExpression
+               .GetContainingParenthesizedExpression() as IUnaryExpression);
+
+      if (awaitExpression == null)
+        consumer.Add(new LookupItem(exprContext));
     }
 
     private sealed class LookupItem : ExpressionPostfixLookupItem<IAwaitExpression>
