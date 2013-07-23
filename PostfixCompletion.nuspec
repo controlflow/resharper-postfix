@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>0.9.3-beta</version>
+    <version>0.9.4-beta</version>
     <title>ReSharper Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
     <owners>controlflow</owners>
@@ -18,6 +18,6 @@
     <tags>postfix code completion templates surround</tags>
   </metadata>
   <files>
-    <file src="bin.R8\Debug\" target="ReSharper\v8.0" />
+    <file src="bin.R8\Debug\" target="ReSharper\v8.0\plugins\" />
   </files>
 </package>
