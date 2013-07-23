@@ -11,7 +11,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
   public sealed class PostfixTemplateAcceptanceContext
   {
-    private readonly ReparsedCodeCompletionContext myReparsedContext;
+    [NotNull] private readonly ICSharpExpression myMostInnerExpression;
+    [CanBeNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 
     public PostfixTemplateAcceptanceContext(
       [NotNull] IReferenceExpression reference,
@@ -19,8 +20,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [CanBeNull] ReparsedCodeCompletionContext context, bool forceMode)
     {
       myReparsedContext = context;
+      myMostInnerExpression = expression;
       PostfixReferenceExpression = reference;
-      MostInnerExpression = expression;
       ForceMode = forceMode;
 
       // todo: don't like it
@@ -60,7 +61,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull] public IReferenceExpression PostfixReferenceExpression { get; private set; }
-    [NotNull] public ICSharpExpression MostInnerExpression { get; private set; }
 
     [NotNull] public IEnumerable<PrefixExpressionContext> Expressions { get; private set; }
     [NotNull] public PrefixExpressionContext InnerExpression { get; private set; }
@@ -76,7 +76,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {
-      get { return MostInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
+      get { return myMostInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
     }
   }
 }
