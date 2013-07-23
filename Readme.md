@@ -16,6 +16,8 @@ Iterting over all kinds of collections, reverse iteration:
 
 ![foreach](/Content/foreach.png)
 
+// TODO: other templates
+
 #### Feedback
 
 Feel free to post any issues or feature requests in [JetBrains YouTrack](http://youtrack.jetbrains.com/issues/RSPL) (select *"PostfixCompletion"* subsystem).
