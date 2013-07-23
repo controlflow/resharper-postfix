@@ -2,12 +2,14 @@
 
 The idea is to prevent caret jumps backwards while typing C# code.
 
-## Download
+[See it in action](http://screencast.com/t/zqMDGTMDqhp)
+
+#### Download
 
 Will be available in ReSharper 8.0 extension gallery soon.
 ReSharper 7.1 version will came shortly after.
 
-## Available templates
+#### Available templates
 
 Iterting over all kinds of collections, reverse iteration:
 
@@ -52,6 +54,7 @@ types:
 * int.list => List<int>?
 * Foo.new => new Foo()
 
-## Feedback
+#### Feedback
 
-alexander.shvedov[at]jetbrains.com
+Feel free to create issues in [JetBrains YouTrack](http://youtrack.jetbrains.com/issues/RSPL) for "PostfixCompletion" subsystem.
+Or contact me directly by email: *alexander.shvedov[at]jetbrains.com*
