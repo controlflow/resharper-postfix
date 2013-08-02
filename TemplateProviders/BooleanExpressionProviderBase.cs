@@ -13,12 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       foreach (var expressionContext in context.Expressions)
       {
         var expression = expressionContext.Expression;
-        if (expressionContext.Type.IsBool()
-          || expression is IRelationalExpression
-          || expression is IEqualityExpression
-          || expression is IConditionalAndExpression
-          || expression is IConditionalOrExpression
-          || expression is IUnaryOperatorExpression)
+        if (expressionContext.Type.IsBool() || IsBooleanExpression(expression))
         {
           if (CreateBooleanItems(expressionContext, consumer)) return;
         }
@@ -31,6 +26,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           if (CreateBooleanItems(expressionContext, consumer)) return;
         }
       }
+    }
+
+    public static bool IsBooleanExpression([CanBeNull] ICSharpExpression expression)
+    {
+      return expression is IRelationalExpression
+          || expression is IEqualityExpression
+          || expression is IConditionalAndExpression
+          || expression is IConditionalOrExpression
+          || expression is IUnaryOperatorExpression
+          || expression is IAsExpression
+          || expression is IIsExpression;
     }
 
     protected abstract bool CreateBooleanItems(

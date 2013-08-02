@@ -12,6 +12,9 @@
     <description>
       ReSharper code completion plugin
     </description>
+    <releaseNotes>
+      Fixes
+    </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
     </dependencies>

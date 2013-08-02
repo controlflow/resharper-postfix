@@ -16,10 +16,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   [BaseTypeRequired(typeof(IPostfixTemplateProvider))]
   public sealed class PostfixTemplateProviderAttribute : ShellComponentAttribute
   {
-    [NotNull]
-    public string[] TemplateNames { get; private set; }
-    [NotNull]
-    public string Description { get; private set; }
+    [NotNull] public string[] TemplateNames { get; private set; }
+    [NotNull] public string Description { get; private set; }
 
     public bool WorksOnTypes { get; set; }
     public bool DisabledByDefault { get; set; }

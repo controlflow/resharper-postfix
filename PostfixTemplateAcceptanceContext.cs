@@ -14,21 +14,40 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull] private readonly ICSharpExpression myMostInnerExpression;
     [CanBeNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 
-    public PostfixTemplateAcceptanceContext(
-      [NotNull] IReferenceExpression reference,
+    public PostfixTemplateAcceptanceContext([NotNull] ITreeNode reference,
       [NotNull] ICSharpExpression expression, DocumentRange replaceRange,
       [CanBeNull] ReparsedCodeCompletionContext context, bool forceMode)
     {
       myReparsedContext = context;
       myMostInnerExpression = expression;
-      PostfixReferenceExpression = reference;
+      PostfixReferenceNode = reference;
       ForceMode = forceMode;
 
       // todo: don't like it
-      MostInnerReplaceRange = replaceRange.IsValid()
-        ? replaceRange
-        : ToDocumentRange(reference.QualifierExpression)
-           .SetEndTo(ToDocumentRange(reference.Delimiter).TextRange.EndOffset);
+      if (replaceRange.IsValid()) MostInnerReplaceRange = replaceRange;
+      else
+      {
+        var re = reference as IReferenceExpression;
+        if (re != null)
+        {
+          MostInnerReplaceRange =
+            ToDocumentRange(re.QualifierExpression).SetEndTo(ToDocumentRange(re.Delimiter).TextRange.EndOffset);
+        }
+        else
+        {
+          var referenceName = reference as IReferenceName;
+          if (referenceName != null)
+          {
+            MostInnerReplaceRange =
+              ToDocumentRange(referenceName.Qualifier).SetEndTo(ToDocumentRange(referenceName.Delimiter).TextRange.EndOffset);
+          }
+          else
+          {
+
+            // WTF
+          }
+        }
+      }
 
       // build expression contexts
       var expressionContexts = new List<PrefixExpressionContext>();
@@ -37,7 +56,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var expr = node as ICSharpExpression;
         if (expr != null)
         {
-          if (PostfixReferenceExpression == expr) continue;
+          if (PostfixReferenceNode == expr) continue;
           var expressionContext = new PrefixExpressionContext(this, expr);
           expressionContexts.Add(expressionContext);
           if (expressionContext.CanBeStatement) break;
@@ -60,16 +79,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return new DocumentRange(documentRange.Document, originalRange);
     }
 
-    [NotNull] public IReferenceExpression PostfixReferenceExpression { get; private set; }
-
+    [NotNull] public ITreeNode PostfixReferenceNode { get; private set; }
     [NotNull] public IEnumerable<PrefixExpressionContext> Expressions { get; private set; }
     [NotNull] public PrefixExpressionContext InnerExpression { get; private set; }
     [NotNull] public PrefixExpressionContext OuterExpression { get; private set; }
 
     public DocumentRange MostInnerReplaceRange { get; private set; }
+
     public DocumentRange PostfixReferenceRange
     {
-      get { return ToDocumentRange(PostfixReferenceExpression); }
+      get
+      {
+        // todo: think about
+        //if (PostfixReferenceExpression == null) // return MostInnerReplaceRange;
+        //  return DocumentRange.InvalidRange;
+        
+        return ToDocumentRange(PostfixReferenceNode);
+      }
     }
 
     public bool ForceMode { get; private set; }

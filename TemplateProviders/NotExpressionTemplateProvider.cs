@@ -13,7 +13,7 @@ using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("not", "Negates boolean expression")]
+  [PostfixTemplateProvider("not", "Negates boolean expression", WorksOnTypes = true)]
   public class NotExpressionTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
   {
     protected override bool CreateBooleanItems(

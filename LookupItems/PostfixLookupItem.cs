@@ -1,9 +1,12 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using System.Linq;
+using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
@@ -28,6 +31,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] private readonly string myIdentifier;
     [NotNull] private readonly IRangeMarker myExpressionRange;
     [NotNull] private readonly IRangeMarker myReferenceRange;
+    [NotNull] private readonly Type myReferenceType;
     private readonly DocumentRange myReplaceRange;
 
     protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
@@ -40,6 +44,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       myShortcut = shortcut.ToLowerInvariant();
       myExpressionRange = context.ExpressionRange.CreateRangeMarker();
       myReferenceRange = context.Parent.PostfixReferenceRange.CreateRangeMarker();
+      myReferenceType = context.Parent.PostfixReferenceNode.GetType();
       myReplaceRange = context.ReplaceRange;
     }
 
@@ -52,13 +57,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
       Suffix suffix, ISolution solution, bool keepCaretStill)
     {
-      var expression = FindMarkedNode<ICSharpExpression>(
-        solution, textControl, myExpressionRange.Range, nameRange);
+      var expression = (ICSharpExpression) FindMarkedNode(
+        solution, textControl, myExpressionRange.Range, nameRange, typeof(ICSharpExpression));
       if (expression == null)
       {
         // still can be parsed as IReferenceName
-        var referenceName = FindMarkedNode<IReferenceName>(
-          solution, textControl, myExpressionRange.Range, nameRange);
+        var referenceName = FindMarkedNode(
+          solution, textControl, myExpressionRange.Range, nameRange, typeof(IReferenceName));
         if (referenceName == null) return;
 
         expression = CSharpElementFactory
@@ -77,23 +82,62 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         ? myReplaceRange.SetEndTo(nameDocumentRange.TextRange.EndOffset)
         : myReplaceRange;
 
-      var reference = FindMarkedNode<IReferenceExpression>(
-        solution, textControl, myReferenceRange.Range, nameRange);
+      var reference = FindMarkedNode(
+        solution, textControl, myReferenceRange.Range,
+        nameRange, myReferenceType);
 
       // fix "x > 0.if" to "x > 0"
       ICSharpExpression exprCopy;
       if (reference != null && expression.Contains(reference))
       {
         // todo: check this in case a > 0.if  \r\n  Console.WriteLine
+        var re = reference as IReferenceExpression;
+        if (re != null)
+        {
+          var marker = new TreeNodeMarker<IReferenceExpression>(re);
+          exprCopy = expression.Copy(expression);
+          var copy = marker.GetAndDispose(exprCopy);
+          var exprToFix = copy.QualifierExpression.NotNull();
 
-        var marker = new TreeNodeMarker<IReferenceExpression>(reference);
-        exprCopy = expression.Copy(expression);
-        var copy = marker.GetAndDispose(exprCopy);
-        var exprToFix = copy.QualifierExpression.NotNull();
+          LowLevelModificationUtil.ReplaceChildRange(copy, copy, exprToFix);
+          if (exprToFix.NextSibling is IErrorElement)
+            LowLevelModificationUtil.DeleteChild(exprToFix.NextSibling);
+        }
+        else
+        {
+          var rn = reference as IReferenceName;
+          if (rn != null)
+          {
+            var marker = new TreeNodeMarker<IReferenceName>(rn);
+            exprCopy = expression.Copy(expression);
+            var copy = marker.GetAndDispose(exprCopy);
+            var exprToFix = copy.Qualifier.NotNull();
 
-        LowLevelModificationUtil.ReplaceChildRange(copy, copy, exprToFix);
-        if (exprToFix.NextSibling is IErrorElement)
-          LowLevelModificationUtil.DeleteChild(exprToFix.NextSibling);
+            LowLevelModificationUtil.ReplaceChildRange(copy, copy, exprToFix);
+            if (exprToFix.NextSibling is IErrorElement)
+              LowLevelModificationUtil.DeleteChild(exprToFix.NextSibling);
+            if (exprToFix.Parent.NextSibling is IErrorElement)
+              LowLevelModificationUtil.DeleteChild(exprToFix.Parent.NextSibling);
+          }
+          else
+          {
+            var xs = new RecursiveElementCollector<IErrorElement>();
+            expression.ProcessDescendants(xs);
+            var ys = xs.GetResults().Select(x => new TreeNodeMarker<IErrorElement>(x)).ToList();
+
+            exprCopy = expression.Copy(expression);
+
+            foreach (var treeNodeMarker in ys)
+            {
+              var t = treeNodeMarker.FindMarkedNode(exprCopy);
+              if (t != null)
+              {
+                treeNodeMarker.Dispose(exprCopy);
+                LowLevelModificationUtil.DeleteChild(t);
+              }
+            }
+          }
+        }
       }
       else
       {
@@ -105,24 +149,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ExpandPostfix(textControl, suffix, solution, replaceRange, psiModule, exprCopy);
     }
 
-    [CanBeNull] private TTreeNode FindMarkedNode<TTreeNode>([NotNull] ISolution solution,
-      [NotNull] ITextControl textControl, TextRange markerRange, TextRange nameRange)
-      where TTreeNode : class, ITreeNode
+    [CanBeNull] private static ITreeNode FindMarkedNode(
+      [NotNull] ISolution solution, [NotNull] ITextControl textControl,
+      TextRange markerRange, TextRange nameRange, [NotNull] Type nodeType)
     {
       var node = TextControlToPsi.GetSourceTokenAtOffset(
         solution, textControl, markerRange.StartOffset);
 
       while (node != null)
       {
-        var tNode = node as TTreeNode;
-        if (tNode != null)
+        if (nodeType.IsInstanceOfType(node))
         {
-          var range = tNode.GetDocumentRange().TextRange;
+          var range = node.GetDocumentRange().TextRange;
           if (range == markerRange ||
               range == markerRange.SetEndTo(nameRange.EndOffset) ||
               range == markerRange.SetEndTo(nameRange.StartOffset))
           {
-            return tNode;
+            return node;
           }
         }
 

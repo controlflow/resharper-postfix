@@ -7,7 +7,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("if", "Checks boolean expression to be 'true'")]
+  [PostfixTemplateProvider("if", "Checks boolean expression to be 'true'", WorksOnTypes = true)]
   public sealed class IfStatementTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
   {
     protected override bool CreateBooleanItems(

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
@@ -103,9 +102,58 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             }
           }
         }
+
+        // handle collisions with predefined types 'x as string.'
+        if (node.Parent is IErrorElement &&
+            node.Parent.PrevSibling is ITypeUsage)
+        {
+          var expression = node.Parent.Parent as ICSharpExpression;
+          if (expression != null)
+          {
+            var a = ToDocumentRange(reparseContext, node.Parent.PrevSibling);
+            var b = ToDocumentRange(reparseContext, node);
+            var c = a.SetEndTo(b.TextRange.EndOffset);
+
+            return CollectAvailableTemplates(
+              node.Parent.PrevSibling, expression, c,
+              reparseContext, forceMode, templateName);
+          }
+        }
+
+        // handle collisions with user types 'x as String.'
+        var referenceName = node.Parent as IReferenceName;
+        if (referenceName != null && referenceName.Qualifier != null && referenceName.Delimiter != null)
+        {
+          var usage = referenceName.Parent as ITypeUsage;
+          if (usage != null)
+          {
+            // wrong, type usage
+            var expression = usage.Parent as ICSharpExpression;
+            if (expression != null)
+            {
+              var a = ToDocumentRange(reparseContext, referenceName.Qualifier);
+              var b = ToDocumentRange(reparseContext, referenceName.Delimiter);
+              var c = a.SetEndTo(b.TextRange.EndOffset);
+
+              return CollectAvailableTemplates(
+                referenceName, expression, c,
+                reparseContext, forceMode, templateName);
+            }
+          }
+        }
       }
 
       return EmptyList<ILookupItem>.InstanceList;
+    }
+
+    public DocumentRange ToDocumentRange(
+      [CanBeNull] ReparsedCodeCompletionContext reparsedContext, [NotNull] ITreeNode treeNode)
+    {
+      var documentRange = treeNode.GetDocumentRange();
+      if (reparsedContext == null) return documentRange;
+
+      var originalRange = reparsedContext.ToDocumentRange(treeNode.GetTreeTextRange());
+      return new DocumentRange(documentRange.Document, originalRange);
     }
 
     [CanBeNull]
@@ -130,7 +178,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
             // skip whitespace in case of "expr   .if"
             var wsToken = dot.PrevSibling as ITokenNode;
-            if (wsToken != null && wsToken.GetTokenType() == CSharpTokenType.WHITE_SPACE) node = wsToken;
+            if (wsToken != null && wsToken.GetTokenType() == CSharpTokenType.WHITE_SPACE)
+              node = wsToken;
 
             expression = node.PrevSibling as ICSharpExpression; //todo: comments?
           }
@@ -146,7 +195,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     [NotNull]
     private IList<ILookupItem> CollectAvailableTemplates(
-      [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression,
+      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
       DocumentRange replaceRange, [CanBeNull] ReparsedCodeCompletionContext context,
       bool forceMode, [CanBeNull] string templateName)
     {

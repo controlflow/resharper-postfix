@@ -35,8 +35,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       // check expression is not already awaited
       var awaitExpression = AwaitExpressionNavigator.GetByTask(
-        context.PostfixReferenceExpression
-               .GetContainingParenthesizedExpression() as IUnaryExpression);
+        (context.PostfixReferenceNode as IReferenceExpression)
+        .GetContainingParenthesizedExpression() as IUnaryExpression);
 
       if (awaitExpression == null)
         consumer.Add(new LookupItem(exprContext));
