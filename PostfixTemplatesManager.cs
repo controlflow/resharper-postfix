@@ -141,6 +141,38 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             }
           }
         }
+
+        var statement1 = (node.Parent as ICSharpStatement);
+        if (statement1 == null)
+        {
+          var re = node.Parent as IReferenceExpression;
+          if (re != null)
+          {
+            statement1 = re.Parent as IExpressionStatement;
+          }
+        }
+
+        if (statement1 != null && statement1.FirstChild == node &&
+            node.NextSibling is IErrorElement && reparseContext == null)
+        {
+          // todo: more constrained check? what to remove?
+
+          var expressionStatement = statement1.PrevSibling as IExpressionStatement;
+          if (expressionStatement != null)
+          {
+            var expression = FindExpressionBrokenByKeyword1(expressionStatement);
+            var referenceExpr = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+            if (expression != null && referenceExpr != null)
+            {
+              var expressionRange = expression.GetDocumentRange();
+              var replaceRange = expressionRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
+
+              return CollectAvailableTemplates(
+                referenceExpr, expression, replaceRange,
+                null, forceMode, templateName);
+            }
+          }
+        }
       }
 
       return EmptyList<ILookupItem>.InstanceList;
@@ -158,6 +190,43 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     [CanBeNull]
     private static ICSharpExpression FindExpressionBrokenByKeyword([NotNull] IExpressionStatement statement)
+    {
+      ICSharpExpression expression = null;
+      var errorFound = false;
+
+      for (ITreeNode treeNode = statement, last; expression == null; treeNode = last)
+      {
+        last = treeNode.LastChild; // inspect all the last nodes traversing up tree
+        if (last == null) break;
+
+        if (!errorFound) errorFound = last is IErrorElement;
+
+        if (errorFound && last.Parent is IReferenceExpression)
+        {
+          var dot = (last is IErrorElement ? last.PrevSibling : last) as ITokenNode;
+          if (dot != null && dot.GetTokenType() == CSharpTokenType.DOT)
+          {
+            ITreeNode node = dot;
+
+            // skip whitespace in case of "expr   .if"
+            var wsToken = dot.PrevSibling as ITokenNode;
+            if (wsToken != null && wsToken.GetTokenType() == CSharpTokenType.WHITE_SPACE)
+              node = wsToken;
+
+            expression = node.PrevSibling as ICSharpExpression; //todo: comments?
+          }
+        }
+
+        // skip "expression statement is not closed with ';'" and friends
+        while (last is IErrorElement) last = last.PrevSibling;
+        if (last == null) break;
+      }
+
+      return expression;
+    }
+
+    [CanBeNull]
+    private static ICSharpExpression FindExpressionBrokenByKeyword1([NotNull] IExpressionStatement statement)
     {
       ICSharpExpression expression = null;
       var errorFound = false;
