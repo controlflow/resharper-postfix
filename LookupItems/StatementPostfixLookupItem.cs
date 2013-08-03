@@ -24,11 +24,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
+    protected virtual bool PutSemicolons
+    {
+      get { return true; }
+    }
+
     protected override void ExpandPostfix(
       ITextControl textControl, Suffix suffix, ISolution solution, DocumentRange replaceRange,
       IPsiModule psiModule, ICSharpExpression expression)
     {
-      textControl.Document.ReplaceText(replaceRange.TextRange, PostfixMarker + ";");
+      textControl.Document.ReplaceText(
+        replaceRange.TextRange, PostfixMarker + (PutSemicolons ? ";" : null));
+
       solution.GetPsiServices().CommitAllDocuments();
 
       int? caretPosition = null;
@@ -76,13 +83,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       AfterComplete(textControl, suffix, newStatement, caretPosition);
     }
 
-    protected virtual bool SupressCommaSuffix { get { return false; } }
+    protected virtual bool SuppressSemicolonSuffix { get { return false; } }
 
     protected virtual void AfterComplete(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
       [CanBeNull] TStatement newStatement, int? caretPosition)
     {
-      if (SupressCommaSuffix && suffix.HasPresentation && suffix.Presentation == ';')
+      if (SuppressSemicolonSuffix && suffix.HasPresentation && suffix.Presentation == ';')
       {
         suffix = Suffix.Empty;
       }

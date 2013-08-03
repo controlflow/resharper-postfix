@@ -12,9 +12,8 @@ using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: remove extra ';'
-
-  [PostfixTemplateProvider(new []{"return", "yield"}, "Returns expression/yields value from iterator")]
+  [PostfixTemplateProvider(new []{"return", "yield"},
+    "Returns expression/yields value from iterator")]
   public class ReturnStatementTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
@@ -113,10 +112,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class ReturnLookupItem : StatementPostfixLookupItem<IReturnStatement>
     {
-      public ReturnLookupItem([NotNull] PrefixExpressionContext context)
-        : base("return", context) { }
+      private readonly bool myHasSemicolonAfter;
 
-      protected override bool SupressCommaSuffix { get { return true; } }
+      public ReturnLookupItem([NotNull] PrefixExpressionContext context)
+        : base("return", context)
+      {
+        myHasSemicolonAfter = context.HasSemicolonAfter();
+      }
+
+      protected override bool SuppressSemicolonSuffix
+      {
+        get { return !myHasSemicolonAfter; }
+      }
+
+      protected override bool PutSemicolons
+      {
+        get { return !myHasSemicolonAfter; }
+      }
 
       protected override IReturnStatement CreateStatement(
         IPsiModule psiModule, CSharpElementFactory factory)
@@ -133,10 +145,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class YieldLookupItem : StatementPostfixLookupItem<IYieldStatement>
     {
-      public YieldLookupItem([NotNull] PrefixExpressionContext context)
-        : base("yield", context) { }
+      private readonly bool myHasSemicolonAfter;
 
-      protected override bool SupressCommaSuffix { get { return true; } }
+      public YieldLookupItem([NotNull] PrefixExpressionContext context)
+        : base("yield", context)
+      {
+        myHasSemicolonAfter = context.HasSemicolonAfter();
+      }
+
+      protected override bool SuppressSemicolonSuffix
+      {
+        get { return !myHasSemicolonAfter; }
+      }
+
+      protected override bool PutSemicolons
+      {
+        get { return !myHasSemicolonAfter; }
+      }
 
       protected override IYieldStatement CreateStatement(
         IPsiModule psiModule, CSharpElementFactory factory)

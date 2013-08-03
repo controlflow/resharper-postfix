@@ -13,14 +13,9 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
-#if RESHARPER8
-
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: support for occurances?
-
   [PostfixTemplateProvider("var", "Introduces variable for expression")]
   public sealed class IntroduceVariableTemplateProvider : IPostfixTemplateProvider
   {
@@ -50,8 +45,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
+      private readonly bool myHasSemicolonAfter;
+
       public LookupItem([NotNull] PrefixExpressionContext context)
-        : base("var", context) { }
+        : base("var", context)
+      {
+        myHasSemicolonAfter = context.HasSemicolonAfter();
+      }
 
       protected override ICSharpExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
@@ -59,12 +59,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         return expression;
       }
 
+      protected override bool PutSemicolons
+      {
+        get { return !myHasSemicolonAfter; }
+      }
+
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
       {
         // note: yes, we are supressing suffix, since there is no nice way to preserve it
-
-        if (expression == null) return;
 
         const string name = "IntroVariableAction";
         var solution = expression.GetSolution();
