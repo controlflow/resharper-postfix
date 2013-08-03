@@ -28,6 +28,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var exprContext = context.InnerExpression;
       if (!exprContext.CanBeStatement) return;
 
+      if (!context.ForceMode && BooleanExpressionProviderBase.IsBooleanExpression(exprContext.Expression))
+        return;
+
       var expression = exprContext.Expression;
       if (context.ForceMode || expression.IsPure())
       {

@@ -12,6 +12,8 @@ using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // todo: remove extra ';'
+
   [PostfixTemplateProvider(new []{"return", "yield"}, "Returns expression/yields value from iterator")]
   public class ReturnStatementTemplateProvider : IPostfixTemplateProvider
   {

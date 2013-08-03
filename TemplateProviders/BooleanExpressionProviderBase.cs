@@ -35,7 +35,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           || expression is IConditionalAndExpression
           || expression is IConditionalOrExpression
           || expression is IUnaryOperatorExpression
-          || expression is IAsExpression
           || expression is IIsExpression;
     }
 

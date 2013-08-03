@@ -142,33 +142,40 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           }
         }
 
-        var statement1 = (node.Parent as ICSharpStatement);
+        ICSharpStatement statement1 = null;
+
+        if (node.Parent is ICSharpStatement &&
+          node.Parent.FirstChild == node &&
+          node.NextSibling is IErrorElement)
+        {
+          statement1 = (ICSharpStatement) node.Parent;
+        }
+
         if (statement1 == null)
         {
           var re = node.Parent as IReferenceExpression;
-          if (re != null)
+          if (re != null && re.FirstChild == node && re.NextSibling is IErrorElement)
           {
             statement1 = re.Parent as IExpressionStatement;
           }
         }
 
-        if (statement1 != null && statement1.FirstChild == node &&
-            node.NextSibling is IErrorElement && reparseContext == null)
+        if (statement1 != null && reparseContext == null)
         {
           // todo: more constrained check? what to remove?
 
           var expressionStatement = statement1.PrevSibling as IExpressionStatement;
           if (expressionStatement != null)
           {
-            var expression = FindExpressionBrokenByKeyword1(expressionStatement);
-            var referenceExpr = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-            if (expression != null && referenceExpr != null)
+            ITreeNode coolNode;
+            var expression = FindExpressionBrokenByKeyword1(expressionStatement, out coolNode);
+            if (expression != null)
             {
               var expressionRange = expression.GetDocumentRange();
               var replaceRange = expressionRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
 
               return CollectAvailableTemplates(
-                referenceExpr, expression, replaceRange,
+                coolNode /* ? */, expression, replaceRange,
                 null, forceMode, templateName);
             }
           }
@@ -226,10 +233,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [CanBeNull]
-    private static ICSharpExpression FindExpressionBrokenByKeyword1([NotNull] IExpressionStatement statement)
+    private static ICSharpExpression FindExpressionBrokenByKeyword1(
+      [NotNull] IExpressionStatement statement, out ITreeNode coolNode)
     {
       ICSharpExpression expression = null;
       var errorFound = false;
+      coolNode = null;
+
+      // todo: missing dot check
 
       for (ITreeNode treeNode = statement, last; expression == null; treeNode = last)
       {
@@ -238,24 +249,25 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         if (!errorFound) errorFound = last is IErrorElement;
 
-        if (errorFound && last.Parent is IReferenceExpression)
+        if (errorFound && last.Parent is ITypeUsage)
         {
-          var dot = (last is IErrorElement ? last.PrevSibling : last) as ITokenNode;
-          if (dot != null && dot.GetTokenType() == CSharpTokenType.DOT)
+          if (last is IReferenceName && last.Parent is IUserTypeUsage)
           {
-            ITreeNode node = dot;
-
-            // skip whitespace in case of "expr   .if"
-            var wsToken = dot.PrevSibling as ITokenNode;
-            if (wsToken != null && wsToken.GetTokenType() == CSharpTokenType.WHITE_SPACE)
-              node = wsToken;
-
-            expression = node.PrevSibling as ICSharpExpression; //todo: comments?
+            coolNode = last;
           }
+
+          // mmmm
+          expression = last.Parent.Parent as ICSharpExpression;
+          break;
         }
 
         // skip "expression statement is not closed with ';'" and friends
-        while (last is IErrorElement) last = last.PrevSibling;
+        while (last is IErrorElement)
+        {
+          coolNode = last;
+          last = last.PrevSibling;
+        }
+
         if (last == null) break;
       }
 

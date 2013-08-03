@@ -28,6 +28,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var exprContext = context.Expressions.LastOrDefault();
       if (exprContext == null || !exprContext.CanBeStatement) return;
 
+      if (!context.ForceMode && BooleanExpressionProviderBase.IsBooleanExpression(exprContext.Expression))
+        return;
+
       var typeIsEnumerable = context.ForceMode;
       if (!typeIsEnumerable)
       {
