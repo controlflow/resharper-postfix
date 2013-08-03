@@ -7,7 +7,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
 #if RESHARPER8
-using JetBrains.ReSharper.Psi.Modules;
+
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -48,7 +48,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         : base("await", context) { }
 
       protected override IAwaitExpression CreateExpression(
-        IPsiModule psiModule, CSharpElementFactory factory, ICSharpExpression expression)
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IAwaitExpression) factory.CreateExpression("await $0", expression);
       }

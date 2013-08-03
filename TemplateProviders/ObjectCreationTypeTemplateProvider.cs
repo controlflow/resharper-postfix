@@ -9,7 +9,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Util;
 #if RESHARPER8
-using JetBrains.ReSharper.Psi.Modules;
+
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -29,10 +29,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         if (classType != null && classType.IsAbstract) return;
   
         // check type has any constructor accessable
-        var accessContext = new ElementAccessContext(exprContext.Expression);
+        var access = new ElementAccessContext(exprContext.Expression);
         foreach (var constructor in typeElement.Constructors)
         {
-          if (!constructor.IsStatic && AccessUtil.IsSymbolAccessible(constructor, accessContext))
+          if (constructor.IsStatic) continue;
+          if (AccessUtil.IsSymbolAccessible(constructor, access))
           {
             consumer.Add(new LookupItem(exprContext));
             break;
@@ -51,7 +52,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
 
       protected override IObjectCreationExpression CreateExpression(
-        IPsiModule psiModule, CSharpElementFactory factory, ICSharpExpression expression)
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IObjectCreationExpression)
           factory.CreateExpression("new $0(" + CaretMarker + ")", myTypeText);

@@ -110,8 +110,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expression = node.Parent.Parent as ICSharpExpression;
           if (expression != null)
           {
-            var a = ToDocumentRange(reparseContext, node.Parent.PrevSibling);
-            var b = ToDocumentRange(reparseContext, node);
+            var a = reparseContext.ToDocumentRange(node.Parent.PrevSibling);
+            var b = reparseContext.ToDocumentRange(node);
             var c = a.SetEndTo(b.TextRange.EndOffset);
 
             return CollectAvailableTemplates(
@@ -131,8 +131,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var expression = usage.Parent as ICSharpExpression;
             if (expression != null)
             {
-              var a = ToDocumentRange(reparseContext, referenceName.Qualifier);
-              var b = ToDocumentRange(reparseContext, referenceName.Delimiter);
+              var a = reparseContext.ToDocumentRange(referenceName.Qualifier);
+              var b = reparseContext.ToDocumentRange(referenceName.Delimiter);
               var c = a.SetEndTo(b.TextRange.EndOffset);
 
               return CollectAvailableTemplates(
@@ -183,16 +183,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
 
       return EmptyList<ILookupItem>.InstanceList;
-    }
-
-    public DocumentRange ToDocumentRange(
-      [CanBeNull] ReparsedCodeCompletionContext reparsedContext, [NotNull] ITreeNode treeNode)
-    {
-      var documentRange = treeNode.GetDocumentRange();
-      if (reparsedContext == null) return documentRange;
-
-      var originalRange = reparsedContext.ToDocumentRange(treeNode.GetTreeTextRange());
-      return new DocumentRange(documentRange.Document, originalRange);
     }
 
     [CanBeNull]

@@ -4,6 +4,7 @@ using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
@@ -22,47 +23,53 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       myMostInnerExpression = expression;
       PostfixReferenceNode = reference;
       ForceMode = forceMode;
+      MostInnerReplaceRange = replaceRange;
 
-      // todo: don't like it
-      if (replaceRange.IsValid()) MostInnerReplaceRange = replaceRange;
-      else
+      if (!replaceRange.IsValid())
       {
-        var re = reference as IReferenceExpression;
-        if (re != null)
+        var referenceExpression = reference as IReferenceExpression;
+        if (referenceExpression != null)
         {
           MostInnerReplaceRange =
-            ToDocumentRange(re.QualifierExpression).SetEndTo(ToDocumentRange(re.Delimiter).TextRange.EndOffset);
+            ToDocumentRange(referenceExpression.QualifierExpression.NotNull()).SetEndTo(
+              ToDocumentRange(referenceExpression.Delimiter.NotNull()).TextRange.EndOffset);
         }
-        else
-        {
-          var referenceName = reference as IReferenceName;
-          if (referenceName != null)
-          {
-            MostInnerReplaceRange =
-              ToDocumentRange(referenceName.Qualifier).SetEndTo(ToDocumentRange(referenceName.Delimiter).TextRange.EndOffset);
-          }
-          else
-          {
 
-            // WTF
-          }
+        var referenceName = reference as IReferenceName;
+        if (referenceName != null)
+        {
+          MostInnerReplaceRange =
+            ToDocumentRange(referenceName.Qualifier).SetEndTo(
+              ToDocumentRange(referenceName.Delimiter).TextRange.EndOffset);
         }
       }
 
       // build expression contexts
       var expressionContexts = new List<PrefixExpressionContext>();
+      int? endOffset = null;
+
       for (ITreeNode node = expression; node != null; node = node.Parent)
       {
+        if (node is ICSharpStatement) break;
+
         var expr = node as ICSharpExpression;
-        if (expr != null)
+        if (expr == null) continue;
+
+        var exprRange = myReparsedContext.ToDocumentRange(expr);
+        if (PostfixReferenceNode == expr)
         {
-          if (PostfixReferenceNode == expr) continue;
-          var expressionContext = new PrefixExpressionContext(this, expr);
-          expressionContexts.Add(expressionContext);
-          if (expressionContext.CanBeStatement) break;
+          endOffset = exprRange.TextRange.EndOffset;
+          continue;
         }
 
-        if (node is ICSharpStatement) break;
+        if (endOffset != null && exprRange.TextRange.EndOffset > endOffset)
+        {
+          break; // stop when 'a.var + b'
+        }
+
+        var expressionContext = new PrefixExpressionContext(this, expr);
+        expressionContexts.Add(expressionContext);
+        if (expressionContext.CanBeStatement) break;
       }
 
       Expressions = expressionContexts.AsReadOnly();
@@ -70,39 +77,34 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       OuterExpression = expressionContexts[expressionContexts.Count - 1];
     }
 
-    public DocumentRange ToDocumentRange([NotNull] ITreeNode treeNode)
-    {
-      var documentRange = treeNode.GetDocumentRange();
-      if (myReparsedContext == null) return documentRange;
-
-      var originalRange = myReparsedContext.ToDocumentRange(treeNode.GetTreeTextRange());
-      return new DocumentRange(documentRange.Document, originalRange);
-    }
-
-    [NotNull] public ITreeNode PostfixReferenceNode { get; private set; }
+    // Expression contexts: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
     [NotNull] public IEnumerable<PrefixExpressionContext> Expressions { get; private set; }
     [NotNull] public PrefixExpressionContext InnerExpression { get; private set; }
     [NotNull] public PrefixExpressionContext OuterExpression { get; private set; }
 
+    // Double basic completion (or basic completion in R# 7.1)
+    public bool ForceMode { get; private set; }
+
+    // Can be IReferenceExpression / IReferenceName / IErrorElement
+    [NotNull] public ITreeNode PostfixReferenceNode { get; private set; }
+
+    // Minimal replace range 'string.if' of 'o as string.if'
     public DocumentRange MostInnerReplaceRange { get; private set; }
 
+    // Minimal reference-like/error node range
     public DocumentRange PostfixReferenceRange
     {
-      get
-      {
-        // todo: think about
-        //if (PostfixReferenceExpression == null) // return MostInnerReplaceRange;
-        //  return DocumentRange.InvalidRange;
-        
-        return ToDocumentRange(PostfixReferenceNode);
-      }
+      get { return ToDocumentRange(PostfixReferenceNode); }
     }
-
-    public bool ForceMode { get; private set; }
 
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {
       get { return myMostInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
+    }
+
+    internal DocumentRange ToDocumentRange(ITreeNode node)
+    {
+      return myReparsedContext.ToDocumentRange(node);
     }
   }
 }

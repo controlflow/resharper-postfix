@@ -14,7 +14,7 @@ using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
 #if RESHARPER8
-using JetBrains.ReSharper.Psi.Modules;
+
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -54,7 +54,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         : base("var", context) { }
 
       protected override ICSharpExpression CreateExpression(
-        IPsiModule psiModule, CSharpElementFactory factory, ICSharpExpression expression)
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
         return expression;
       }

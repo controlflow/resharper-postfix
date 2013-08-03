@@ -46,8 +46,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           {
             if (!IsMarkerExpression(reference, PostfixMarker)) continue;
 
+            //expression.SetResolveContextForSandBox(reference);
+            // TODO: TODO
+            if (!expression.IsPhysical())
+            {
+              expression.SetResolveContextForSandBox(reference);
+            }
+
             var factory = CSharpElementFactory.GetInstance(psiModule);
-            newExpression = CreateExpression(psiModule, factory, expression);
+            newExpression = CreateExpression(factory, expression);
 
             // find caret marker in created expression
             var caretMarker = new TreeNodeMarker(Guid.NewGuid().ToString());
@@ -58,7 +65,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
             // replace marker expression with the new one
             newExpression = reference.ReplaceBy(newExpression);
-            newExpression = ProcessExpression(newExpression);
 
             // find and remove caret marker node
             var caretNode = caretMarker.FindMarkedNode(newExpression);
@@ -74,24 +80,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         });
       }
 
-      AfterComplete(textControl, suffix, newExpression, caretPosition);
+      if (newExpression != null)
+        AfterComplete(textControl, suffix, newExpression, caretPosition);
     }
 
     protected virtual void AfterComplete(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
-      [CanBeNull] TExpression expression, int? caretPosition)
+      [NotNull] TExpression expression, int? caretPosition)
     {
       AfterComplete(textControl, suffix, caretPosition);
     }
 
     [NotNull] protected abstract TExpression CreateExpression(
-      [NotNull] IPsiModule psiModule, [NotNull] CSharpElementFactory factory,
-      [NotNull] ICSharpExpression expression);
-
-    protected virtual TExpression ProcessExpression([NotNull] TExpression expression)
-    {
-      return expression;
-    }
+      [NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
 
     private static bool IsMarkerExpression(
       [NotNull] ICSharpExpression expression, [NotNull] string markerName)
