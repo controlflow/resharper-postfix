@@ -86,6 +86,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         solution, textControl, myReferenceRange.Range,
         nameRange, myReferenceType);
 
+      // todo: PRETTIFY
+
       // fix "x > 0.if" to "x > 0"
       ICSharpExpression exprCopy;
       if (reference != null && expression.Contains(reference))
@@ -129,12 +131,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
             foreach (var treeNodeMarker in ys)
             {
-              var t = treeNodeMarker.FindMarkedNode(exprCopy);
-              if (t != null)
-              {
-                treeNodeMarker.Dispose(exprCopy);
-                LowLevelModificationUtil.DeleteChild(t);
-              }
+              var t = treeNodeMarker.GetAndDispose(exprCopy);
+              LowLevelModificationUtil.DeleteChild(t);
             }
           }
         }

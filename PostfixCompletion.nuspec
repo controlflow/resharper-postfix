@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>0.9.5-beta</version>
+    <version>0.9.7</version>
     <title>ReSharper Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
     <owners>controlflow</owners>
@@ -10,10 +10,14 @@
     <iconUrl>https://raw.github.com/controlflow/PostfixCompletion/master/Content/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-      ReSharper code completion plugin
+      ReSharper code completion plugin that helps reducing backward
+      caret jumps while typing C# code. Kind of surround templating
+      on steroids cooked with code completion.
     </description>
     <releaseNotes>
-      Fixes
+      New ".cast" and ".paren" templates, lot of various fixes,
+      support for expressions like "x is T.if" and "x as T.var",
+      no more redundant semicolons.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
