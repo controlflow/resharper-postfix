@@ -1,0 +1,12 @@
+﻿// ${COMPLETE_ITEM:if}
+
+public class Foo
+{
+  public void Bar(object o)
+  {
+    if (o is string)
+    {
+      {caret}
+    }
+  }
+}

@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
+﻿using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
@@ -12,9 +11,25 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     protected override string RelativeTestDataPath
     {
-      get { return ReSharperPostfixCompletionTestsAssembly.TestDataPath + @"\Completion"; }
+      // sad panda :(
+      get { return PostfixCompletionTestsAssembly.TestDataPath + @"\Completion"; }
     }
 
     [Test] public void TestIf01() { DoNamedTest(); }
+    [Test] public void TestIf02() { DoNamedTest(); }
+    [Test] public void TestIf03() { DoNamedTest(); }
+    [Test] public void TestIf04() { DoNamedTest(); }
+    [Test] public void TestIf05() { DoNamedTest(); }
+    [Test] public void TestIf06() { DoNamedTest(); }
+    [Test] public void TestIf07() { DoNamedTest(); }
+    [Test] public void TestIf08() { DoNamedTest(); }
+    [Test] public void TestIf09() { DoNamedTest(); }
+    [Test] public void TestIf10() { DoNamedTest(); }
+    [Test] public void TestIf11() { DoNamedTest(); }
+    [Test] public void TestIf12() { DoNamedTest(); }
+    [Test] public void TestIf13() { DoNamedTest(); }
+    [Test] public void TestIf14() { DoNamedTest(); }
+
+    [Test] public void TestNot01() { DoNamedTest(); }
   }
 }

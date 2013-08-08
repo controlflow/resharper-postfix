@@ -1,0 +1,12 @@
+﻿// ${COMPLETE_ITEM:if}
+
+public class Foo
+{
+  public void Bar(int i)
+  {
+    if (i < 0 && i > 10)
+    {
+      {caret}
+    }
+  }
+}

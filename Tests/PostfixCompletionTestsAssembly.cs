@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.DataFlow;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion;
+using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.Caches;
+using JetBrains.ReSharper.Psi.JavaScript.Impl.PsiModules.ReferencedFilesSupport;
 using JetBrains.Threading;
 using JetBrains.Util;
 using NUnit.Framework;
 
 // ReSharper disable once CheckNamespace
 [SetUpFixture]
-public class ReSharperPostfixCompletionTestsAssembly : ReSharperTestEnvironmentAssembly
+public class PostfixCompletionTestsAssembly : ReSharperTestEnvironmentAssembly
 {
-  static ReSharperPostfixCompletionTestsAssembly()
+  static PostfixCompletionTestsAssembly()
   {
     var binPath = FileSystemPath.Parse(Environment.CurrentDirectory);
     var parentDirectory = binPath.Directory.Directory;
@@ -35,8 +39,6 @@ public class ReSharperPostfixCompletionTestsAssembly : ReSharperTestEnvironmentA
       var assemblyManager = Shell.Instance.GetComponent<AssemblyManager>();
       assemblyManager.LoadAssemblies(GetType().Name, GetAssembliesToLoad());
     });
-
-    Environment.SetEnvironmentVariable("%BASE_TEST_DATA%", TestDataPath);
   }
 
   public override void TearDown()
@@ -48,4 +50,17 @@ public class ReSharperPostfixCompletionTestsAssembly : ReSharperTestEnvironmentA
 
     base.TearDown();
   }
+}
+
+[PsiComponent]
+internal class JavaScriptDependentFilesCacheHack : JavaScriptDependentFilesCache
+{
+  public JavaScriptDependentFilesCacheHack(
+    Lifetime lifetime, IViewable<ILibraryFiles> libraryFiles,
+    JavaScriptDependentFilesModuleFactory dependentFilesModuleFactory,
+    JavaScriptDependentFilesBuilder builder, IShellLocks locks,
+    IPsiConfiguration configuration, IPersistentIndexManager persistentIndexManager)
+    : base(lifetime, new ListEvents<ILibraryFiles>(lifetime, "booo"),
+           dependentFilesModuleFactory, builder,
+           locks, configuration, persistentIndexManager) { }
 }

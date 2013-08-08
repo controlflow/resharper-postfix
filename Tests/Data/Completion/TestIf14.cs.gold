@@ -1,0 +1,14 @@
+﻿// ${COMPLETE_ITEM:if}
+
+public class Foo
+{
+  public void Bar(bool b)
+  {
+    if (F())
+    {
+      {caret}
+    }
+  }
+
+  public bool F() { return true; }
+}
