@@ -23,18 +23,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       public LookupItem([NotNull] PrefixExpressionContext context)
         : base("paren", context) { }
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
         return factory.CreateExpression("($0)", expression);
-        //return expression;
       }
-
-      //protected override ICSharpExpression ProcessExpression(ICSharpExpression expression)
-      //{
-      //  var factory = CSharpElementFactory.GetInstance(expression.GetPsiModule());
-      //  var parenthesized = (IParenthesizedExpression) factory.CreateExpression("($0)", expression);
-      //  return expression.ReplaceBy(parenthesized);
-      //}
     }
   }
 }
