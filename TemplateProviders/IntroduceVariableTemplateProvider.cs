@@ -36,7 +36,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
 
       if (contexts.Count == 0) return;
-      var bestContext = contexts.FirstOrDefault(ctx => ctx.CanBeStatement) ?? contexts.FirstOrDefault();
+
+      var bestContext = contexts.FirstOrDefault(ctx => ctx.CanBeStatement)
+                     ?? contexts.FirstOrDefault();
       if (bestContext == null) return;
 
       if (bestContext.CanBeStatement || context.ForceMode)
@@ -69,18 +71,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class StatementLookupItem : StatementPostfixLookupItem<IExpressionStatement>
     {
-      private readonly bool myHasSemicolonAfter;
-
       public StatementLookupItem([NotNull] PrefixExpressionContext context)
-        : base("var", context)
-      {
-        myHasSemicolonAfter = context.HasSemicolonAfter();
-      }
+        : base("var", context) { }
 
       protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
       {
-        return (IExpressionStatement)
-          factory.CreateStatement("expr;");
+        return (IExpressionStatement) factory.CreateStatement("expr;");
       }
 
       protected override void PlaceExpression(
@@ -96,7 +92,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
     }
 
-    private static void ExecuteRefactoring(ITextControl textControl, ICSharpExpression expression)
+    private static void ExecuteRefactoring(
+      [NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression)
     {
       const string name = "IntroVariableAction";
       var solution = expression.GetSolution();

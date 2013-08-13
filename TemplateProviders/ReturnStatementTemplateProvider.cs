@@ -6,9 +6,6 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-#if RESHARPER8
-
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -112,24 +109,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class ReturnLookupItem : StatementPostfixLookupItem<IReturnStatement>
     {
-      private readonly bool myHasSemicolonAfter;
-
       public ReturnLookupItem([NotNull] PrefixExpressionContext context)
-        : base("return", context)
-      {
-        myHasSemicolonAfter = context.HasSemicolonAfter();
-        myHasSemicolonAfter = false;
-      }
+        : base("return", context) { }
 
-      protected override bool SuppressSemicolonSuffix
-      {
-        get { return !myHasSemicolonAfter; }
-      }
+      protected override bool SuppressSemicolonSuffix { get { return true; } }
 
       protected override IReturnStatement CreateStatement(CSharpElementFactory factory)
       {
-        return (IReturnStatement)
-          factory.CreateStatement("return expr" + (myHasSemicolonAfter ? null : ";"));
+        return (IReturnStatement) factory.CreateStatement("return expr;");
       }
 
       protected override void PlaceExpression(
@@ -141,24 +128,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class YieldLookupItem : StatementPostfixLookupItem<IYieldStatement>
     {
-      private readonly bool myHasSemicolonAfter;
-
       public YieldLookupItem([NotNull] PrefixExpressionContext context)
-        : base("yield", context)
-      {
-        myHasSemicolonAfter = context.HasSemicolonAfter();
-        myHasSemicolonAfter = false;
-      }
+        : base("yield", context) { }
 
-      protected override bool SuppressSemicolonSuffix
-      {
-        get { return !myHasSemicolonAfter; }
-      }
+      protected override bool SuppressSemicolonSuffix { get { return true; } }
 
       protected override IYieldStatement CreateStatement(CSharpElementFactory factory)
       {
         return (IYieldStatement)
-          factory.CreateStatement("yield return expr" + (myHasSemicolonAfter ? null : ";"));
+          factory.CreateStatement("yield return expr;");
       }
 
       protected override void PlaceExpression(

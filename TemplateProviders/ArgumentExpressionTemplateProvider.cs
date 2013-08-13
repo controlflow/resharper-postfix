@@ -56,20 +56,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           expression.GetSolution(), TextRange.InvalidRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] { hotspotInfo });
 
-        session.Closed.Advise(EternalLifetime.Instance, args =>
+        session.AdviceFinished((sess, type) =>
         {
-          //Shell.Instance.Locks.QueueAt(
-          //  EternalLifetime.Instance, "aaa", TimeSpan.FromMilliseconds(100), () =>
+          var a = sess.Hotspots[0].DriverRangeMarker.Range;
+          if (a.IsValid)
           {
-            var a = session.Hotspots[0].DriverRangeMarker.Range;
-            if (a.IsValid)
-            {
-
-              textControl.Caret.MoveTo(
-                a.EndOffset + len, CaretVisualPlacement.DontScrollIfVisible);
-            }
+            textControl.Caret.MoveTo(
+              a.EndOffset + len, CaretVisualPlacement.DontScrollIfVisible);
           }
-          //);
         });
 
         session.Execute();

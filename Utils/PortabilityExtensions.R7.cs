@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve;
@@ -44,6 +45,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           return true;
 
       return false;
+    }
+
+    public static void AdviceFinished(
+      [NotNull] this HotspotSession session, [NotNull] Action<HotspotSession, TerminationType> action)
+    {
+      session.Finished += (hotspotSession, type) =>
+      {
+        action(hotspotSession, type);
+      };
     }
   }
 }

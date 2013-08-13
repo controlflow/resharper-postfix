@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="Settings\PostfixOptionsViewModel.cs" />
     <Compile Include="Settings\PostfixTemplateViewModel.cs" />
+    <Compile Include="TemplateProviders\ArgumentExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\AwaitExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\BooleanExpressionProviderBase.cs" />
     <Compile Include="TemplateProviders\CastExpressionTemplateProvider.cs" />
