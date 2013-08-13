@@ -16,31 +16,13 @@ Iterting over all kinds of collections, reverse iteration:
 
 ![foreach](/Content/foreach.png)
 
-* `.arg`
-* **`.await`**
-* **.cast**
-
-    expr.cast
-    =>
-    (SomeType) expr
-
-* .null
-
-    expr.null
-    =>
-    if (expr == null)
-
-* .notnull
-* **expr**`.foreach`
-
-    foreach (var x in expr) {
-    }
-
-* expr`.for`
-
-    for (var i = 0; i < expr.Length; i++) {
-    }
-
+* `.arg` helps surround argument with invocation `Method(expr)`
+* `.await` awaits expression with C# await keyword `await expr`
+* `.cast` surrounds expression with cast `(SomeType) expr`
+* `.null` checks nullable expression to be null `if (expr == null)`
+* `.notnull` checks expression to be non-null `if (expr != null)`
+* `.foreach` iterates over collection `foreach (var x in expr)`
+* `.for` surrounds with loop `for (var i=0; i < expr.Length; i++)`
 * .forr
 * .if
 * .ifnot
