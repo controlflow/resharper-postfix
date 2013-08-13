@@ -1,11 +1,11 @@
 using System.Reflection;
 using JetBrains.Application.PluginSupport;
 
-[assembly: AssemblyTitle("PostfixCompletion")]
+[assembly: AssemblyTitle("Postfix Completion")]
 [assembly: AssemblyDescription("Templating/code completion plugin for ReSharper")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Shvedov Alexander")]
-[assembly: AssemblyProduct("PostfixCompletion")]
+[assembly: AssemblyProduct("Postfix Completion")]
 [assembly: AssemblyCopyright("Copyright © Shvedov Alexander, 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

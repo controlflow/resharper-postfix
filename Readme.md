@@ -19,12 +19,15 @@ Iterting over all kinds of collections, reverse iteration:
 <table>
   <tr>
     <th>Name</th>
+    <th>Example</th>
   </tr>
   <tr>
     <td>.arg</td>
+    <td>`expr` => `F(expr)`</td>
   </tr>
   <tr>
-    <td>**.await**</td>
+    <td> **.await** </td>
+    <td> `expr` => `await expr` </td>
   </tr>
 </table>
 
