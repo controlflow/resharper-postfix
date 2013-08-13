@@ -16,6 +16,48 @@ Iterting over all kinds of collections, reverse iteration:
 
 ![foreach](/Content/foreach.png)
 
+<table>
+  <tr>
+    <th>Name</th>
+  </tr>
+  <tr>
+    <td>.arg</td>
+  </tr>
+  <tr>
+    <td>**.await**</td>
+  </tr>
+</table>
+
+* .arg
+* **.await**
+* .cast
+* .null
+* .notnull
+* .foreach
+* .for
+* .forr
+* .if
+* .ifnot
+* .not
+* .field
+* .prop
+* .var
+* .not
+* .new
+* .paren
+* .return
+* .throw
+* .using
+* .while
+
+TODO:
+
+* .lock
+* work on statements?
+** .try
+** .if
+
+
 // TODO: other templates
 
 #### Feedback

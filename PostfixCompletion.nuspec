@@ -3,6 +3,7 @@
   <metadata>
     <id>ReSharper.Postfix</id>
     <version>0.9.7.1</version>
+    <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>ReSharper Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
     <owners>controlflow</owners>
@@ -13,7 +14,7 @@
       ReSharper code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      New ".cast" and ".paren" templates, lot of various fixes, support for expressions like "x is T.if" and "x as T.var", no more redundant semicolons.
+      New ".arg" template, various fixes.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
