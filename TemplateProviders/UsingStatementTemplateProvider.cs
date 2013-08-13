@@ -87,11 +87,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
 
       protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IUsingStatement newStatement, int? caretPosition)
+        ITextControl textControl, Suffix suffix, IUsingStatement statement, int? caretPosition)
       {
-        if (newStatement == null || caretPosition == null) return;
+        if (caretPosition == null) return;
 
-        var declaration = (ILocalVariableDeclaration) newStatement.Declaration.Declarators[0];
+        var declaration = (ILocalVariableDeclaration) statement.Declaration.Declarators[0];
 
 #if RESHARPER7
         var typeExpression = new MacroCallExpression(new SuggestVariableTypeMacro());
@@ -110,7 +110,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           declaration.NameIdentifier.GetDocumentRange().GetHotspotRange());
 
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
-          newStatement.GetSolution(), new TextRange(caretPosition.Value), textControl,
+          statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { typeSpot, nameSpot });
 
         session.Execute();

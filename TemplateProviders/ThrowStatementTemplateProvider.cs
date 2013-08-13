@@ -8,7 +8,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 #if RESHARPER7
 using JetBrains.ReSharper.Psi;
 #else
-using JetBrains.ReSharper.Psi.Modules;
+
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -38,8 +38,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         : base("throw", context) { }
 
       protected override bool SuppressSemicolonSuffix { get { return true; } }
-      protected override IThrowStatement CreateStatement(
-        IPsiModule psiModule, CSharpElementFactory factory)
+      protected override IThrowStatement CreateStatement(CSharpElementFactory factory)
       {
         return (IThrowStatement) factory.CreateStatement("throw expr;");
       }

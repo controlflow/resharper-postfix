@@ -53,9 +53,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
     }
 
+    protected virtual bool RemoveSemicolon
+    {
+      get { return false; }
+    }
+
     public void Accept(
-      ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
-      Suffix suffix, ISolution solution, bool keepCaretStill)
+      ITextControl textControl, TextRange nameRange,
+      LookupItemInsertType insertType, Suffix suffix,
+      ISolution solution, bool keepCaretStill)
     {
       var expression = (ICSharpExpression) FindMarkedNode(
         solution, textControl, myExpressionRange.Range, nameRange, typeof(ICSharpExpression));
@@ -78,15 +84,27 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var nameDocumentRange = new DocumentRange(textControl.Document, nameRange);
 
       // ReSharper disable once ImpureMethodCallOnReadonlyValueField
-      var replaceRange = myReplaceRange.Intersects(nameDocumentRange)
-        ? myReplaceRange.SetEndTo(nameDocumentRange.TextRange.EndOffset)
+      var nameEndOffset = nameDocumentRange.TextRange.EndOffset;
+      var replaceRange = (nameEndOffset > myReplaceRange.TextRange.EndOffset)
+        ? myReplaceRange.SetEndTo(nameEndOffset)
         : myReplaceRange;
 
       var reference = FindMarkedNode(
         solution, textControl, myReferenceRange.Range,
         nameRange, myReferenceType);
 
-      // todo: PRETTIFY
+      if (reference is IReferenceExpression && RemoveSemicolon)
+      {
+        var semicolon = CommonUtils.FindSemicolonAfter(expression, reference);
+        if (semicolon != null)
+        {
+          var endOffset = semicolon.GetDocumentRange().TextRange.EndOffset;
+          if (endOffset > replaceRange.TextRange.EndOffset)
+            replaceRange = replaceRange.SetEndTo(endOffset);
+        }
+      }
+
+      // todo: PRETTIFY PLEASE
 
       // fix "x > 0.if" to "x > 0"
       ICSharpExpression exprCopy;
@@ -99,8 +117,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           var marker = new TreeNodeMarker<IReferenceExpression>(re);
           exprCopy = expression.Copy(expression);
           var copy = marker.GetAndDispose(exprCopy);
-          var exprToFix = copy.QualifierExpression.NotNull();
 
+          var exprToFix = copy.QualifierExpression.NotNull();
           LowLevelModificationUtil.ReplaceChildRange(copy, copy, exprToFix);
           if (exprToFix.NextSibling is IErrorElement)
             LowLevelModificationUtil.DeleteChild(exprToFix.NextSibling);
@@ -165,6 +183,32 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
           {
             return node;
           }
+
+          // "x as T.   \r\nvar t = ..." case
+          if (node is IIsExpression || node is IAsExpression)
+          {
+            var typeUsage = node.LastChild as IUserTypeUsage;
+            if (typeUsage != null)
+            {
+              var delimiter = typeUsage.ScalarTypeName.Delimiter;
+              if (delimiter != null)
+              {
+                var endOffset = delimiter.GetDocumentRange().TextRange.EndOffset;
+                if (range.SetEndTo(endOffset) == markerRange) return node;
+              }
+            }
+          }
+
+          var referenceName = node as IReferenceName;
+          if (referenceName != null)
+          {
+            var delimiter = referenceName.Delimiter;
+            if (delimiter != null)
+            {
+              var endOffset = delimiter.GetDocumentRange().TextRange.EndOffset;
+              if (range.SetEndTo(endOffset) == markerRange) return node;
+            }
+          }
         }
 
         node = node.Parent;
@@ -173,11 +217,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return null;
     }
 
-    protected abstract void ExpandPostfix([NotNull] ITextControl textControl,
-      [NotNull] Suffix suffix, [NotNull] ISolution solution, DocumentRange replaceRange,
+    protected abstract void ExpandPostfix(
+      [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
+      [NotNull] ISolution solution, DocumentRange replaceRange,
       [NotNull] IPsiModule psiModule, [NotNull] ICSharpExpression expression);
 
-    protected virtual void AfterComplete(
+    protected void AfterComplete(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix, int? caretPosition)
     {
       if (caretPosition != null)
@@ -195,7 +240,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       suffix.Playback(textControl);
     }
 
-    public IconId Image { get { return ServicesThemedIcons.LiveTemplate.Id; } }
+    public IconId Image
+    {
+      get { return ServicesThemedIcons.LiveTemplate.Id; }
+    }
+
     public RichText DisplayName { get { return myShortcut; } }
     public RichText DisplayTypeName { get { return null; } }
     public string OrderingString { get { return myShortcut; } }

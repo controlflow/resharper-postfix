@@ -9,7 +9,7 @@ using JetBrains.TextControl;
 #if RESHARPER7
 using JetBrains.ReSharper.Psi;
 #else
-using JetBrains.ReSharper.Psi.Modules;
+
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
@@ -29,8 +29,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected bool BracesInsertion { get; set; }
     protected abstract string Template { get; }
 
-    protected override TStatement CreateStatement(
-      IPsiModule psiModule, CSharpElementFactory factory)
+    protected override TStatement CreateStatement(CSharpElementFactory factory)
     {
       var template = Template;
 

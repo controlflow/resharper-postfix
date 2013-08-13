@@ -66,13 +66,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       [NotNull] protected string LengthPropertyName { get; private set; }
 
       protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IForStatement newStatement, int? caretPosition)
+        ITextControl textControl, Suffix suffix, IForStatement statement, int? caretPosition)
       {
-        if (newStatement == null || caretPosition == null) return;
+        if (caretPosition == null) return;
 
-        var condition = (IRelationalExpression) newStatement.Condition;
-        var variable = (ILocalVariableDeclaration) newStatement.Initializer.Declaration.Declarators[0];
-        var iterator = (IPostfixOperatorExpression) newStatement.Iterators.Expressions[0];
+        var condition = (IRelationalExpression) statement.Condition;
+        var variable = (ILocalVariableDeclaration) statement.Initializer.Declaration.Declarators[0];
+        var iterator = (IPostfixOperatorExpression) statement.Iterators.Expressions[0];
 
 #if RESHARPER7
         var nameExpression = new MacroCallExpression(new SuggestVariableNameMacro());
@@ -87,7 +87,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           iterator.Operand.GetDocumentRange().GetHotspotRange());
 
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
-          newStatement.GetSolution(), new TextRange(caretPosition.Value), textControl,
+          statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { nameSpot });
 
         session.Execute();

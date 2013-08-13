@@ -1,0 +1,11 @@
+﻿// ${COMPLETE_ITEM:var}
+
+class Foo
+{
+  private string myField;
+  string Bar(object x)
+  {
+    string readLine = System.Console.ReadLine();{caret}
+    myField = System.Console.ReadLine();
+  }
+}

@@ -24,17 +24,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
-    protected virtual bool PutSemicolons
+    protected override bool RemoveSemicolon
     {
       get { return true; }
     }
 
     protected override void ExpandPostfix(
-      ITextControl textControl, Suffix suffix, ISolution solution, DocumentRange replaceRange,
+      ITextControl textControl, Suffix suffix,
+      ISolution solution, DocumentRange replaceRange,
       IPsiModule psiModule, ICSharpExpression expression)
     {
       textControl.Document.ReplaceText(
-        replaceRange.TextRange, PostfixMarker + (PutSemicolons ? ";" : null));
+        replaceRange.TextRange, "unchecked{" + PostfixMarker + "}");
 
       solution.GetPsiServices().CommitAllDocuments();
 
@@ -45,15 +46,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         var commandName = GetType().FullName + " expansion";
         solution.GetPsiServices().DoTransaction(commandName, () =>
         {
-          var expressionStatements = TextControlToPsi.GetElements<IExpressionStatement>(
+          var expressionStatements = TextControlToPsi.GetElements<IUncheckedStatement>(
             solution, textControl.Document, replaceRange.TextRange.StartOffset);
 
-          foreach (var statement in expressionStatements)
+          foreach (var block in expressionStatements)
           {
+            if (block.Body.Statements.Count != 1) continue;
+            var statement = block.Body.Statements[0] as IExpressionStatement;
+            if (statement == null) continue;
+
             if (!IsMarkerExpressionStatement(statement, PostfixMarker)) continue;
 
             var factory = CSharpElementFactory.GetInstance(psiModule);
-            newStatement = CreateStatement(psiModule, factory);
+            newStatement = CreateStatement(factory);
 
             // find caret marker in created statement
             var caretMarker = new TreeNodeMarker(Guid.NewGuid().ToString());
@@ -63,7 +68,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
             if (caretNodes.Count == 1) caretMarker.Mark(caretNodes[0]);
 
             // replace marker statement with the new one
-            newStatement = statement.ReplaceBy(newStatement);
+            newStatement = block.ReplaceBy(newStatement);
             PlaceExpression(newStatement, expression, factory);
 
             // find and remove caret marker node
@@ -80,14 +85,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         });
       }
 
-      AfterComplete(textControl, suffix, newStatement, caretPosition);
+      if (newStatement != null)
+        AfterComplete(textControl, suffix, newStatement, caretPosition);
     }
 
     protected virtual bool SuppressSemicolonSuffix { get { return false; } }
 
     protected virtual void AfterComplete(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
-      [CanBeNull] TStatement newStatement, int? caretPosition)
+      [NotNull] TStatement statement, int? caretPosition)
     {
       if (SuppressSemicolonSuffix && suffix.HasPresentation && suffix.Presentation == ';')
       {
@@ -97,8 +103,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       AfterComplete(textControl, suffix, caretPosition);
     }
 
-    [NotNull] protected abstract TStatement CreateStatement(
-      [NotNull] IPsiModule psiModule, [NotNull] CSharpElementFactory factory);
+    [NotNull] protected abstract TStatement CreateStatement([NotNull] CSharpElementFactory factory);
 
     protected abstract void PlaceExpression(
       [NotNull] TStatement statement, [NotNull] ICSharpExpression expression,

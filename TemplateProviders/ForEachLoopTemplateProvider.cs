@@ -70,11 +70,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
 
       protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IForeachStatement newStatement, int? caretPosition)
+        ITextControl textControl, Suffix suffix, IForeachStatement statement, int? caretPosition)
       {
-        if (newStatement == null || caretPosition == null) return;
+        if (caretPosition == null) return;
 
-        var iterator = newStatement.IteratorDeclaration;
+        var iterator = statement.IteratorDeclaration;
 
 #if RESHARPER7
         var typeExpression = new MacroCallExpression(new SuggestVariableTypeMacro());
@@ -93,7 +93,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           iterator.NameIdentifier.GetDocumentRange().GetHotspotRange());
 
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
-          newStatement.GetSolution(), new TextRange(caretPosition.Value), textControl,
+          statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { typeSpot, nameSpot });
 
         // special case: handle [.] suffix

@@ -40,18 +40,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       if (bestContext == null) return;
 
       if (bestContext.CanBeStatement || context.ForceMode)
-        consumer.Add(new LookupItem(bestContext));
+      {
+        if (bestContext.CanBeStatement)
+          consumer.Add(new StatementLookupItem(bestContext));
+        else
+          consumer.Add(new ExpressionLookupItem(bestContext));
+      }
     }
 
-    private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    private sealed class ExpressionLookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      private readonly bool myHasSemicolonAfter;
-
-      public LookupItem([NotNull] PrefixExpressionContext context)
-        : base("var", context)
-      {
-        myHasSemicolonAfter = context.HasSemicolonAfter();
-      }
+      public ExpressionLookupItem([NotNull] PrefixExpressionContext context)
+        : base("var", context) { }
 
       protected override ICSharpExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
@@ -59,29 +59,57 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         return expression;
       }
 
-      protected override bool PutSemicolons
-      {
-        get { return !myHasSemicolonAfter; }
-      }
-
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
       {
         // note: yes, we are supressing suffix, since there is no nice way to preserve it
-
-        const string name = "IntroVariableAction";
-        var solution = expression.GetSolution();
-        var rules = DataRules
-          .AddRule(name, ProjectModel.DataContext.DataConstants.SOLUTION, solution)
-          .AddRule(name, DocumentModel.DataContext.DataConstants.DOCUMENT, textControl.Document)
-          .AddRule(name, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl)
-          .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, expression);
-
-        Lifetimes.Using(lifetime =>
-          WorkflowExecuter.ExecuteBatch(
-            solution.GetComponent<DataContexts>().CreateWithDataRules(lifetime, rules),
-            new IntroduceVariableWorkflow(solution, null)));
+        ExecuteRefactoring(textControl, expression);
       }
+    }
+
+    private sealed class StatementLookupItem : StatementPostfixLookupItem<IExpressionStatement>
+    {
+      private readonly bool myHasSemicolonAfter;
+
+      public StatementLookupItem([NotNull] PrefixExpressionContext context)
+        : base("var", context)
+      {
+        myHasSemicolonAfter = context.HasSemicolonAfter();
+      }
+
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
+      {
+        return (IExpressionStatement)
+          factory.CreateStatement("expr;");
+      }
+
+      protected override void PlaceExpression(
+        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
+      {
+        statement.Expression.ReplaceBy(expression);
+      }
+
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, IExpressionStatement statement, int? caretPosition)
+      {
+        ExecuteRefactoring(textControl, statement.Expression);
+      }
+    }
+
+    private static void ExecuteRefactoring(ITextControl textControl, ICSharpExpression expression)
+    {
+      const string name = "IntroVariableAction";
+      var solution = expression.GetSolution();
+      var rules = DataRules
+        .AddRule(name, ProjectModel.DataContext.DataConstants.SOLUTION, solution)
+        .AddRule(name, DocumentModel.DataContext.DataConstants.DOCUMENT, textControl.Document)
+        .AddRule(name, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl)
+        .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, expression);
+
+      Lifetimes.Using(lifetime =>
+        WorkflowExecuter.ExecuteBatch(
+          solution.GetComponent<DataContexts>().CreateWithDataRules(lifetime, rules),
+          new IntroduceVariableWorkflow(solution, null)));
     }
   }
 }

@@ -1,0 +1,10 @@
+﻿// ${COMPLETE_ITEM:return}
+
+class A
+{
+  static string Foo()
+  {
+    aaaa
+    {caret}return System.Console.ReadLine();
+  }
+}

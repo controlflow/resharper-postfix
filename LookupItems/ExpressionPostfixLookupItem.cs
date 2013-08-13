@@ -25,17 +25,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
-    protected virtual bool PutSemicolons
-    {
-      get { return false; }
-    }
-
     protected override void ExpandPostfix(
-      ITextControl textControl, Suffix suffix, ISolution solution,
-      DocumentRange replaceRange, IPsiModule psiModule, ICSharpExpression expression)
+      ITextControl textControl, Suffix suffix,
+      ISolution solution, DocumentRange replaceRange,
+      IPsiModule psiModule, ICSharpExpression expression)
     {
-      textControl.Document.ReplaceText(
-        replaceRange.TextRange, PostfixMarker + (PutSemicolons ? ";" : null));
+      textControl.Document.ReplaceText(replaceRange.TextRange, PostfixMarker);
       solution.GetPsiServices().CommitAllDocuments();
 
       int? caretPosition = null;

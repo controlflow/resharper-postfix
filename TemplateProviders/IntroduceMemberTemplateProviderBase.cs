@@ -14,7 +14,7 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
 #if RESHARPER8
-using JetBrains.ReSharper.Psi.Modules;
+
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -75,8 +75,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         myMemberNames = EmptyList<string>.InstanceList;
       }
 
-      protected override IExpressionStatement CreateStatement(
-        IPsiModule psiModule, CSharpElementFactory factory)
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
       {
         return (IExpressionStatement) factory.CreateStatement("__ = expression;");
       }
@@ -115,12 +114,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix,
-        IExpressionStatement newStatement, int? caretPosition)
+        IExpressionStatement statement, int? caretPosition)
       {
         // note: supress suffix, yeah
-        if (newStatement == null || myMemberDeclaration == null) return;
+        if (myMemberDeclaration == null) return;
 
-        var assignment = (IAssignmentExpression) newStatement.Expression;
+        var assignment = (IAssignmentExpression) statement.Expression;
         var memberIdentifier = ((IReferenceExpression) assignment.Dest).NameIdentifier;
         var suggestionsExpression = new NameSuggestionsExpression(myMemberNames);
 
@@ -129,9 +128,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           memberIdentifier.GetDocumentRange().GetHotspotRange(),
           myMemberDeclaration.GetNameDocumentRange().GetHotspotRange());
 
-        var endSelectionRange = newStatement.GetDocumentRange().EndOffsetRange().TextRange;
+        var endSelectionRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
-          newStatement.GetSolution(), endSelectionRange, textControl,
+          statement.GetSolution(), endSelectionRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { hotspotInfo });
 
         session.Execute();

@@ -63,12 +63,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     public bool CanBeStatement { get; private set; }
 
-    //// "lines.Any().if"
-    //[NotNull] public IReferenceExpression Reference
-    //{
-    //  get { return Parent.PostfixReferenceExpression; }
-    //}
-
     // ranges
     public DocumentRange ExpressionRange
     {

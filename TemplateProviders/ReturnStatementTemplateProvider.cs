@@ -7,7 +7,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 #if RESHARPER8
-using JetBrains.ReSharper.Psi.Modules;
+
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -118,6 +118,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         : base("return", context)
       {
         myHasSemicolonAfter = context.HasSemicolonAfter();
+        myHasSemicolonAfter = false;
       }
 
       protected override bool SuppressSemicolonSuffix
@@ -125,15 +126,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         get { return !myHasSemicolonAfter; }
       }
 
-      protected override bool PutSemicolons
+      protected override IReturnStatement CreateStatement(CSharpElementFactory factory)
       {
-        get { return !myHasSemicolonAfter; }
-      }
-
-      protected override IReturnStatement CreateStatement(
-        IPsiModule psiModule, CSharpElementFactory factory)
-      {
-        return (IReturnStatement) factory.CreateStatement("return expr;");
+        return (IReturnStatement)
+          factory.CreateStatement("return expr" + (myHasSemicolonAfter ? null : ";"));
       }
 
       protected override void PlaceExpression(
@@ -151,6 +147,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         : base("yield", context)
       {
         myHasSemicolonAfter = context.HasSemicolonAfter();
+        myHasSemicolonAfter = false;
       }
 
       protected override bool SuppressSemicolonSuffix
@@ -158,15 +155,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         get { return !myHasSemicolonAfter; }
       }
 
-      protected override bool PutSemicolons
+      protected override IYieldStatement CreateStatement(CSharpElementFactory factory)
       {
-        get { return !myHasSemicolonAfter; }
-      }
-
-      protected override IYieldStatement CreateStatement(
-        IPsiModule psiModule, CSharpElementFactory factory)
-      {
-        return (IYieldStatement) factory.CreateStatement("yield return expr;");
+        return (IYieldStatement)
+          factory.CreateStatement("yield return expr" + (myHasSemicolonAfter ? null : ";"));
       }
 
       protected override void PlaceExpression(

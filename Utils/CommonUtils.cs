@@ -20,17 +20,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     public static bool HasSemicolonAfter([NotNull] this PrefixExpressionContext context)
     {
-      var statement = ExpressionStatementNavigator.GetByExpression(context.Expression);
+      return FindSemicolonAfter(context.Expression, context.Parent.PostfixReferenceNode) != null;
+    }
+
+    [CanBeNull] public static ITokenNode FindSemicolonAfter(
+      [NotNull] ICSharpExpression expression, [NotNull] ITreeNode reference)
+    {
+      var statement = ExpressionStatementNavigator.GetByExpression(expression);
       if (statement == null)
       {
-        var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(context.Expression);
-        if (referenceExpression != null && referenceExpression == context.Parent.PostfixReferenceNode)
+        var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+        if (referenceExpression != null && referenceExpression == reference)
           statement = ExpressionStatementNavigator.GetByExpression(referenceExpression);
 
-        if (statement == null) return false;
+        if (statement == null) return null;
       }
 
-      return (statement.Semicolon != null);
+      return statement.Semicolon;
     }
   }
 }
