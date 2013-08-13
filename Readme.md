@@ -16,28 +16,31 @@ Iterting over all kinds of collections, reverse iteration:
 
 ![foreach](/Content/foreach.png)
 
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Example</th>
-  </tr>
-  <tr>
-    <td>.arg</td>
-    <td>`expr` => `F(expr)`</td>
-  </tr>
-  <tr>
-    <td> **.await** </td>
-    <td> `expr` => `await expr` </td>
-  </tr>
-</table>
+* `.arg`
+* **`.await`**
+* **.cast**
 
-* .arg
-* **.await**
-* .cast
+    expr.cast
+    =>
+    (SomeType) expr
+
 * .null
+
+    expr.null
+    =>
+    if (expr == null)
+
 * .notnull
-* .foreach
-* .for
+* **expr**`.foreach`
+
+    foreach (var x in expr) {
+    }
+
+* expr`.for`
+
+    for (var i = 0; i < expr.Length; i++) {
+    }
+
 * .forr
 * .if
 * .ifnot
