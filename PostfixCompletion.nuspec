@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>0.9.7.1</version>
+    <version>0.9.8</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>ReSharper Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
@@ -11,10 +11,10 @@
     <iconUrl>https://raw.github.com/controlflow/PostfixCompletion/master/Content/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-      ReSharper code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
+      Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      New ".arg" template, various fixes.
+      New ".arg" template to prefix expression with invocation, various fixes for broken code cases, semicolon insertion fixes.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />

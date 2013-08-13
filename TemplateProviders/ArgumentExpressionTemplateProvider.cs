@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using JetBrains.Application;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
@@ -12,16 +10,15 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
-using JetBrains.Threading;
 using JetBrains.Util;
-using EternalLifetime = JetBrains.DataFlow.EternalLifetime;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider("arg", "Parenthesizes current expression")]
   public class ArgumentExpressionTemplateProvider : IPostfixTemplateProvider
   {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+    public void CreateItems(
+      PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       if (context.ForceMode)
       {
@@ -44,26 +41,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
       {
         var parenthesizedExpression = (IParenthesizedExpression) expression;
-        var hotspotInfo = new HotspotInfo(new TemplateField("Method", 0),
-          parenthesizedExpression.GetDocumentStartOffset().GetHotspotRange());
+        var invocationRange = parenthesizedExpression.GetDocumentStartOffset();
+        var hotspotInfo = new HotspotInfo(
+          new TemplateField("Method", 0), invocationRange.GetHotspotRange());
 
-        var marker = parenthesizedExpression.Expression.GetDocumentRange().EndOffsetRange().CreateRangeMarker();
+        var expressionRange = parenthesizedExpression.Expression.GetDocumentRange();
 
-        var len = marker.Range.EndOffset - parenthesizedExpression.GetDocumentStartOffset().TextRange.StartOffset;
+        var marker = expressionRange.EndOffsetRange().CreateRangeMarker();
+        var length = (marker.Range.EndOffset - invocationRange.TextRange.StartOffset);
 
-        
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), TextRange.InvalidRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] { hotspotInfo });
 
         session.AdviceFinished((sess, type) =>
         {
-          var a = sess.Hotspots[0].DriverRangeMarker.Range;
-          if (a.IsValid)
-          {
-            textControl.Caret.MoveTo(
-              a.EndOffset + len, CaretVisualPlacement.DontScrollIfVisible);
-          }
+          var invocation = sess.Hotspots[0].RangeMarker.Range;
+          if (!invocation.IsValid) return;
+
+          textControl.Caret.MoveTo(
+            invocation.EndOffset + length, CaretVisualPlacement.DontScrollIfVisible);
         });
 
         session.Execute();

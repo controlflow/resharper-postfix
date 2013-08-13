@@ -7,7 +7,7 @@ The idea is to prevent caret jumps backwards while typing C# code, [see it in ac
 
 This plugin is available in ReSharper 8.0 Extension Manager [gallery](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix/).
 
-ReSharper 7.1 version will came shortly.
+ReSharper 7.1 version is available for [download here](https://dl.dropboxusercontent.com/u/2209105/PostfixCompletion/bin.R7/PostfixCompletion.dll).
 
 #### Available templates
 
