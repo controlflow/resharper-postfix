@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>0.9.8</version>
+    <version>0.9.85</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>ReSharper Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
@@ -14,11 +14,7 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      New ".lock" template,
-      .throw now works directly on types (ArgumentException.throw),
-      .for now works on integers (kind of n.times) or any other objects with integer .Count property,
-      hide templates from automatic completion on unresolved symbols,
-      fix various corruptions of next lines of code.
+      New ".lock" template, .throw now works directly on types (ArgumentException.throw), .for now works on integers (for example, 5.for) or any other objects with "Count" property of integer type, parameter info now shows after .new/.throw/.arg (if enabled in R# completion settings), postfix templates are hidden from automatic completion on unresolved symbols and types, fixes for various corruptions of next lines of code, relocation of options page, template examples in options page.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
