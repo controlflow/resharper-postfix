@@ -76,6 +76,7 @@
     <Compile Include="TemplateProviders\IntroduceMemberTemplateProviderBase.cs" />
     <Compile Include="TemplateProviders\IntroducePropertyTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceVariableTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\LockStatementExpressionProvider.cs" />
     <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ObjectCreationTypeTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ParenthesizedExpressionTemplateProvider.cs" />

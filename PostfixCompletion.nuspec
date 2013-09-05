@@ -14,7 +14,7 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      New ".arg" template to prefix expression with invocation, various fixes for broken code cases, semicolon insertion fixes.
+      New ".lock" teplate, fixes various corruptions of next lines of code.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />

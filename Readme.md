@@ -9,7 +9,9 @@ This plugin is available in ReSharper 8.0 Extension Manager [gallery](http://res
 
 ReSharper 7.1 version is available for [download here](https://dl.dropboxusercontent.com/u/2209105/PostfixCompletion/bin.R7/PostfixCompletion.dll).
 
-#### Available templates
+#### Features
+
+Currently available templates:
 
 * `.arg` – helps surround argument with invocation `Method(expr)`
 * `.await` – awaits expression with C# await keyword `await expr`
@@ -32,12 +34,14 @@ ReSharper 7.1 version is available for [download here](https://dl.dropboxusercon
 * `.throw` – throws value of Exception type `throw expr;`
 * `.using` – surrounds disposable expression `using (var x = expr)`
 * `.while` – uses expression as loop condition `while (expr)`
-
-TODO:
-
 * `.lock` – surrounds expression with statement `lock (expr)`
-* make it works on statements?
-* `.try` ?
+
+Templates availability depend on context where code completion is executed - for example, `.notnull` template
+will not be available if some expression is already known to be not-null value in some particular context,
+`.using` template will be available only on expression of `IDisposable` type and so on.
+
+But any time you can invoke code completion one more time ("double completion" feature of ReSharper 8) and
+it will shows up with all the postfix templates available to write, without any semantic checks.
 
 #### Feedback
 

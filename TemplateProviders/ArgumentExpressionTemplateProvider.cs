@@ -14,7 +14,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("arg", "Parenthesizes current expression")]
+  [PostfixTemplateProvider("arg", "Surrounds expression with invocation")]
   public class ArgumentExpressionTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(
@@ -34,18 +34,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       protected override ICSharpExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return factory.CreateExpression("($0)", expression);
+        return factory.CreateExpression("Method($0)", expression);
       }
 
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
       {
-        var parenthesizedExpression = (IParenthesizedExpression) expression;
-        var invocationRange = parenthesizedExpression.GetDocumentStartOffset();
+        var invocationExpression = (IInvocationExpression) expression;
+        var invocationRange = invocationExpression.GetDocumentStartOffset();
         var hotspotInfo = new HotspotInfo(
           new TemplateField("Method", 0), invocationRange.GetHotspotRange());
 
-        var expressionRange = parenthesizedExpression.Expression.GetDocumentRange();
+        var expressionRange = invocationExpression.InvokedExpression.GetDocumentRange();
 
         var marker = expressionRange.EndOffsetRange().CreateRangeMarker();
         var length = (marker.Range.EndOffset - invocationRange.TextRange.StartOffset);

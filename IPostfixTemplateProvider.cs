@@ -18,6 +18,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     [NotNull] public string[] TemplateNames { get; private set; }
     [NotNull] public string Description { get; private set; }
+    [NotNull] public string Example { get; private set; }
 
     public bool WorksOnTypes { get; set; }
     public bool DisabledByDefault { get; set; }
