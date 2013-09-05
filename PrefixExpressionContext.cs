@@ -71,7 +71,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     public DocumentRange ReplaceRange
     {
-      get { return ExpressionRange.JoinRight(Parent.MostInnerReplaceRange); }
+      get
+      {
+        var innerReplaceRange = Parent.MostInnerReplaceRange;
+        if (!ExpressionRange.Intersects(innerReplaceRange))
+          return ExpressionRange.JoinRight(innerReplaceRange);
+
+        return ExpressionRange.SetEndTo(innerReplaceRange.TextRange.EndOffset);
+      }
     }
   }
 }

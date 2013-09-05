@@ -24,10 +24,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
-    protected override bool RemoveSemicolon
-    {
-      get { return true; }
-    }
+    protected override bool RemoveSemicolon { get { return true; } }
 
     protected override void ExpandPostfix(
       ITextControl textControl, Suffix suffix,
