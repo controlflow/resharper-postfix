@@ -42,15 +42,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         }
         else // 'new Exception().throw' case
         {
+          if (!exprContext.Type.IsResolved) return;
           if (!rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.Exception))
             return;
         }
       }
 
       if (exprContext.ReferencedType == null)
+      {
         consumer.Add(new ThrowExpressionLookupItem(exprContext));
+      }
       else
-        consumer.Add(new ThrowTypeLookupItem(exprContext, exprContext.ReferencedType, context.LookupItemsOwner));
+      {
+        consumer.Add(new ThrowTypeLookupItem(
+          exprContext, exprContext.ReferencedType, context.LookupItemsOwner));
+      }
     }
 
     private sealed class ThrowExpressionLookupItem : StatementPostfixLookupItem<IThrowStatement>

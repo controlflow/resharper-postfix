@@ -37,6 +37,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       if (!context.ForceMode)
       {
+        if (!exprContext.Type.IsResolved) return;
+
         var predefined = exprContext.Expression.GetPredefinedType();
         var rule = exprContext.Expression.GetTypeConversionRule();
         if (!rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.IDisposable))

@@ -45,14 +45,16 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CSharpPostfixItemProvider.cs" />
+    <Compile Include="Infrastructure\CSharpPostfixItemProvider.cs" />
+    <Compile Include="Infrastructure\IPostfixTemplateProvider.cs" />
+    <Compile Include="Infrastructure\PostfixExecutionContext.cs" />
+    <Compile Include="Infrastructure\PostfixTemplateAcceptanceContext.cs" />
+    <Compile Include="Infrastructure\PostfixTemplatesManager.cs" />
+    <Compile Include="Infrastructure\PostfixTemplatesTracker.cs" />
+    <Compile Include="Infrastructure\PrefixExpressionContext.cs" />
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\KeywordStatementPostfixLookupItem.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
-    <Compile Include="PostfixTemplateAcceptanceContext.cs" />
-    <Compile Include="PostfixTemplatesManager.cs" />
-    <Compile Include="PostfixTemplatesTracker.cs" />
-    <Compile Include="PrefixExpressionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\PostfixCompletionSettings.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
@@ -70,7 +72,6 @@
     <Compile Include="TemplateProviders\ForLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfNotStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfStatementTemplateProvider.cs" />
-    <Compile Include="IPostfixTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceFieldTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceMemberTemplateProviderBase.cs" />
     <Compile Include="TemplateProviders\IntroducePropertyTemplateProvider.cs" />

@@ -17,6 +17,7 @@
       New ".lock" template,
       .throw now works directly on types (ArgumentException.throw),
       .for now works on integers (kind of n.times) or any other objects with integer .Count property,
+      hide templates from automatic completion on unresolved symbols,
       fix various corruptions of next lines of code.
     </releaseNotes>
     <dependencies>
