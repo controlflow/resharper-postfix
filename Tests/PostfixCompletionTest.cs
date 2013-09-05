@@ -31,6 +31,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [Test] public void TestIf14() { DoNamedTest(); }
     [Test] public void TestIf15() { DoNamedTest(); }
     [Test] public void TestIf16() { DoNamedTest(); }
+    [Test] public void TestIf17() { DoNamedTest(); }
 
     [Test] public void TestVar01() { DoNamedTest(); }
     [Test] public void TestVar02() { DoNamedTest(); }

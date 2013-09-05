@@ -20,16 +20,12 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: check ..using bug
-
   [PostfixTemplateProvider(
     templateName: "using",
     description: "Wraps resource with using statement",
     example: "using (expr)")]
   public class UsingStatementTemplateProvider : IPostfixTemplateProvider
   {
-    // todo: available here: var alreadyHasVar = smth.using
-
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var exprContext = context.OuterExpression;

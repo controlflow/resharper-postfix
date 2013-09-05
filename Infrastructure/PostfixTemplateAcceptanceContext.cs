@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
@@ -50,7 +51,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       // build expression contexts
       var expressionContexts = new List<PrefixExpressionContext>();
-      int? endOffset = null;
+      var endOffset = Math.Max(
+        MostInnerReplaceRange.TextRange.EndOffset,
+        ToDocumentRange(reference).TextRange.EndOffset);
 
       for (ITreeNode node = expression; node != null; node = node.Parent)
       {
@@ -60,13 +63,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (expr == null) continue;
 
         var exprRange = myReparsedContext.ToDocumentRange(expr);
-        if (PostfixReferenceNode == expr)
-        {
-          endOffset = exprRange.TextRange.EndOffset;
-          continue;
-        }
-
-        if (endOffset != null && exprRange.TextRange.EndOffset > endOffset)
+        if (exprRange.TextRange.EndOffset > endOffset)
         {
           break; // stop when 'a.var + b'
         }

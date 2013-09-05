@@ -5,12 +5,10 @@ using JetBrains.Application;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
@@ -62,129 +60,148 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull] public IList<ILookupItem> GetAvailableItems(
       [NotNull] ITreeNode node, bool forceMode, [NotNull] PostfixExecutionContext context)
     {
-      if (node is ICSharpIdentifier || node is ITokenNode)
-      {
-        // 'booleanExpr.in' - unexpected identifier (keyword)
-        if (node.Parent is IErrorElement
-            && node.Parent.LastChild == node
-            && node.Parent.FirstChild == node) node = node.Parent;
+      if (!(node is ICSharpIdentifier) && !(node is ITokenNode))
+        return EmptyList<ILookupItem>.InstanceList;
 
-        // simple case: 'anyExpr.notKeyworkShortcut'
-        var referenceExpression = node.Parent as IReferenceExpression;
-        if (referenceExpression != null)
+      // 'booleanExpr.in' - unexpected identifier (keyword)
+      if (node.Parent is IErrorElement
+          && node.Parent.LastChild == node
+          && node.Parent.FirstChild == node) node = node.Parent;
+
+      // simple case: 'anyExpr.notKeyworkShortcut'
+      var referenceExpression = node.Parent as IReferenceExpression;
+      if (referenceExpression != null)
+      {
+        var expression = referenceExpression.QualifierExpression;
+        if (expression != null)
         {
-          var expression = referenceExpression.QualifierExpression;
+          return CollectAvailableTemplates(
+            referenceExpression, expression,
+            DocumentRange.InvalidRange, forceMode, context);
+        }
+      }
+
+      var reparse = context.ReparsedContext;
+      if (reparse == null)
+      {
+        // handle collisions with C# keyword names 'lines.foreach' =>
+        // ExpressionStmt(ReferenceExpr(lines.;Error);Error);ForeachStmt(foreach;Error)
+        var expressionStatement = LookForKeywordBrokenExpressionStatement(node);
+        if (expressionStatement != null)
+        {
+          var expression = FindExpressionBrokenByKeyword(expressionStatement);
+          var referenceExpr = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+          if (expression != null && referenceExpr != null)
+          {
+            var expressionRange = expression.GetDocumentRange();
+            var nodeRange = node.GetDocumentRange().TextRange;
+            var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
+
+            return CollectAvailableTemplates(
+              referenceExpr, expression, replaceRange, forceMode, context);
+          }
+        }
+      }
+
+      // handle collisions with predefined types 'x as string.'
+      if (node.Parent is IErrorElement)
+      {
+        var typeUsage = node.Parent.PrevSibling as ITypeUsage;
+        if (typeUsage != null)
+        {
+          var expression = node.Parent.Parent as ICSharpExpression;
           if (expression != null)
           {
+            var typeUsageRange = reparse.ToDocumentRange(typeUsage);
+            var nodeRange = reparse.ToDocumentRange(node).TextRange;
+            var replaceRange = typeUsageRange.SetEndTo(nodeRange.EndOffset);
+
             return CollectAvailableTemplates(
-              referenceExpression, expression,
-              DocumentRange.InvalidRange, forceMode, context);
+              typeUsage, expression, replaceRange, forceMode, context);
           }
         }
+      }
 
-        // handle collisions with C# keyword names 'lines.foreach' =>
-        // ExpressionStatement(ReferenceExpression(lines.;Error);Error);ForeachStatement(foreach;Error)
-        var reparse = context.ReparsedContext;
-        var statement = node.Parent as ICSharpStatement;
-        if (statement != null && statement.FirstChild == node && reparse == null)
+      // handle collisions with user types 'x as String.'
+      var referenceName = node.Parent as IReferenceName;
+      if (referenceName != null &&
+          referenceName.Qualifier != null &&
+          referenceName.Delimiter != null)
+      {
+        var usage = referenceName.Parent as ITypeUsage;
+        if (usage != null)
         {
-          var expressionStatement = statement.PrevSibling as IExpressionStatement;
-          if (expressionStatement != null)
+          var expression = usage.Parent as ICSharpExpression;
+          if (expression != null)
           {
-            var expression = FindExpressionBrokenByKeyword(expressionStatement);
-            var referenceExpr = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-            if (expression != null && referenceExpr != null)
-            {
-              var expressionRange = expression.GetDocumentRange();
-              var nodeRange = node.GetDocumentRange().TextRange;
-              var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
+            var qualifierRange = reparse.ToDocumentRange(referenceName.Qualifier);
+            var delimiterRange = reparse.ToDocumentRange(referenceName.Delimiter);
+            var replaceRange = qualifierRange.SetEndTo(delimiterRange.TextRange.EndOffset);
 
-              return CollectAvailableTemplates(
-                referenceExpr, expression, replaceRange, forceMode, context);
-            }
+            return CollectAvailableTemplates(
+              referenceName, expression, replaceRange, forceMode, context);
           }
         }
+      }
 
-        // handle collisions with predefined types 'x as string.'
-        if (node.Parent is IErrorElement)
-        {
-          var typeUsage = node.Parent.PrevSibling as ITypeUsage;
-          if (typeUsage != null)
-          {
-            var expression = node.Parent.Parent as ICSharpExpression;
-            if (expression != null)
-            {
-              var typeUsageRange = reparse.ToDocumentRange(typeUsage);
-              var nodeRange = reparse.ToDocumentRange(node).TextRange;
-              var replaceRange = typeUsageRange.SetEndTo(nodeRange.EndOffset);
+      ICSharpStatement statement1 = null;
 
-              return CollectAvailableTemplates(
-                typeUsage, expression, replaceRange, forceMode, context);
-            }
-          }
-        }
-
-        // handle collisions with user types 'x as String.'
-        var referenceName = node.Parent as IReferenceName;
-        if (referenceName != null &&
-            referenceName.Qualifier != null &&
-            referenceName.Delimiter != null)
-        {
-          var usage = referenceName.Parent as ITypeUsage;
-          if (usage != null)
-          {
-            var expression = usage.Parent as ICSharpExpression;
-            if (expression != null)
-            {
-              var qualifierRange = reparse.ToDocumentRange(referenceName.Qualifier);
-              var delimiterRange = reparse.ToDocumentRange(referenceName.Delimiter);
-              var replaceRange = qualifierRange.SetEndTo(delimiterRange.TextRange.EndOffset);
-
-              return CollectAvailableTemplates(
-                referenceName, expression, replaceRange, forceMode, context);
-            }
-          }
-        }
-
-        ICSharpStatement statement1 = null;
-
-        if (node.Parent is ICSharpStatement &&
+      if (node.Parent is ICSharpStatement &&
           node.Parent.FirstChild == node &&
           node.NextSibling is IErrorElement)
+      {
+        statement1 = (ICSharpStatement) node.Parent;
+      }
+
+      if (statement1 == null)
+      {
+        var re = node.Parent as IReferenceExpression;
+        if (re != null && re.FirstChild == node && re.NextSibling is IErrorElement)
         {
-          statement1 = (ICSharpStatement) node.Parent;
+          statement1 = re.Parent as IExpressionStatement;
         }
+      }
 
-        if (statement1 == null)
+      if (statement1 != null && reparse == null)
+      {
+        var expressionStatement = statement1.PrevSibling as IExpressionStatement;
+        if (expressionStatement != null)
         {
-          var re = node.Parent as IReferenceExpression;
-          if (re != null && re.FirstChild == node && re.NextSibling is IErrorElement)
+          ITreeNode coolNode;
+          var expression = FindExpressionBrokenByKeyword1(expressionStatement, out coolNode);
+          if (expression != null)
           {
-            statement1 = re.Parent as IExpressionStatement;
-          }
-        }
+            var expressionRange = expression.GetDocumentRange();
+            var nodeRange = node.GetDocumentRange().TextRange;
+            var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
 
-        if (statement1 != null && reparse == null)
-        {
-          var expressionStatement = statement1.PrevSibling as IExpressionStatement;
-          if (expressionStatement != null)
-          {
-            ITreeNode coolNode;
-            var expression = FindExpressionBrokenByKeyword1(expressionStatement, out coolNode);
-            if (expression != null)
-            {
-              var expressionRange = expression.GetDocumentRange();
-              var nodeRange = node.GetDocumentRange().TextRange;
-              var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
-
-              return CollectAvailableTemplates(
-                coolNode /* ? */, expression, replaceRange, forceMode, context);
-            }
+            return CollectAvailableTemplates(
+              coolNode /* ? */, expression, replaceRange, forceMode, context);
           }
         }
       }
 
       return EmptyList<ILookupItem>.InstanceList;
+    }
+
+    [CanBeNull]
+    private static IExpressionStatement LookForKeywordBrokenExpressionStatement([NotNull] ITreeNode node)
+    {
+      if (node is IErrorElement) // handle a > 0.in
+      {
+        var expression = node.Parent as ICSharpExpression;
+        if (expression != null && expression.LastChild == node)
+          return expression.GetContainingNode<IExpressionStatement>();
+      }
+      else // handle 'lines.foreach'
+      {
+        var statement = node.Parent as ICSharpStatement;
+        if (statement != null && statement.FirstChild == node)
+          return statement.PrevSibling as IExpressionStatement;
+      }
+
+      return null;
+
     }
 
     [CanBeNull]
