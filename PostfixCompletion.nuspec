@@ -14,7 +14,10 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      New ".lock" teplate, .throw now works directly on types (ArgumentException.throw), fix various corruptions of next lines of code.
+      New ".lock" template,
+      .throw now works directly on types (ArgumentException.throw),
+      .for now works on integers (kind of n.times) or any other objects with integer .Count property,
+      fix various corruptions of next lines of code.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />

@@ -5,12 +5,11 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Resolve;
-using JetBrains.ReSharper.Psi.Util;
+using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: show parameter info
   // todo: can create array?
 
   [PostfixTemplateProvider(
@@ -26,16 +25,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var typeElement = exprContext.ReferencedElement as ITypeElement;
       if (typeElement != null && CommonUtils.IsInstantiable(typeElement, exprContext.Expression))
       {
-        consumer.Add(new LookupItem(exprContext));
+        consumer.Add(new LookupItem(exprContext, context.LookupItemsOwner));
       }
     }
 
     private sealed class LookupItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
     {
       [NotNull] private readonly string myTypeText;
+      [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
 
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("new", context)
+      public LookupItem(
+        [NotNull] PrefixExpressionContext context, [NotNull] ILookupItemsOwner lookupItemsOwner)
+        : base("new", context)
       {
+        myLookupItemsOwner = lookupItemsOwner;
         myTypeText = context.Expression.GetText();
       }
 
@@ -44,6 +47,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         return (IObjectCreationExpression)
           factory.CreateExpression("new $0(" + CaretMarker + ")", myTypeText);
+      }
+
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix,
+        IObjectCreationExpression expression, int? caretPosition)
+      {
+        base.AfterComplete(textControl, suffix, expression, caretPosition);
+
+        // todo: arrays?
+        var parenthesisRange =
+          expression.LPar.GetDocumentRange().SetEndTo(
+          expression.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
+
+        var solution = expression.GetSolution();
+        LookupUtil.ShowParameterInfo(
+          solution, textControl, parenthesisRange, null, myLookupItemsOwner);
       }
     }
   }

@@ -25,14 +25,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (context.ForceMode)
       {
-        consumer.Add(new LookupItem(context.OuterExpression));
+        consumer.Add(new LookupItem(context.OuterExpression, context.LookupItemsOwner));
       }
     }
 
     private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context)
-        : base("arg", context) { }
+      [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
+
+      public LookupItem(
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] ILookupItemsOwner lookupItemsOwner) : base("arg", context)
+      {
+        myLookupItemsOwner = lookupItemsOwner;
+      }
 
       protected override ICSharpExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
@@ -44,14 +50,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
       {
         var invocationExpression = (IInvocationExpression) expression;
-        var invocationRange = invocationExpression.GetDocumentStartOffset();
+        var invocationRange = invocationExpression.InvokedExpression.GetDocumentRange();
         var hotspotInfo = new HotspotInfo(
           new TemplateField("Method", 0), invocationRange.GetHotspotRange());
 
-        var expressionRange = invocationExpression.InvokedExpression.GetDocumentRange();
+        var argument = invocationExpression.Arguments[0];
+        var argumentRange = argument.Value.GetDocumentRange();
 
-        var marker = expressionRange.EndOffsetRange().CreateRangeMarker();
-        var length = (marker.Range.EndOffset - invocationRange.TextRange.StartOffset);
+        var solution = expression.GetSolution();
+        var marker = argumentRange.EndOffsetRange().CreateRangeMarker();
+        var length = (marker.Range.EndOffset - invocationRange.TextRange.EndOffset);
 
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), TextRange.InvalidRange, textControl,
@@ -64,6 +72,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
           textControl.Caret.MoveTo(
             invocation.EndOffset + length, CaretVisualPlacement.DontScrollIfVisible);
+
+          var range = TextRange.FromLength(invocation.EndOffset, length + 1);
+          LookupUtil.ShowParameterInfo(
+            solution, textControl, range, null, myLookupItemsOwner);
         });
 
         session.Execute();

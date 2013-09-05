@@ -110,12 +110,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
         base.AfterComplete(textControl, suffix, statement, endOffset);
 
-        var parenRange =
+        var parenthesisRange =
           exception.LPar.GetDocumentRange().SetEndTo(
           exception.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
-        
-          LookupUtil.ShowParameterInfo(statement.GetSolution(), textControl,
-            parenRange, null, myLookupItemsOwner);
+
+        var solution = statement.GetSolution();
+        LookupUtil.ShowParameterInfo(
+          solution, textControl, parenthesisRange, null, myLookupItemsOwner);
       }
     }
   }
