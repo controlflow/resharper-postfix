@@ -5,14 +5,16 @@ using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
+#if RESHARPER7
+using JetBrains.ReSharper.Psi;
+#else
+using JetBrains.ReSharper.Psi.Modules;
+#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  // todo: disable Foo(123.{here})
-
   public sealed class PostfixTemplateAcceptanceContext
   {
     [NotNull] private readonly ICSharpExpression myMostInnerExpression;

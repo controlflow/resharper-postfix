@@ -74,7 +74,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (type.IsNullable()) return true;
 
-      return type.Classify == TypeClassification.REFERENCE_TYPE;
+      var classification = type.Classify;
+      return classification == null
+          || classification == TypeClassification.REFERENCE_TYPE;
     }
 
     private sealed class LookupItem : KeywordStatementPostfixLookupItem<IIfStatement>

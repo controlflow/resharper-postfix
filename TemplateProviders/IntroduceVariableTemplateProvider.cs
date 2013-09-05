@@ -16,6 +16,8 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // todo: allow on types (FTW)
+
   [PostfixTemplateProvider(
     templateName: "var",
     description: "Introduces variable for expression",
