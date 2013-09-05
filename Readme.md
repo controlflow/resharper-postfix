@@ -36,12 +36,15 @@ Currently available templates:
 * `.while` – uses expression as loop condition `while (expr)`
 * `.lock` – surrounds expression with statement `lock (expr)`
 
-Templates availability depend on context where code completion is executed - for example, `.notnull` template
-will not be available if some expression is already known to be not-null value in some particular context,
+Template availability depends on context where code completion is executed - for example, `.notnull` template
+is not be available if some expression is known to be not-null value in some particular context,
 `.using` template will be available only on expression of `IDisposable` type and so on.
 
-But any time you can invoke code completion one more time ("double completion" feature of ReSharper 8) and
-it will shows up with all the postfix templates available to write, without any semantic checks.
+You can invoke code completion one more time (*"double completion"* feature of ReSharper 8) and
+it will came up with all the postfix templates available, without any semantic filtering.
+
+Options page allows to enable/disable specific templates and control braces inserion:
+![options](/Content/options.png)
 
 #### Feedback
 
