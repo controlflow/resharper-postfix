@@ -8,13 +8,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   public abstract class BooleanExpressionProviderBase
   {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+    public void CreateItems(
+      PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       foreach (var expressionContext in context.Expressions)
       {
-        var expression = expressionContext.Expression;
-        if (CommonUtils.IsRelationalExpressionWithTypeOperand(expression)) continue;
-        if (expressionContext.Type.IsBool() || IsBooleanExpression(expression))
+        if (expressionContext.IsRelationalExpressionWithTypeOperand) continue;
+
+        if (expressionContext.Type.IsBool() ||
+          IsBooleanExpression(expressionContext.Expression))
         {
           if (CreateBooleanItems(expressionContext, consumer)) return;
         }
@@ -24,10 +26,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         foreach (var expressionContext in context.Expressions)
         {
-          var expression = expressionContext.Expression;
-          if (CommonUtils.IsRelationalExpressionWithTypeOperand(expression)) continue;
-          if (expressionContext.ReferencedElement is ITypeElement
-              && !CommonUtils.CanTypeBecameExpression(expression)) continue;
+          if (expressionContext.IsRelationalExpressionWithTypeOperand) continue;
+          if (!expressionContext.CanTypeBecameExpression) continue;
 
           if (CreateBooleanItems(expressionContext, consumer)) return;
         }
@@ -45,6 +45,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     }
 
     protected abstract bool CreateBooleanItems(
-      [NotNull] PrefixExpressionContext expression, [NotNull] ICollection<ILookupItem> consumer);
+      [NotNull] PrefixExpressionContext expression,
+      [NotNull] ICollection<ILookupItem> consumer);
   }
 }

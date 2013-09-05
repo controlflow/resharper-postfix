@@ -110,10 +110,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       if (operatorSign != null && operatorSign.GetTokenType() == CSharpTokenType.LT)
       {
         var left = relationalExpression.LeftOperand as IReferenceExpression;
-        if (left != null && left.Reference.Resolve().DeclaredElement is ITypeElement) return true;
+        if (left != null && left.Reference.Resolve().DeclaredElement is ITypeElement)
+          return true;
 
         var right = relationalExpression.LeftOperand as IReferenceExpression;
-        if (right != null && right.Reference.Resolve().DeclaredElement is ITypeElement) return true;
+        if (right != null && right.Reference.Resolve().DeclaredElement is ITypeElement)
+          return true;
       }
 
       return false;

@@ -21,12 +21,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var exprContext = context.InnerExpression;
-
-      if (!CommonUtils.CanTypeBecameExpression(exprContext.Expression)) return;
+      if (!exprContext.CanTypeBecameExpression) return;
 
       var typeElement = exprContext.ReferencedElement as ITypeElement;
-      if (typeElement != null &&
-        CommonUtils.IsInstantiable(typeElement, exprContext.Expression))
+      if (typeElement == null) return;
+
+      if (CommonUtils.IsInstantiable(typeElement, exprContext.Expression))
       {
         consumer.Add(new LookupItem(exprContext, context.LookupItemsOwner));
       }

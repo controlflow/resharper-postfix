@@ -5,9 +5,6 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  // todo: maybe use NULL to indicate that expression is broken and types do not works
-  // todo: calculate CanBeExpression?
-
   public sealed class PrefixExpressionContext
   {
     public PrefixExpressionContext(
@@ -18,6 +15,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       Expression = expression;
       Type = expression.Type();
       CanBeStatement = CalculateCanBeStatement(expression);
+      CanTypeBecameExpression = true;
+      IsRelationalExpressionWithTypeOperand =
+        CommonUtils.IsRelationalExpressionWithTypeOperand(expression);
 
       var referenceExpression1 = expression as IReferenceExpression;
       if (referenceExpression1 != null)
@@ -27,7 +27,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         var typeElement = ReferencedElement as ITypeElement;
         if (typeElement != null)
+        {
           ReferencedType = TypeFactory.CreateType(typeElement, result.Substitution);
+          CanTypeBecameExpression = CommonUtils.CanTypeBecameExpression(expression);
+        }
       }
       else
       {
@@ -42,7 +45,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
             var typeElement = ReferencedElement as ITypeElement;
             if (typeElement != null)
+            {
               ReferencedType = TypeFactory.CreateType(typeElement, result.Substitution);
+              CanTypeBecameExpression = CommonUtils.CanTypeBecameExpression(expression);
+            }
           }
         }
       }
@@ -75,6 +81,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [CanBeNull] public IDeclaredType ReferencedType { get; private set; }
 
     public bool CanBeStatement { get; private set; }
+    public bool CanTypeBecameExpression { get; private set; }
+    public bool IsRelationalExpressionWithTypeOperand { get; private set; }
 
     // ranges
     public DocumentRange ExpressionRange
