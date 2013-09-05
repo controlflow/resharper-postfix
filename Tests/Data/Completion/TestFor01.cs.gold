@@ -1,0 +1,15 @@
+﻿// ${COMPLETE_ITEM:for}
+
+public class Foo
+{
+  public void Bar()
+  {
+    var xs = new System.Collections.Generic.List<int>();
+    for (var i = 0; i < xs.Count; i++)
+    {
+      {caret}
+    }
+
+    System.Console.WriteLine();
+  }
+}

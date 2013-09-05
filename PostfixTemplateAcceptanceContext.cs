@@ -4,6 +4,7 @@ using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
@@ -15,18 +16,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     [NotNull] private readonly ICSharpExpression myMostInnerExpression;
     [CanBeNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
-    [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
 
     public PostfixTemplateAcceptanceContext([NotNull] ITreeNode reference,
       [NotNull] ICSharpExpression expression, DocumentRange replaceRange,
-      [CanBeNull] ReparsedCodeCompletionContext context, bool forceMode,
-      [NotNull] ILookupItemsOwner lookupItemsOwner)
+      bool forceMode, [NotNull] PostfixExecutionContext context)
     {
-      myReparsedContext = context;
+      myReparsedContext = context.ReparsedContext;
       myMostInnerExpression = expression;
       PostfixReferenceNode = reference;
       ForceMode = forceMode;
-      myLookupItemsOwner = lookupItemsOwner;
+      PsiModule = context.PsiModule;
+      LookupItemsOwner = context.LookupItemsOwner;
       MostInnerReplaceRange = replaceRange;
 
       if (!replaceRange.IsValid())
@@ -106,10 +106,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       get { return myMostInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
     }
 
-    [NotNull] public ILookupItemsOwner LookupItemsOwner
-    {
-      get { return myLookupItemsOwner; }
-    }
+    [NotNull] public ILookupItemsOwner LookupItemsOwner { get; private set; }
+    [NotNull] public IPsiModule PsiModule { get; private set; }
 
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {

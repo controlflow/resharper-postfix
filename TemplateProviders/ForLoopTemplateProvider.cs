@@ -9,8 +9,9 @@ using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
+using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
@@ -22,19 +23,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
     templateNames: new[]{"for", "forr"},
-    description: "Iterates over collection with length",
+    description: "Iterates over collection/number of times",
     example: "for (var i = 0; i < expr.Length; i++)")]
   public class ForLoopTemplateProvider : IPostfixTemplateProvider
   {
+    [NotNull] private readonly DeclaredElementTypeFilter myPropertyFilter =
+      new DeclaredElementTypeFilter(ResolveErrorType.NOT_RESOLVED, CLRDeclaredElementType.PROPERTY);
+
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var exprContext = context.InnerExpression;
       if (!exprContext.CanBeStatement) return;
 
-      if (!context.ForceMode && BooleanExpressionProviderBase.IsBooleanExpression(exprContext.Expression))
-        return;
-
       var expression = exprContext.Expression;
+      //if (!context.ForceMode && BooleanExpressionProviderBase.IsBooleanExpression(expression))
+      //  return;
+
       if (context.ForceMode || expression.IsPure())
       {
         string lengthPropertyName;
@@ -44,12 +48,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         }
         else
         {
-          var predefined = expression.GetPredefinedType();
-          var rule = expression.GetTypeConversionRule();
-          if (!rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.GenericICollection))
-            return;
+          if (exprContext.Type.IsUnknown) return; // even in force mode
 
-          lengthPropertyName = "Count";
+          var table = exprContext.Type.GetSymbolTable(context.PsiModule);
+          var publicProperties = table.Filter(
+            myPropertyFilter, OverriddenFilter.INSTANCE,
+            new AccessRightsFilter(new ElementAccessContext(expression)));
+
+          var result = publicProperties.GetResolveResult("Count");
+          var resolveResult = result.DeclaredElement as IProperty;
+          if (resolveResult != null)
+          {
+            if (resolveResult.IsStatic) return;
+            if (!resolveResult.Type.IsInt()) return;
+            lengthPropertyName = "Count";
+          }
+          else
+          {
+            if (!exprContext.Type.IsInt()) return;
+            lengthPropertyName = null;
+          }
         }
 
         consumer.Add(new ForLookupItem(exprContext, lengthPropertyName));
@@ -60,13 +78,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     private abstract class ForLookupItemBase : KeywordStatementPostfixLookupItem<IForStatement>
     {
       protected ForLookupItemBase([NotNull] string shortcut,
-        [NotNull] PrefixExpressionContext context, [NotNull] string lengthPropertyName)
+        [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
         : base(shortcut, context)
       {
         LengthPropertyName = lengthPropertyName;
       }
 
-      [NotNull] protected string LengthPropertyName { get; private set; }
+      [CanBeNull] protected string LengthPropertyName { get; private set; }
 
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix, IForStatement statement, int? caretPosition)
@@ -100,7 +118,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     private sealed class ForLookupItem : ForLookupItemBase
     {
       public ForLookupItem(
-        [NotNull] PrefixExpressionContext context, [NotNull] string lengthPropertyName)
+        [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
         : base("for", context, lengthPropertyName) { }
 
       protected override string Template { get { return "for(var x=0;x<expr;x++)"; } }
@@ -109,16 +127,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
       {
         var condition = (IRelationalExpression) forStatement.Condition;
-        var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthPropertyName);
-        lengthAccess = condition.RightOperand.ReplaceBy(lengthAccess);
-        lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
+        if (LengthPropertyName == null)
+        {
+          condition.RightOperand.ReplaceBy(expression);
+        }
+        else
+        {
+          var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthPropertyName);
+          lengthAccess = condition.RightOperand.ReplaceBy(lengthAccess);
+          lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
+        }
       }
     }
 
     private sealed class ReverseForLookupItem : ForLookupItemBase
     {
       public ReverseForLookupItem(
-        [NotNull] PrefixExpressionContext context, [NotNull] string lengthPropertyName)
+        [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
         : base("forR", context, lengthPropertyName) { }
 
       protected override string Template { get { return "for(var x=expr;x>=0;x--)"; } }
@@ -129,10 +154,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var variable = (ILocalVariableDeclaration) forStatement.Initializer.Declaration.Declarators[0];
         var initializer = (IExpressionInitializer) variable.Initial;
 
-        var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthPropertyName);
-        lengthAccess = initializer.Value.ReplaceBy(lengthAccess);
-        lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
-        lengthAccess.ReplaceBy(factory.CreateExpression("$0 - 1", lengthAccess));
+        if (LengthPropertyName == null)
+        {
+          var value = initializer.Value.ReplaceBy(expression);
+          value.ReplaceBy(factory.CreateExpression("$0 - 1", value));
+        }
+        else
+        {
+          var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthPropertyName);
+          lengthAccess = initializer.Value.ReplaceBy(lengthAccess);
+          lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
+          lengthAccess.ReplaceBy(factory.CreateExpression("$0 - 1", lengthAccess));
+        }
       }
     }
   }

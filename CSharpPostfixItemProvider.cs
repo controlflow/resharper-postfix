@@ -43,23 +43,24 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var node = context.NodeInFile;
       if (node == null) return false;
 
-      ReparsedCodeCompletionContext completionContext = null;
+      ReparsedCodeCompletionContext reparsedContext = null;
 
       // foo.{caret} var bar = ...; fuck my life
       var referenceName = node.Parent as IReferenceName;
       if (referenceName != null)
       {
-        completionContext = context.UnterminatedContext;
-        node = completionContext.TreeNode;
+        reparsedContext = context.UnterminatedContext;
+        node = reparsedContext.TreeNode;
         if (node == null) return false;
       }
 
-      var lookupItemsOwner = context.BasicContext.LookupItemsOwner;
       var completionType = context.BasicContext.CodeCompletionType;
       var forceMode = (completionType == CodeCompletionType.BasicCompletion);
+      var lookupItemsOwner = context.BasicContext.LookupItemsOwner;
+      var executionContext = new PostfixExecutionContext(
+        context.PsiModule, lookupItemsOwner, reparsedContext);
 
-      var items = myTemplatesManager.GetAvailableItems(
-        node, forceMode, lookupItemsOwner, completionContext, null);
+      var items = myTemplatesManager.GetAvailableItems(node, forceMode, executionContext);
 
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 
@@ -69,8 +70,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       {
         idsToRemove = new JetHashSet<string>(System.StringComparer.Ordinal);
 
-        var autoItems = myTemplatesManager.GetAvailableItems(
-          node, false, lookupItemsOwner, completionContext, null);
+        var autoItems = myTemplatesManager.GetAvailableItems(node, false, executionContext);
 
         if (autoItems.Count > 0)
           foreach (var lookupItem in autoItems)

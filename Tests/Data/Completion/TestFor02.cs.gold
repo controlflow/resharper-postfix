@@ -1,0 +1,15 @@
+﻿// ${COMPLETE_ITEM:for}
+
+class Foo
+{
+  void Bar()
+  {
+    var xs = new Foo();
+    for (var i = 0; i < xs.Count; i++)
+    {
+      {caret}
+    }
+  }
+
+  public int Count { get; set; }
+}

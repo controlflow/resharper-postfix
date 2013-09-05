@@ -125,11 +125,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (token == null) return null;
 
         var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+        var executionContext = new PostfixExecutionContext(
+          token.GetPsiModule(), lookupItemsOwner, specificTemplateName: genericPrefix);
 
         // check exactly single item available
         var items = myTemplatesManager.GetAvailableItems(
-          token, forceMode: true, lookupItemsOwner: lookupItemsOwner,
-          reparseContext: null, templateName: genericPrefix);
+          token, forceMode: true, context: executionContext);
 
         if (items.Count == 1) return items[0];
         return null;

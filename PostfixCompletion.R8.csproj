@@ -52,6 +52,7 @@
     <Compile Include="LookupItems\KeywordStatementPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
+    <Compile Include="PostfixExecutionContext.cs" />
     <Compile Include="PostfixTemplateAcceptanceContext.cs" />
     <Compile Include="PostfixTemplatesManager.cs" />
     <Compile Include="PostfixTemplatesTracker.cs" />
