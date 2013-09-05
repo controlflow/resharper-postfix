@@ -10,7 +10,7 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: can create array?
+  // todo: can create array? - too hard for now
 
   [PostfixTemplateProvider(
     templateName: "new",
@@ -22,8 +22,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       var exprContext = context.InnerExpression;
 
+      if (!CommonUtils.CanTypeBecameExpression(exprContext.Expression)) return;
+
       var typeElement = exprContext.ReferencedElement as ITypeElement;
-      if (typeElement != null && CommonUtils.IsInstantiable(typeElement, exprContext.Expression))
+      if (typeElement != null &&
+        CommonUtils.IsInstantiable(typeElement, exprContext.Expression))
       {
         consumer.Add(new LookupItem(exprContext, context.LookupItemsOwner));
       }

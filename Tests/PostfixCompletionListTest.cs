@@ -19,5 +19,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [Test] public void TestUnresolved02() { DoNamedTest(); }
     [Test] public void TestUnresolved03() { DoNamedTest(); }
     [Test] public void TestUnresolved04() { DoNamedTest(); }
+
+    [Test] public void TestType01() { DoNamedTest(); }
+    [Test] public void TestType02() { DoNamedTest(); }
+    [Test] public void TestType03() { DoNamedTest(); }
+    [Test] public void TestType04() { DoNamedTest(); }
   }
 }

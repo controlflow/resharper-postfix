@@ -1,0 +1,14 @@
+﻿+ MaxValue
++ MinValue
++ Parse
++ TryParse
++ if
++ ifnot
++ not
++ throw
++ while
+# AUTOMATIC #
++ MaxValue
++ MinValue
++ Parse
++ TryParse

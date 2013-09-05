@@ -1,12 +1,13 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.DocumentModel;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
@@ -20,11 +21,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       var originalRange = context.ToDocumentRange(treeNode.GetTreeTextRange());
       return new DocumentRange(documentRange.Document, originalRange);
-    }
-
-    public static bool HasSemicolonAfter([NotNull] this PrefixExpressionContext context)
-    {
-      return FindSemicolonAfter(context.Expression, context.Parent.PostfixReferenceNode) != null;
     }
 
     [CanBeNull] public static ITokenNode FindSemicolonAfter(
@@ -66,6 +62,52 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
 
       return false;
+    }
+
+    public static bool CanTypeBecameExpression([CanBeNull] ICSharpExpression expression)
+    {
+      var referenceExpression = expression as IReferenceExpression;
+      if (referenceExpression != null)
+      {
+        var parent = referenceExpression.Parent;
+
+        if (IsLessThanRelationalExpression(parent)) return false;
+
+        var expressionStatement = parent as IExpressionStatement;
+        if (expressionStatement != null)
+        {
+          var previous = expressionStatement.GetPreviousStatementInBlock();
+          if (previous == null) return true;
+
+          // two children: relational and error element
+          return !(
+            IsLessThanRelationalExpression(previous.FirstChild) &&
+            previous.FirstChild.NextSibling == previous.LastChild &&
+            previous.LastChild is IErrorElement);
+        }
+
+        return CanTypeBecameExpression(parent as IReferenceExpression);
+      }
+
+      var predefinedType = expression as IPredefinedTypeExpression;
+      if (predefinedType != null)
+      {
+        var parent = predefinedType.Parent;
+
+        return CanTypeBecameExpression(parent as IReferenceExpression);
+      }
+
+      return true;
+    }
+
+    [ContractAnnotation("notnull => true")]
+    private static bool IsLessThanRelationalExpression([CanBeNull] ITreeNode node)
+    {
+      var relationalExpression = node as IRelationalExpression;
+      if (relationalExpression == null) return false;
+
+      var sign = relationalExpression.OperatorSign;
+      return sign != null && sign.GetTokenType() == CSharpTokenType.LT;
     }
   }
 }
