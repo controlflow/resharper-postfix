@@ -60,13 +60,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (node is ICSharpStatement) break;
 
         var expr = node as ICSharpExpression;
-        if (expr == null) continue;
+        if (expr == null || expr == reference) continue;
 
         var exprRange = myReparsedContext.ToDocumentRange(expr);
         if (exprRange.TextRange.EndOffset > endOffset)
-        {
           break; // stop when 'a.var + b'
-        }
 
         var expressionContext = new PrefixExpressionContext(this, expr);
         expressionContexts.Add(expressionContext);

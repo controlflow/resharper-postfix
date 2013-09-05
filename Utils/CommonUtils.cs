@@ -71,7 +71,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       {
         var parent = referenceExpression.Parent;
 
-        if (IsLessThanRelationalExpression(parent)) return false;
+        if (IsRelationalExpressionWithTypeOperand(parent)) return false;
 
         var expressionStatement = parent as IExpressionStatement;
         if (expressionStatement != null)
@@ -81,7 +81,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
           // two children: relational and error element
           return !(
-            IsLessThanRelationalExpression(previous.FirstChild) &&
+            IsRelationalExpressionWithTypeOperand(previous.FirstChild) &&
             previous.FirstChild.NextSibling == previous.LastChild &&
             previous.LastChild is IErrorElement);
         }
@@ -100,14 +100,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return true;
     }
 
-    [ContractAnnotation("notnull => true")]
-    private static bool IsLessThanRelationalExpression([CanBeNull] ITreeNode node)
+    [ContractAnnotation("null => false")]
+    public static bool IsRelationalExpressionWithTypeOperand([CanBeNull] ITreeNode node)
     {
       var relationalExpression = node as IRelationalExpression;
       if (relationalExpression == null) return false;
 
-      var sign = relationalExpression.OperatorSign;
-      return sign != null && sign.GetTokenType() == CSharpTokenType.LT;
+      var operatorSign = relationalExpression.OperatorSign;
+      if (operatorSign != null && operatorSign.GetTokenType() == CSharpTokenType.LT)
+      {
+        var left = relationalExpression.LeftOperand as IReferenceExpression;
+        if (left != null && left.Reference.Resolve().DeclaredElement is ITypeElement) return true;
+
+        var right = relationalExpression.LeftOperand as IReferenceExpression;
+        if (right != null && right.Reference.Resolve().DeclaredElement is ITypeElement) return true;
+      }
+
+      return false;
     }
   }
 }

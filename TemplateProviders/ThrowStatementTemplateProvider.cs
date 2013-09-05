@@ -21,7 +21,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     example: "throw expr;", WorksOnTypes = true)]
   public class ThrowStatementTemplateProvider : IPostfixTemplateProvider
   {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+    public void CreateItems(
+      PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var exprContext = context.OuterExpression;
       if (!exprContext.CanBeStatement) return;
@@ -43,17 +44,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         else // 'new Exception().throw' case
         {
           if (!exprContext.Type.IsResolved) return;
-          if (!rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.Exception))
-            return;
+          if (!rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.Exception)) return;
         }
       }
 
       if (exprContext.ReferencedType == null)
       {
+        if (CommonUtils.IsRelationalExpressionWithTypeOperand(exprContext.Expression)) return;
+
         consumer.Add(new ThrowExpressionLookupItem(exprContext));
       }
       else
       {
+        if (!CommonUtils.CanTypeBecameExpression(exprContext.Expression)) return;
+
         consumer.Add(new ThrowTypeLookupItem(
           exprContext, exprContext.ReferencedType, context.LookupItemsOwner));
       }
