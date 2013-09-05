@@ -8,7 +8,10 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("lock", "Wrap expression with lock statement")]
+  [PostfixTemplateProvider(
+    templateName: "lock",
+    description: "Surrounds expression with lock block",
+    example: "lock (expr)")]
   public class LockStatementExpressionProvider : IPostfixTemplateProvider
   {
     public void CreateItems(
@@ -39,7 +42,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       protected override string Template
       {
-        get { return "lock (expr)"; }
+        get { return "lock(expr)"; }
       }
 
       protected override void PlaceExpression(

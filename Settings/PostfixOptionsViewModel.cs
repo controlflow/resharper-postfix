@@ -62,6 +62,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
         var itemViewModel = new PostfixTemplateViewModel(
           name: string.Join("/", metadata.TemplateNames),
           description: metadata.Description,
+          example: metadata.Example,
           settingsKey: providerInfo.SettingsKey,
           isChecked: isEnabled);
 

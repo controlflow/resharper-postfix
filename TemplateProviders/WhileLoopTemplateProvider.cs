@@ -7,7 +7,10 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("while", "Iterating while boolean statement is 'true'", WorksOnTypes = true)]
+  [PostfixTemplateProvider(
+    templateName: "while",
+    description: "Iterating while boolean statement is 'true'",
+    example: "while (expr)", WorksOnTypes = true)]
   public sealed class WhileLoopTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
   {
     protected override bool CreateBooleanItems(

@@ -16,7 +16,10 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("var", "Introduces variable for expression")]
+  [PostfixTemplateProvider(
+    templateName: "var",
+    description: "Introduces variable for expression",
+    example: "var x = expr;")]
   public sealed class IntroduceVariableTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

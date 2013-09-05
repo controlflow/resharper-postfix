@@ -9,8 +9,10 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(new []{"return", "yield"},
-    "Returns expression/yields value from iterator")]
+  [PostfixTemplateProvider(
+    templateNames: new []{"return", "yield"},
+    description: "Returns expression/yields value from iterator",
+    example: "return expr;")]
   public class ReturnStatementTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

@@ -16,7 +16,10 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("cast", "Casts current expression")]
+  [PostfixTemplateProvider(
+    templateName: "cast",
+    description: "Surrounds expression with cast",
+    example: "(SomeType) expr")]
   public class CastExpressionTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

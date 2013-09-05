@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -8,13 +7,13 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Util;
-#if RESHARPER8
-
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("new", "Invokes the constructor of type", WorksOnTypes = true)]
+  [PostfixTemplateProvider(
+    templateName: "new",
+    description: "Produces instantiation expression for type",
+    example: "new SomeType()", WorksOnTypes = true)]
   public class ObjectCreationTypeTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

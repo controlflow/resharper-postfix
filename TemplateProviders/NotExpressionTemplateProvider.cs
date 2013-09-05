@@ -7,13 +7,14 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
 #if RESHARPER7
 using JetBrains.ReSharper.Psi;
-#else
-
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("not", "Negates boolean expression", WorksOnTypes = true)]
+  [PostfixTemplateProvider(
+    templateName: "not",
+    description: "Negates boolean expression",
+    example: "!expr", WorksOnTypes = true)]
   public class NotExpressionTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
   {
     protected override bool CreateBooleanItems(

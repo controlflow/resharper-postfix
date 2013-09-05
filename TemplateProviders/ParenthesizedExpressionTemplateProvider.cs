@@ -7,7 +7,10 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("paren", "Parenthesizes current expression")]
+  [PostfixTemplateProvider(
+    templateName: "paren",
+    description: "Parenthesizes current expression",
+    example: "(expr)")]
   public class ParenthesizedExpressionTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

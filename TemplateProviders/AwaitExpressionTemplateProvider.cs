@@ -6,13 +6,13 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
-#if RESHARPER8
-
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("await", "Awaiting expressions of 'Task' type")]
+  [PostfixTemplateProvider(
+    templateName: "await",
+    description: "Awaits expressions of 'Task' type",
+    example: "await expr")]
   public class AwaitExpressionTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

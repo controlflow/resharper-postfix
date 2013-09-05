@@ -22,7 +22,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   // todo: check ..using bug
 
-  [PostfixTemplateProvider("using", "Wrap resource with using statement")]
+  [PostfixTemplateProvider(
+    templateName: "using",
+    description: "Wraps resource with using statement",
+    example: "using (expr)")]
   public class UsingStatementTemplateProvider : IPostfixTemplateProvider
   {
     // todo: available here: var alreadyHasVar = smth.using

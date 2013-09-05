@@ -20,7 +20,10 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("foreach", "Iterating over expressions of collection type")]
+  [PostfixTemplateProvider(
+    templateName: "foreach",
+    description: "Iterates over enumerable collection",
+    example: "foreach (var x in expr)")]
   public class ForEachLoopTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

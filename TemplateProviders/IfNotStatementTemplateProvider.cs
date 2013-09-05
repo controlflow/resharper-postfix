@@ -9,7 +9,10 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("ifnot", "Checks boolean expression to be 'false'", WorksOnTypes = true)]
+  [PostfixTemplateProvider(
+    templateName: "ifnot",
+    description: "Checks boolean expression to be 'false'",
+    example: "if (!expr)", WorksOnTypes = true)]
   public class IfNotStatementTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
   {
     protected override bool CreateBooleanItems(

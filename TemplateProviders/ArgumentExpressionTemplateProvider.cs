@@ -14,7 +14,10 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("arg", "Surrounds expression with invocation")]
+  [PostfixTemplateProvider(
+    templateName: "arg",
+    description: "Surrounds expression with invocation",
+    example: "Method(expr)")]
   public class ArgumentExpressionTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(

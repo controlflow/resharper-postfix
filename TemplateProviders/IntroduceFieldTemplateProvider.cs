@@ -9,7 +9,10 @@ using System.Linq;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider("field", "Introduces field for expression")]
+  [PostfixTemplateProvider(
+    templateName: "field",
+    description: "Introduces field for expression",
+    example: "_field = expr;")]
   public class IntroduceFieldTemplateProvider : IntroduceMemberTemplateProviderBase
   {
     protected override IntroduceMemberLookupItem CreateLookupItem(

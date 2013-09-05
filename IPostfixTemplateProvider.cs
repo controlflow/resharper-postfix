@@ -24,17 +24,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public bool DisabledByDefault { get; set; }
 
     public PostfixTemplateProviderAttribute(
-      [NotNull] string templateName, [NotNull] string description)
+      [NotNull] string templateName, [NotNull] string description, string example = null)
     {
       TemplateNames = new[] { templateName };
       Description = description;
+      Example = example ?? string.Empty;
     }
 
     public PostfixTemplateProviderAttribute(
-      [NotNull] string[] templateNames, [NotNull] string description)
+      [NotNull] string[] templateNames, [NotNull] string description, string example = null)
     {
       TemplateNames = templateNames;
       Description = description;
+      Example = example ?? string.Empty;
     }
   }
 }

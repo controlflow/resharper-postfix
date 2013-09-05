@@ -51,6 +51,14 @@
                 </DataTemplate>
               </GridViewColumn.CellTemplate>
             </GridViewColumn>
+            <GridViewColumn Header="Example">
+              <GridViewColumn.CellTemplate>
+                <DataTemplate DataType="vm:PostfixTemplateViewModel">
+                  <TextBlock Text="{Binding Example, Mode=OneTime}"
+                             FontFamily="Consolas" />
+                </DataTemplate>
+              </GridViewColumn.CellTemplate>
+            </GridViewColumn>
           </GridView.Columns>
         </GridView>
       </ListView.View>

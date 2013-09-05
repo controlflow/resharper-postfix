@@ -10,7 +10,10 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(new[] { "null", "notnull" }, "Checks expressions for nulls")]
+  [PostfixTemplateProvider(
+    templateNames: new[] { "null", "notnull" },
+    description: "Checks expression to be null/not-null",
+    example: "if (expr != null)")]
   public class CheckForNullTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

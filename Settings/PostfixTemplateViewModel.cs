@@ -8,18 +8,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
     private bool myIsChecked;
 
     public PostfixTemplateViewModel(
-      [NotNull] string name, [NotNull] string description,
+      [NotNull] string name, [NotNull] string description, [NotNull] string example,
       [NotNull] string settingsKey, bool isChecked)
     {
       Name = name;
       Description = description;
+      Example = example;
       SettingsKey = settingsKey;
       IsChecked = isChecked;
     }
 
-    public string Name { get; private set; }
-    public string Description { get; private set; }
-    public string SettingsKey { get; private set; }
+    [NotNull] public string Name { get; private set; }
+    [NotNull] public string Description { get; private set; }
+    [NotNull] public string Example { get; private set; }
+
+    [NotNull] public string SettingsKey { get; private set; }
 
     public bool IsChecked
     {

@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.Resources;
-using JetBrains.ReSharper.Features.Intellisense.Options;
+using JetBrains.UI.Application.PluginSupport;
 using JetBrains.UI.CrossFramework;
 using JetBrains.UI.Options;
 
@@ -11,7 +11,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
     id: PID,
     name: "Postfix completion",
     typeofIcon: typeof(ServicesThemedIcons.SurroundTemplate),
-    ParentId = IntelliSensePage.PID)]
+    ParentId = PluginsPage.Pid)]
   public sealed partial class PostfixOptionsPage : IOptionsPage
   {
     public const string PID = "PostfixCompletion";

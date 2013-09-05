@@ -20,7 +20,10 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(new[]{"for", "forr"}, "Iterating over collections with length")]
+  [PostfixTemplateProvider(
+    templateNames: new[]{"for", "forr"},
+    description: "Iterates over collection with length",
+    example: "for (var i = 0; i < expr.Length; i++)")]
   public class ForLoopTemplateProvider : IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
