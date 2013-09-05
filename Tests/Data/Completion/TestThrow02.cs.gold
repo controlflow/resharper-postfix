@@ -1,0 +1,11 @@
+﻿// ${COMPLETE_ITEM:throw}
+
+using System;
+
+class Foo
+{
+  void Bar()
+  {
+    throw new Exception({caret});
+  }
+}

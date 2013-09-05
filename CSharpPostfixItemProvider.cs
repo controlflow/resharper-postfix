@@ -54,9 +54,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (node == null) return false;
       }
 
+      var lookupItemsOwner = context.BasicContext.LookupItemsOwner;
       var completionType = context.BasicContext.CodeCompletionType;
       var forceMode = (completionType == CodeCompletionType.BasicCompletion);
-      var items = myTemplatesManager.GetAvailableItems(node, forceMode, completionContext);
+
+      var items = myTemplatesManager.GetAvailableItems(
+        node, forceMode, lookupItemsOwner, completionContext, null);
 
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 
@@ -66,7 +69,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       {
         idsToRemove = new JetHashSet<string>(System.StringComparer.Ordinal);
 
-        var autoItems = myTemplatesManager.GetAvailableItems(node, false, completionContext);
+        var autoItems = myTemplatesManager.GetAvailableItems(
+          node, false, lookupItemsOwner, completionContext, null);
+
         if (autoItems.Count > 0)
           foreach (var lookupItem in autoItems)
             idsToRemove.Add(lookupItem.Identity);

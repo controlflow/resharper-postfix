@@ -8,8 +8,6 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 #if RESHARPER7
 using JetBrains.ReSharper.Psi;
-#else
-
 #endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
@@ -26,7 +24,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         PostfixCompletionSettingsAccessor.UseBracesForEmbeddedStatements);
     }
 
-    protected bool BracesInsertion { get; set; }
+    private bool BracesInsertion { get; set; }
     protected abstract string Template { get; }
 
     protected override TStatement CreateStatement(CSharpElementFactory factory)

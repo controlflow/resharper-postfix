@@ -10,6 +10,9 @@ using JetBrains.ReSharper.Psi.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // todo: show parameter info
+  // todo: can create array?
+
   [PostfixTemplateProvider(
     templateName: "new",
     description: "Produces instantiation expression for type",
@@ -21,23 +24,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var exprContext = context.InnerExpression;
 
       var typeElement = exprContext.ReferencedElement as ITypeElement;
-      if (typeElement is IStruct || typeElement is IEnum || typeElement is IClass)
+      if (typeElement != null && CommonUtils.IsInstantiable(typeElement, exprContext.Expression))
       {
-        // filter out abstract classes
-        var classType = typeElement as IClass;
-        if (classType != null && classType.IsAbstract) return;
-  
-        // check type has any constructor accessable
-        var access = new ElementAccessContext(exprContext.Expression);
-        foreach (var constructor in typeElement.Constructors)
-        {
-          if (constructor.IsStatic) continue;
-          if (AccessUtil.IsSymbolAccessible(constructor, access))
-          {
-            consumer.Add(new LookupItem(exprContext));
-            break;
-          }
-        }
+        consumer.Add(new LookupItem(exprContext));
       }
     }
 

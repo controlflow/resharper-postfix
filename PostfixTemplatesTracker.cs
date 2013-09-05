@@ -21,33 +21,37 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public PostfixTemplatesTracker(
       [NotNull] Lifetime lifetime, [NotNull] PostfixTemplatesManager templatesManager,
       [NotNull] IActionManager manager, [NotNull] TextControlChangeUnitFactory changeUnitFactory,
-      [NotNull] ILookupWindowManager lookupWindowManager, [NotNull] ICommandProcessor processor)
+      [NotNull] ILookupWindowManager lookupWindowManager, [NotNull] ICommandProcessor processor,
+      [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
     {
       // override livetemplates expand action
       var expandLiveTemplateAction = manager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
       if (expandLiveTemplateAction != null)
       {
         expandLiveTemplateAction.AddHandler(lifetime, new ExpandPostfixTemplateHandler(
-          changeUnitFactory, templatesManager, lookupWindowManager, processor));
+          changeUnitFactory, templatesManager, lookupWindowManager, processor, lookupItemsOwnerFactory));
       }
     }
 
-    public sealed class ExpandPostfixTemplateHandler : IActionHandler
+    private sealed class ExpandPostfixTemplateHandler : IActionHandler
     {
       [NotNull] private readonly ILookupWindowManager myLookupWindowManager;
       [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
       [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
       [NotNull] private readonly ICommandProcessor myCommandProcessor;
+      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
 
       public ExpandPostfixTemplateHandler(
         [NotNull] TextControlChangeUnitFactory changeUnitFactory,
         [NotNull] PostfixTemplatesManager templatesManager,
         [NotNull] ILookupWindowManager lookupWindowManager,
-        [NotNull] ICommandProcessor commandProcessor)
+        [NotNull] ICommandProcessor commandProcessor,
+        [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
       {
         myChangeUnitFactory = changeUnitFactory;
         myLookupWindowManager = lookupWindowManager;
         myCommandProcessor = commandProcessor;
+        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
         myTemplatesManager = templatesManager;
       }
 
@@ -118,15 +122,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var genericPrefix = LiveTemplatesManager.GetPrefix(textControl.Document, caretOffset);
 
         var token = TextControlToPsi.GetSourceTokenBeforeCaret(solution, textControl);
-        if (token != null)
-        {
-          // check exactly single item available
-          var items = myTemplatesManager.GetAvailableItems(
-            token, forceMode: true, templateName: genericPrefix);
+        if (token == null) return null;
 
-          if (items.Count == 1) return items[0];
-        }
+        var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
 
+        // check exactly single item available
+        var items = myTemplatesManager.GetAvailableItems(
+          token, forceMode: true, lookupItemsOwner: lookupItemsOwner,
+          reparseContext: null, templateName: genericPrefix);
+
+        if (items.Count == 1) return items[0];
         return null;
       }
     }

@@ -22,7 +22,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var referenceExpression1 = expression as IReferenceExpression;
       if (referenceExpression1 != null)
       {
-        ReferencedElement = referenceExpression1.Reference.Resolve().DeclaredElement;
+        var result = referenceExpression1.Reference.Resolve().Result;
+        ReferencedElement = result.DeclaredElement;
+
+        var typeElement = ReferencedElement as ITypeElement;
+        if (typeElement != null)
+          ReferencedType = TypeFactory.CreateType(typeElement, result.Substitution);
       }
       else
       {
@@ -31,7 +36,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         {
           var typeName = typeExpression.PredefinedTypeName;
           if (typeName != null)
-            ReferencedElement = typeName.Reference.Resolve().DeclaredElement;
+          {
+            var result = typeName.Reference.Resolve().Result;
+            ReferencedElement = result.DeclaredElement;
+
+            var typeElement = ReferencedElement as ITypeElement;
+            if (typeElement != null)
+              ReferencedType = TypeFactory.CreateType(typeElement, result.Substitution);
+          }
         }
       }
     }
@@ -57,9 +69,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     // "lines.Any()" : Boolean
     [NotNull] public ICSharpExpression Expression { get; private set; }
-    // todo: review checks for Unknown
     [NotNull] public IType Type { get; private set; }
+
     [CanBeNull] public IDeclaredElement ReferencedElement { get; private set; }
+    [CanBeNull] public IDeclaredType ReferencedType { get; private set; }
 
     public bool CanBeStatement { get; private set; }
 

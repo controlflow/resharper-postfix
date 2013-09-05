@@ -59,9 +59,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull] public IList<ILookupItem> GetAvailableItems(
-      [NotNull] ITreeNode node, bool forceMode,
-      [CanBeNull] ReparsedCodeCompletionContext reparseContext = null,
-      [CanBeNull] string templateName = null)
+      [NotNull] ITreeNode node, bool forceMode, [NotNull] ILookupItemsOwner lookupItemsOwner,
+      [CanBeNull] ReparsedCodeCompletionContext reparseContext, [CanBeNull] string templateName)
     {
       if (node is ICSharpIdentifier || node is ITokenNode)
       {
@@ -74,18 +73,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           {
             return CollectAvailableTemplates(
               referenceExpression, expression, DocumentRange.InvalidRange,
-              reparseContext, forceMode, templateName);
+              reparseContext, forceMode, templateName, lookupItemsOwner);
           }
         }
 
         // handle collisions with C# keyword names 'lines.foreach' =>
         // ExpressionStatement(ReferenceExpression(lines.;Error);Error);ForeachStatement(foreach;Error)
         var statement = node.Parent as ICSharpStatement;
-        if (statement != null && statement.FirstChild == node &&
-            node.NextSibling is IErrorElement && reparseContext == null)
+        if (statement != null && statement.FirstChild == node && reparseContext == null)
         {
-          // todo: more constrained check? what to remove?
-
           var expressionStatement = statement.PrevSibling as IExpressionStatement;
           if (expressionStatement != null)
           {
@@ -94,50 +90,55 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             if (expression != null && referenceExpr != null)
             {
               var expressionRange = expression.GetDocumentRange();
-              var replaceRange = expressionRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
+              var nodeRange = node.GetDocumentRange().TextRange;
+              var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
 
               return CollectAvailableTemplates(
-                referenceExpr, expression, replaceRange,
-                null, forceMode, templateName);
+                referenceExpr, expression, replaceRange, null,
+                forceMode, templateName, lookupItemsOwner);
             }
           }
         }
 
         // handle collisions with predefined types 'x as string.'
-        if (node.Parent is IErrorElement &&
-            node.Parent.PrevSibling is ITypeUsage)
+        if (node.Parent is IErrorElement)
         {
-          var expression = node.Parent.Parent as ICSharpExpression;
-          if (expression != null)
+          var typeUsage = node.Parent.PrevSibling as ITypeUsage;
+          if (typeUsage != null)
           {
-            var a = reparseContext.ToDocumentRange(node.Parent.PrevSibling);
-            var b = reparseContext.ToDocumentRange(node);
-            var c = a.SetEndTo(b.TextRange.EndOffset);
+            var expression = node.Parent.Parent as ICSharpExpression;
+            if (expression != null)
+            {
+              var typeUsageRange = reparseContext.ToDocumentRange(typeUsage);
+              var nodeRange = reparseContext.ToDocumentRange(node).TextRange;
+              var replaceRange = typeUsageRange.SetEndTo(nodeRange.EndOffset);
 
-            return CollectAvailableTemplates(
-              node.Parent.PrevSibling, expression, c,
-              reparseContext, forceMode, templateName);
+              return CollectAvailableTemplates(
+                typeUsage, expression, replaceRange, reparseContext,
+                forceMode, templateName, lookupItemsOwner);
+            }
           }
         }
 
         // handle collisions with user types 'x as String.'
         var referenceName = node.Parent as IReferenceName;
-        if (referenceName != null && referenceName.Qualifier != null && referenceName.Delimiter != null)
+        if (referenceName != null &&
+            referenceName.Qualifier != null &&
+            referenceName.Delimiter != null)
         {
           var usage = referenceName.Parent as ITypeUsage;
           if (usage != null)
           {
-            // wrong, type usage
             var expression = usage.Parent as ICSharpExpression;
             if (expression != null)
             {
-              var a = reparseContext.ToDocumentRange(referenceName.Qualifier);
-              var b = reparseContext.ToDocumentRange(referenceName.Delimiter);
-              var c = a.SetEndTo(b.TextRange.EndOffset);
+              var qualifierRange = reparseContext.ToDocumentRange(referenceName.Qualifier);
+              var delimiterRange = reparseContext.ToDocumentRange(referenceName.Delimiter);
+              var replaceRange = qualifierRange.SetEndTo(delimiterRange.TextRange.EndOffset);
 
               return CollectAvailableTemplates(
-                referenceName, expression, c,
-                reparseContext, forceMode, templateName);
+                referenceName, expression, replaceRange, reparseContext,
+                forceMode, templateName, lookupItemsOwner);
             }
           }
         }
@@ -172,11 +173,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             if (expression != null)
             {
               var expressionRange = expression.GetDocumentRange();
-              var replaceRange = expressionRange.SetEndTo(node.GetDocumentRange().TextRange.EndOffset);
+              var nodeRange = node.GetDocumentRange().TextRange;
+              var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
 
               return CollectAvailableTemplates(
-                coolNode /* ? */, expression, replaceRange,
-                null, forceMode, templateName);
+                coolNode /* ? */, expression, replaceRange, null,
+                forceMode, templateName, lookupItemsOwner);
             }
           }
         }
@@ -268,10 +270,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     private IList<ILookupItem> CollectAvailableTemplates(
       [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
       DocumentRange replaceRange, [CanBeNull] ReparsedCodeCompletionContext context,
-      bool forceMode, [CanBeNull] string templateName)
+      bool forceMode, [CanBeNull] string templateName, [NotNull] ILookupItemsOwner itemsOwner)
     {
       var postfixContext = new PostfixTemplateAcceptanceContext(
-        reference, expression, replaceRange, context, forceMode);
+        reference, expression, replaceRange, context, forceMode, itemsOwner);
 
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);

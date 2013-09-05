@@ -1,0 +1,16 @@
+﻿// ${COMPLETE_ITEM:throw}
+
+class Foo
+{
+  void Bar()
+  {
+    throw new E<int>({caret});
+
+    var t = 123;
+  }
+
+  class E<T> : System.Exception
+  {
+    public E(string name) { }
+  }
+}
