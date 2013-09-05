@@ -1,0 +1,12 @@
+﻿// ${COMPLETE_ITEM:ifnot}
+
+class Foo
+{
+  void Bar(bool a)
+  {
+    if (!a)
+    {
+      {caret}
+    }
+  }
+}

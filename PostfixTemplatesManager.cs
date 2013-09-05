@@ -64,6 +64,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     {
       if (node is ICSharpIdentifier || node is ITokenNode)
       {
+        // 'booleanExpr.in' - unexpected identifier (keyword)
+        if (node.Parent is IErrorElement
+            && node.Parent.LastChild == node
+            && node.Parent.FirstChild == node) node = node.Parent;
+
         // simple case: 'anyExpr.notKeyworkShortcut'
         var referenceExpression = node.Parent as IReferenceExpression;
         if (referenceExpression != null)
