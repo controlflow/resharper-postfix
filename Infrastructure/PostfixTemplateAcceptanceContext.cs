@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
@@ -68,20 +69,37 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (exprRange.TextRange.EndOffset > endOffset)
           break; // stop when 'a.var + b'
 
+        // skip relational expressions like this: 'List<int.{here}>'
+        if (CommonUtils.IsRelationalExpressionWithTypeOperand(expr)) continue;
+
         var expressionContext = new PrefixExpressionContext(this, expr);
+        if (expressionContext.ReferencedElement is ITypeElement)
+        {
+          // skip types that are parts of 'List<T.>'-like expressions
+          if (!CommonUtils.CanTypeBecameExpression(expression)) continue;
+        }
+
         expressionContexts.Add(expressionContext);
         if (expressionContext.CanBeStatement) break;
       }
 
-      Expressions = expressionContexts.AsReadOnly();
-      InnerExpression = expressionContexts[0];
-      OuterExpression = expressionContexts[expressionContexts.Count - 1];
+      Expressions = (expressionContexts.Count == 0)
+        ? EmptyList<PrefixExpressionContext>.InstanceList
+        : expressionContexts.AsReadOnly();
     }
 
     // Expression contexts: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
-    [NotNull] public IEnumerable<PrefixExpressionContext> Expressions { get; private set; }
-    [NotNull] public PrefixExpressionContext InnerExpression { get; private set; }
-    [NotNull] public PrefixExpressionContext OuterExpression { get; private set; }
+    [NotNull] public IList<PrefixExpressionContext> Expressions { get; private set; }
+
+    [NotNull] public PrefixExpressionContext InnerExpression
+    {
+      get { return Expressions[0]; }
+    }
+
+    [NotNull] public PrefixExpressionContext OuterExpression
+    {
+      get { return Expressions[Expressions.Count - 1]; }
+    }
 
     // Double basic completion (or basic completion in R# 7.1)
     public bool ForceMode { get; private set; }

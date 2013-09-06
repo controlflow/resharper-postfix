@@ -292,6 +292,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var postfixContext = new PostfixTemplateAcceptanceContext(
         reference, expression, replaceRange, forceMode, context);
 
+      if (postfixContext.Expressions.Count == 0)
+        return EmptyList<ILookupItem>.InstanceList;
+
       var store = expression.GetSettingsStore();
       var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();

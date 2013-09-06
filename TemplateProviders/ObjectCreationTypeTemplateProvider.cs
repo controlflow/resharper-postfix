@@ -21,7 +21,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var exprContext = context.InnerExpression;
-      if (!exprContext.CanTypeBecameExpression) return;
 
       var typeElement = exprContext.ReferencedElement as ITypeElement;
       if (typeElement == null) return;
@@ -58,10 +57,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         base.AfterComplete(textControl, suffix, expression, caretPosition);
 
-        // todo: arrays?
         var parenthesisRange =
-          expression.LPar.GetDocumentRange().SetEndTo(
-          expression.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
+          expression.LPar.GetDocumentRange().TextRange.SetEndTo(
+          expression.RPar.GetDocumentRange().TextRange.EndOffset);
 
         var solution = expression.GetSolution();
         LookupUtil.ShowParameterInfo(

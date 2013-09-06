@@ -13,8 +13,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       foreach (var expressionContext in context.Expressions)
       {
-        if (expressionContext.IsRelationalExpressionWithTypeOperand) continue;
-
         if (expressionContext.Type.IsBool() ||
           IsBooleanExpression(expressionContext.Expression))
         {
@@ -26,9 +24,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         foreach (var expressionContext in context.Expressions)
         {
-          if (expressionContext.IsRelationalExpressionWithTypeOperand) continue;
-          if (!expressionContext.CanTypeBecameExpression) continue;
-
           if (CreateBooleanItems(expressionContext, consumer)) return;
         }
       }

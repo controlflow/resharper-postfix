@@ -15,21 +15,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       Expression = expression;
       Type = expression.Type();
       CanBeStatement = CalculateCanBeStatement(expression);
-      CanTypeBecameExpression = true;
-      IsRelationalExpressionWithTypeOperand =
-        CommonUtils.IsRelationalExpressionWithTypeOperand(expression);
 
-      var referenceExpression1 = expression as IReferenceExpression;
-      if (referenceExpression1 != null)
+      var referenceExpression = expression as IReferenceExpression;
+      if (referenceExpression != null)
       {
-        var result = referenceExpression1.Reference.Resolve().Result;
+        var result = referenceExpression.Reference.Resolve().Result;
         ReferencedElement = result.DeclaredElement;
 
         var typeElement = ReferencedElement as ITypeElement;
         if (typeElement != null)
         {
           ReferencedType = TypeFactory.CreateType(typeElement, result.Substitution);
-          CanTypeBecameExpression = CommonUtils.CanTypeBecameExpression(expression);
         }
       }
       else
@@ -47,7 +43,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             if (typeElement != null)
             {
               ReferencedType = TypeFactory.CreateType(typeElement, result.Substitution);
-              CanTypeBecameExpression = CommonUtils.CanTypeBecameExpression(expression);
             }
           }
         }
@@ -81,8 +76,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [CanBeNull] public IDeclaredType ReferencedType { get; private set; }
 
     public bool CanBeStatement { get; private set; }
-    public bool CanTypeBecameExpression { get; private set; }
-    public bool IsRelationalExpressionWithTypeOperand { get; private set; }
 
     // ranges
     public DocumentRange ExpressionRange

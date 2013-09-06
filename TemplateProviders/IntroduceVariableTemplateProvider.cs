@@ -3,7 +3,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.DataContext;
-using JetBrains.Application.EventBus;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
@@ -12,19 +11,15 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
 using JetBrains.Util;
 using JetBrains.Util.EventBus;
-using JetBrains.Util.EventBus.Impl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: allow on types (FTW)
-
   [PostfixTemplateProvider(
     templateName: "var",
     description: "Introduces variable for expression",
@@ -35,30 +30,28 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
       var contexts = new List<PrefixExpressionContext>();
-      foreach (var expressionContext in context.Expressions)
+      foreach (var exprContext in context.Expressions)
       {
-        if (expressionContext.Expression is IReferenceExpression)
+        if (exprContext.Expression is IReferenceExpression)
         {
           // filter out too simple locals expressions
-          var target = expressionContext.ReferencedElement;
+          var target = exprContext.ReferencedElement;
           if (target == null || target is IParameter || target is ILocalVariable)
             continue;
         }
 
-        if (expressionContext.Type.IsVoid()) continue;
+        if (exprContext.Type.IsVoid()) continue;
 
-        if (expressionContext.ReferencedType != null)
+        if (exprContext.ReferencedType != null)
         {
-          if (!expressionContext.CanBeStatement) continue;
-          if (!expressionContext.CanTypeBecameExpression) continue;
-          if (expressionContext.IsRelationalExpressionWithTypeOperand) continue;
+          if (!exprContext.CanBeStatement) continue;
 
           if (!CommonUtils.IsInstantiable(
-            expressionContext.ReferencedType.GetTypeElement().NotNull(),
-            expressionContext.Expression)) continue;
+            exprContext.ReferencedType.GetTypeElement().NotNull(),
+            exprContext.Expression)) continue;
         }
 
-        contexts.Add(expressionContext);
+        contexts.Add(exprContext);
       }
 
       if (contexts.Count == 0) return;

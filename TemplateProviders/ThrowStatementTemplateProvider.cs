@@ -50,14 +50,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       if (exprContext.ReferencedType == null)
       {
-        if (exprContext.IsRelationalExpressionWithTypeOperand) return;
-
         consumer.Add(new ThrowExpressionLookupItem(exprContext));
       }
       else
       {
-        if (!exprContext.CanTypeBecameExpression) return;
-
         consumer.Add(new ThrowTypeLookupItem(
           exprContext, exprContext.ReferencedType, context.LookupItemsOwner));
       }
