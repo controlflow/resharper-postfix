@@ -11,6 +11,8 @@ using JetBrains.ReSharper.Psi;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // todo: if (!boo.not) { }
+
   [PostfixTemplateProvider(
     templateName: "not",
     description: "Negates boolean expression",

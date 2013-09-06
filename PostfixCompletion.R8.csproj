@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\CSharpPostfixItemProvider.cs" />
+    <Compile Include="Infrastructure\CSharpStaticMembersItemProvider.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateProvider.cs" />
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\KeywordStatementPostfixLookupItem.cs" />

@@ -14,6 +14,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 
     [SettingsEntry(true, "Insert braces for embedded statements")]
     public bool UseBracesForEmbeddedStatements;
+
+    [SettingsEntry(true, "Show static members in instance members code comopletion")]
+    public bool ShowStaticMembersInCodeCompletion;
   }
 
   public static class PostfixCompletionSettingsAccessor
