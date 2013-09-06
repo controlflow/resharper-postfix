@@ -10,6 +10,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   public static class TypeUtils
   {
     public static TypeInstantiability IsInstantiable(
+      [NotNull] IType type, [NotNull] ITreeNode expression)
+    {
+      var declaredType = type as IDeclaredType;
+      if (declaredType != null)
+      {
+        var typeElement = declaredType.GetTypeElement();
+        if (typeElement != null)
+        {
+          return IsInstantiable(typeElement, expression);
+        }
+      }
+
+      return TypeInstantiability.NotInstantiable;
+    }
+
+    public static TypeInstantiability IsInstantiable(
       [NotNull] ITypeElement typeElement, [NotNull] ITreeNode expression)
     {
       if (typeElement is IStruct || typeElement is IEnum || typeElement is IClass)

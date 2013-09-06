@@ -27,19 +27,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var exprContext = context.OuterExpression;
       if (!exprContext.CanBeStatement) return;
 
+      var referencedType = exprContext.ReferencedType;
+      var expression = exprContext.Expression;
+
       if (!context.ForceMode)
       {
-        var rule = exprContext.Expression.GetTypeConversionRule();
-        var predefined = exprContext.Expression.GetPredefinedType();
+        var rule = expression.GetTypeConversionRule();
+        var predefined = expression.GetPredefinedType();
 
         // 'Exception.throw' case
-        var referencedType = exprContext.ReferencedType;
         if (referencedType != null)
         {
           if (!rule.IsImplicitlyConvertibleTo(referencedType, predefined.Exception)) return;
-
-          var typeElement = referencedType.GetTypeElement().NotNull();
-          if (TypeUtils.IsInstantiable(typeElement, exprContext.Expression) == 0) return;
+          if (TypeUtils.IsInstantiable(referencedType, expression) == 0) return;
         }
         else // 'new Exception().throw' case
         {
@@ -48,14 +48,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         }
       }
 
-      if (exprContext.ReferencedType == null)
+      if (referencedType == null)
       {
         consumer.Add(new ThrowExpressionLookupItem(exprContext));
       }
       else
       {
+        var instantiable = TypeUtils.IsInstantiable(referencedType, expression);
+        var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+
         consumer.Add(new ThrowTypeLookupItem(
-          exprContext, exprContext.ReferencedType, context.LookupItemsOwner));
+          exprContext, referencedType, context.LookupItemsOwner, hasCtorWithParams));
       }
     }
 
@@ -81,15 +84,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       [NotNull] private readonly IDeclaredType myExceptionType;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
+      private readonly bool myHasCtorWithParams;
 
       public ThrowTypeLookupItem(
         [NotNull] PrefixExpressionContext context,
         [NotNull] IDeclaredType exceptionType,
-        [NotNull] ILookupItemsOwner lookupItemsOwner)
-        : base("throw", context)
+        [NotNull] ILookupItemsOwner lookupItemsOwner,
+        bool hasCtorWithParams) : base("throw", context)
       {
         myExceptionType = exceptionType;
         myLookupItemsOwner = lookupItemsOwner;
+        myHasCtorWithParams = hasCtorWithParams;
       }
 
       protected override bool SuppressSemicolonSuffix { get { return true; } }
@@ -101,20 +106,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       protected override void PlaceExpression(
         IThrowStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
-        var creationExpression = (IObjectCreationExpression)statement.Exception;
-
-        creationExpression.TypeReference.NotNull().BindTo(
-          myExceptionType.GetTypeElement().NotNull(),
-          myExceptionType.GetSubstitution().NotNull());
+        var creationExpression = (IObjectCreationExpression) statement.Exception;
+        var typeReference = creationExpression.TypeReference;
+        if (typeReference != null)
+        {
+          typeReference.BindTo(
+            myExceptionType.GetTypeElement().NotNull(),
+            myExceptionType.GetSubstitution().NotNull());
+        }
       }
 
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix, IThrowStatement statement, int? caretPosition)
       {
         var exception = (IObjectCreationExpression) statement.Exception;
-        var endOffset = exception.LPar.GetDocumentRange().TextRange.EndOffset;
+        var endOffset = myHasCtorWithParams
+          ? exception.LPar.GetDocumentRange().TextRange.EndOffset
+          : statement.GetDocumentRange().TextRange.EndOffset;
 
         base.AfterComplete(textControl, suffix, statement, endOffset);
+        if (!myHasCtorWithParams) return;
 
         var parenthesisRange =
           exception.LPar.GetDocumentRange().SetEndTo(

@@ -8,6 +8,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   public class PostfixCompletionTest : CodeCompletionTestBase
   {
     protected override bool ExecuteAction { get { return true; } }
+    protected override bool CheckAutomaticCompletionDefault() { return true; }
 
     protected override string RelativeTestDataPath
     {
@@ -41,6 +42,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [Test] public void TestVar02() { DoNamedTest(); }
     [Test] public void TestVar03() { DoNamedTest(); }
     [Test] public void TestVar04() { DoNamedTest(); }
+    [Test] public void TestVar05() { DoNamedTest(); }
+    [Test] public void TestVar06() { DoNamedTest(); }
 
     [Test] public void TestNot01() { DoNamedTest(); }
 
@@ -55,6 +58,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [Test] public void TestThrow01() { DoNamedTest(); }
     [Test] public void TestThrow02() { DoNamedTest(); }
     [Test] public void TestThrow03() { DoNamedTest(); }
+    [Test] public void TestThrow04() { DoNamedTest(); }
 
     [Test] public void TestLock01() { DoNamedTest(); }
   }

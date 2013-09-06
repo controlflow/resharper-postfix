@@ -1,0 +1,10 @@
+﻿// ${COMPLETE_ITEM:var}
+
+class Foo
+{
+  Foo(string s) { }
+  void Bar()
+  {
+    var foo = new Foo({caret});
+  }
+}

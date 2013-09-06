@@ -11,7 +11,7 @@ using JetBrains.TextControl;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   // todo: array creation (too hard to impl for now)
-  // todo: nullable types creation?
+  // todo: nullable types creation? (what for?)
 
   [PostfixTemplateProvider(
     templateName: "new",

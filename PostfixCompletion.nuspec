@@ -14,15 +14,17 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
+      Template .var now works directly on types ('StringBuilder.var' produces 'var sb = new StringBuilder()'),
+      static methods completion ('text.IsNullOrEmpty' expands to 'string.IsNullOrEmpty(text)'),
+      better caret position after executing .var/.new/.throw on types,
+      
       todo:
       .parse
       .tryparse
       static members
       enum cases
       .list?
-      {}.if?
       
-      //New ".lock" template, .throw now works directly on types (ArgumentException.throw), .for now works on integers (for example, 5.for) or any other objects with "Count" property of integer type, parameter info now shows after .new/.throw/.arg (if enabled in R# completion settings), postfix templates are hidden from automatic completion on unresolved symbols and types, fixes for various corruptions of next lines of code, relocation of options page, template examples in options page.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
