@@ -57,7 +57,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           myHasCtorWithParams ? "new {0}({1})" : "new {0}(){1}",
           myTypeText, CaretMarker);
 
-        return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
+        return (IObjectCreationExpression)
+#if RESHARPER7
+          factory.CreateExpressionAsIs(template);
+#else
+          factory.CreateExpressionAsIs(template, false);
+#endif
       }
 
       protected override void AfterComplete(
