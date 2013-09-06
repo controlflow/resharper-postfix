@@ -1,0 +1,9 @@
+﻿// ${COMPLETE_ITEM:new}
+
+class Foo
+{
+  void Bar()
+  {
+    new Foo(){caret}
+  }
+}

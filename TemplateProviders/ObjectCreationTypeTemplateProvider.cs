@@ -10,7 +10,8 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  // todo: can create array? - too hard for now
+  // todo: array creation (too hard to impl for now)
+  // todo: nullable types creation?
 
   [PostfixTemplateProvider(
     templateName: "new",
@@ -25,9 +26,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var typeElement = exprContext.ReferencedElement as ITypeElement;
       if (typeElement == null) return;
 
-      if (CommonUtils.IsInstantiable(typeElement, exprContext.Expression))
+      var instantiable = TypeUtils.IsInstantiable(typeElement, exprContext.Expression);
+      if (instantiable != TypeInstantiability.NotInstantiable)
       {
-        consumer.Add(new LookupItem(exprContext, context.LookupItemsOwner));
+        var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+        consumer.Add(new LookupItem(exprContext, context.LookupItemsOwner, hasCtorWithParams));
       }
     }
 
@@ -35,20 +38,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       [NotNull] private readonly string myTypeText;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
+      private readonly bool myHasCtorWithParams;
 
       public LookupItem(
-        [NotNull] PrefixExpressionContext context, [NotNull] ILookupItemsOwner lookupItemsOwner)
-        : base("new", context)
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] ILookupItemsOwner lookupItemsOwner,
+        bool hasCtorWithParams) : base("new", context)
       {
         myLookupItemsOwner = lookupItemsOwner;
+        myHasCtorWithParams = hasCtorWithParams;
         myTypeText = context.Expression.GetText();
       }
 
       protected override IObjectCreationExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IObjectCreationExpression)
-          factory.CreateExpression("new $0(" + CaretMarker + ")", myTypeText);
+        var template = string.Format(
+          myHasCtorWithParams ? "new {0}({1})" : "new {0}(){1}",
+          myTypeText, CaretMarker);
+
+        return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
       }
 
       protected override void AfterComplete(
@@ -56,10 +65,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         IObjectCreationExpression expression, int? caretPosition)
       {
         base.AfterComplete(textControl, suffix, expression, caretPosition);
+        if (!myHasCtorWithParams) return;
 
         var parenthesisRange =
           expression.LPar.GetDocumentRange().TextRange.SetEndTo(
-          expression.RPar.GetDocumentRange().TextRange.EndOffset);
+            expression.RPar.GetDocumentRange().TextRange.EndOffset);
 
         var solution = expression.GetSolution();
         LookupUtil.ShowParameterInfo(

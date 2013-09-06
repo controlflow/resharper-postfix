@@ -39,7 +39,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           if (!rule.IsImplicitlyConvertibleTo(referencedType, predefined.Exception)) return;
 
           var typeElement = referencedType.GetTypeElement().NotNull();
-          if (!CommonUtils.IsInstantiable(typeElement, exprContext.Expression)) return;
+          if (TypeUtils.IsInstantiable(typeElement, exprContext.Expression) == 0) return;
         }
         else // 'new Exception().throw' case
         {

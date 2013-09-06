@@ -46,9 +46,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         {
           if (!exprContext.CanBeStatement) continue;
 
-          if (!CommonUtils.IsInstantiable(
+          if (TypeUtils.IsInstantiable(
             exprContext.ReferencedType.GetTypeElement().NotNull(),
-            exprContext.Expression)) continue;
+            exprContext.Expression) == 0) continue;
         }
 
         contexts.Add(exprContext);
