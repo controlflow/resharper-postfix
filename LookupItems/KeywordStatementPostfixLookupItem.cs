@@ -21,7 +21,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       : base(shortcut, context)
     {
       BracesInsertion = context.Expression.GetSettingsStore().GetValue(
-        PostfixCompletionSettingsAccessor.UseBracesForEmbeddedStatements);
+        PostfixSettingsAccessor.UseBracesForEmbeddedStatements);
     }
 
     private bool BracesInsertion { get; set; }

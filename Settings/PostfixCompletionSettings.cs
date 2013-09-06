@@ -19,9 +19,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
     public bool ShowStaticMembersInCodeCompletion;
   }
 
-  public static class PostfixCompletionSettingsAccessor
+  public static class PostfixSettingsAccessor
   {
     [NotNull] public static readonly Expression<Func<PostfixCompletionSettings, IIndexedEntry<string, bool>>> DisabledProviders = x => x.DisabledProviders;
     [NotNull] public static readonly Expression<Func<PostfixCompletionSettings, bool>> UseBracesForEmbeddedStatements = x => x.UseBracesForEmbeddedStatements;
+    [NotNull] public static readonly Expression<Func<PostfixCompletionSettings, bool>> ShowStaticMembersInCodeCompletion = x => x.ShowStaticMembersInCodeCompletion;
   }
 }

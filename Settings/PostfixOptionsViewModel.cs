@@ -24,17 +24,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       myStore = store;
       myTemplatesManager = templatesManager;
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
-      UseBraces = new Property<bool>(lifetime, "UseBraces");
+      UseBracesForEmbeddedStatements = new Property<bool>(lifetime, "UseBracesForEmbeddedStatements");
+      ShowStaticMembersInCodeCompletion = new Property<bool>(lifetime, "ShowStaticMembersInCodeCompletion");
       Reset = new DelegateCommand(ResetExecute);
 
-      store.SetBinding(lifetime,
-        PostfixCompletionSettingsAccessor.UseBracesForEmbeddedStatements, UseBraces);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.UseBracesForEmbeddedStatements, UseBracesForEmbeddedStatements);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMembersInCodeCompletion, ShowStaticMembersInCodeCompletion);
 
       FillTemplates();
     }
 
     [NotNull] public ObservableCollection<PostfixTemplateViewModel> Templates { get; private set; }
-    [NotNull] public IProperty<bool> UseBraces { get; private set; }
+    [NotNull] public IProperty<bool> UseBracesForEmbeddedStatements { get; private set; }
+    [NotNull] public IProperty<bool> ShowStaticMembersInCodeCompletion { get; private set; }
     [NotNull] public ICommand Reset { get; private set; }
 
     private void FillTemplates()
@@ -44,12 +46,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 
       PropertyChangedEventHandler handler = (sender, args) =>
       {
-        if (args.PropertyName != "IsChecked") return;
-
-        var viewModel = (PostfixTemplateViewModel) sender;
-        myStore.SetIndexedValue(
-          PostfixCompletionSettingsAccessor.DisabledProviders,
-          viewModel.SettingsKey, viewModel.IsChecked);
+        if (args.PropertyName == "IsChecked")
+        {
+          var viewModel = (PostfixTemplateViewModel) sender;
+          myStore.SetIndexedValue(
+            PostfixSettingsAccessor.DisabledProviders,
+            viewModel.SettingsKey, viewModel.IsChecked);
+        }
       };
 
       foreach (var providerInfo in myTemplatesManager.TemplateProvidersInfos
@@ -77,7 +80,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       settings.DisabledProviders.SnapshotAndFreeze();
 
       foreach (var provider in settings.DisabledProviders.EnumIndexedValues())
-        myStore.RemoveIndexedValue(PostfixCompletionSettingsAccessor.DisabledProviders, provider.Key);
+        myStore.RemoveIndexedValue(PostfixSettingsAccessor.DisabledProviders, provider.Key);
 
       Templates.Clear();
       FillTemplates();

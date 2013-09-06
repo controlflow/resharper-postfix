@@ -32,6 +32,7 @@
           <GridView.ColumnHeaderContainerStyle>
             <Style TargetType="GridViewColumnHeader">
               <Setter Property="HorizontalContentAlignment" Value="Left"/>
+              <Setter Property="Padding" Value="10,4" />
             </Style>
           </GridView.ColumnHeaderContainerStyle>
           <GridView.Columns>
@@ -65,7 +66,11 @@
     </ListView>
 
     <TextBlock Grid.Row="2" Text="Other options:" Margin="2" />
-    <CheckBox Grid.Row="3" IsChecked="{Binding UseBraces.Value}"
-              Margin="2" Content="Insert curly braces for statements"/>
+    <StackPanel Grid.Row="3">
+      <CheckBox  IsChecked="{Binding UseBracesForEmbeddedStatements.Value}"
+                 Margin="2" Content="Insert curly braces for statements"/>
+      <CheckBox  IsChecked="{Binding ShowStaticMembersInCodeCompletion.Value}"
+                 Margin="2" Content="Show static members in code completion"/>
+    </StackPanel>
   </Grid>
 </UserControl>

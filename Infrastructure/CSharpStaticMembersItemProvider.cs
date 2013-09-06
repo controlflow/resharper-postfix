@@ -1,7 +1,9 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Linq;
+using JetBrains.Annotations;
+using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
+using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -13,7 +15,6 @@ using JetBrains.ReSharper.Psi.ExpectedTypes;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resolve;
-using JetBrains.ReSharper.Psi.Resolve.TypeInference;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
@@ -28,6 +29,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   // todo: filter out extension methods
   // todo: double completion?
   // todo: parameter info
+  // todo: caret pos
 
   [Language(typeof(CSharpLanguage))]
   public class CSharpStaticMembersItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
@@ -43,91 +45,95 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
       var unterminatedContext = context.UnterminatedContext;
+      if (unterminatedContext == null) return false;
 
       var expressionReference = unterminatedContext.Reference as IReferenceExpressionReference;
-      if (expressionReference != null)
+      if (expressionReference == null) return false;
+
+      var referenceExpression = (IReferenceExpression) expressionReference.GetTreeNode();
+      var qualifierExpression = referenceExpression.QualifierExpression;
+      if (qualifierExpression == null) return false;
+
+      var settingsStore = qualifierExpression.GetSettingsStore();
+      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowStaticMembersInCodeCompletion))
+        return false;
+
+      var qualifierType = qualifierExpression.Type();
+      if (!qualifierType.IsResolved) return false;
+
+      var table = qualifierType.GetSymbolTable(context.PsiModule);
+      var symbolTable = table
+        .Filter(
+          new Foo(qualifierType, referenceExpression.GetTypeConversionRule()),
+          OverriddenFilter.INSTANCE,
+          new AccessRightsFilter(new ElementAccessContext(qualifierExpression)));
+
+
+      var itemsCollector = new GroupedItemsCollector();
+      GetLookupItemsFromSymbolTable(symbolTable, itemsCollector, context, false);
+
+      foreach (var lookupItem in itemsCollector.Items)
       {
-        var referenceExpression = (IReferenceExpression) expressionReference.GetTreeNode();
-        var qualifier = referenceExpression.QualifierExpression;
-        if (qualifier != null)
+        var t = lookupItem as DeclaredElementLookupItem;
+        if (t != null)
         {
-          var type = qualifier.Type();
-          if (type.IsResolved)
-          {
-            var table = type.GetSymbolTable(context.PsiModule);
-            var symbolInfos = table
-              .Filter(
-                new Foo(type, referenceExpression.GetTypeConversionRule()),
-                OverriddenFilter.INSTANCE,
-                new AccessRightsFilter(new ElementAccessContext(qualifier)))
-              .GetAllSymbolInfos();
+          t.TextColor = SystemColors.GrayText;
+          SubscribeAfterComplete(t);
 
-            var allElements = new OneToListMap<string, DeclaredElementInstance<IMethod>>();
-            foreach (var symbolInfo in symbolInfos)
-            {
-              var element = (IMethod)symbolInfo.GetDeclaredElement();
-              if (!TypeInferenceUtil.TypeParametersAreInferrable(element)) continue;
-
-              var instance = new DeclaredElementInstance<IMethod>(element, symbolInfo.GetSubstitution());
-              allElements.Add(symbolInfo.ShortName, instance);
-            }
-
-            var solution = context.BasicContext.Solution;
-            foreach (var pair in allElements)
-            {
-              var item = context.LookupItemsFactory.CreateMethodsLookupItem(pair.Key, pair.Value, true);
-
-              item.TextColor = SystemColors.GrayText;
-
-              item.AfterComplete +=
-                (ITextControl control, ref TextRange range,
-                  ref TextRange decorationRange, TailType tailType,
-                  ref Suffix suffix, ref IRangeMarker marker) =>
-                {
-                  var method = (IMethod) item.PreferredDeclaredElement.Element;
-                  var psiServices = solution.GetPsiServices();
-
-                  psiServices.CommitAllDocuments();
-                  var refExpr = TextControlToPsi
-                    .GetElements<IReferenceExpression>(item.Solution, control.Document, range.StartOffset)
-                    .ToList().FirstOrDefault();
-
-                  var qualifierText = refExpr.QualifierExpression.GetText();
-                  var pointer = refExpr.CreateTreeElementPointer();
-
-                  var decRange = decorationRange.SetStartTo(range.EndOffset);
-
-                  control.Document.ReplaceText(
-                    TextRange.FromLength(decorationRange.EndOffset - (decRange.Length / 2), 0),
-                    qualifierText);
-
-                  control.Document.ReplaceText(
-                    refExpr.QualifierExpression.GetDocumentRange().TextRange, "T");
-
-                  psiServices.CommitAllDocuments();
-
-                  var eleme = pointer.GetTreeNode();
-                  if (eleme != null)
-                  {
-                    var re = (IReferenceExpression) eleme.QualifierExpression;
-                    re.Reference.BindTo(
-                      method.GetContainingType(),
-                      item.PreferredDeclaredElement.Substitution);
-                  }
-
-                  
-                  GC.KeepAlive(this);
-                };
-
-              collector.AddAtDefaultPlace(item);
-            }
-          }
+          collector.AddToBottom(t);
         }
-
-        
       }
 
-      return false;
+      return true;
+    }
+
+    private static void SubscribeAfterComplete([NotNull] DeclaredElementLookupItem lookupItem)
+    {
+      lookupItem.AfterComplete += (
+        ITextControl textControl, ref TextRange range, ref TextRange decorationRange,
+        TailType tailType, ref Suffix suffix, ref IRangeMarker marker) =>
+      {
+        var preferredDeclaredElement = lookupItem.PreferredDeclaredElement;
+        if (preferredDeclaredElement == null) return;
+
+        var method = (IMethod) preferredDeclaredElement.Element;
+        var psiServices = lookupItem.Solution.GetPsiServices();
+        psiServices.CommitAllDocuments();
+
+        var referenceExpression = TextControlToPsi
+          .GetElements<IReferenceExpression>(
+            lookupItem.Solution, textControl.Document, range.StartOffset)
+          .FirstOrDefault();
+
+        if (referenceExpression == null) return;
+
+        var qualifierText = referenceExpression.QualifierExpression.NotNull().GetText();
+        var pointer = referenceExpression.CreateTreeElementPointer();
+
+        var decRange = decorationRange.SetStartTo(range.EndOffset);
+
+        textControl.Document.ReplaceText(
+          TextRange.FromLength(decorationRange.EndOffset - (decRange.Length/2), 0),
+          qualifierText);
+
+        var containingType = method.GetContainingType().NotNull();
+        var kw = CSharpTypeFactory.GetTypeKeyword(containingType.GetClrName());
+
+
+        textControl.Document.ReplaceText(
+          referenceExpression.QualifierExpression.GetDocumentRange().TextRange,
+          kw ?? "T");
+
+        psiServices.CommitAllDocuments();
+
+        var eleme = pointer.GetTreeNode();
+        if (eleme != null && kw == null)
+        {
+          var qualifierReference = (IReferenceExpression) eleme.QualifierExpression.NotNull();
+          qualifierReference.Reference.BindTo(
+            containingType, preferredDeclaredElement.Substitution);
+        }
+      };
     }
 
     sealed class Foo : SimpleSymbolFilter
