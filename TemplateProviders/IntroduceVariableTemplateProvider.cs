@@ -62,9 +62,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         var referencedType = bestContext.ReferencedType;
         if (referencedType != null)
-          consumer.Add(new StatementFromTypeLookupItem(bestContext, referencedType));
+        {
+          consumer.Add(new StatementFromTypeLookupItem(
+            bestContext, referencedType, context.LookupItemsOwner));
+        }
         else
+        {
           consumer.Add(new StatementLookupItem(bestContext));
+        }
       }
       else if (context.ForceMode)
       {
@@ -113,13 +118,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     private sealed class StatementFromTypeLookupItem : StatementPostfixLookupItem<IExpressionStatement>
     {
       [NotNull] private readonly IDeclaredType myReferencedType;
-      private bool myHasCtorWithParams;
+      [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
+      private readonly bool myHasCtorWithParams;
 
       public StatementFromTypeLookupItem(
         [NotNull] PrefixExpressionContext context,
-        [NotNull] IDeclaredType referencedType) : base("var", context)
+        [NotNull] IDeclaredType referencedType,
+        [NotNull] ILookupItemsOwner lookupItemsOwner) : base("var", context)
       {
         myReferencedType = referencedType;
+        myLookupItemsOwner = lookupItemsOwner;
 
         var instantiable = TypeUtils.IsInstantiable(referencedType, context.Expression);
         myHasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
@@ -139,10 +147,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         if (myHasCtorWithParams)
         {
           var creationExpression = (IObjectCreationExpression) statement.Expression;
-          var documentRange = creationExpression.LPar.GetDocumentRange();
-          var rangeMarker = documentRange.EndOffsetRange().CreateRangeMarker();
+          var lparRange = creationExpression.LPar.GetDocumentRange();
+          var rparRange = creationExpression.RPar.GetDocumentRange();
+          var rangeMarker = lparRange.SetEndTo(rparRange.TextRange.EndOffset).CreateRangeMarker();
 
-          ExecuteRefactoring(textControl, statement.Expression, rangeMarker);
+          ExecuteRefactoring(textControl, statement.Expression, rangeMarker, myLookupItemsOwner);
         }
         else
         {
@@ -153,7 +162,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private static void ExecuteRefactoring(
       [NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression,
-      [NotNull] IRangeMarker caretRangeMarker = null)
+      [CanBeNull] IRangeMarker caretRangeMarker = null,
+      [CanBeNull] ILookupItemsOwner lookupItemsOwner = null)
     {
       const string name = "IntroVariableAction";
       var solution = expression.GetSolution();
@@ -182,9 +192,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
             {
               if (id.Equals(refactoringId) && caretRangeMarker.IsValid)
               {
+                var range = caretRangeMarker.Range;
                 textControl.Caret.MoveTo(
-                  caretRangeMarker.Range.EndOffset,
+                  range.StartOffset + range.Length / 2,
                   CaretVisualPlacement.DontScrollIfVisible);
+
+                if (lookupItemsOwner != null)
+                  LookupUtil.ShowParameterInfo(
+                    solution, textControl, range, null, lookupItemsOwner);
               }
             }
             finally
