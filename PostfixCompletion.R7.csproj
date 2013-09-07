@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\CSharpPostfixItemProvider.cs" />
+    <Compile Include="Infrastructure\CSharpStaticMethodsItemProvider.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateProvider.cs" />
     <Compile Include="Infrastructure\PostfixExecutionContext.cs" />
     <Compile Include="Infrastructure\PostfixTemplateAcceptanceContext.cs" />
