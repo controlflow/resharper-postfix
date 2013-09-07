@@ -24,11 +24,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  // todo: non-standard formatting of arguments
-  // todo: decorate step - hide overriden signatures
-  // todo: parameter info
-  // todo: caret pos
-  // todo: comma?
+  // todo: decorate step - hide overriden signatures (do we need this?
   // todo: rename
 
   [Language(typeof(CSharpLanguage))]
