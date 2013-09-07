@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="PostfixCompletionListTest.cs" />
     <Compile Include="PostfixCompletionStaticsListTest.cs" />
+    <Compile Include="PostfixCompletionStaticsTest.cs" />
     <Compile Include="PostfixCompletionTest.cs" />
     <Compile Include="PostfixCompletionTestsAssembly.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

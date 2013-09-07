@@ -1,0 +1,37 @@
+﻿BaseMethod
++ Equals
+FooArgOverloaded
++ GetHashCode
++ GetType
+SingleFooArg
++ ToString
+TwoFooArg
++ arg
++ await
++ cast
++ field
++ foreach
++ if
++ ifnot
++ lock
++ not
++ notnull
++ null
++ paren
++ prop
++ return
++ throw
++ using
++ while
++ yield
+# AUTOMATIC #
+BaseMethod
++ Equals
+FooArgOverloaded
++ GetHashCode
++ GetType
+SingleFooArg
++ ToString
+TwoFooArg
++ notnull
++ null

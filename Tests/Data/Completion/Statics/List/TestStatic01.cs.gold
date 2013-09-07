@@ -1,0 +1,114 @@
+﻿+ Clone
+Compare
+CompareOrdinal
++ CompareTo
+Concat
++ Contains
+Copy
++ CopyTo
++ EndsWith
++ Equals
+Equals
+Format
++ GetEnumerator
++ GetHashCode
++ GetType
++ GetTypeCode
++ IndexOf
++ IndexOfAny
++ Insert
+Intern
+IsInterned
++ IsNormalized
+IsNullOrEmpty
+IsNullOrWhiteSpace
+Join
++ LastIndexOf
++ LastIndexOfAny
++ Length
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
++ Split
++ StartsWith
++ Substring
++ ToCharArray
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
++ []
++ arg
++ await
++ cast
++ field
++ foreach
++ if
++ ifnot
++ lock
++ not
++ notnull
++ null
++ paren
++ prop
++ return
++ throw
++ using
++ while
++ yield
+# AUTOMATIC #
++ Clone
+Compare
+CompareOrdinal
++ CompareTo
+Concat
++ Contains
+Copy
++ CopyTo
++ EndsWith
++ Equals
+Equals
+Format
++ GetEnumerator
++ GetHashCode
++ GetType
++ GetTypeCode
++ IndexOf
++ IndexOfAny
++ Insert
+Intern
+IsInterned
++ IsNormalized
+IsNullOrEmpty
+IsNullOrWhiteSpace
+Join
++ LastIndexOf
++ LastIndexOfAny
++ Length
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
++ Split
++ StartsWith
++ Substring
++ ToCharArray
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
++ []
++ foreach
++ notnull
++ null
