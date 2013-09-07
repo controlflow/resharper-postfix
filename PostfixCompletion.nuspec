@@ -2,9 +2,9 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>0.9.85</version>
+    <version>0.9.9-beta</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
-    <title>ReSharper Postfix Completion plugin</title>
+    <title>Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
     <owners>controlflow</owners>
     <projectUrl>https://github.com/controlflow/PostfixCompletion</projectUrl>
@@ -14,18 +14,9 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      Template .var now works directly on types ('StringBuilder.var' produces 'var sb = new StringBuilder()'),
-      static methods completion ('text.IsNullOrEmpty' expands to 'string.IsNullOrEmpty(text)'),
-      better caret position after executing .var/.new/.throw on types,
-      
-      todo:
-      .parse
-      .tryparse
-      static members
-      enum cases
-      .list?
-      
+      Template .var now works directly on types ('StringBuilder.var' produces 'var sb = new StringBuilder()'), static methods completion ('text.IsNullOrEmpty' expands to 'string.IsNullOrEmpty(text)'), better caret position after executing .var/.new/.throw on types, small fixes.
     </releaseNotes>
+    <!-- todo: .parse, .tryparse, enum completion -->
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
     </dependencies>
