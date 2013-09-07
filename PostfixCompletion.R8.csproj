@@ -82,6 +82,7 @@
     <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ObjectCreationTypeTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ParenthesizedExpressionTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ParseStringTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\UsingStatementTemplateProvider.cs" />

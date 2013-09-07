@@ -79,6 +79,7 @@
     <Compile Include="TemplateProviders\IntroduceVariableTemplateProvider.cs" />
     <Compile Include="TemplateProviders\LockStatementExpressionProvider.cs" />
     <Compile Include="TemplateProviders\NotExpressionTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ParseStringTemplateProvider.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
   </ItemGroup>
   <ItemGroup>
