@@ -29,6 +29,7 @@ Currently available templates:
 * `.var` – initialize new variable with expression `var x = expr;`
 * `.new` – produces instantiation expression for type `new T()`
 * `.paren` – surrounds outer expression with parentheses `(expr)`
+* `.parse` - parses string as value of some type `int.Parse(expr)`
 * `.return` – returns value from method/property `return expr;`
 * `.yield` – yields value from iterator method `yield return expr;`
 * `.throw` – throws value of Exception type `throw expr;`
@@ -42,6 +43,9 @@ is not be available if some expression is known to be not-null value in some par
 
 You can invoke code completion one more time (*"double completion"* feature of ReSharper 8) and
 it will came up with all the postfix templates available, without any semantic filtering.
+
+TODO: static members helpers
+TODO: enum helpers
 
 Options page allows to enable/disable specific templates and control braces inserion:
 ![options](/Content/options.png)

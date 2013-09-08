@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
     templateNames: new[] { "parse", "tryparse" },
-    description: "Parses string as some type",
+    description: "Parses string as value of some type",
     example: "int.Parse(expr)")]
   public class ParseStringTemplateProvider : IPostfixTemplateProvider
   {

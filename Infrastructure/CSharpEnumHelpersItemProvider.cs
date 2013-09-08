@@ -165,7 +165,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         myDotPointer = dotPointer;
         myMemberPointer = enumMember.CreateElementInstancePointer();
         myShortName = enumMember.Element.ShortName;
-        myIsFlags = isFlags;
+        myIsFlags = isFlags && normalizedValue.Any(x => x != '0');
 
         DisplayName = new RichText(myShortName, new TextStyle(FontStyle.Bold));
         Identity = "   ENUM_MEMBER_" + normalizedValue;
