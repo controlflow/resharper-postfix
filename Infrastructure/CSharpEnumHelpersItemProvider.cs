@@ -15,7 +15,6 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resources;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
@@ -24,6 +23,9 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
+#if RESHARPER8
+using JetBrains.ReSharper.Psi.Pointers;
+#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
@@ -193,7 +195,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var referenceExpression = dotToken.Parent as IReferenceExpression;
         if (referenceExpression == null) return;
 
-        var factory = CSharpElementFactory.GetInstance(dotToken);
+        var factory = CSharpElementFactory.GetInstance(dotToken.GetPsiModule());
         var template = myIsFlags ? "($0 & $1) != 0" : "$0 == $1";
         var enumeMemberCheck = factory.CreateExpression(
           template, referenceExpression.QualifierExpression, enumMember);
