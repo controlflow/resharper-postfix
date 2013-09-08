@@ -49,12 +49,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var qualifier = referenceExpression.QualifierExpression;
       if (qualifier == null) return false;
 
-      var settingsStore = qualifier.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowStaticMembersInCodeCompletion))
-        return false;
-
       var qualifierType = qualifier.Type();
       if (!qualifierType.IsResolved) return false;
+
+      var settingsStore = qualifier.GetSettingsStore();
+      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowStaticMethodsInCodeCompletion))
+        return false;
 
       // prepare symbol table of suitable static methods
       var rule = referenceExpression.GetTypeConversionRule();

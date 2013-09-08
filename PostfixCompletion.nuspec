@@ -14,13 +14,13 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      New .parse/.tryparse templates on strings, template .var now works directly on types ('StringBuilder.var' produces 'var sb = new StringBuilder()'), static methods completion ('text.IsNullOrEmpty' expands to 'string.IsNullOrEmpty(text)'), better caret position after executing .var/.new/.throw on types, small fixes.
+      Enumeration types helpers (simplify equality/flags checks), new .parse/.tryparse templates on strings, template .var now works directly on types ('StringBuilder.var' produces 'var sb = new StringBuilder()'), static methods completion ('text.IsNullOrEmpty' expands to 'string.IsNullOrEmpty(text)'), better caret position after executing .var/.new/.throw on types, small fixes.
     </releaseNotes>
-    <!-- todo: enum completion -->
+    <!-- todo: .switch -->
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
     </dependencies>
-    <tags>postfix code completion templates surround</tags>
+    <tags>postfix completion cats surround templates</tags>
   </metadata>
   <files>
     <file src="bin.R8\Debug\" target="ReSharper\v8.0\plugins\" />

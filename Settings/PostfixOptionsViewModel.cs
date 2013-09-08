@@ -25,11 +25,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       myTemplatesManager = templatesManager;
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
       UseBracesForEmbeddedStatements = new Property<bool>(lifetime, "UseBracesForEmbeddedStatements");
-      ShowStaticMembersInCodeCompletion = new Property<bool>(lifetime, "ShowStaticMembersInCodeCompletion");
+      ShowStaticMembersInCodeCompletion = new Property<bool>(lifetime, "ShowStaticMethodsInCodeCompletion");
+      ShowEnumHelpersInCodeCompletion = new Property<bool>(lifetime, "ShowEnumHelpersInCodeCompletion");
       Reset = new DelegateCommand(ResetExecute);
 
       store.SetBinding(lifetime, PostfixSettingsAccessor.UseBracesForEmbeddedStatements, UseBracesForEmbeddedStatements);
-      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMembersInCodeCompletion, ShowStaticMembersInCodeCompletion);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethodsInCodeCompletion, ShowStaticMembersInCodeCompletion);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpersInCodeCompletion, ShowEnumHelpersInCodeCompletion);
 
       FillTemplates();
     }
@@ -37,6 +39,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
     [NotNull] public ObservableCollection<PostfixTemplateViewModel> Templates { get; private set; }
     [NotNull] public IProperty<bool> UseBracesForEmbeddedStatements { get; private set; }
     [NotNull] public IProperty<bool> ShowStaticMembersInCodeCompletion { get; private set; }
+    [NotNull] public Property<bool> ShowEnumHelpersInCodeCompletion { get; private set; }
     [NotNull] public ICommand Reset { get; private set; }
 
     private void FillTemplates()

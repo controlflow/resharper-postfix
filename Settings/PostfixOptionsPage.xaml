@@ -70,7 +70,9 @@
       <CheckBox  IsChecked="{Binding UseBracesForEmbeddedStatements.Value}"
                  Margin="2" Content="Insert curly braces for statements"/>
       <CheckBox  IsChecked="{Binding ShowStaticMembersInCodeCompletion.Value}"
-                 Margin="2" Content="Show static members in code completion"/>
+                 Margin="2" Content="Show static methods as instance in code completion"/>
+      <CheckBox  IsChecked="{Binding ShowEnumHelpersInCodeCompletion.Value}"
+                 Margin="2" Content="Enable enumeration types helpers in code completion"/>
     </StackPanel>
   </Grid>
 </UserControl>

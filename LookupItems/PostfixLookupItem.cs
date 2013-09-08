@@ -23,7 +23,7 @@ using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public abstract class PostfixLookupItem : ILookupItem
+  public abstract class PostfixLookupItem : PostfixLookupItemBase, ILookupItem
   {
     [NotNull] private readonly string myShortcut;
     [NotNull] private readonly string myIdentifier;
@@ -266,25 +266,5 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     public RichText DisplayTypeName { get { return null; } }
     public string OrderingString { get { return myShortcut; } }
     public string Identity { get { return myShortcut; } }
-    public bool CanShrink { get { return false; } }
-    public bool Shrink() { return false; }
-    public void Unshrink() { }
-
-    public TextRange GetVisualReplaceRange(ITextControl textControl, TextRange nameRange)
-    {
-      // note: prefix highlighter disallows highlighting to be any position
-      return TextRange.InvalidRange;
-    }
-
-    public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
-    {
-      return false;
-    }
-
-#if RESHARPER8
-    public int Multiplier { get; set; }
-    public bool IsDynamic { get { return false; } }
-    public bool IgnoreSoftOnSpace { get; set; }
-#endif
   }
 }

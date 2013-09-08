@@ -46,12 +46,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\CSharpEnumHelpersItemProvider.cs" />
     <Compile Include="Infrastructure\CSharpPostfixItemProvider.cs" />
     <Compile Include="Infrastructure\CSharpStaticMethodsItemProvider.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateProvider.cs" />
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\KeywordStatementPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
+    <Compile Include="LookupItems\PostfixLookupItemBase.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
     <Compile Include="Infrastructure\PostfixExecutionContext.cs" />
     <Compile Include="Infrastructure\PostfixTemplateAcceptanceContext.cs" />
