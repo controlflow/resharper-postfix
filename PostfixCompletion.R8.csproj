@@ -86,6 +86,7 @@
     <Compile Include="TemplateProviders\ParenthesizedExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ParseStringTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\SwitchStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\UsingStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />

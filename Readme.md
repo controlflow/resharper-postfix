@@ -29,8 +29,9 @@ Currently available templates:
 * `.var` – initialize new variable with expression `var x = expr;`
 * `.new` – produces instantiation expression for type `new T()`
 * `.paren` – surrounds outer expression with parentheses `(expr)`
-* `.parse` - parses string as value of some type `int.Parse(expr)`
+* `.parse` – parses string as value of some type `int.Parse(expr)`
 * `.return` – returns value from method/property `return expr;`
+* `.switch` – produces switch over integral/string type `switch (expr)`
 * `.yield` – yields value from iterator method `yield return expr;`
 * `.throw` – throws value of Exception type `throw expr;`
 * `.using` – surrounds disposable expression `using (var x = expr)`
