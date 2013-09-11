@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
@@ -10,6 +12,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Services;
@@ -60,7 +63,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var rule = referenceExpression.GetTypeConversionRule();
       var accessContext = new ElementAccessContext(qualifier);
 
-      var symbolTable = qualifierType.GetSymbolTable(context.PsiModule).Filter(
+      var typesCollector = new DeclaredTypesCollector();
+      qualifierType.Accept(typesCollector);
+
+      // collect all declared types
+      var allTypesTable = typesCollector.Types
+        .Aggregate(EmptySymbolTable.INSTANCE, (table, type) =>
+          table.Merge(type.GetSymbolTable(context.PsiModule)))
+        .Distinct();
+
+      var symbolTable = allTypesTable.Filter(
         new StaticMethodWithFirstParamConvertibleToFilter(qualifierType, rule),
         OverriddenFilter.INSTANCE, new AccessRightsFilter(accessContext));
 
@@ -160,6 +172,48 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           break;
         }
       };
+    }
+
+    private sealed class DeclaredTypesCollector : TypeVisitor
+    {
+      public DeclaredTypesCollector()
+      {
+        Types = new List<IDeclaredType>();
+      }
+
+      [NotNull] public List<IDeclaredType> Types { get; private set; }
+
+      public override void VisitDeclaredType(IDeclaredType declaredType)
+      {
+        Types.Add(declaredType);
+
+        var typeElement = declaredType.GetTypeElement();
+        if (typeElement != null)
+        {
+          var substitution = declaredType.GetSubstitution();
+          var typeParameters = typeElement.TypeParameters;
+          if (typeParameters.Count > 0)
+          {
+            foreach (var typeParameter in typeParameters)
+              substitution[typeParameter].Accept(this);
+          }
+        }
+      }
+
+      public override void VisitArrayType(IArrayType arrayType)
+      {
+        arrayType.ElementType.Accept(this);
+      }
+
+      public override void VisitPointerType(IPointerType pointerType)
+      {
+        pointerType.ElementType.Accept(this);
+      }
+
+      public override void VisitType(IType type) { }
+      public override void VisitMultitype(IMultitype multitype) { }
+      public override void VisitDynamicType(IDynamicType dynamicType) { }
+      public override void VisitAnonymousType(IAnonymousType anonymousType) { }
     }
 
     private static bool HasMultipleParameters(
