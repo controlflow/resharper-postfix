@@ -46,6 +46,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Roadmap.txt" />
     <Compile Include="Infrastructure\CSharpEnumHelpersItemProvider.cs" />
     <Compile Include="Infrastructure\CSharpPostfixItemProvider.cs" />
     <Compile Include="Infrastructure\CSharpStaticMethodsItemProvider.cs" />

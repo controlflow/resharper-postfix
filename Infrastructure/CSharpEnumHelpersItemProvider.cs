@@ -12,6 +12,7 @@ using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.I18n.Services.Refactoring;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -183,6 +184,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         TextRange nameRange, LookupItemInsertType insertType,
         Suffix suffix, ISolution solution, bool keepCaretStill)
       {
+        textControl.Document.ReplaceText(nameRange, "E()");
+
         var services = solution.GetPsiServices();
         services.CommitAllDocuments();
 
@@ -195,16 +198,32 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var referenceExpression = dotToken.Parent as IReferenceExpression;
         if (referenceExpression == null) return;
 
+        var invocation = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
+        if (invocation == null) return;
+
         var factory = CSharpElementFactory.GetInstance(dotToken.GetPsiModule());
         var template = myIsFlags ? "($0 & $1) != 0" : "$0 == $1";
-        var enumeMemberCheck = factory.CreateExpression(
+        var enumMemberCheck = factory.CreateExpression(
           template, referenceExpression.QualifierExpression, enumMember);
 
+        ITreeNodePointer<ICSharpExpression> caretPointer = null;
         services.DoTransaction(typeof(CSharpEnumHelpersItemProvider).FullName, () =>
         {
           using (WriteLockCookie.Create())
-            referenceExpression.ReplaceBy(enumeMemberCheck);
+          {
+            var check = invocation.ReplaceBy(enumMemberCheck);
+            caretPointer = check.CreatePointer();
+          }
         });
+
+        if (caretPointer == null) return;
+
+        var checkExpression = caretPointer.GetTreeNode();
+        if (checkExpression != null)
+        {
+          var offset = checkExpression.GetDocumentRange().TextRange.EndOffset;
+          textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+        }
       }
 
       public MatchingResult Match(string prefix, ITextControl textControl)

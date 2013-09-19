@@ -56,9 +56,12 @@ Join
 + notnull
 + null
 + paren
++ parse
 + prop
 + return
++ switch
 + throw
++ tryparse
 + using
 + while
 + yield
@@ -112,3 +115,6 @@ Join
 + foreach
 + notnull
 + null
++ parse
++ switch
++ tryparse

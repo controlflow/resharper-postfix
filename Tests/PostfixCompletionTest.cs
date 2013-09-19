@@ -65,5 +65,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     [Test] public void TestEnum01() { DoNamedTest(); }
     [Test] public void TestEnum02() { DoNamedTest(); }
+    [Test] public void TestEnum03() { DoNamedTest(); }
   }
 }

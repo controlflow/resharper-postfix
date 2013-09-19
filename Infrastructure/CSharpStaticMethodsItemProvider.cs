@@ -271,8 +271,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           if (method.GetContainingType().IsObjectClass()) return false;
 
           var firstParameter = method.Parameters[0];
-          var parameterType = firstParameter.Type;
+          if (firstParameter.Kind != ParameterKind.VALUE) return false;
 
+          var parameterType = firstParameter.Type;
           if (firstParameter.IsParameterArray)
           {
             var arrayType = parameterType as IArrayType;

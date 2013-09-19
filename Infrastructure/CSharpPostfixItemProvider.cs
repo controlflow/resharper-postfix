@@ -70,11 +70,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       {
         idsToRemove = new JetHashSet<string>(System.StringComparer.Ordinal);
 
-        var autoItems = myTemplatesManager.GetAvailableItems(node, false, executionContext);
-
-        if (autoItems.Count > 0)
-          foreach (var lookupItem in autoItems)
-            idsToRemove.Add(lookupItem.Identity);
+        var firstCompletion = parameters.CodeCompletionTypes[0];
+        if (firstCompletion == CodeCompletionType.AutomaticCompletion)
+        {
+          var autoItems = myTemplatesManager.GetAvailableItems(node, false, executionContext);
+          if (autoItems.Count > 0)
+            foreach (var lookupItem in autoItems)
+              idsToRemove.Add(lookupItem.Identity);
+        }
+        else return false;
       }
 #endif
 
@@ -84,8 +88,5 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       return (items.Count > 0);
     }
-
-    // todo: transform?
-    // todo: can items be hidden by .ForEach and friends?
   }
 }

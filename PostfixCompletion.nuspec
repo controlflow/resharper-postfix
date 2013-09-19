@@ -14,7 +14,7 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      Relase Candidate. Enumeration types helpers (simplifies equality/flags checks), static methods completion ('text.IsNullOrEmpty' expands into 'string.IsNullOrEmpty(text)'), new .parse/.tryparse templates on strings, new .switch template on integral/string expressions, template .var now works directly on types ('StringBuilder.var' produces 'var sb = new StringBuilder()'), better caret position after executing .var/.new/.throw on types, small fixes.
+      Release Candidate. Enumeration types helpers (simplifies equality/flags checks), static methods completion ('text.IsNullOrEmpty' expands into 'string.IsNullOrEmpty(text)'), new .parse/.tryparse templates on strings, new .switch template on integral/string expressions, template .var now works directly on types ('StringBuilder.var' produces 'var sb = new StringBuilder()'), better caret position after executing .var/.new/.throw on types, small fixes.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />

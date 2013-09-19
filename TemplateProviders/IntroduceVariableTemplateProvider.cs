@@ -37,6 +37,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           var target = exprContext.ReferencedElement;
           if (target == null || target is IParameter || target is ILocalVariable)
             continue;
+
+          // filter out namespaces
+          if (target is INamespace) continue;
         }
 
         if (exprContext.Type.IsVoid()) continue;
