@@ -46,6 +46,7 @@ You can invoke code completion one more time (*"double completion"* feature of R
 it will came up with all the postfix templates available, without any semantic filtering.
 
 TODO: static members helpers
+
 TODO: enum helpers
 
 Options page allows to enable/disable specific templates and control braces inserion:
