@@ -187,12 +187,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [CanBeNull]
     private static IExpressionStatement LookForKeywordBrokenExpressionStatement([NotNull] ITreeNode node)
     {
-      if (node is IErrorElement) // handle 'a > 0.in'
+      if (node is IErrorElement)
       {
+        // handle 'a > 0.in'
         var expression = node.Parent as ICSharpExpression;
         if (expression != null && expression.LastChild == node)
         {
           return expression.GetContainingNode<IExpressionStatement>();
+        }
+
+        // handle 'expr.else'
+        if (node.Parent is IBlock)
+        {
+          var tokenNode = node.FirstChild as ITokenNode;
+          if (tokenNode != null && tokenNode.GetTokenType().IsKeyword)
+          {
+            return node.PrevSibling as IExpressionStatement;
+          }
         }
       }
       else
