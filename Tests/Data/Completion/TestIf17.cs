@@ -1,9 +1,9 @@
-// ${COMPLETE_ITEM:ifnot}
+// ${COMPLETE_ITEM:else}
 
 class Foo
 {
   void Bar(int a)
   {
-    a > 0.in{caret}
+    a > 0.el{caret}
   }
 }

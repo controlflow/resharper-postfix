@@ -1,10 +1,10 @@
-// ${COMPLETE_ITEM:ifnot}
+// ${COMPLETE_ITEM:else}
 
 public class Foo
 {
   public void Bar(string s)
   {
-    s != null.ifn{caret}
+    s != null.els{caret}
     boo
   }
 }

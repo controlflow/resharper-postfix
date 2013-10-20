@@ -79,7 +79,7 @@
     <Compile Include="TemplateProviders\ForLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ForLoopTemplateProviderBase.cs" />
     <Compile Include="TemplateProviders\ForReverseLoopTemplateProvider.cs" />
-    <Compile Include="TemplateProviders\IfNotStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ElseStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceFieldTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceMemberTemplateProviderBase.cs" />

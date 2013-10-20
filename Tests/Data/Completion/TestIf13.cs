@@ -1,9 +1,9 @@
-// ${COMPLETE_ITEM:ifnot}
+// ${COMPLETE_ITEM:else}
 
 public class Foo
 {
   public void Bar(bool b)
   {
-    !b.inot{caret}
+    !b.els{caret}
   }
 }

@@ -1,9 +1,9 @@
-// ${COMPLETE_ITEM:ifnot}
+// ${COMPLETE_ITEM:else}
 
 public class Foo
 {
   public void Bar(int i)
   {
-    i < 0 && i > 10.inot{caret}
+    i < 0 && i > 10.else{caret}
   }
 }

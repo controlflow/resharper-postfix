@@ -10,10 +10,10 @@ using JetBrains.Util;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
-    templateName: "ifnot",
+    templateName: "else",
     description: "Checks boolean expression to be 'false'",
     example: "if (!expr)", WorksOnTypes = true)]
-  public class IfNotStatementTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
+  public class ElseStatementTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
   {
     protected override bool CreateBooleanItems(
       PrefixExpressionContext expression, ICollection<ILookupItem> consumer)
@@ -29,7 +29,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private sealed class LookupItem : KeywordStatementPostfixLookupItem<IIfStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("ifNot", context) { }
+      public LookupItem([NotNull] PrefixExpressionContext context) : base("else", context) { }
 
       protected override string Template { get { return "if(expr)"; } }
 
