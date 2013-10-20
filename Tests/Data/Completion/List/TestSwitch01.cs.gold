@@ -1,0 +1,31 @@
+﻿+ GetType
++ ToString
+CompareTo
+Equals
+GetHashCode
+GetTypeCode
+arg
+await
+cast
+else
+foreach
+if
+lock
+not
+notnull
+null
+paren
+return
+throw
+using
+var
+while
+yield
+# AUTOMATIC #
++ GetType
++ ToString
+CompareTo
+Equals
+GetHashCode
+GetTypeCode
+var

@@ -14,7 +14,9 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      Release version. Minor fixes (duplicate items in double completion, disable .var on namespaces, enum helpers/static methods completion fixes).
+      Minor update. Template ".ifnot" renamed to ".else".
+      All templates now splitted (notnull/null, if/ifnot, return/yield), so can be disabled separately.
+      Switch template disabled on non-expression-statements.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />

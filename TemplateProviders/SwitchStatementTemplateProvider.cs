@@ -19,6 +19,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       foreach (var exprContext in context.Expressions)
       {
+        if (!exprContext.CanBeStatement) continue;
+
         var type = exprContext.Type;
         if (!type.IsResolved) continue;
 
