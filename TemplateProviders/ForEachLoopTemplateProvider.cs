@@ -21,7 +21,7 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
-    templateName: "foreach",
+    templateName: "forEach",
     description: "Iterates over enumerable collection",
     example: "foreach (var x in expr)")]
   public class ForEachLoopTemplateProvider : IPostfixTemplateProvider
@@ -101,21 +101,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         // special case: handle [.] suffix
         if (suffix.HasPresentation && suffix.Presentation == '.')
         {
-#if RESHARPER7
-          session.Closed += (_, terminationType) => {
-            if (terminationType != TerminationType.Finished) return;
-#else
-          session.Closed.Advise(session.Lifetime, args => {
-            if (args.TerminationType != TerminationType.Finished) return;
-#endif
-            var nameValue = session.Hotspots[1].CurrentValue;
-            textControl.Document.InsertText(textControl.Caret.Offset(), nameValue);
-            suffix.Playback(textControl);
-          }
-#if RESHARPER8
-          ) // very sad panda
-#endif
-          ;
+          session.AdviceFinished((_, terminationType) =>
+          {
+            if (terminationType == TerminationType.Finished)
+            {
+              var nameValue = session.Hotspots[1].CurrentValue;
+              textControl.Document.InsertText(textControl.Caret.Offset(), nameValue);
+              suffix.Playback(textControl);
+            }
+          });
         }
 
         session.Execute();

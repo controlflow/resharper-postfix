@@ -12,6 +12,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
     [SettingsIndexedEntry("Template providers list disabled/enabled list")]
     public IIndexedEntry<string, bool> DisabledProviders;
 
+    [SettingsIndexedEntry("Template providers shortcuts list")]
+    public IndexedEntry<string, string> ProviderShortcutNames;
+
+    [SettingsIndexedEntry("Template providers usage count")]
+    public IndexedEntry<string, int> ProvidersUsageStatistics;
+      
     [SettingsEntry(true, "Insert braces for embedded statements")]
     public bool UseBracesForEmbeddedStatements;
 
@@ -24,7 +30,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 
   public static class PostfixSettingsAccessor
   {
-    [NotNull] public static readonly Expression<Func<PostfixCompletionSettings, IIndexedEntry<string, bool>>> DisabledProviders = x => x.DisabledProviders;
+    [NotNull] public static readonly Expression<Func<PostfixCompletionSettings, IIndexedEntry<string, bool>>>
+      DisabledProviders = x => x.DisabledProviders;
     [NotNull] public static readonly Expression<Func<PostfixCompletionSettings, bool>>
       UseBracesForEmbeddedStatements = x => x.UseBracesForEmbeddedStatements,
       ShowStaticMethodsInCodeCompletion = x => x.ShowStaticMethodsInCodeCompletion,

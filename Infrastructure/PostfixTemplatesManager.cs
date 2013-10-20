@@ -328,8 +328,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         if (templateName != null)
         {
-          var templateNames = info.Metadata.TemplateNames;
-          if (!templateNames.Contains(templateName, StringComparer.Ordinal))
+          var name = info.Metadata.TemplateName;
+          if (!string.Equals(templateName, name, StringComparison.Ordinal))
             continue;
         }
 

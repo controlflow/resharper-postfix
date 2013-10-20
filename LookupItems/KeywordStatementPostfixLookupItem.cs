@@ -12,7 +12,7 @@ using JetBrains.ReSharper.Psi;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  internal abstract class KeywordStatementPostfixLookupItem<TStatement>
+  public abstract class KeywordStatementPostfixLookupItem<TStatement>
     : StatementPostfixLookupItem<TStatement>
     where TStatement : class, ICSharpStatement
   {

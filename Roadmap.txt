@@ -7,8 +7,9 @@
 [v1.1]
 
   feature: .typeof on types
-  feature: .notnull/.null on non-pure expressions to introduce var?
+  feature: .notnull/.null on non-pure expressions to introduce var
   feature: ".for" should match .foreach first, not .for
+  fix: .notnull always availabile in force mode
   fix: Thread.CurrentThread.{notnull} availability
   fix: enable occurances search for .var?
   fix: check Razor issues + tests

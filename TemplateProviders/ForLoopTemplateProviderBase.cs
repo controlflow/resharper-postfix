@@ -1,0 +1,113 @@
+﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
+using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.LiveTemplates;
+using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
+using JetBrains.ReSharper.Psi.Resolve;
+using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Psi.Util;
+using JetBrains.TextControl;
+using JetBrains.Util;
+#if RESHARPER8
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
+#endif
+
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
+{
+  public abstract class ForLoopTemplateProviderBase
+  {
+    protected bool CreateItems(
+      PostfixTemplateAcceptanceContext context, out string lengthPropertyName)
+    {
+      lengthPropertyName = null;
+
+      var exprContext = context.InnerExpression;
+      if (!exprContext.CanBeStatement) return false;
+
+      var expression = exprContext.Expression;
+
+      if (context.ForceMode || expression.IsPure())
+      {
+        if (exprContext.Type is IArrayType)
+        {
+          lengthPropertyName = "Length";
+        }
+        else
+        {
+          if (exprContext.Type.IsUnknown) return false; // even in force mode
+
+          var table = exprContext.Type.GetSymbolTable(context.PsiModule);
+          var publicProperties = table.Filter(
+            myPropertyFilter, OverriddenFilter.INSTANCE,
+            new AccessRightsFilter(new ElementAccessContext(expression)));
+
+          var result = publicProperties.GetResolveResult("Count");
+          var resolveResult = result.DeclaredElement as IProperty;
+          if (resolveResult != null)
+          {
+            if (resolveResult.IsStatic) return false;
+            if (!resolveResult.Type.IsInt()) return false;
+            lengthPropertyName = "Count";
+          }
+          else
+          {
+            if (!exprContext.Type.IsInt()) return false;
+          }
+        }
+
+        return true;
+      }
+
+      return false;
+    }
+
+    [NotNull] private readonly DeclaredElementTypeFilter myPropertyFilter =
+      new DeclaredElementTypeFilter(ResolveErrorType.NOT_RESOLVED, CLRDeclaredElementType.PROPERTY);
+
+    protected abstract class ForLookupItemBase : KeywordStatementPostfixLookupItem<IForStatement>
+    {
+      protected ForLookupItemBase([NotNull] string shortcut,
+        [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
+        : base(shortcut, context)
+      {
+        LengthPropertyName = lengthPropertyName;
+      }
+
+      [CanBeNull]
+      protected string LengthPropertyName { get; private set; }
+
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, IForStatement statement, int? caretPosition)
+      {
+        if (caretPosition == null) return;
+
+        var condition = (IRelationalExpression)statement.Condition;
+        var variable = (ILocalVariableDeclaration)statement.Initializer.Declaration.Declarators[0];
+        var iterator = (IPostfixOperatorExpression)statement.Iterators.Expressions[0];
+
+#if RESHARPER7
+        var nameExpression = new MacroCallExpression(new SuggestVariableNameMacro());
+#else
+        var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
+#endif
+
+        var nameSpot = new HotspotInfo(
+          new TemplateField("name", nameExpression, 0),
+          variable.NameIdentifier.GetDocumentRange().GetHotspotRange(),
+          condition.LeftOperand.GetDocumentRange().GetHotspotRange(),
+          iterator.Operand.GetDocumentRange().GetHotspotRange());
+
+        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+          statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { nameSpot });
+
+        session.Execute();
+      }
+    }
+  }
+}

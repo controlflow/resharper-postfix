@@ -73,8 +73,12 @@
     <Compile Include="TemplateProviders\AwaitExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\CastExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\CheckForNullTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\CheckForNullTemplateProviderBase.cs" />
+    <Compile Include="TemplateProviders\CheckToBeNullTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ForEachLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ForLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ForLoopTemplateProviderBase.cs" />
+    <Compile Include="TemplateProviders\ForReverseLoopTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfNotStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IfStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\IntroduceFieldTemplateProvider.cs" />
@@ -86,11 +90,14 @@
     <Compile Include="TemplateProviders\ObjectCreationTypeTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ParenthesizedExpressionTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ParseStringTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\ParseStringTemplateProviderBase.cs" />
     <Compile Include="TemplateProviders\ReturnStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\SwitchStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\ThrowStatementTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\TryParseStringTemplateProvider.cs" />
     <Compile Include="TemplateProviders\UsingStatementTemplateProvider.cs" />
     <Compile Include="TemplateProviders\WhileLoopTemplateProvider.cs" />
+    <Compile Include="TemplateProviders\YieldReturnStatementTemplateProvider.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Utils\PortabilityExtensions.R8.cs" />
     <Compile Include="Utils\TypeUtils.cs" />

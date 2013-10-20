@@ -16,7 +16,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   [BaseTypeRequired(typeof(IPostfixTemplateProvider))]
   public sealed class PostfixTemplateProviderAttribute : ShellComponentAttribute
   {
-    [NotNull] public string[] TemplateNames { get; private set; }
+    [NotNull] public string TemplateName { get; private set; }
     [NotNull] public string Description { get; private set; }
     [NotNull] public string Example { get; private set; }
 
@@ -26,15 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public PostfixTemplateProviderAttribute(
       [NotNull] string templateName, [NotNull] string description, string example = null)
     {
-      TemplateNames = new[] { templateName };
-      Description = description;
-      Example = example ?? string.Empty;
-    }
-
-    public PostfixTemplateProviderAttribute(
-      [NotNull] string[] templateNames, [NotNull] string description, string example = null)
-    {
-      TemplateNames = templateNames;
+      TemplateName = templateName;
       Description = description;
       Example = example ?? string.Empty;
     }

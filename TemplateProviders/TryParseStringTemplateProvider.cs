@@ -5,10 +5,10 @@ using JetBrains.ReSharper.Psi;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
-    templateName: "parse",
+    templateName: "tryparse",
     description: "Parses string as value of some type",
-    example: "int.Parse(expr)")]
-  public class ParseStringTemplateProvider : ParseStringTemplateProviderBase, IPostfixTemplateProvider
+    example: "int.TryParse(expr, out value)")]
+  public class TryParseStringTemplateProvider : ParseStringTemplateProviderBase, IPostfixTemplateProvider
   {
     public void CreateItems(
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var type = exprContext.Type;
         if (type.IsResolved && type.IsString())
         {
-          consumer.Add(new LookupItem("parse", exprContext, context.LookupItemsOwner, false));
+          consumer.Add(new LookupItem("tryParse", exprContext, context.LookupItemsOwner, true));
           break;
         }
       }

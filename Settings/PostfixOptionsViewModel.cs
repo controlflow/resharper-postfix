@@ -59,14 +59,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
       };
 
       foreach (var providerInfo in myTemplatesManager.TemplateProvidersInfos
-        .OrderBy(providerInfo => providerInfo.Metadata.TemplateNames.First()))
+        .OrderBy(providerInfo => providerInfo.Metadata.TemplateName))
       {
         var metadata = providerInfo.Metadata;
         bool isEnabled = (!settings.DisabledProviders.TryGet(providerInfo.SettingsKey, out isEnabled)
                           && !metadata.DisabledByDefault) || isEnabled;
 
         var itemViewModel = new PostfixTemplateViewModel(
-          name: string.Join("/", metadata.TemplateNames),
+          name: metadata.TemplateName,
           description: metadata.Description,
           example: metadata.Example,
           settingsKey: providerInfo.SettingsKey,

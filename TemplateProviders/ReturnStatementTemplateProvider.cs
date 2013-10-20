@@ -10,7 +10,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
-    templateNames: new []{"return", "yield"},
+    templateName: "return",
     description: "Returns expression/yields value from iterator",
     example: "return expr;")]
   public class ReturnStatementTemplateProvider : IPostfixTemplateProvider
@@ -29,84 +29,38 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       if (context.ForceMode)
       {
         consumer.Add(new ReturnLookupItem(exprContext));
-        consumer.Add(new YieldLookupItem(exprContext));
+        return;
       }
-      else // types check
+
+      var returnType = function.ReturnType;
+      if (returnType.IsVoid()) return;
+
+      if (!declaration.IsIterator)
       {
-        var returnType = function.ReturnType;
-        if (returnType.IsVoid()) return;
-
-        if (!declaration.IsIterator)
+        if (declaration.IsAsync)
         {
-          if (declaration.IsAsync)
-          {
-            if (returnType.IsTask()) return; // no return value
+          if (returnType.IsTask()) return; // no return value
 
-            // unwrap return type from Task<T>
-            var genericTask = returnType as IDeclaredType;
-            if (genericTask != null && genericTask.IsGenericTask())
+          // unwrap return type from Task<T>
+          var genericTask = returnType as IDeclaredType;
+          if (genericTask != null && genericTask.IsGenericTask())
+          {
+            var element = genericTask.GetTypeElement();
+            if (element != null)
             {
-              var element = genericTask.GetTypeElement();
-              if (element != null)
-              {
-                var typeParameters = element.TypeParameters;
-                if (typeParameters.Count == 1)
-                  returnType = genericTask.GetSubstitution()[typeParameters[0]];
-              }
+              var typeParameters = element.TypeParameters;
+              if (typeParameters.Count == 1)
+                returnType = genericTask.GetSubstitution()[typeParameters[0]];
             }
-          }
-
-          var rule = exprContext.Expression.GetTypeConversionRule();
-          if (rule.IsImplicitlyConvertibleTo(exprContext.Type, returnType))
-          {
-            consumer.Add(new ReturnLookupItem(exprContext));
           }
         }
 
-        if (IsOrCanBecameIterator(declaration, returnType))
+        var rule = exprContext.Expression.GetTypeConversionRule();
+        if (rule.IsImplicitlyConvertibleTo(exprContext.Type, returnType))
         {
-          if (returnType.IsIEnumerable())
-          {
-            returnType = declaration.GetPredefinedType().Object;
-          }
-          else
-          {
-            // unwrap return type from IEnumerable<T>
-            var enumerable = returnType as IDeclaredType;
-            if (enumerable != null && enumerable.IsGenericIEnumerable())
-            {
-              var element = enumerable.GetTypeElement();
-              if (element != null)
-              {
-                var typeParameters = element.TypeParameters;
-                if (typeParameters.Count == 1)
-                  returnType = enumerable.GetSubstitution()[typeParameters[0]];
-              }
-            }
-          }
-
-          var rule = exprContext.Expression.GetTypeConversionRule();
-          if (rule.IsImplicitlyConvertibleTo(exprContext.Type, returnType))
-          {
-            consumer.Add(new YieldLookupItem(exprContext));
-          }
+          consumer.Add(new ReturnLookupItem(exprContext));
         }
       }
-    }
-
-    private static bool IsOrCanBecameIterator(
-      [NotNull] ICSharpFunctionDeclaration declaration, [NotNull] IType returnType)
-    {
-      if (declaration.IsIterator) return true;
-
-      if (returnType.IsGenericIEnumerable() || returnType.IsIEnumerable())
-      {
-        var collector = new RecursiveElementCollector<IReturnStatement>();
-        collector.ProcessElement(declaration);
-        return collector.GetResults().Count == 0;
-      }
-
-      return false;
     }
 
     private sealed class ReturnLookupItem : StatementPostfixLookupItem<IReturnStatement>
@@ -125,26 +79,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         IReturnStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
         statement.Value.ReplaceBy(expression);
-      }
-    }
-
-    private sealed class YieldLookupItem : StatementPostfixLookupItem<IYieldStatement>
-    {
-      public YieldLookupItem([NotNull] PrefixExpressionContext context)
-        : base("yield", context) { }
-
-      protected override bool SuppressSemicolonSuffix { get { return true; } }
-
-      protected override IYieldStatement CreateStatement(CSharpElementFactory factory)
-      {
-        return (IYieldStatement)
-          factory.CreateStatement("yield return expr;");
-      }
-
-      protected override void PlaceExpression(
-        IYieldStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        statement.Expression.ReplaceBy(expression);
       }
     }
   }
