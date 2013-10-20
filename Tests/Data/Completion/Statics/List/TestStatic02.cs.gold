@@ -17,7 +17,7 @@ TwoFooArg
 + not
 + notnull
 + null
-+ paren
++ par
 + prop
 + return
 + throw

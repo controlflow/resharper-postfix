@@ -8,7 +8,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
-    templateName: "paren",
+    templateName: "par",
     description: "Parenthesizes current expression",
     example: "(expr)")]
   public class ParenthesizedExpressionTemplateProvider : IPostfixTemplateProvider
@@ -24,7 +24,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
       public LookupItem([NotNull] PrefixExpressionContext context)
-        : base("paren", context) { }
+        : base("par", context) { }
 
       protected override ICSharpExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
