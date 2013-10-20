@@ -1,4 +1,4 @@
-﻿ReSharper Postfix Completion plugin
+ReSharper Postfix Completion plugin
 -----------------------------------
 
 The idea is to prevent caret jumps backwards while typing C# code, [see it in action](http://screencast.com/t/zqMDGTMDqhp).
@@ -45,9 +45,12 @@ is not be available if some expression is known to be not-null value in some par
 You can invoke code completion one more time (*"double completion"* feature of ReSharper 8) and
 it will came up with all the postfix templates available, without any semantic filtering.
 
-TODO: static members helpers
+Also PostfixCompletion includes two features with the same idea:
 
-TODO: enum helpers
+* `someStr.IsNullOrEmpty` – static members of first argument type capatible available just as instance members
+and automatically convert call into static member call `string.IsNullOrEmpty(someStr)`
+* `obj.SomeEnumProp.EnumMember` – enum members available at values of enumeration types and when completed
+emits member check expression `obj.SomeEnumProp == E.EnumMember` or for flags enumerations `(obj.SomeEnumProp & E.EnumMember) != 0`
 
 Options page allows to enable/disable specific templates and control braces inserion:
 ![options](/Content/options.png)
