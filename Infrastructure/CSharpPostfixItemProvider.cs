@@ -43,24 +43,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var node = context.NodeInFile;
       if (node == null) return false;
 
-      ReparsedCodeCompletionContext reparsedContext = null;
-
-      // foo.{caret} var bar = ...; fuck my life
-      var referenceName = node.Parent as IReferenceName;
-      if (referenceName != null)
-      {
-        reparsedContext = context.UnterminatedContext;
-        node = reparsedContext.TreeNode;
-        if (node == null) return false;
-      }
-
       var completionType = context.BasicContext.CodeCompletionType;
       var forceMode = (completionType == CodeCompletionType.BasicCompletion);
       var lookupItemsOwner = context.BasicContext.LookupItemsOwner;
       var executionContext = new PostfixExecutionContext(
-        context.PsiModule, lookupItemsOwner, reparsedContext);
+        context.PsiModule, lookupItemsOwner, context.UnterminatedContext);
 
-      var items = myTemplatesManager.GetAvailableItems(node, forceMode, executionContext);
+      var treeNode = context.UnterminatedContext.TreeNode;
+      if (treeNode == null) return false;
+
+      var items = myTemplatesManager.GetAvailableItems(treeNode, forceMode, executionContext);
 
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 

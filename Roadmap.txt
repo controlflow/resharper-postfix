@@ -6,18 +6,20 @@
 
 [v1.1]
 
-  feature: .typeof on types
+  + feature: .typeof on types
   feature: .notnull/.null on non-pure expressions to introduce var
   feature: ".for" should match .foreach first, not .for
-  fix: .notnull always availabile in force mode
-  fix: Thread.CurrentThread.{notnull} availability
+  + fix: .notnull always availabile in force mode
+  + fix: Thread.CurrentThread.{notnull} availability
+  + fix: .par/.cast/.arg on assignments
   fix: enable occurances search for .var?
   fix: check Razor issues + tests
   fix: checked ASP.NET issues
+  
 
 [>v1.2]
 
-  feature: abstract over provider language
+  feature: abstract over provider language?
   feature: support JS/TS language (
     .arg, .if/.ifnot, .for/.forr, .forin, .field?,
     .var, .not, .paren, .log?, .alert?, .while,

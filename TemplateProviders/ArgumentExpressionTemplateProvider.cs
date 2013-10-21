@@ -33,14 +33,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       else if (expressionContext.CanBeStatement)
       {
         // filter out expressions, unlikely suitable as arguments
-        var expr = expressionContext.Expression;
-        if (expr is IAssignmentExpression ||
-            expr is IPrefixOperatorExpression ||
-            expr is IPostfixOperatorExpression ||
-            (expr is IInvocationExpression && expr.GetExpressionType().ToIType().IsVoid()))
-        {
-          return;
-        }
+        if (!CommonUtils.IsNiceExpression(expressionContext.Expression)) return;
 
         // foo.Bar().Baz.arg
         consumer.Add(new LookupItem(expressionContext, context.LookupItemsOwner));

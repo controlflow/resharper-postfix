@@ -92,5 +92,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       return false;
     }
+
+    public static bool IsNiceExpression([NotNull] ICSharpExpression expression)
+    {
+      if (expression is IAssignmentExpression) return false;
+      if (expression is IPrefixOperatorExpression) return false;
+      if (expression is IPostfixOperatorExpression) return false;
+
+      if (expression is IInvocationExpression)
+      {
+        var expressionType = expression.GetExpressionType();
+        if (expressionType.ToIType().IsVoid()) return false;
+      }
+
+      return true;
+    }
   }
 }

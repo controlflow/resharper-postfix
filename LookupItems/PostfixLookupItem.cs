@@ -31,6 +31,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] private readonly IRangeMarker myReferenceRange;
     [NotNull] private readonly Type myReferenceType;
     private readonly DocumentRange myReplaceRange;
+    private readonly bool myWasReparsed;
 
     protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
     protected const string CaretMarker = "POSTFIX_COMPLETION_CARET";
@@ -40,10 +41,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       myIdentifier = shortcut;
       myShortcut = shortcut.ToLowerInvariant();
+      myWasReparsed = !context.Expression.IsPhysical();
+
+      var shift = myWasReparsed ? +2 : 0;
       myExpressionRange = context.ExpressionRange.CreateRangeMarker();
       myReferenceRange = context.Parent.PostfixReferenceRange.CreateRangeMarker();
       myReferenceType = context.Parent.PostfixReferenceNode.GetType();
-      myReplaceRange = context.ReplaceRange;
+      myReplaceRange = context.ReplaceRange.ExtendRight(shift);
     }
 
     public MatchingResult Match(string prefix, ITextControl textControl)
@@ -60,6 +64,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       // find target expression after code completion
       var expressionRange = myExpressionRange.Range;
+
+      if (myWasReparsed)
+      {
+        textControl.Document.ReplaceText(nameRange, "__");
+        solution.GetPsiServices().CommitAllDocuments();
+        nameRange = TextRange.FromLength(nameRange.StartOffset, 2);
+      }
+
       var expression = (ICSharpExpression) FindMarkedNode(
         solution, textControl, expressionRange, nameRange, typeof(ICSharpExpression));
 

@@ -10,6 +10,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
+using JetBrains.Util;
 #if RESHARPER8
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 #endif
@@ -26,7 +27,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (context.ForceMode)
       {
-        consumer.Add(new LookupItem(context.OuterExpression));
+        PrefixExpressionContext bestExpression = null;
+        foreach (var expression in context.Expressions.Reverse())
+        {
+          if (CommonUtils.IsNiceExpression(expression.Expression))
+          {
+            bestExpression = expression;
+            break;
+          }
+        }
+
+        consumer.Add(new LookupItem(bestExpression ?? context.OuterExpression));
       }
     }
 

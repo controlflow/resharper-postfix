@@ -21,9 +21,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         PrefixExpressionContext bestExpression = null;
         foreach (var expression in context.Expressions.Reverse())
         {
-          if (expression.Expression is IAssignmentExpression) continue;
-          bestExpression = expression;
-          break;
+          if (CommonUtils.IsNiceExpression(expression.Expression))
+          {
+            bestExpression = expression;
+            break;
+          }
         }
 
         consumer.Add(new LookupItem(bestExpression ?? context.OuterExpression));
