@@ -1,16 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.DataContext;
+using JetBrains.Application.Progress;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.BuildScripts.Icons;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Resolve;
+using JetBrains.ReSharper.Psi.Search;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.WorkflowNew;
@@ -91,7 +96,29 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       protected override void AfterComplete(
         ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
       {
-        ExecuteRefactoring(textControl, expression);
+        ExecuteRefactoring(
+          textControl, expression,
+          (control, solution, args) =>
+          {
+            var localVariable = args.Properties["result"] as ILocalVariable;
+            if (localVariable == null) return;
+
+            var declaration = localVariable.GetDeclarations().FirstOrDefault();
+            if (declaration == null) return;
+
+            var scope = declaration.GetContainingNode<IBlock>();
+            if (scope == null) return;
+
+            var searchDomain = SearchDomainFactory.Instance.CreateSearchDomain(scope);
+            var references = solution.GetPsiServices().Finder.FindReferences(
+              localVariable, searchDomain, NullProgressIndicator.Instance);
+
+            if (references.Length == 1)
+            {
+              var endOffset = references[0].GetDocumentRange().TextRange.EndOffset;
+              textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+            }
+          });
       }
     }
 
@@ -154,7 +181,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           var rparRange = creationExpression.RPar.GetDocumentRange();
           var rangeMarker = lparRange.SetEndTo(rparRange.TextRange.EndOffset).CreateRangeMarker();
 
-          ExecuteRefactoring(textControl, statement.Expression, rangeMarker, myLookupItemsOwner);
+          ExecuteRefactoring(
+            textControl, statement.Expression,
+            (control, solution, _) =>
+            {
+              if (rangeMarker.IsValid)
+              {
+                var range = rangeMarker.Range;
+                var offset = range.StartOffset + range.Length / 2;
+                control.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+
+                LookupUtil.ShowParameterInfo(
+                  solution, control, range, null, myLookupItemsOwner);
+              }
+            });
         }
         else
         {
@@ -165,8 +205,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     private static void ExecuteRefactoring(
       [NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression,
-      [CanBeNull] IRangeMarker caretRangeMarker = null,
-      [CanBeNull] ILookupItemsOwner lookupItemsOwner = null)
+      [CanBeNull] Action<ITextControl, ISolution, RefactoringDetailsArgs> executeAfter = null)
     {
       const string name = "IntroVariableAction";
       var solution = expression.GetSolution();
@@ -181,34 +220,29 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var workflow = new IntroduceVariableWorkflow(solution, null);
 
         // OMFG so ugly way to execute something after 'introduce variable' hotspots :(((
-        if (caretRangeMarker != null)
+        if (executeAfter != null)
         {
           var refactoringId = RefactoringId.FromWorkflow(workflow);
           var definition = Lifetimes.Define(EternalLifetime.Instance, name);
 
           workflow.EventBus = workflow.EventBus ?? Shell.Instance.GetComponent<IEventBus>();
+
+          RefactoringDetailsArgs details = null;
+
+          workflow.EventBus
+            .Event(RefactoringEvents.RefactoringDetails)
+            .Subscribe(definition.Lifetime, args => details = args);
+
           workflow.EventBus
             .Event(RefactoringEvents.RefactoringFinished)
             .Subscribe(definition.Lifetime, id =>
           {
             try
             {
-              if (id.Equals(refactoringId) && caretRangeMarker.IsValid)
-              {
-                var range = caretRangeMarker.Range;
-                textControl.Caret.MoveTo(
-                  range.StartOffset + range.Length / 2,
-                  CaretVisualPlacement.DontScrollIfVisible);
-
-                if (lookupItemsOwner != null)
-                  LookupUtil.ShowParameterInfo(
-                    solution, textControl, range, null, lookupItemsOwner);
-              }
+              if (id.Equals(refactoringId))
+                executeAfter(textControl, solution, details);
             }
-            finally
-            {
-              definition.Terminate();
-            }
+            finally { definition.Terminate(); }
           });
         }
 

@@ -15,17 +15,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var exprContext = context.OuterExpression;
       if (!exprContext.CanBeStatement) return;
 
-      if (exprContext.Type.IsUnknown)
+      if (!context.ForceMode)
       {
-        if (!context.ForceMode) return;
-      }
-      else
-      {
+        if (exprContext.Type.IsUnknown) return;
         if (!IsNullableType(exprContext.Type)) return;
       }
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
-
       if (!context.ForceMode) state = CheckNullabilityState(exprContext);
 
       switch (state)

@@ -15,13 +15,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       var exprContext = context.OuterExpression;
       if (!exprContext.CanBeStatement) return;
 
-      // check expression type
-      if (exprContext.Type.IsUnknown)
+      if (!context.ForceMode)
       {
-        if (!context.ForceMode) return;
-      }
-      else
-      {
+        if (exprContext.Type.IsUnknown) return;
         if (!IsNullableType(exprContext.Type)) return;
       }
 
