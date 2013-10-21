@@ -78,6 +78,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         statement.Exception.ReplaceBy(expression);
       }
+
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, IThrowStatement statement, int? caretPosition)
+      {
+        if (caretPosition == null)
+          caretPosition = statement.GetDocumentRange().TextRange.EndOffset;
+
+        base.AfterComplete(textControl, suffix, statement, caretPosition);
+      }
     }
 
     private sealed class ThrowTypeLookupItem : StatementPostfixLookupItem<IThrowStatement>

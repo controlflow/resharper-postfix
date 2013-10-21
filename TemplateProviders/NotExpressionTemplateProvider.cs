@@ -9,6 +9,7 @@ using JetBrains.ReSharper.Psi.CSharp.Util;
 #if RESHARPER7
 using JetBrains.ReSharper.Psi;
 #endif
+using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
@@ -53,11 +54,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
             {
               using (WriteLockCookie.Create())
               {
-                unary2.ReplaceBy(unary.Operand);
+                expression = unary2.ReplaceBy(unary.Operand);
               }
             });
           }
         }
+
+        if (caretPosition == null)
+          caretPosition = expression.GetDocumentRange().TextRange.EndOffset;
 
         base.AfterComplete(textControl, suffix, expression, caretPosition);
       }

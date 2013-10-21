@@ -69,6 +69,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         ITextControl textControl, Suffix suffix,
         IObjectCreationExpression expression, int? caretPosition)
       {
+        if (caretPosition == null)
+          caretPosition = expression.GetDocumentRange().TextRange.EndOffset;
+
         base.AfterComplete(textControl, suffix, expression, caretPosition);
         if (!myHasCtorWithParams) return;
 

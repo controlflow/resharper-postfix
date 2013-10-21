@@ -145,7 +145,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
 
       var brokenStatement = FindBrokenStatement(node);
-      if (brokenStatement != null && reparse == null)
+      if (brokenStatement != null)
       {
         var expressionStatement = brokenStatement.PrevSibling as IExpressionStatement;
         if (expressionStatement != null)
@@ -154,9 +154,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expression = FindExpressionBrokenByKeyword2(expressionStatement, out coolNode);
           if (expression != null)
           {
-            var expressionRange = expression.GetDocumentRange();
-            var nodeRange = node.GetDocumentRange().TextRange;
-            var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
+            var expressionRange = reparse.ToDocumentRange(expression);
+            var nodeRange = reparse.ToDocumentRange(node);
+            var replaceRange = expressionRange.SetEndTo(nodeRange.TextRange.EndOffset);
 
             return CollectAvailableTemplates(
               coolNode /* TODO: ? */, expression, replaceRange, forceMode, context);
@@ -260,9 +260,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
 
       var refExpr = node.Parent as IReferenceExpression;
-      if (refExpr != null && refExpr.FirstChild == node && refExpr.NextSibling is IErrorElement)
+      if (refExpr != null && refExpr.FirstChild == node)
       {
-        return refExpr.Parent as IExpressionStatement;
+        if (refExpr.NextSibling is IErrorElement || !refExpr.IsPhysical())
+        {
+          return refExpr.Parent as IExpressionStatement;
+        }
       }
 
       return null;
