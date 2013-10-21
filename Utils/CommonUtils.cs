@@ -5,6 +5,8 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Psi.Web.CodeBehindSupport;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
@@ -16,8 +18,29 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var documentRange = treeNode.GetDocumentRange();
       if (context == null) return documentRange;
 
-      var originalRange = context.ToDocumentRange(treeNode.GetTreeTextRange());
-      return new DocumentRange(documentRange.Document, originalRange);
+      var reparsedTreeRange = treeNode.GetTreeTextRange();
+
+      var document = documentRange.Document;
+      if (document != null)
+      {
+        var originalDocRange = context.ToDocumentRange(reparsedTreeRange);
+        return new DocumentRange(document, originalDocRange);
+      }
+      else
+      {
+        var originalGeneratedTreeRange = context.ToOriginalTreeRange(reparsedTreeRange);
+
+        var sandBox = treeNode.GetContainingNode<ISandBox>().NotNull();
+        var contextNode = sandBox.ContextNode.NotNull();
+        var containingFile = contextNode.GetContainingFile().NotNull();
+
+        var translator = containingFile.GetRangeTranslator();
+
+        var originalTreeRange = translator.GeneratedToOriginal(originalGeneratedTreeRange);
+        var originalDocRange = translator.OriginalFile.GetDocumentRange(originalTreeRange);
+
+        return originalDocRange;
+      }
     }
 
     [CanBeNull] public static ITokenNode FindSemicolonAfter(

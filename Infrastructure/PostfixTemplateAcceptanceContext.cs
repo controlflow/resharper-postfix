@@ -66,6 +66,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (expr == null || expr == reference) continue;
 
         var exprRange = myReparsedContext.ToDocumentRange(expr);
+        if (!exprRange.IsValid())
+          break; // stop when out of generated
         if (exprRange.TextRange.EndOffset > endOffset)
           break; // stop when 'a.var + b'
 

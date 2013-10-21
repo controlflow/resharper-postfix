@@ -1,7 +1,11 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.DocumentModel;
+using JetBrains.ProjectModel;
+using JetBrains.ProjectModel.FileTypes;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Razor.Impl.CustomHandlers;
+using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
@@ -53,6 +57,29 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     {
       if (ExpressionStatementNavigator.GetByExpression(expression) != null)
         return true;
+
+      // Razor support
+      var argument = CSharpArgumentNavigator.GetByValue(
+        ReferenceExpressionNavigator.GetByQualifierExpression(expression));
+      if (argument != null && argument.Kind == ParameterKind.VALUE)
+      {
+        var invocation = InvocationExpressionNavigator.GetByArgument(argument);
+        if (invocation != null)
+        {
+          var referenceExpression = invocation.InvokedExpression as IReferenceExpression;
+          if (referenceExpression != null && referenceExpression.QualifierExpression == null)
+          {
+            var services = argument.GetSolution().GetComponent<IProjectFileTypeServices>();
+            var sourceFile = argument.GetSourceFile();
+            if (sourceFile != null)
+            {
+              var razorService = services.TryGetService<IRazorPsiServices>(sourceFile.LanguageType);
+              if (razorService != null && razorService.IsSpecialMethodInvocation(invocation, RazorMethodType.Write))
+                return true;
+            }
+          }
+        }
+      }
 
       // handle broken trees like: "lines.     \r\n   NextLineStatemement();"
       var containingStatement = expression.GetContainingNode<ICSharpStatement>();

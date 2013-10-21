@@ -32,7 +32,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       IPsiModule psiModule, ICSharpExpression expression)
     {
       textControl.Document.ReplaceText(
-        replaceRange.TextRange, "unchecked{" + PostfixMarker + "}");
+        replaceRange.TextRange, "using(null){" + PostfixMarker + "}");
 
       solution.GetPsiServices().CommitAllDocuments();
 
@@ -43,13 +43,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         var commandName = GetType().FullName + " expansion";
         solution.GetPsiServices().DoTransaction(commandName, () =>
         {
-          var expressionStatements = TextControlToPsi.GetElements<IUncheckedStatement>(
+          var expressionStatements = TextControlToPsi.GetElements<IUsingStatement>(
             solution, textControl.Document, replaceRange.TextRange.StartOffset);
 
           foreach (var block in expressionStatements)
           {
-            if (block.Body.Statements.Count != 1) continue;
-            var statement = block.Body.Statements[0] as IExpressionStatement;
+            var body = block.Body as IBlock;
+            if (body == null) continue;
+
+            if (body.Statements.Count != 1) continue;
+            var statement = body.Statements[0] as IExpressionStatement;
             if (statement == null) continue;
 
             if (!IsMarkerExpressionStatement(statement, PostfixMarker)) continue;
