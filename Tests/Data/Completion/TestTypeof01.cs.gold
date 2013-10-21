@@ -1,0 +1,7 @@
+﻿// ${COMPLETE_ITEM:typeof}
+
+class C {
+  void M() {
+    typeof (int){caret}
+  }
+}

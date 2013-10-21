@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -17,7 +18,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     {
       if (context.ForceMode)
       {
-        consumer.Add(new LookupItem(context.OuterExpression));
+        PrefixExpressionContext bestExpression = null;
+        foreach (var expression in context.Expressions.Reverse())
+        {
+          if (expression.Expression is IAssignmentExpression) continue;
+          bestExpression = expression;
+          break;
+        }
+
+        consumer.Add(new LookupItem(bestExpression ?? context.OuterExpression));
       }
     }
 

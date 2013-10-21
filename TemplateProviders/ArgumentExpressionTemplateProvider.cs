@@ -6,6 +6,7 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -23,9 +24,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     public void CreateItems(
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
+      var expressionContext = context.OuterExpression;
+
       if (context.ForceMode)
       {
-        consumer.Add(new LookupItem(context.OuterExpression, context.LookupItemsOwner));
+        consumer.Add(new LookupItem(expressionContext, context.LookupItemsOwner));
+      }
+      else if (expressionContext.CanBeStatement)
+      {
+        // filter out expressions, unlikely suitable as arguments
+        var expr = expressionContext.Expression;
+        if (expr is IAssignmentExpression ||
+            expr is IPrefixOperatorExpression ||
+            expr is IPostfixOperatorExpression ||
+            (expr is IInvocationExpression && expr.GetExpressionType().ToIType().IsVoid()))
+        {
+          return;
+        }
+
+        // foo.Bar().Baz.arg
+        consumer.Add(new LookupItem(expressionContext, context.LookupItemsOwner));
       }
     }
 

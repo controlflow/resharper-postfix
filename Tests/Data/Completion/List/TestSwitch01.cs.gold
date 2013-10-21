@@ -28,4 +28,5 @@ CompareTo
 Equals
 GetHashCode
 GetTypeCode
+arg
 var

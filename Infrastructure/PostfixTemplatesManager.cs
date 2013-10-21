@@ -81,11 +81,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         }
       }
 
+      // handle collisions with C# keyword names 'lines.foreach' =>
+      // ExpressionStmt(ReferenceExpr(lines.;Error);Error);ForeachStmt(foreach;Error)
       var reparse = context.ReparsedContext;
       if (reparse == null)
       {
-        // handle collisions with C# keyword names 'lines.foreach' =>
-        // ExpressionStmt(ReferenceExpr(lines.;Error);Error);ForeachStmt(foreach;Error)
         var expressionStatement = LookForKeywordBrokenExpressionStatement(node);
         if (expressionStatement != null)
         {
@@ -144,31 +144,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         }
       }
 
-      ICSharpStatement statement1 = null;
-
-      if (node.Parent is ICSharpStatement &&
-          node.Parent.FirstChild == node &&
-          node.NextSibling is IErrorElement)
+      var brokenStatement = FindBrokenStatement(node);
+      if (brokenStatement != null && reparse == null)
       {
-        statement1 = (ICSharpStatement) node.Parent;
-      }
-
-      if (statement1 == null)
-      {
-        var re = node.Parent as IReferenceExpression;
-        if (re != null && re.FirstChild == node && re.NextSibling is IErrorElement)
-        {
-          statement1 = re.Parent as IExpressionStatement;
-        }
-      }
-
-      if (statement1 != null && reparse == null)
-      {
-        var expressionStatement = statement1.PrevSibling as IExpressionStatement;
+        var expressionStatement = brokenStatement.PrevSibling as IExpressionStatement;
         if (expressionStatement != null)
         {
           ITreeNode coolNode;
-          var expression = FindExpressionBrokenByKeyword1(expressionStatement, out coolNode);
+          var expression = FindExpressionBrokenByKeyword2(expressionStatement, out coolNode);
           if (expression != null)
           {
             var expressionRange = expression.GetDocumentRange();
@@ -176,7 +159,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
 
             return CollectAvailableTemplates(
-              coolNode /* ? */, expression, replaceRange, forceMode, context);
+              coolNode /* TODO: ? */, expression, replaceRange, forceMode, context);
           }
         }
       }
@@ -215,12 +198,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           return statement.GetPreviousStatementInBlock() as IExpressionStatement;
         }
 
-        // handle 'int.new'
-        var objectCreation = node.Parent as IObjectCreationExpression;
-        if (objectCreation != null)
+        // handle 'int.new' or 'int.typeof'
+        var expression = node.Parent as ICSharpExpression;
+        if (expression is IObjectCreationExpression || expression is ITypeofExpression)
         {
-          var exprStatement = ExpressionStatementNavigator.GetByExpression(objectCreation);
-          if (exprStatement != null && exprStatement.FirstChild == objectCreation)
+          var exprStatement = ExpressionStatementNavigator.GetByExpression(expression);
+          if (exprStatement != null && exprStatement.FirstChild == expression)
           {
             return exprStatement.GetPreviousStatementInBlock() as IExpressionStatement;
           }
@@ -268,31 +251,42 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [CanBeNull]
-    private static ICSharpExpression FindExpressionBrokenByKeyword1(
+    private static ICSharpStatement FindBrokenStatement([NotNull] ITreeNode node)
+    {
+      var parent = node.Parent as ICSharpStatement;
+      if (parent != null && parent.FirstChild == node && node.NextSibling is IErrorElement)
+      {
+        return parent;
+      }
+
+      var refExpr = node.Parent as IReferenceExpression;
+      if (refExpr != null && refExpr.FirstChild == node && refExpr.NextSibling is IErrorElement)
+      {
+        return refExpr.Parent as IExpressionStatement;
+      }
+
+      return null;
+    }
+
+    [CanBeNull]
+    private static ICSharpExpression FindExpressionBrokenByKeyword2(
       [NotNull] IExpressionStatement statement, out ITreeNode coolNode)
     {
       ICSharpExpression expression = null;
       var errorFound = false;
       coolNode = null;
 
-      // todo: missing dot check
-      // todo: REVIEW PLEASE
-
-      for (ITreeNode treeNode = statement, last; expression == null; treeNode = last)
+      for (ITreeNode treeNode = statement, last;; treeNode = last)
       {
         last = treeNode.LastChild; // inspect all the last nodes traversing up tree
         if (last == null) break;
 
         if (!errorFound) errorFound = last is IErrorElement;
-
         if (errorFound && last.Parent is ITypeUsage)
         {
           if (last is IReferenceName && last.Parent is IUserTypeUsage)
-          {
             coolNode = last;
-          }
 
-          // mmmm
           expression = last.Parent.Parent as ICSharpExpression;
           break;
         }
