@@ -109,7 +109,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
             var scope = declaration.GetContainingNode<IBlock>();
             if (scope == null) return;
 
-            var searchDomain = SearchDomainFactory.Instance.CreateSearchDomain(scope);
+            var factory = solution.GetComponent<SearchDomainFactory>();
+            var searchDomain = factory.CreateSearchDomain(scope);
             var references = solution.GetPsiServices().Finder.FindReferences(
               localVariable, searchDomain, NullProgressIndicator.Instance);
 
