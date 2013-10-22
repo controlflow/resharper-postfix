@@ -10,7 +10,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
     templateName: "typeof",
-    description: "Wraps typw with typeof-expression",
+    description: "Wraps type usage with typeof() expression",
     example: "typeof(TExpr)", WorksOnTypes = true)]
   public class TypeOfExpressionTemplateProvider : IPostfixTemplateProvider
   {
