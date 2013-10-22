@@ -39,7 +39,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         {
           // filter out too simple local references
           var target = exprContext.ReferencedElement;
-          if (target == null || target is IParameter || target is ILocalVariable)
+          if (target is IParameter || target is ILocalVariable)
             continue;
 
           // filter out namespaces

@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PostfixCompletionListTest.cs" />
+    <Compile Include="PostfixCompletionRazorTest.cs" />
     <Compile Include="PostfixCompletionStaticsListTest.cs" />
     <Compile Include="PostfixCompletionStaticsTest.cs" />
     <Compile Include="PostfixCompletionTest.cs" />

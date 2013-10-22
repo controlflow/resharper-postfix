@@ -3,6 +3,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
@@ -93,6 +94,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
       var reference = FindMarkedNode(
         solution, textControl, myReferenceRange.Range, nameRange, myReferenceType);
+
+      // Razor.{caret} case
+      if (reference == expression && myWasReparsed)
+      {
+        var parentReference = reference.Parent as IReferenceExpression;
+        if (parentReference != null && parentReference.NameIdentifier.Name == "__")
+          reference = parentReference;
+      }
 
       // calculate textual range to remove
       var replaceRange = CalculateRangeToRemove(nameRange, expression, reference);

@@ -10,9 +10,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     protected override bool ExecuteAction { get { return true; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
 
-    protected override string RelativeTestDataPath
+    protected override string RelativeTestDataPath // sad panda :(
     {
-      // sad panda :(
       get { return PostfixCompletionTestsAssembly.TestDataPath + @"\Completion"; }
     }
 

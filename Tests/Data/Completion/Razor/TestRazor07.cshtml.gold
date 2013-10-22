@@ -1,0 +1,16 @@
+﻿// ${COMPLETE_ITEM:cast}
+
+@model ModelClass
+
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Title</title>
+</head>
+<body>
+  <div>
+    @((object) Model.Value{caret})
+  </div>
+</body>
+</html>

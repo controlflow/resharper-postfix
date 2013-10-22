@@ -1,0 +1,19 @@
+﻿// ${COMPLETE_ITEM:foreach}
+
+@model ModelClass
+
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Title</title>
+</head>
+<body>
+  <div>
+    @foreach (var item in Model.Items)
+    {
+      {caret}
+    }
+  </div>
+</body>
+</html>

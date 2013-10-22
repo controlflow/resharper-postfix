@@ -1,0 +1,20 @@
+﻿// ${COMPLETE_ITEM:var}
+
+@model ModelClass
+
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Title</title>
+</head>
+<body>
+  <div>
+    
+    @{
+      var model = Model;{caret}
+    }
+    @model.Value
+  </div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+﻿// ${COMPLETE_ITEM:null}
+
+@model ModelClass
+
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Title</title>
+</head>
+<body>
+  <div>
+    @if (Model == null)
+    {
+      {caret}
+    }
+  </div>
+</body>
+</html>
