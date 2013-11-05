@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>1.1.0-beta</version>
+    <version>1.1.0-beta2</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>Postfix Completion plugin</title>
     <authors>Alexander Shvedov</authors>
@@ -14,7 +14,7 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      Minor bugfix update. New .typeof template over types. Better work on broken/incomplete code. Templates .ifnot/.paren renamed to .else/.par respectively. All templates now splitted (notnull/null, if/ifnot, return/yield), so can be disabled separately. Switch template disabled on non-expression-statements. Template .arg enabled in automatic completion. Fix .par scope in assignment expressions. Fix Razor support issues.
+      Minor bugfix update. Build against R# SDK 8.1 EAP version. New .typeof template over types. Better work on broken/incomplete code. Templates .ifnot/.paren renamed to .else/.par respectively. All templates now splitted (notnull/null, if/ifnot, return/yield), so can be disabled separately. Switch template disabled on non-expression-statements. Template .arg enabled in automatic completion. Fix .par scope in assignment expressions. Fix Razor support issues.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
@@ -22,8 +22,8 @@
     <tags>postfix completion cats surround templates</tags>
   </metadata>
   <files>
-    <!-- TODO: to release -->
+    <!-- TODO: switch to release -->
     <file src="bin.R8\Debug\" target="ReSharper\v8.0\plugins\" />
-    <!-- <file src="bin.R81\Debug\" target="ReSharper\v8.1\plugins\" /> -->
+    <file src="bin.R81\Debug\" target="ReSharper\v8.1\plugins\" />
   </files>
 </package>
