@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\JetBrains.ReSharper.SDK.8.1.162\build\JetBrains.ReSharper.SDK.Props" Condition="Exists('packages\JetBrains.ReSharper.SDK.8.1.162\build\JetBrains.ReSharper.SDK.Props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.1</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{837AD254-C0A4-4DB6-97AC-A99E26A149E5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>JetBrains.ReSharper.ControlFlow.PostfixCompletion</RootNamespace>
+    <AssemblyName>PostfixCompletion</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin.R81\Debug\</OutputPath>
+    <DefineConstants>TRACE;; RESHARPER8</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin.R81\Release\</OutputPath>
+    <DefineConstants>TRACE;RESHARPER8</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Infrastructure\CSharpEnumHelpersItemProvider.cs">
+      <Link>Infrastructure\CSharpEnumHelpersItemProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\CSharpPostfixItemProvider.cs">
+      <Link>Infrastructure\CSharpPostfixItemProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\CSharpStaticMethodsItemProvider.cs">
+      <Link>Infrastructure\CSharpStaticMethodsItemProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\IPostfixTemplateProvider.cs">
+      <Link>Infrastructure\IPostfixTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\PostfixExecutionContext.cs">
+      <Link>Infrastructure\PostfixExecutionContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\PostfixTemplateAcceptanceContext.cs">
+      <Link>Infrastructure\PostfixTemplateAcceptanceContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\PostfixTemplatesManager.cs">
+      <Link>Infrastructure\PostfixTemplatesManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\PostfixTemplatesTracker.cs">
+      <Link>Infrastructure\PostfixTemplatesTracker.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\PrefixExpressionContext.cs">
+      <Link>Infrastructure\PrefixExpressionContext.cs</Link>
+    </Compile>
+    <Compile Include="..\LookupItems\ExpressionPostfixLookupItem.cs">
+      <Link>LookupItems\ExpressionPostfixLookupItem.cs</Link>
+    </Compile>
+    <Compile Include="..\LookupItems\KeywordStatementPostfixLookupItem.cs">
+      <Link>LookupItems\KeywordStatementPostfixLookupItem.cs</Link>
+    </Compile>
+    <Compile Include="..\LookupItems\PostfixLookupItem.cs">
+      <Link>LookupItems\PostfixLookupItem.cs</Link>
+    </Compile>
+    <Compile Include="..\LookupItems\PostfixLookupItemBase.cs">
+      <Link>LookupItems\PostfixLookupItemBase.cs</Link>
+    </Compile>
+    <Compile Include="..\LookupItems\StatementPostfixLookupItem.cs">
+      <Link>LookupItems\StatementPostfixLookupItem.cs</Link>
+    </Compile>
+    <Compile Include="..\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Settings\PostfixCompletionSettings.cs">
+      <Link>Settings\PostfixCompletionSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\Settings\PostfixOptionsPage.xaml.cs">
+      <Link>Settings\PostfixOptionsPage.xaml.cs</Link>
+    </Compile>
+    <Compile Include="..\Settings\PostfixOptionsViewModel.cs">
+      <Link>Settings\PostfixOptionsViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\Settings\PostfixTemplateViewModel.cs">
+      <Link>Settings\PostfixTemplateViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ArgumentExpressionTemplateProvider.cs">
+      <Link>TemplateProviders\ArgumentExpressionTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\AwaitExpressionTemplateProvider.cs">
+      <Link>TemplateProviders\AwaitExpressionTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\BooleanExpressionProviderBase.cs">
+      <Link>TemplateProviders\BooleanExpressionProviderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\CastExpressionTemplateProvider.cs">
+      <Link>TemplateProviders\CastExpressionTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\CheckForNullTemplateProvider.cs">
+      <Link>TemplateProviders\CheckForNullTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\CheckForNullTemplateProviderBase.cs">
+      <Link>TemplateProviders\CheckForNullTemplateProviderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\CheckToBeNullTemplateProvider.cs">
+      <Link>TemplateProviders\CheckToBeNullTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ElseStatementTemplateProvider.cs">
+      <Link>TemplateProviders\ElseStatementTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ForEachLoopTemplateProvider.cs">
+      <Link>TemplateProviders\ForEachLoopTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ForLoopTemplateProvider.cs">
+      <Link>TemplateProviders\ForLoopTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ForLoopTemplateProviderBase.cs">
+      <Link>TemplateProviders\ForLoopTemplateProviderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ForReverseLoopTemplateProvider.cs">
+      <Link>TemplateProviders\ForReverseLoopTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\IfStatementTemplateProvider.cs">
+      <Link>TemplateProviders\IfStatementTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\IntroduceFieldTemplateProvider.cs">
+      <Link>TemplateProviders\IntroduceFieldTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\IntroduceMemberTemplateProviderBase.cs">
+      <Link>TemplateProviders\IntroduceMemberTemplateProviderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\IntroducePropertyTemplateProvider.cs">
+      <Link>TemplateProviders\IntroducePropertyTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\IntroduceVariableTemplateProvider.cs">
+      <Link>TemplateProviders\IntroduceVariableTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\LockStatementExpressionProvider.cs">
+      <Link>TemplateProviders\LockStatementExpressionProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\NotExpressionTemplateProvider.cs">
+      <Link>TemplateProviders\NotExpressionTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ObjectCreationTypeTemplateProvider.cs">
+      <Link>TemplateProviders\ObjectCreationTypeTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ParenthesizedExpressionTemplateProvider.cs">
+      <Link>TemplateProviders\ParenthesizedExpressionTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ParseStringTemplateProvider.cs">
+      <Link>TemplateProviders\ParseStringTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ParseStringTemplateProviderBase.cs">
+      <Link>TemplateProviders\ParseStringTemplateProviderBase.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ReturnStatementTemplateProvider.cs">
+      <Link>TemplateProviders\ReturnStatementTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\SwitchStatementTemplateProvider.cs">
+      <Link>TemplateProviders\SwitchStatementTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\ThrowStatementTemplateProvider.cs">
+      <Link>TemplateProviders\ThrowStatementTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\TryParseStringTemplateProvider.cs">
+      <Link>TemplateProviders\TryParseStringTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\TypeOfExpressionTemplateProvider.cs">
+      <Link>TemplateProviders\TypeOfExpressionTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\UsingStatementTemplateProvider.cs">
+      <Link>TemplateProviders\UsingStatementTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\WhileLoopTemplateProvider.cs">
+      <Link>TemplateProviders\WhileLoopTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\TemplateProviders\YieldReturnStatementTemplateProvider.cs">
+      <Link>TemplateProviders\YieldReturnStatementTemplateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Utils\CommonUtils.cs">
+      <Link>Utils\CommonUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\Utils\PortabilityExtensions.R8.cs">
+      <Link>Utils\PortabilityExtensions.R8.cs</Link>
+    </Compile>
+    <Compile Include="..\Utils\TypeUtils.cs">
+      <Link>Utils\TypeUtils.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <PropertyGroup>
+  </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="packages\JetBrains.ReSharper.SDK.8.1.162\build\JetBrains.ReSharper.SDK.Targets" Condition="Exists('packages\JetBrains.ReSharper.SDK.8.1.162\build\JetBrains.ReSharper.SDK.Targets')" />
+</Project>
