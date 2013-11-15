@@ -14,7 +14,7 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      Minor bugfix update. Build against R# SDK 8.1 EAP version. New .typeof template over types. Better work on broken/incomplete code. Templates .ifnot/.paren renamed to .else/.par respectively. All templates now splitted (notnull/null, if/ifnot, return/yield), so can be disabled separately. Switch template disabled on non-expression-statements. Template .arg enabled in automatic completion. Fix .par scope in assignment expressions. Fix Razor support issues.
+      Minor bugfix update. R# SDK 8.1 EAP version support. New .typeof template over types. Better work on broken/incomplete code. Templates .ifnot/.paren renamed to .else/.par respectively. All templates now splitted (notnull/null, if/ifnot, return/yield), so can be disabled separately. Switch template disabled on non-expression-statements. Template .arg enabled in automatic completion. Fix .par scope in assignment expressions. Fix Razor support issues.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
