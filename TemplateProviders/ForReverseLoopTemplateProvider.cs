@@ -7,10 +7,12 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // TODO: FIX ME
+  
   [PostfixTemplateProvider(
     templateName: "forr",
     description: "Iterates over collection in reverse with index",
-    example: "for (var i = expr.Length; i >= 0; i--)")]
+    example: "for (var i = expr.Length - 1; i >= 0; i--)")]
   public class ForReverseLoopTemplateProvider : ForLoopTemplateProviderBase, IPostfixTemplateProvider
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
@@ -28,7 +30,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
         : base("forR", context, lengthPropertyName) { }
 
-      protected override string Template { get { return "for(var x=expr;x>=0;x--)"; } }
+      protected override string Template { get { return "for(var x=expr-1;x>=0;x--)"; } }
 
       protected override void PlaceExpression(
         IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
