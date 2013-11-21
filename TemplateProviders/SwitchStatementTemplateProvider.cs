@@ -9,6 +9,8 @@ using JetBrains.ReSharper.Psi.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // TODO: make it work over everything in force mode (do not check type)
+  
   [PostfixTemplateProvider(
     templateName: "switch",
     description: "Produces switch over integral/string type",
