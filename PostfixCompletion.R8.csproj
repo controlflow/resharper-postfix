@@ -48,9 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Roadmap.txt" />
-    <Compile Include="Infrastructure\CSharpEnumHelpersItemProvider.cs" />
-    <Compile Include="Infrastructure\CSharpPostfixItemProvider.cs" />
-    <Compile Include="Infrastructure\CSharpStaticMethodsItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpEnumHelpersItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpPostfixItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpStaticMethodsItemProvider.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateProvider.cs" />
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\KeywordStatementPostfixLookupItem.cs" />
