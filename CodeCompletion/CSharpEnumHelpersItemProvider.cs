@@ -16,6 +16,7 @@ using JetBrains.ReSharper.I18n.Services.Refactoring;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resources;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
@@ -24,11 +25,8 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.ReSharper.Psi.Pointers;
-#endif
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 {
   [Language(typeof (CSharpLanguage))]
   public class CSharpEnumHelpersItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>

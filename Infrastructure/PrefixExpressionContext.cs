@@ -5,9 +5,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Razor.Impl.CustomHandlers;
 using JetBrains.ReSharper.Psi.Tree;
-#if RESHARPER8
 using JetBrains.ProjectModel.FileTypes;
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {

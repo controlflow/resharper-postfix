@@ -9,9 +9,6 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER7
-using JetBrains.ReSharper.Psi;
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -109,7 +106,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       protected override bool SuppressSemicolonSuffix { get { return true; } }
       protected override IThrowStatement CreateStatement(CSharpElementFactory factory)
       {
-        return (IThrowStatement)factory.CreateStatement("throw new Expr();");
+        return (IThrowStatement) factory.CreateStatement("throw new Expr();");
       }
 
       protected override void PlaceExpression(

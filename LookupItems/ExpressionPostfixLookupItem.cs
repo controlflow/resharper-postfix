@@ -11,9 +11,7 @@ using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
-#if RESHARPER8
 using JetBrains.ReSharper.Psi.Modules;
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {

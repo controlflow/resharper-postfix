@@ -6,9 +6,6 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
-#if RESHARPER7
-using JetBrains.ReSharper.Psi;
-#endif
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 

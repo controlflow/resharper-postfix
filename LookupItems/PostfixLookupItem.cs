@@ -18,9 +18,7 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-#if RESHARPER8
 using JetBrains.ReSharper.Psi.Modules;
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {

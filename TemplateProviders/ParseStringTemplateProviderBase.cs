@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
@@ -8,6 +6,7 @@ using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.Psi;
@@ -16,11 +15,8 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER7
-using JetBrains.ReSharper.Feature.Services.CSharp.LiveTemplates;
-#elif RESHARPER8
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
-#endif
+using System;
+using System.Collections.Generic;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -59,13 +55,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
         var typesWithParsers = GetTypesWithParsers(typeQualifier);
         var templateExpression =
-#if RESHARPER7
-          new CSharpTemplateUtil.TypeTemplateExpression(
-            "int", typesWithParsers.ToArray(), typesWithParsers[0],
-#elif RESHARPER8
-          new TypeTemplateExpression(typesWithParsers,
-#endif
-          psiModule, CSharpLanguage.Instance);
+          new TypeTemplateExpression(typesWithParsers, psiModule, CSharpLanguage.Instance);
 
         var hotspotInfo = new HotspotInfo(
           new TemplateField("type", templateExpression, 0),
@@ -94,9 +84,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
                 manager.ExecuteManualCompletion(
                   CodeCompletionType.SmartCompletion,
                   textControl, solution, EmptyAction.Instance,
-#if RESHARPER8
                   manager.GetPrimaryEvaluationMode(CodeCompletionType.SmartCompletion),
-#endif
                   AutocompletionBehaviour.DoNotAutocomplete);
               });
           }
@@ -114,14 +102,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
     [NotNull] private static IList<IType> GetTypesWithParsers([NotNull] ITreeNode context)
     {
-#if RESHARPER7
-      var cacheManager = context.GetPsiServices().CacheManager;
-      var symbolScope = cacheManager.GetDeclarationsCache(context.GetPsiModule(), true, true);
-#elif RESHARPER8
       var symbolCache = context.GetPsiServices().Symbols;
       var symbolScope = symbolCache.GetSymbolScope(
         context.GetPsiModule(), context.GetResolveContext(), true, true);
-#endif
 
       var list = new LocalList<IType>();
       foreach (var type in TypesWithParsers)

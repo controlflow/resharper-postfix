@@ -1,11 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-#if RESHARPER7
-using JetBrains.ReSharper.Psi;
-#else
 using JetBrains.ReSharper.Psi.Modules;
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {

@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
@@ -8,12 +7,11 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
+using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
-#if RESHARPER8
-using JetBrains.ReSharper.Psi.Modules;
-#endif
+using System;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {

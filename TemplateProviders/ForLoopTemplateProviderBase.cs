@@ -13,9 +13,7 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER8
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -86,15 +84,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       {
         if (caretPosition == null) return;
 
-        var condition = (IRelationalExpression)statement.Condition;
-        var variable = (ILocalVariableDeclaration)statement.Initializer.Declaration.Declarators[0];
-        var iterator = (IPostfixOperatorExpression)statement.Iterators.Expressions[0];
+        var condition = (IRelationalExpression) statement.Condition;
+        var variable = (ILocalVariableDeclaration) statement.Initializer.Declaration.Declarators[0];
+        var iterator = (IPostfixOperatorExpression) statement.Iterators.Expressions[0];
 
-#if RESHARPER7
-        var nameExpression = new MacroCallExpression(new SuggestVariableNameMacro());
-#else
         var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
-#endif
 
         var nameSpot = new HotspotInfo(
           new TemplateField("name", nameExpression, 0),

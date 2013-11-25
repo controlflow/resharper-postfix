@@ -6,9 +6,6 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
-#if RESHARPER7
-using JetBrains.ReSharper.Psi;
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {

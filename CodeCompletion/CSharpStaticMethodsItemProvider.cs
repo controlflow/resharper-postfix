@@ -12,20 +12,18 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExpectedTypes;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
+using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.ReSharper.Psi.ExpectedTypes;
-using JetBrains.ReSharper.Psi.Pointers;
-#endif
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 {
   // todo: decorate step - hide overriden signatures (do we need this?)
 
@@ -77,11 +75,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         OverriddenFilter.INSTANCE, new AccessRightsFilter(accessContext));
 
       var innerCollector = new GroupedItemsCollector();
-      GetLookupItemsFromSymbolTable(symbolTable, innerCollector, context
-#if RESHARPER8
-        , false
-#endif
-        );
+      GetLookupItemsFromSymbolTable(symbolTable, innerCollector, context, false);
 
       // decorate static lookup elements
       var itemsOwner = context.BasicContext.LookupItemsOwner;
@@ -102,12 +96,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [NotNull] DeclaredElementLookupItem lookupItem, [NotNull] ILookupItemsOwner itemsOwner)
     {
       lookupItem.AfterComplete += (
-#if RESHARPER7
-        ITextControl textControl, ref TextRange range, ref TextRange decoration) => 
-#elif RESHARPER8
         ITextControl textControl, ref TextRange range, ref TextRange decoration,
         TailType tailType, ref Suffix suffix, ref IRangeMarker marker) =>
-#endif
       {
         var solution = lookupItem.Solution;
         var psiServices = solution.GetPsiServices();
@@ -120,13 +110,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var ownerType = method.GetContainingType().NotNull();
         var hasMultipleParams = HasMultipleParameters(lookupItem, method);
 
-#if RESHARPER8
         if (!hasMultipleParams) // put caret 'foo(arg){here};'
         {
           var documentRange = new DocumentRange(textControl.Document, decoration);
           marker = documentRange.EndOffsetRange().CreateRangeMarker();
         }
-#endif
 
         foreach (var referenceExpression in TextControlToPsi.GetElements<
           IReferenceExpression>(solution, textControl.Document, range.StartOffset))

@@ -30,12 +30,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       {
         var originalGeneratedTreeRange = context.ToOriginalTreeRange(reparsedTreeRange);
         var sandBox = treeNode.GetContainingNode<ISandBox>().NotNull();
-
-#if RESHARPER7
-        var contextNode = sandBox.Context.A.NotNull();
-#elif RESHARPER8
         var contextNode = sandBox.ContextNode.NotNull();
-#endif
 
         var containingFile = contextNode.GetContainingFile().NotNull();
 

@@ -21,10 +21,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return false;
     }
 
-#if RESHARPER8
     public int Multiplier { get; set; }
     public bool IsDynamic { get { return false; } }
     public bool IgnoreSoftOnSpace { get; set; }
-#endif
   }
 }

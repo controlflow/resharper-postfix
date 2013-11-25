@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.Psi;
@@ -14,9 +13,8 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
-#endif
+using System.Collections.Generic;
+using System.Linq;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
@@ -77,14 +75,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         if (caretPosition == null) return;
 
         var iterator = statement.IteratorDeclaration;
-
-#if RESHARPER7
-        var typeExpression = new MacroCallExpression(new SuggestVariableTypeMacro());
-        var nameExpression = new MacroCallExpression(new SuggestVariableNameMacro());
-#else
         var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
         var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
-#endif
 
         var typeSpot = new HotspotInfo(
           new TemplateField("type", typeExpression, 0),

@@ -8,11 +8,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
-#if RESHARPER7
-using JetBrains.ReSharper.Psi;
-#else
 using JetBrains.ReSharper.Psi.Modules;
-#endif
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {

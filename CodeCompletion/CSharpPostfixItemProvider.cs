@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
+using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 {
   [Language(typeof(CSharpLanguage))]
   public class CSharpPostfixItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
@@ -28,14 +26,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           || completionType == CodeCompletionType.BasicCompletion;
     }
 
-#if RESHARPER8
     public override bool IsAvailableEx(
       CodeCompletionType[] codeCompletionTypes, CSharpCodeCompletionContext specificContext)
     {
       // enable in double basic completion
       return codeCompletionTypes.Length <= 2;
     }
-#endif
 
     protected override bool AddLookupItems(
       CSharpCodeCompletionContext context, GroupedItemsCollector collector)
@@ -56,7 +52,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 
-#if RESHARPER8
       var parameters = context.BasicContext.Parameters;
       if (forceMode && parameters.CodeCompletionTypes.Length > 1)
       {
@@ -72,7 +67,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         }
         else return false;
       }
-#endif
 
       foreach (var lookupItem in items)
         if (!idsToRemove.Contains(lookupItem.Identity))
