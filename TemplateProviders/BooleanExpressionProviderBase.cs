@@ -4,6 +4,8 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
+// todo: disable in cases like typeReference.Name == NotNullAttribute.if
+
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   public abstract class BooleanExpressionProviderBase
