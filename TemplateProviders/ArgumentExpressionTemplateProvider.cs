@@ -14,6 +14,7 @@ using JetBrains.TextControl;
 using JetBrains.Util;
 
 // todo: disable inside .arg hotspot somehow...
+// todo: disable here: 'foo.arg()'
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
