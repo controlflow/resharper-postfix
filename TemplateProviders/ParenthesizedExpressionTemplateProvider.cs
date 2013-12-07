@@ -8,6 +8,9 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
+  // todo: foo as Bar.par - available in auto
+  // todo: (Bar) foo.par - available in auto?
+  
   [PostfixTemplateProvider(
     templateName: "par",
     description: "Parenthesizes current expression",
