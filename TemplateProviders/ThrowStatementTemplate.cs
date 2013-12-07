@@ -16,7 +16,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "throw",
     description: "Throws expression of 'Exception' type",
     example: "throw expr;", WorksOnTypes = true)]
-  public class ThrowStatementTemplateProvider : IPostfixTemplateProvider
+  public class ThrowStatementTemplate : IPostfixTemplate
   {
     public void CreateItems(
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

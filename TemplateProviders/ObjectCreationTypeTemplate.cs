@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "new",
     description: "Produces instantiation expression for type",
     example: "new SomeType()", WorksOnTypes = true)]
-  public class ObjectCreationTypeTemplateProvider : IPostfixTemplateProvider
+  public class ObjectCreationTypeTemplate : IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

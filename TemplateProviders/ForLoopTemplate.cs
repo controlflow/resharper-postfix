@@ -11,7 +11,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "for",
     description: "Iterates over collection with index",
     example: "for (var i = 0; i < expr.Length; i++)")]
-  public class ForLoopTemplateProvider : ForLoopTemplateProviderBase, IPostfixTemplateProvider
+  public class ForLoopTemplate : ForLoopTemplateProviderBase, IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "arg",
     description: "Surrounds expression with invocation",
     example: "Method(expr)")]
-  public class ArgumentExpressionTemplateProvider : IPostfixTemplateProvider
+  public class ArgumentExpressionTemplate : IPostfixTemplate
   {
     public void CreateItems(
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

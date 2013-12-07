@@ -5,10 +5,10 @@ using JetBrains.ReSharper.Psi.ControlFlow.CSharp;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
-    templateName: "notnull",
-    description: "Checks expression to be not-null",
-    example: "if (expr != null)")]
-  public class CheckForNullTemplateProvider : CheckForNullTemplateProviderBase, IPostfixTemplateProvider
+    templateName: "null",
+    description: "Checks expression to be null",
+    example: "if (expr == null)")]
+  public class CheckToBeNullTemplate : CheckForNullTemplateProviderBase, IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {
@@ -22,14 +22,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
-
       if (!context.ForceMode) state = CheckNullabilityState(exprContext);
 
       switch (state)
       {
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
         case CSharpControlFlowNullReferenceState.UNKNOWN:
-          consumer.Add(new LookupItem("notNull", exprContext, "if(expr!=null)"));
+          consumer.Add(new LookupItem("null", exprContext, "if(expr==null)"));
           break;
       }
     }

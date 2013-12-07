@@ -15,7 +15,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "switch",
     description: "Produces switch over integral/string type",
     example: "switch (expr)")]
-  public class SwitchStatementTemplateProvider : IPostfixTemplateProvider
+  public class SwitchStatementTemplate : IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "not",
     description: "Negates boolean expression",
     example: "!expr", WorksOnTypes = true /* don't like it */)]
-  public class NotExpressionTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
+  public class NotExpressionTemplate : BooleanExpressionProviderBase, IPostfixTemplate
   {
     protected override bool CreateBooleanItems(
       PrefixExpressionContext expression, ICollection<ILookupItem> consumer)
@@ -47,7 +47,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           if (unary2 != null && unary2.UnaryOperatorType == UnaryOperatorType.EXCL)
           {
             expression.GetPsiServices().DoTransaction(
-              typeof(NotExpressionTemplateProvider).FullName, () =>
+              typeof(NotExpressionTemplate).FullName, () =>
             {
               using (WriteLockCookie.Create())
               {

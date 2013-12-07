@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "await",
     description: "Awaits expressions of 'Task' type",
     example: "await expr")]
-  public class AwaitExpressionTemplateProvider : IPostfixTemplateProvider
+  public class AwaitExpressionTemplate : IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

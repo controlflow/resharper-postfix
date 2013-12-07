@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "forEach",
     description: "Iterates over enumerable collection",
     example: "foreach (var x in expr)")]
-  public class ForEachLoopTemplateProvider : IPostfixTemplateProvider
+  public class ForEachLoopTemplate : IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

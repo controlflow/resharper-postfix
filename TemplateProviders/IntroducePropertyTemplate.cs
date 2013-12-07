@@ -10,7 +10,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "prop",
     description: "Introduces property for expression",
     example: "Property = expr;")]
-  public class IntroducePropertyTemplateProvider : IntroduceMemberTemplateProviderBase
+  public class IntroducePropertyTemplate : IntroduceMemberTemplateBase
   {
     protected override IntroduceMemberLookupItem CreateLookupItem(
       PrefixExpressionContext expression, IType expressionType, bool isStatic)

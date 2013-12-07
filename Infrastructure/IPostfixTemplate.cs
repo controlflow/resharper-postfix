@@ -6,14 +6,14 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  public interface IPostfixTemplateProvider
+  public interface IPostfixTemplate
   {
     void CreateItems([NotNull] PostfixTemplateAcceptanceContext context,
                      [NotNull] ICollection<ILookupItem> consumer);
   }
 
   [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]
-  [BaseTypeRequired(typeof(IPostfixTemplateProvider))]
+  [BaseTypeRequired(typeof(IPostfixTemplate))]
   public sealed class PostfixTemplateProviderAttribute : ShellComponentAttribute
   {
     [NotNull] public string TemplateName { get; private set; }

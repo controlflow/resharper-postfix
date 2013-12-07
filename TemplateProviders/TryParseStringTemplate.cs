@@ -8,7 +8,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "tryparse",
     description: "Parses string as value of some type",
     example: "int.TryParse(expr, out value)")]
-  public class TryParseStringTemplateProvider : ParseStringTemplateProviderBase, IPostfixTemplateProvider
+  public class TryParseStringTemplate : ParseStringTemplateProviderBase, IPostfixTemplate
   {
     public void CreateItems(
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

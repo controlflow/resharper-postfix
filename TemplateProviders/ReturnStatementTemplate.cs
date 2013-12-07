@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "return",
     description: "Returns expression/yields value from iterator",
     example: "return expr;")]
-  public class ReturnStatementTemplateProvider : IPostfixTemplateProvider
+  public class ReturnStatementTemplate : IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

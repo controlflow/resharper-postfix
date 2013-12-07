@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     [NotNull] private readonly IList<TemplateProviderInfo> myTemplateProvidersInfos;
 
-    public PostfixTemplatesManager([NotNull] IEnumerable<IPostfixTemplateProvider> providers)
+    public PostfixTemplatesManager([NotNull] IEnumerable<IPostfixTemplate> providers)
     {
       var infos = new List<TemplateProviderInfo>();
       foreach (var provider in providers)
@@ -39,11 +39,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     public sealed class TemplateProviderInfo
     {
-      [NotNull] public IPostfixTemplateProvider Provider { get; private set; }
+      [NotNull] public IPostfixTemplate Provider { get; private set; }
       [NotNull] public PostfixTemplateProviderAttribute Metadata { get; private set; }
       [NotNull] public string SettingsKey { get; private set; }
 
-      public TemplateProviderInfo([NotNull] IPostfixTemplateProvider provider,
+      public TemplateProviderInfo([NotNull] IPostfixTemplate provider,
         [NotNull] string providerKey, [NotNull] PostfixTemplateProviderAttribute metadata)
       {
         Provider = provider;

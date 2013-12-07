@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "var",
     description: "Introduces variable for expression",
     example: "var x = expr;", WorksOnTypes = true)]
-  public sealed class IntroduceVariableTemplateProvider : IPostfixTemplateProvider
+  public sealed class IntroduceVariableTemplate : IPostfixTemplate
   {
     public void CreateItems(
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "typeof",
     description: "Wraps type usage with typeof() expression",
     example: "typeof(TExpr)", WorksOnTypes = true)]
-  public class TypeOfExpressionTemplateProvider : IPostfixTemplateProvider
+  public class TypeOfExpressionTemplate : IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

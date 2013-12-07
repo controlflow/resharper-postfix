@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "forr",
     description: "Iterates over collection in reverse with index",
     example: "for (var i = expr.Length - 1; i >= 0; i--)")]
-  public class ForReverseLoopTemplateProvider : ForLoopTemplateProviderBase, IPostfixTemplateProvider
+  public class ForReverseLoopTemplate : ForLoopTemplateProviderBase, IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

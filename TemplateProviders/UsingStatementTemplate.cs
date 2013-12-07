@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "using",
     description: "Wraps resource with using statement",
     example: "using (expr)")]
-  public class UsingStatementTemplateProvider : IPostfixTemplateProvider
+  public class UsingStatementTemplate : IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

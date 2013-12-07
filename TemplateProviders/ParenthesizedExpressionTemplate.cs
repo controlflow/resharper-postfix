@@ -15,7 +15,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "par",
     description: "Parenthesizes current expression",
     example: "(expr)")]
-  public class ParenthesizedExpressionTemplateProvider : IPostfixTemplateProvider
+  public class ParenthesizedExpressionTemplate : IPostfixTemplate
   {
     public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
     {

@@ -8,10 +8,10 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   [PostfixTemplateProvider(
-    templateName: "if",
-    description: "Checks boolean expression to be 'true'",
-    example: "if (expr)", WorksOnTypes = true)]
-  public sealed class IfStatementTemplateProvider : BooleanExpressionProviderBase, IPostfixTemplateProvider
+    templateName: "while",
+    description: "Iterating while boolean statement is 'true'",
+    example: "while (expr)", WorksOnTypes = true)]
+  public sealed class WhileLoopTemplate : BooleanExpressionProviderBase, IPostfixTemplate
   {
     protected override bool CreateBooleanItems(
       PrefixExpressionContext expression, ICollection<ILookupItem> consumer)
@@ -25,14 +25,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return false;
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IIfStatement>
+    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IWhileStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
+      public LookupItem([NotNull] PrefixExpressionContext context) : base("while", context) { }
 
-      protected override string Template { get { return "if(expr)"; } }
-
+      protected override string Template { get { return "while(expr)"; } }
       protected override void PlaceExpression(
-        IIfStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
+        IWhileStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
       {
         statement.Condition.ReplaceBy(expression);
       }

@@ -10,7 +10,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "field",
     description: "Introduces field for expression",
     example: "_field = expr;")]
-  public class IntroduceFieldTemplateProvider : IntroduceMemberTemplateProviderBase
+  public class IntroduceFieldTemplate : IntroduceMemberTemplateBase
   {
     protected override IntroduceMemberLookupItem CreateLookupItem(
       PrefixExpressionContext expression, IType expressionType, bool isStatic)

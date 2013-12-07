@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     templateName: "lock",
     description: "Surrounds expression with lock block",
     example: "lock (expr)")]
-  public class LockStatementExpressionProvider : IPostfixTemplateProvider
+  public class LockStatementExpression : IPostfixTemplate
   {
     public void CreateItems(
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)

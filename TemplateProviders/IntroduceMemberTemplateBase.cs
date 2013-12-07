@@ -16,7 +16,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  public abstract class IntroduceMemberTemplateProviderBase : IPostfixTemplateProvider
+  public abstract class IntroduceMemberTemplateBase : IPostfixTemplate
   {
     public void CreateItems(
       PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
