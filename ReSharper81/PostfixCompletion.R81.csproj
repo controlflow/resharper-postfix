@@ -56,14 +56,14 @@
     <Compile Include="..\CodeCompletion\CSharpStaticMethodsItemProvider.cs">
       <Link>CodeCompletion\CSharpStaticMethodsItemProvider.cs</Link>
     </Compile>
-    <Compile Include="..\Infrastructure\IPostfixTemplateProvider.cs">
-      <Link>Infrastructure\IPostfixTemplateProvider.cs</Link>
+    <Compile Include="..\Infrastructure\IPostfixTemplate.cs">
+      <Link>Infrastructure\IPostfixTemplate.cs</Link>
     </Compile>
     <Compile Include="..\Infrastructure\PostfixExecutionContext.cs">
       <Link>Infrastructure\PostfixExecutionContext.cs</Link>
     </Compile>
-    <Compile Include="..\Infrastructure\PostfixTemplateAcceptanceContext.cs">
-      <Link>Infrastructure\PostfixTemplateAcceptanceContext.cs</Link>
+    <Compile Include="..\Infrastructure\PostfixTemplateContext.cs">
+      <Link>Infrastructure\PostfixTemplateContext.cs</Link>
     </Compile>
     <Compile Include="..\Infrastructure\PostfixTemplatesManager.cs">
       <Link>Infrastructure\PostfixTemplatesManager.cs</Link>
@@ -104,98 +104,98 @@
     <Compile Include="..\Settings\PostfixTemplateViewModel.cs">
       <Link>Settings\PostfixTemplateViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ArgumentExpressionTemplateProvider.cs">
-      <Link>TemplateProviders\ArgumentExpressionTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ArgumentExpressionTemplate.cs">
+      <Link>TemplateProviders\ArgumentExpressionTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\AwaitExpressionTemplateProvider.cs">
-      <Link>TemplateProviders\AwaitExpressionTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\AwaitExpressionTemplate.cs">
+      <Link>TemplateProviders\AwaitExpressionTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\BooleanExpressionProviderBase.cs">
-      <Link>TemplateProviders\BooleanExpressionProviderBase.cs</Link>
+    <Compile Include="..\TemplateProviders\BooleanExpressionTemplateBase.cs">
+      <Link>TemplateProviders\BooleanExpressionTemplateBase.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\CastExpressionTemplateProvider.cs">
-      <Link>TemplateProviders\CastExpressionTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\CastExpressionTemplate.cs">
+      <Link>TemplateProviders\CastExpressionTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\CheckForNullTemplateProvider.cs">
-      <Link>TemplateProviders\CheckForNullTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\CheckForNullTemplateBase.cs">
+      <Link>TemplateProviders\CheckForNullTemplateBase.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\CheckForNullTemplateProviderBase.cs">
-      <Link>TemplateProviders\CheckForNullTemplateProviderBase.cs</Link>
+    <Compile Include="..\TemplateProviders\CheckIsNullTemplate.cs">
+      <Link>TemplateProviders\CheckIsNullTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\CheckToBeNullTemplateProvider.cs">
-      <Link>TemplateProviders\CheckToBeNullTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\CheckNotNullTemplate.cs">
+      <Link>TemplateProviders\CheckNotNullTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ElseStatementTemplateProvider.cs">
-      <Link>TemplateProviders\ElseStatementTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ElseStatementTemplate.cs">
+      <Link>TemplateProviders\ElseStatementTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ForEachLoopTemplateProvider.cs">
-      <Link>TemplateProviders\ForEachLoopTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ForEachLoopTemplate.cs">
+      <Link>TemplateProviders\ForEachLoopTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ForLoopTemplateProvider.cs">
-      <Link>TemplateProviders\ForLoopTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ForLoopTemplate.cs">
+      <Link>TemplateProviders\ForLoopTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ForLoopTemplateProviderBase.cs">
-      <Link>TemplateProviders\ForLoopTemplateProviderBase.cs</Link>
+    <Compile Include="..\TemplateProviders\ForLoopTemplateBase.cs">
+      <Link>TemplateProviders\ForLoopTemplateBase.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ForReverseLoopTemplateProvider.cs">
-      <Link>TemplateProviders\ForReverseLoopTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ForReverseLoopTemplate.cs">
+      <Link>TemplateProviders\ForReverseLoopTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\IfStatementTemplateProvider.cs">
-      <Link>TemplateProviders\IfStatementTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\IfStatementTemplate.cs">
+      <Link>TemplateProviders\IfStatementTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\IntroduceFieldTemplateProvider.cs">
-      <Link>TemplateProviders\IntroduceFieldTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\IntroduceFieldTemplate.cs">
+      <Link>TemplateProviders\IntroduceFieldTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\IntroduceMemberTemplateProviderBase.cs">
-      <Link>TemplateProviders\IntroduceMemberTemplateProviderBase.cs</Link>
+    <Compile Include="..\TemplateProviders\IntroduceMemberTemplateBase.cs">
+      <Link>TemplateProviders\IntroduceMemberTemplateBase.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\IntroducePropertyTemplateProvider.cs">
-      <Link>TemplateProviders\IntroducePropertyTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\IntroducePropertyTemplate.cs">
+      <Link>TemplateProviders\IntroducePropertyTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\IntroduceVariableTemplateProvider.cs">
-      <Link>TemplateProviders\IntroduceVariableTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\IntroduceVariableTemplate.cs">
+      <Link>TemplateProviders\IntroduceVariableTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\LockStatementExpressionProvider.cs">
-      <Link>TemplateProviders\LockStatementExpressionProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\LockStatementExpression.cs">
+      <Link>TemplateProviders\LockStatementExpression.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\NotExpressionTemplateProvider.cs">
-      <Link>TemplateProviders\NotExpressionTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\NotExpressionTemplate.cs">
+      <Link>TemplateProviders\NotExpressionTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ObjectCreationTypeTemplateProvider.cs">
-      <Link>TemplateProviders\ObjectCreationTypeTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ObjectCreationTypeTemplate.cs">
+      <Link>TemplateProviders\ObjectCreationTypeTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ParenthesizedExpressionTemplateProvider.cs">
-      <Link>TemplateProviders\ParenthesizedExpressionTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ParenthesizedExpressionTemplate.cs">
+      <Link>TemplateProviders\ParenthesizedExpressionTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ParseStringTemplateProvider.cs">
-      <Link>TemplateProviders\ParseStringTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ParseStringTemplate.cs">
+      <Link>TemplateProviders\ParseStringTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ParseStringTemplateProviderBase.cs">
-      <Link>TemplateProviders\ParseStringTemplateProviderBase.cs</Link>
+    <Compile Include="..\TemplateProviders\ParseStringTemplateBase.cs">
+      <Link>TemplateProviders\ParseStringTemplateBase.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ReturnStatementTemplateProvider.cs">
-      <Link>TemplateProviders\ReturnStatementTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ReturnStatementTemplate.cs">
+      <Link>TemplateProviders\ReturnStatementTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\SwitchStatementTemplateProvider.cs">
-      <Link>TemplateProviders\SwitchStatementTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\SwitchStatementTemplate.cs">
+      <Link>TemplateProviders\SwitchStatementTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\ThrowStatementTemplateProvider.cs">
-      <Link>TemplateProviders\ThrowStatementTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\ThrowStatementTemplate.cs">
+      <Link>TemplateProviders\ThrowStatementTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\TryParseStringTemplateProvider.cs">
-      <Link>TemplateProviders\TryParseStringTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\TryParseStringTemplate.cs">
+      <Link>TemplateProviders\TryParseStringTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\TypeOfExpressionTemplateProvider.cs">
-      <Link>TemplateProviders\TypeOfExpressionTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\TypeOfExpressionTemplate.cs">
+      <Link>TemplateProviders\TypeOfExpressionTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\UsingStatementTemplateProvider.cs">
-      <Link>TemplateProviders\UsingStatementTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\UsingStatementTemplate.cs">
+      <Link>TemplateProviders\UsingStatementTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\WhileLoopTemplateProvider.cs">
-      <Link>TemplateProviders\WhileLoopTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\WhileLoopTemplate.cs">
+      <Link>TemplateProviders\WhileLoopTemplate.cs</Link>
     </Compile>
-    <Compile Include="..\TemplateProviders\YieldReturnStatementTemplateProvider.cs">
-      <Link>TemplateProviders\YieldReturnStatementTemplateProvider.cs</Link>
+    <Compile Include="..\TemplateProviders\YieldReturnStatementTemplate.cs">
+      <Link>TemplateProviders\YieldReturnStatementTemplate.cs</Link>
     </Compile>
     <Compile Include="..\Utils\CommonUtils.cs">
       <Link>Utils\CommonUtils.cs</Link>
