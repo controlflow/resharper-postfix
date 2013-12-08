@@ -9,47 +9,41 @@ using JetBrains.ReSharper.Psi.CSharp.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(
+  [PostfixTemplate(
     templateName: "await",
     description: "Awaits expressions of 'Task' type",
     example: "await expr")]
-  public class AwaitExpressionTemplate : IPostfixTemplate
-  {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      var exprContext = context.InnerExpression;
+  public class AwaitExpressionTemplate : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context) {
+      var expressionContext = context.InnerExpression;
       var function = context.ContainingFunction;
-      if (function == null) return;
+      if (function == null) return null;
 
-      if (!context.ForceMode)
-      {
-        if (!function.IsAsync) return;
+      if (!context.ForceMode) {
+        if (!function.IsAsync) return null;
 
-        var expressionType = exprContext.Type;
-        if (!expressionType.IsUnknown)
-        {
+        var expressionType = expressionContext.Type;
+        if (!expressionType.IsUnknown) {
           if (!(expressionType.IsTask() ||
-                expressionType.IsGenericTask())) return;
+                expressionType.IsGenericTask())) return null;
         }
       }
 
       // check expression is not already awaited
+      var expression = (context.PostfixReferenceNode as IReferenceExpression);
       var awaitExpression = AwaitExpressionNavigator.GetByTask(
-        (context.PostfixReferenceNode as IReferenceExpression)
-        .GetContainingParenthesizedExpression() as IUnaryExpression);
+        expression.GetContainingParenthesizedExpression() as IUnaryExpression);
 
-      if (awaitExpression == null)
-        consumer.Add(new LookupItem(exprContext));
+      if (awaitExpression != null) return null;
+
+      return new AwaitItem(expressionContext);
     }
 
-    private sealed class LookupItem : ExpressionPostfixLookupItem<IAwaitExpression>
-    {
-      public LookupItem([NotNull] PrefixExpressionContext context)
-        : base("await", context) { }
+    private sealed class AwaitItem : ExpressionPostfixLookupItem<IAwaitExpression> {
+      public AwaitItem([NotNull] PrefixExpressionContext context) : base("await", context) { }
 
-      protected override IAwaitExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
-      {
+      protected override IAwaitExpression CreateExpression(CSharpElementFactory factory,
+                                                           ICSharpExpression expression) {
         return (IAwaitExpression) factory.CreateExpression("await $0", expression);
       }
     }

@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
-using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -19,51 +17,44 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(
+  [PostfixTemplate(
     templateName: "arg",
     description: "Surrounds expression with invocation",
     example: "Method(expr)")]
-  public class ArgumentExpressionTemplate : IPostfixTemplate
-  {
-    public void CreateItems(
-      PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
+  public class ArgumentExpressionTemplate : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context) {
       var expressionContext = context.OuterExpression;
-
-      if (context.ForceMode)
-      {
-        consumer.Add(new LookupItem(expressionContext, context.LookupItemsOwner));
+      if (context.ForceMode) {
+        return new ArgumentItem(expressionContext, context.LookupItemsOwner);
       }
-      else if (expressionContext.CanBeStatement)
-      {
+
+      if (expressionContext.CanBeStatement) {
         // filter out expressions, unlikely suitable as arguments
-        if (!CommonUtils.IsNiceExpression(expressionContext.Expression)) return;
-
-        // foo.Bar().Baz.arg
-        consumer.Add(new LookupItem(expressionContext, context.LookupItemsOwner));
+        if (CommonUtils.IsNiceExpression(expressionContext.Expression)) {
+          // foo.Bar().Baz.arg
+          return new ArgumentItem(expressionContext, context.LookupItemsOwner);
+        }
       }
+
+      return null;
     }
 
-    private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
-    {
+    private sealed class ArgumentItem : ExpressionPostfixLookupItem<ICSharpExpression> {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
 
-      public LookupItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] ILookupItemsOwner lookupItemsOwner) : base("arg", context)
-      {
+      public ArgumentItem([NotNull] PrefixExpressionContext context,
+                          [NotNull] ILookupItemsOwner lookupItemsOwner)
+        : base("arg", context) {
         myLookupItemsOwner = lookupItemsOwner;
       }
 
-      protected override ICSharpExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
-      {
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
+                                                            ICSharpExpression expression) {
         return factory.CreateExpression("Method($0)", expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
-      {
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            ICSharpExpression expression, int? caretPosition) {
         var invocationExpression = (IInvocationExpression) expression;
         var invocationRange = invocationExpression.InvokedExpression.GetDocumentRange();
         var hotspotInfo = new HotspotInfo(
@@ -80,8 +71,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           expression.GetSolution(), TextRange.InvalidRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] { hotspotInfo });
 
-        session.AdviceFinished((sess, type) =>
-        {
+        session.AdviceFinished((sess, type) => {
           var invocation = sess.Hotspots[0].RangeMarker.Range;
           if (!invocation.IsValid) return;
 

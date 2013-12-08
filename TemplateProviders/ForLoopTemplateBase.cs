@@ -17,44 +17,34 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  public abstract class ForLoopTemplateProviderBase
-  {
-    protected bool CreateItems(
-      PostfixTemplateAcceptanceContext context, out string lengthPropertyName)
-    {
+  public abstract class ForLoopTemplateBase {
+    protected bool CreateItems(PostfixTemplateContext context,
+                               out string lengthPropertyName) {
       lengthPropertyName = null;
 
-      var exprContext = context.InnerExpression;
-      if (!exprContext.CanBeStatement) return false;
+      var expressionContext = context.InnerExpression;
+      if (!expressionContext.CanBeStatement) return false;
 
-      var expression = exprContext.Expression;
-
-      if (context.ForceMode || expression.IsPure())
-      {
-        if (exprContext.Type is IArrayType)
-        {
+      var expression = expressionContext.Expression;
+      if (context.ForceMode || expression.IsPure()) {
+        if (expressionContext.Type is IArrayType) {
           lengthPropertyName = "Length";
-        }
-        else
-        {
-          if (exprContext.Type.IsUnknown) return false; // even in force mode
+        } else {
+          if (expressionContext.Type.IsUnknown) return false; // even in force mode
 
-          var table = exprContext.Type.GetSymbolTable(context.PsiModule);
+          var table = expressionContext.Type.GetSymbolTable(context.PsiModule);
           var publicProperties = table.Filter(
             myPropertyFilter, OverriddenFilter.INSTANCE,
             new AccessRightsFilter(new ElementAccessContext(expression)));
 
           var result = publicProperties.GetResolveResult("Count");
           var resolveResult = result.DeclaredElement as IProperty;
-          if (resolveResult != null)
-          {
+          if (resolveResult != null) {
             if (resolveResult.IsStatic) return false;
             if (!resolveResult.Type.IsInt()) return false;
             lengthPropertyName = "Count";
-          }
-          else
-          {
-            if (!exprContext.Type.IsInt()) return false;
+          } else {
+            if (!expressionContext.Type.IsInt()) return false;
           }
         }
 
@@ -67,21 +57,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     [NotNull] private readonly DeclaredElementTypeFilter myPropertyFilter =
       new DeclaredElementTypeFilter(ResolveErrorType.NOT_RESOLVED, CLRDeclaredElementType.PROPERTY);
 
-    protected abstract class ForLookupItemBase : KeywordStatementPostfixLookupItem<IForStatement>
-    {
+    protected abstract class ForLookupItemBase : KeywordStatementPostfixLookupItem<IForStatement> {
       protected ForLookupItemBase([NotNull] string shortcut,
-        [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
-        : base(shortcut, context)
-      {
+                                  [NotNull] PrefixExpressionContext context,
+                                  [CanBeNull] string lengthPropertyName)
+        : base(shortcut, context) {
         LengthPropertyName = lengthPropertyName;
       }
 
-      [CanBeNull]
-      protected string LengthPropertyName { get; private set; }
+      [CanBeNull] protected string LengthPropertyName { get; private set; }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IForStatement statement, int? caretPosition)
-      {
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            IForStatement statement, int? caretPosition) {
         if (caretPosition == null) return;
 
         var condition = (IRelationalExpression) statement.Condition;

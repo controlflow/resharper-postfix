@@ -8,13 +8,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   public interface IPostfixTemplate
   {
-    void CreateItems([NotNull] PostfixTemplateAcceptanceContext context,
-                     [NotNull] ICollection<ILookupItem> consumer);
+    [CanBeNull] ILookupItem CreateItems([NotNull] PostfixTemplateContext context);
   }
 
   [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]
   [BaseTypeRequired(typeof(IPostfixTemplate))]
-  public sealed class PostfixTemplateProviderAttribute : ShellComponentAttribute
+  public sealed class PostfixTemplateAttribute : ShellComponentAttribute
   {
     [NotNull] public string TemplateName { get; private set; }
     [NotNull] public string Description { get; private set; }
@@ -23,7 +22,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public bool WorksOnTypes { get; set; }
     public bool DisabledByDefault { get; set; }
 
-    public PostfixTemplateProviderAttribute(
+    public PostfixTemplateAttribute(
       [NotNull] string templateName, [NotNull] string description, string example = null)
     {
       TemplateName = templateName;

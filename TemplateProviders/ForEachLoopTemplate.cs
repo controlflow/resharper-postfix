@@ -13,65 +13,61 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(
+  [PostfixTemplate(
     templateName: "forEach",
     description: "Iterates over enumerable collection",
     example: "foreach (var x in expr)")]
-  public class ForEachLoopTemplate : IPostfixTemplate
-  {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      var exprContext = context.Expressions.LastOrDefault();
-      if (exprContext == null || !exprContext.CanBeStatement) return;
+  public class ForEachLoopTemplate : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context) {
+      var expressionContext = context.Expressions.LastOrDefault();
+      if (expressionContext == null) return null;
+      if (!expressionContext.CanBeStatement) return null;
 
       var typeIsEnumerable = context.ForceMode;
-      if (!typeIsEnumerable)
-      {
-        if (!exprContext.Type.IsResolved) return;
+      if (!typeIsEnumerable) {
+        if (!expressionContext.Type.IsResolved) return null;
 
-        var predefined = exprContext.Expression.GetPredefinedType();
-        var rule = exprContext.Expression.GetTypeConversionRule();
-        if (rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.IEnumerable))
+        var predefined = expressionContext.Expression.GetPredefinedType();
+        var rule = expressionContext.Expression.GetTypeConversionRule();
+        if (rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IEnumerable))
           typeIsEnumerable = true;
       }
 
-      if (!typeIsEnumerable)
-      {
-        var declaredType = exprContext.Type as IDeclaredType;
-        if (declaredType != null && !declaredType.IsUnknown)
-        {
+      if (!typeIsEnumerable) {
+        var declaredType = expressionContext.Type as IDeclaredType;
+        if (declaredType != null && !declaredType.IsUnknown) {
           var typeElement = declaredType.GetTypeElement();
           if (typeElement != null && typeElement.IsForeachEnumeratorPatternType())
             typeIsEnumerable = true;
         }
       }
 
-      if (typeIsEnumerable)
-      {
-        consumer.Add(new LookupItem(exprContext));
+      if (typeIsEnumerable) {
+        return new ForEachItem(expressionContext);
       }
+
+      return null;
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IForeachStatement>
-    {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("forEach", context) { }
+    private sealed class ForEachItem : KeywordStatementPostfixLookupItem<IForeachStatement> {
+      public ForEachItem([NotNull] PrefixExpressionContext context) : base("forEach", context) { }
 
-      protected override string Template { get { return "foreach(var x in expr)"; } }
+      protected override string Template {
+        get { return "foreach(var x in expr)"; }
+      }
 
-      protected override void PlaceExpression(
-        IForeachStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
+      protected override void PlaceExpression(IForeachStatement statement,
+                                              ICSharpExpression expression,
+                                              CSharpElementFactory factory) {
         statement.Collection.ReplaceBy(expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IForeachStatement statement, int? caretPosition)
-      {
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            IForeachStatement statement, int? caretPosition) {
         if (caretPosition == null) return;
 
         var iterator = statement.IteratorDeclaration;
@@ -91,12 +87,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { typeSpot, nameSpot });
 
         // special case: handle [.] suffix
-        if (suffix.HasPresentation && suffix.Presentation == '.')
-        {
-          session.AdviceFinished((_, terminationType) =>
-          {
-            if (terminationType == TerminationType.Finished)
-            {
+        if (suffix.HasPresentation && suffix.Presentation == '.') {
+          session.AdviceFinished((_, terminationType) => {
+            if (terminationType == TerminationType.Finished) {
               var nameValue = session.Hotspots[1].CurrentValue;
               textControl.Document.InsertText(textControl.Caret.Offset(), nameValue);
               suffix.Playback(textControl);

@@ -14,80 +14,81 @@ using JetBrains.ReSharper.Psi.Util;
 using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util;
-using System.Collections.Generic;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(
+  [PostfixTemplate(
     templateName: "using",
     description: "Wraps resource with using statement",
     example: "using (expr)")]
-  public class UsingStatementTemplate : IPostfixTemplate
-  {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      var exprContext = context.OuterExpression;
-      if (!exprContext.CanBeStatement) return;
+  public class UsingStatementTemplate : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context) {
+      var expressionContext = context.OuterExpression;
+      if (!expressionContext.CanBeStatement) return null;
 
-      if (!context.ForceMode)
-      {
-        if (!exprContext.Type.IsResolved) return;
+      if (!context.ForceMode) {
+        if (!expressionContext.Type.IsResolved) return null;
 
-        var predefined = exprContext.Expression.GetPredefinedType();
-        var rule = exprContext.Expression.GetTypeConversionRule();
-        if (!rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.IDisposable))
-          return;
+        var predefined = expressionContext.Expression.GetPredefinedType();
+        var rule = expressionContext.Expression.GetTypeConversionRule();
+        if (!rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IDisposable)) {
+          return null;
+        }
       }
 
       // check expression is local variable reference
       ILocalVariable usingVar = null;
-      var expr = exprContext.Expression as IReferenceExpression;
-      if (expr != null && expr.QualifierExpression == null)
+      var expr = expressionContext.Expression as IReferenceExpression;
+      if (expr != null && expr.QualifierExpression == null) {
         usingVar = expr.Reference.Resolve().DeclaredElement as ILocalVariable;
+      }
 
-      ITreeNode node = exprContext.Expression;
-      while (true) // inspect containing using statements
-      {
+      ITreeNode node = expressionContext.Expression;
+      while (true) { // inspect containing using statements
         var usingStatement = node.GetContainingNode<IUsingStatement>();
         if (usingStatement == null) break;
 
         // check if expressions is variable declared with using statement
         var declaration = usingStatement.Declaration;
-        if (usingVar != null && declaration != null)
-          foreach (var member in declaration.DeclaratorsEnumerable)
+        if (usingVar != null && declaration != null) {
+          foreach (var member in declaration.DeclaratorsEnumerable) {
             if (Equals(member.DeclaredElement, usingVar))
-              return;
+              return null;
+          }
+        }
 
         // check expression is already in using statement expression
-        if (declaration == null)
-          foreach (var e in usingStatement.ExpressionsEnumerable)
-            if (MiscUtil.AreExpressionsEquivalent(e, exprContext.Expression))
-              return;
+        if (declaration == null) {
+          foreach (var e in usingStatement.ExpressionsEnumerable) {
+            if (MiscUtil.AreExpressionsEquivalent(e, expressionContext.Expression))
+              return null;
+          }
+        }
 
         node = usingStatement;
       }
 
-      consumer.Add(new LookupItem(exprContext));
+      return new LookupItem(expressionContext);
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IUsingStatement>
-    {
+    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IUsingStatement> {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("using", context) { }
 
-      protected override string Template { get { return "using(T x = expr)"; } }
+      protected override string Template {
+        get { return "using(T x = expr)"; }
+      }
 
-      protected override void PlaceExpression(
-        IUsingStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
+      protected override void PlaceExpression(IUsingStatement statement,
+                                              ICSharpExpression expression,
+                                              CSharpElementFactory factory) {
         var declaration = (ILocalVariableDeclaration) statement.Declaration.Declarators[0];
         var initializer = (IExpressionInitializer) declaration.Initial;
 
         initializer.Value.ReplaceBy(expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IUsingStatement statement, int? caretPosition)
-      {
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            IUsingStatement statement, int? caretPosition) {
         if (caretPosition == null) return;
 
         var declaration = (ILocalVariableDeclaration) statement.Declaration.Declarators[0];

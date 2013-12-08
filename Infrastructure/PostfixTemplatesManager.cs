@@ -25,8 +25,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       foreach (var provider in providers)
       {
         var providerType = provider.GetType();
-        var attributes = (PostfixTemplateProviderAttribute[])
-          providerType.GetCustomAttributes(typeof (PostfixTemplateProviderAttribute), false);
+        var attributes = (PostfixTemplateAttribute[])
+          providerType.GetCustomAttributes(typeof (PostfixTemplateAttribute), false);
         if (attributes.Length == 1)
         {
           var info = new TemplateProviderInfo(provider, providerType.FullName, attributes[0]);
@@ -40,11 +40,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public sealed class TemplateProviderInfo
     {
       [NotNull] public IPostfixTemplate Provider { get; private set; }
-      [NotNull] public PostfixTemplateProviderAttribute Metadata { get; private set; }
+      [NotNull] public PostfixTemplateAttribute Metadata { get; private set; }
       [NotNull] public string SettingsKey { get; private set; }
 
       public TemplateProviderInfo([NotNull] IPostfixTemplate provider,
-        [NotNull] string providerKey, [NotNull] PostfixTemplateProviderAttribute metadata)
+        [NotNull] string providerKey, [NotNull] PostfixTemplateAttribute metadata)
       {
         Provider = provider;
         Metadata = metadata;
@@ -312,7 +312,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
       DocumentRange replaceRange, bool forceMode, [NotNull] PostfixExecutionContext context)
     {
-      var postfixContext = new PostfixTemplateAcceptanceContext(
+      var postfixContext = new PostfixTemplateContext(
         reference, expression, replaceRange, forceMode, context);
 
       if (postfixContext.Expressions.Count == 0)
@@ -343,7 +343,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
 
-        info.Provider.CreateItems(postfixContext, items);
+        var lookupItem = info.Provider.CreateItems(postfixContext);
+        if (lookupItem != null) items.Add(lookupItem);
       }
 
       if (templateName != null) // do not like it

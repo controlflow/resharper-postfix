@@ -9,45 +9,40 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(
+  // TODO: null.return do not works?
+
+  [PostfixTemplate(
     templateName: "return",
     description: "Returns expression/yields value from iterator",
     example: "return expr;")]
-  public class ReturnStatementTemplate : IPostfixTemplate
-  {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
+  public class ReturnStatementTemplate : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context)
     {
-      var exprContext = context.OuterExpression;
-      if (!exprContext.CanBeStatement) return;
+      var expressionContext = context.OuterExpression;
+      if (!expressionContext.CanBeStatement) return null;
 
       var declaration = context.ContainingFunction;
-      if (declaration == null) return;
+      if (declaration == null) return null;
 
       var function = declaration.DeclaredElement;
-      if (function == null) return;
+      if (function == null) return null;
 
-      if (context.ForceMode)
-      {
-        consumer.Add(new ReturnLookupItem(exprContext));
-        return;
+      if (context.ForceMode) {
+        return new ReturnLookupItem(expressionContext);
       }
 
       var returnType = function.ReturnType;
-      if (returnType.IsVoid()) return;
+      if (returnType.IsVoid()) return null;
 
-      if (!declaration.IsIterator)
-      {
-        if (declaration.IsAsync)
-        {
-          if (returnType.IsTask()) return; // no return value
+      if (!declaration.IsIterator) {
+        if (declaration.IsAsync) {
+          if (returnType.IsTask()) return null; // no return value
 
           // unwrap return type from Task<T>
           var genericTask = returnType as IDeclaredType;
-          if (genericTask != null && genericTask.IsGenericTask())
-          {
+          if (genericTask != null && genericTask.IsGenericTask()) {
             var element = genericTask.GetTypeElement();
-            if (element != null)
-            {
+            if (element != null) {
               var typeParameters = element.TypeParameters;
               if (typeParameters.Count == 1)
                 returnType = genericTask.GetSubstitution()[typeParameters[0]];
@@ -55,29 +50,27 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
           }
         }
 
-        var rule = exprContext.Expression.GetTypeConversionRule();
-        if (rule.IsImplicitlyConvertibleTo(exprContext.Type, returnType))
-        {
-          consumer.Add(new ReturnLookupItem(exprContext));
+        var rule = expressionContext.Expression.GetTypeConversionRule();
+        if (rule.IsImplicitlyConvertibleTo(expressionContext.Type, returnType)) {
+          return new ReturnLookupItem(expressionContext);
         }
       }
+
+      return null;
     }
 
-    private sealed class ReturnLookupItem : StatementPostfixLookupItem<IReturnStatement>
-    {
-      public ReturnLookupItem([NotNull] PrefixExpressionContext context)
-        : base("return", context) { }
+    private sealed class ReturnLookupItem : StatementPostfixLookupItem<IReturnStatement> {
+      public ReturnLookupItem([NotNull] PrefixExpressionContext context) : base("return", context) { }
 
       protected override bool SuppressSemicolonSuffix { get { return true; } }
 
-      protected override IReturnStatement CreateStatement(CSharpElementFactory factory)
-      {
+      protected override IReturnStatement CreateStatement(CSharpElementFactory factory) {
         return (IReturnStatement) factory.CreateStatement("return expr;");
       }
 
-      protected override void PlaceExpression(
-        IReturnStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
+      protected override void PlaceExpression(IReturnStatement statement,
+                                              ICSharpExpression expression,
+                                              CSharpElementFactory factory) {
         statement.Value.ReplaceBy(expression);
       }
     }

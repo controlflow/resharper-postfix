@@ -12,12 +12,12 @@ using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  public sealed class PostfixTemplateAcceptanceContext
+  public sealed class PostfixTemplateContext
   {
     [NotNull] private readonly ICSharpExpression myMostInnerExpression;
     [CanBeNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 
-    public PostfixTemplateAcceptanceContext([NotNull] ITreeNode reference,
+    public PostfixTemplateContext([NotNull] ITreeNode reference,
       [NotNull] ICSharpExpression expression, DocumentRange replaceRange,
       bool forceMode, [NotNull] PostfixExecutionContext context)
     {

@@ -16,21 +16,16 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  public abstract class IntroduceMemberTemplateBase : IPostfixTemplate
-  {
-    public void CreateItems(
-      PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
+  public abstract class IntroduceMemberTemplateBase : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context) {
       var functionDeclaration = context.ContainingFunction;
-      if (functionDeclaration == null) return;
+      if (functionDeclaration == null) return null;
 
       var classDeclaration = functionDeclaration.GetContainingNode<IClassDeclaration>();
-      if (classDeclaration == null) return;
+      if (classDeclaration == null) return null;
 
-      if (context.ForceMode || functionDeclaration.DeclaredElement is IConstructor)
-      {
-        foreach (var expression in context.Expressions)
-        {
+      if (context.ForceMode || functionDeclaration.DeclaredElement is IConstructor) {
+        foreach (var expression in context.Expressions) {
           if (expression.Type.IsUnknown) continue;
           if (!expression.CanBeStatement) continue;
 
@@ -42,19 +37,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
             if (target == null || target is IField || target is IProperty) continue;
           }
 
-          var lookupItem = CreateLookupItem(
+          return CreateLookupItem(
             expression, expression.Type, functionDeclaration.IsStatic);
-          consumer.Add(lookupItem);
-          break;
         }
       }
+
+      return null;
     }
 
     protected abstract IntroduceMemberLookupItem CreateLookupItem(
       [NotNull] PrefixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
 
-    protected abstract class IntroduceMemberLookupItem
-      : StatementPostfixLookupItem<IExpressionStatement>
+    protected abstract class IntroduceMemberLookupItem : StatementPostfixLookupItem<IExpressionStatement>
     {
       [NotNull] protected readonly IType ExpressionType;
       protected readonly bool IsStatic;
@@ -62,24 +56,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       [NotNull] private ICollection<string> myMemberNames;
       [CanBeNull] private IDeclaration myMemberDeclaration;
 
-      protected IntroduceMemberLookupItem(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
-        [NotNull] IType expressionType, bool isStatic)
-        : base(shortcut, context)
-      {
+      protected IntroduceMemberLookupItem([NotNull] string shortcut,
+                                          [NotNull] PrefixExpressionContext context,
+                                          [NotNull] IType expressionType, bool isStatic)
+        : base(shortcut, context) {
         IsStatic = isStatic;
         ExpressionType = expressionType;
         myMemberNames = EmptyList<string>.InstanceList;
       }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
-      {
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory) {
         return (IExpressionStatement) factory.CreateStatement("__ = expression;");
       }
 
-      protected override void PlaceExpression(
-        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
+      protected override void PlaceExpression(IExpressionStatement statement,
+                                              ICSharpExpression expression,
+                                              CSharpElementFactory factory) {
         var classDeclaration = statement.GetContainingNode<IClassDeclaration>().NotNull();
         var anchor = GetAnchorMember(classDeclaration.MemberDeclarations);
 

@@ -13,52 +13,43 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
   // todo: if (!boo.not) { }
 
-  [PostfixTemplateProvider(
+  [PostfixTemplate(
     templateName: "not",
     description: "Negates boolean expression",
     example: "!expr", WorksOnTypes = true /* don't like it */)]
-  public class NotExpressionTemplate : BooleanExpressionProviderBase, IPostfixTemplate
-  {
-    protected override bool CreateBooleanItems(
-      PrefixExpressionContext expression, ICollection<ILookupItem> consumer)
-    {
-      consumer.Add(new LookupItem(expression));
-      return true;
+  public class NotExpressionTemplate : BooleanExpressionTemplateBase, IPostfixTemplate {
+    protected override ILookupItem CreateItem(PrefixExpressionContext expression) {
+      return new LookupItem(expression);
     }
 
-    private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
-    {
+    private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression> {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("not", context) { }
 
-      protected override ICSharpExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
-      {
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
+                                                            ICSharpExpression expression) {
         return CSharpExpressionUtil.CreateLogicallyNegatedExpression(expression) ?? expression;
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
-      {
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            ICSharpExpression expression, int? caretPosition) {
         // collapse '!!b' into 'b'
         var unary = expression as IUnaryOperatorExpression;
-        if (unary != null && unary.UnaryOperatorType == UnaryOperatorType.EXCL)
-        {
+        if (unary != null && unary.UnaryOperatorType == UnaryOperatorType.EXCL) {
           var unary2 = UnaryOperatorExpressionNavigator.GetByOperand(unary);
-          if (unary2 != null && unary2.UnaryOperatorType == UnaryOperatorType.EXCL)
-          {
+          if (unary2 != null && unary2.UnaryOperatorType == UnaryOperatorType.EXCL) {
             expression.GetPsiServices().DoTransaction(
-              typeof(NotExpressionTemplate).FullName, () =>
-            {
-              using (WriteLockCookie.Create())
-              {
-                expression = unary2.ReplaceBy(unary.Operand);
-              }
-            });
+              typeof(NotExpressionTemplate).FullName,
+              () => {
+                using (WriteLockCookie.Create()) {
+                  expression = unary2.ReplaceBy(unary.Operand);
+                }
+              });
           }
         }
 
-        if (caretPosition == null)
+        if (caretPosition == null) {
           caretPosition = expression.GetDocumentRange().TextRange.EndOffset;
+        }
 
         base.AfterComplete(textControl, suffix, expression, caretPosition);
       }

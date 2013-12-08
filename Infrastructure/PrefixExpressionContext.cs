@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   public sealed class PrefixExpressionContext
   {
     public PrefixExpressionContext(
-      [NotNull] PostfixTemplateAcceptanceContext parent,
+      [NotNull] PostfixTemplateContext parent,
       [NotNull] ICSharpExpression expression)
     {
       Parent = parent;
@@ -93,7 +93,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return false;
     }
 
-    [NotNull] public PostfixTemplateAcceptanceContext Parent { get; private set; }
+    [NotNull] public PostfixTemplateContext Parent { get; private set; }
 
     // "lines.Any()" : Boolean
     [NotNull] public ICSharpExpression Expression { get; private set; }

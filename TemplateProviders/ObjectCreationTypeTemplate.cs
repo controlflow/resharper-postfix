@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
@@ -13,59 +12,53 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
   // todo: array creation (too hard to impl for now)
   // todo: nullable types creation? (what for?)
 
-  [PostfixTemplateProvider(
+  [PostfixTemplate(
     templateName: "new",
     description: "Produces instantiation expression for type",
     example: "new SomeType()", WorksOnTypes = true)]
-  public class ObjectCreationTypeTemplate : IPostfixTemplate
-  {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      var exprContext = context.InnerExpression;
+  public class ObjectCreationTypeTemplate : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context) {
+      var expressionContext = context.InnerExpression;
 
-      var typeElement = exprContext.ReferencedElement as ITypeElement;
-      if (typeElement == null) return;
+      var typeElement = expressionContext.ReferencedElement as ITypeElement;
+      if (typeElement == null) return null;
 
-      var instantiable = TypeUtils.IsInstantiable(typeElement, exprContext.Expression);
-      if (instantiable != TypeInstantiability.NotInstantiable)
-      {
+      var instantiable = TypeUtils.IsInstantiable(typeElement, expressionContext.Expression);
+      if (instantiable != TypeInstantiability.NotInstantiable) {
         var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
-        consumer.Add(new LookupItem(exprContext, context.LookupItemsOwner, hasCtorWithParams));
+        return new NewItem(expressionContext, context.LookupItemsOwner, hasCtorWithParams);
       }
+
+      return null;
     }
 
-    private sealed class LookupItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
+    private sealed class NewItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
     {
       [NotNull] private readonly string myTypeText;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       private readonly bool myHasCtorWithParams;
 
-      public LookupItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] ILookupItemsOwner lookupItemsOwner,
-        bool hasCtorWithParams) : base("new", context)
-      {
+      public NewItem([NotNull] PrefixExpressionContext context,
+                     [NotNull] ILookupItemsOwner lookupItemsOwner,
+                     bool hasCtorWithParams) : base("new", context) {
         myLookupItemsOwner = lookupItemsOwner;
         myHasCtorWithParams = hasCtorWithParams;
         myTypeText = context.Expression.GetText();
       }
 
-      protected override IObjectCreationExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
-      {
-        var template = string.Format(
-          myHasCtorWithParams ? "new {0}({1})" : "new {0}(){1}",
-          myTypeText, CaretMarker);
+      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory,
+                                                                    ICSharpExpression expression) {
+        var format = myHasCtorWithParams ? "new {0}({1})" : "new {0}(){1}";
+        var template = string.Format(format, myTypeText, CaretMarker);
 
         return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix,
-        IObjectCreationExpression expression, int? caretPosition)
-      {
-        if (caretPosition == null)
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            IObjectCreationExpression expression, int? caretPosition) {
+        if (caretPosition == null) {
           caretPosition = expression.GetDocumentRange().TextRange.EndOffset;
+        }
 
         base.AfterComplete(textControl, suffix, expression, caretPosition);
         if (!myHasCtorWithParams) return;

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
@@ -15,44 +14,37 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(
+  [PostfixTemplate(
     templateName: "cast",
     description: "Surrounds expression with cast",
     example: "(SomeType) expr")]
-  public class CastExpressionTemplate : IPostfixTemplate
-  {
-    public void CreateItems(PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      if (context.ForceMode)
-      {
+  public class CastExpressionTemplate : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context) {
+      if (context.ForceMode) {
         PrefixExpressionContext bestExpression = null;
-        foreach (var expression in context.Expressions.Reverse())
-        {
-          if (CommonUtils.IsNiceExpression(expression.Expression))
-          {
+        foreach (var expression in context.Expressions.Reverse()) {
+          if (CommonUtils.IsNiceExpression(expression.Expression)) {
             bestExpression = expression;
             break;
           }
         }
 
-        consumer.Add(new LookupItem(bestExpression ?? context.OuterExpression));
+        return new CastItem(bestExpression ?? context.OuterExpression);
       }
+
+      return null;
     }
 
-    private sealed class LookupItem : ExpressionPostfixLookupItem<ICastExpression>
-    {
-      public LookupItem([NotNull] PrefixExpressionContext context)
-        : base("cast", context) { }
+    private sealed class CastItem : ExpressionPostfixLookupItem<ICastExpression> {
+      public CastItem([NotNull] PrefixExpressionContext context) : base("cast", context) { }
 
-      protected override ICastExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
-      {
+      protected override ICastExpression CreateExpression(CSharpElementFactory factory,
+                                                          ICSharpExpression expression) {
         return (ICastExpression) factory.CreateExpression("(T) $0", expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, ICastExpression expression, int? caretPosition)
-      {
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            ICastExpression expression, int? caretPosition) {
         var typeExpression = new MacroCallExpressionNew(new GuessExpectedTypeMacroDef());
         var hotspotInfo = new HotspotInfo(
           new TemplateField("T", typeExpression, 0),

@@ -12,119 +12,102 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 {
-  [PostfixTemplateProvider(
+  [PostfixTemplate(
     templateName: "throw",
     description: "Throws expression of 'Exception' type",
     example: "throw expr;", WorksOnTypes = true)]
-  public class ThrowStatementTemplate : IPostfixTemplate
-  {
-    public void CreateItems(
-      PostfixTemplateAcceptanceContext context, ICollection<ILookupItem> consumer)
-    {
-      var exprContext = context.OuterExpression;
-      if (!exprContext.CanBeStatement) return;
+  public class ThrowStatementTemplate : IPostfixTemplate {
+    public ILookupItem CreateItems(PostfixTemplateContext context) {
+      var expressionContext = context.OuterExpression;
+      if (!expressionContext.CanBeStatement) return null;
 
-      var referencedType = exprContext.ReferencedType;
-      var expression = exprContext.Expression;
+      var referencedType = expressionContext.ReferencedType;
+      var expression = expressionContext.Expression;
 
-      if (!context.ForceMode)
-      {
+      if (!context.ForceMode) {
         var rule = expression.GetTypeConversionRule();
         var predefined = expression.GetPredefinedType();
 
         // 'Exception.throw' case
-        if (referencedType != null)
-        {
-          if (!rule.IsImplicitlyConvertibleTo(referencedType, predefined.Exception)) return;
-          if (TypeUtils.IsInstantiable(referencedType, expression) == 0) return;
-        }
-        else // 'new Exception().throw' case
-        {
-          if (!exprContext.Type.IsResolved) return;
-          if (!rule.IsImplicitlyConvertibleTo(exprContext.Type, predefined.Exception)) return;
+        if (referencedType != null) {
+          if (!rule.IsImplicitlyConvertibleTo(referencedType, predefined.Exception)) return null;
+          if (TypeUtils.IsInstantiable(referencedType, expression) == 0) return null;
+        } else { // 'new Exception().throw' case
+          if (!expressionContext.Type.IsResolved) return null;
+          if (!rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.Exception)) return null;
         }
       }
 
-      if (referencedType == null)
-      {
-        consumer.Add(new ThrowExpressionLookupItem(exprContext));
+      if (referencedType == null) {
+        return new ThrowExpressionLookupItem(expressionContext);
       }
-      else
-      {
-        var instantiable = TypeUtils.IsInstantiable(referencedType, expression);
-        var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
 
-        consumer.Add(new ThrowTypeLookupItem(
-          exprContext, referencedType, context.LookupItemsOwner, hasCtorWithParams));
-      }
+      var instantiable = TypeUtils.IsInstantiable(referencedType, expression);
+      var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+
+      return new ThrowTypeLookupItem(
+        expressionContext, referencedType, context.LookupItemsOwner, hasCtorWithParams);
     }
 
-    private sealed class ThrowExpressionLookupItem : StatementPostfixLookupItem<IThrowStatement>
-    {
-      public ThrowExpressionLookupItem([NotNull] PrefixExpressionContext context)
-        : base("throw", context) { }
+    private sealed class ThrowExpressionLookupItem : StatementPostfixLookupItem<IThrowStatement> {
+      public ThrowExpressionLookupItem([NotNull] PrefixExpressionContext context) : base("throw", context) { }
 
       protected override bool SuppressSemicolonSuffix { get { return true; } }
-      protected override IThrowStatement CreateStatement(CSharpElementFactory factory)
-      {
+      protected override IThrowStatement CreateStatement(CSharpElementFactory factory) {
         return (IThrowStatement) factory.CreateStatement("throw expr;");
       }
 
-      protected override void PlaceExpression(
-        IThrowStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
+      protected override void PlaceExpression(IThrowStatement statement,
+                                              ICSharpExpression expression,
+                                              CSharpElementFactory factory) {
         statement.Exception.ReplaceBy(expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IThrowStatement statement, int? caretPosition)
-      {
-        if (caretPosition == null)
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            IThrowStatement statement, int? caretPosition) {
+        if (caretPosition == null) {
           caretPosition = statement.GetDocumentRange().TextRange.EndOffset;
+        }
 
         base.AfterComplete(textControl, suffix, statement, caretPosition);
       }
     }
 
-    private sealed class ThrowTypeLookupItem : StatementPostfixLookupItem<IThrowStatement>
-    {
+    private sealed class ThrowTypeLookupItem : StatementPostfixLookupItem<IThrowStatement> {
       [NotNull] private readonly IDeclaredType myExceptionType;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       private readonly bool myHasCtorWithParams;
 
-      public ThrowTypeLookupItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] IDeclaredType exceptionType,
-        [NotNull] ILookupItemsOwner lookupItemsOwner,
-        bool hasCtorWithParams) : base("throw", context)
-      {
+      public ThrowTypeLookupItem([NotNull] PrefixExpressionContext context,
+                                 [NotNull] IDeclaredType exceptionType,
+                                 [NotNull] ILookupItemsOwner lookupItemsOwner,
+                                 bool hasCtorWithParams)
+        : base("throw", context) {
         myExceptionType = exceptionType;
         myLookupItemsOwner = lookupItemsOwner;
         myHasCtorWithParams = hasCtorWithParams;
       }
 
       protected override bool SuppressSemicolonSuffix { get { return true; } }
-      protected override IThrowStatement CreateStatement(CSharpElementFactory factory)
-      {
+
+      protected override IThrowStatement CreateStatement(CSharpElementFactory factory) {
         return (IThrowStatement) factory.CreateStatement("throw new Expr();");
       }
 
-      protected override void PlaceExpression(
-        IThrowStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
+      protected override void PlaceExpression(IThrowStatement statement,
+                                              ICSharpExpression expression,
+                                              CSharpElementFactory factory) {
         var creationExpression = (IObjectCreationExpression) statement.Exception;
         var typeReference = creationExpression.TypeReference;
-        if (typeReference != null)
-        {
+        if (typeReference != null) {
           typeReference.BindTo(
             myExceptionType.GetTypeElement().NotNull(),
             myExceptionType.GetSubstitution().NotNull());
         }
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IThrowStatement statement, int? caretPosition)
-      {
+      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
+                                            IThrowStatement statement, int? caretPosition) {
         var exception = (IObjectCreationExpression) statement.Exception;
         var endOffset = myHasCtorWithParams
           ? exception.LPar.GetDocumentRange().TextRange.EndOffset
