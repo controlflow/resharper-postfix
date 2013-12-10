@@ -8,9 +8,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   public sealed class PostfixExecutionContext
   {
     public PostfixExecutionContext(
-      [NotNull] IPsiModule psiModule, [NotNull] ILookupItemsOwner lookupItemsOwner,
+      [NotNull] IPsiModule psiModule,
+      [NotNull] ILookupItemsOwner lookupItemsOwner,
       [CanBeNull] ReparsedCodeCompletionContext reparsedContext = null,
-      [NotNull] string specificTemplateName = null)
+      [CanBeNull] string specificTemplateName = null)
     {
       PsiModule = psiModule;
       LookupItemsOwner = lookupItemsOwner;

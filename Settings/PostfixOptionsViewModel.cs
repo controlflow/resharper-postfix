@@ -5,13 +5,12 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
-using JetBrains.UI.Avalon.TreeListView;
 using JetBrains.UI.Extensions.Commands;
 using JetBrains.UI.Options;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 {
-  public sealed class PostfixOptionsViewModel : ObservableObject
+  public sealed class PostfixOptionsViewModel
   {
     [NotNull] private readonly OptionsSettingsSmartContext myStore;
     [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;

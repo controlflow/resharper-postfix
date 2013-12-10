@@ -6,7 +6,7 @@ class Foo
   {
     int referenceName;
 
-    bool b = Boo1() && Boo2();{caret}
+    var b = Boo1() && Boo2();{caret}
     referenceName = Blah();
   }
 

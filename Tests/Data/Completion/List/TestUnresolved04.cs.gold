@@ -12,7 +12,9 @@
 + return
 + throw
 + using
++ var
 + while
 + yield
 # AUTOMATIC #
 + arg
++ var

@@ -77,6 +77,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           // two children: relational and error element
           return !(
             IsRelationalExpressionWithTypeOperand(previous.FirstChild) &&
+            previous.FirstChild != null &&
             previous.FirstChild.NextSibling == previous.LastChild &&
             previous.LastChild is IErrorElement);
         }

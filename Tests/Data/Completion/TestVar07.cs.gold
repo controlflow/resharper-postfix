@@ -3,7 +3,7 @@
 class Foo {
   void Bar()
   {
-    string substring = new string('d', 100).Substring(0);
+    var substring = new string('d', 100).Substring(0);
     var padRight = substring{caret}.PadRight(10);
   }
 }
