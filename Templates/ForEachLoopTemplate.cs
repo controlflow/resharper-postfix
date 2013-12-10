@@ -23,6 +23,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "foreach (var x in expr)")]
   public class ForEachLoopTemplate : IPostfixTemplate
   {
+    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+    public ForEachLoopTemplate([NotNull] LiveTemplatesManager templatesManager)
+    {
+      myTemplatesManager = templatesManager;
+    }
+
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
       var expressionContext = context.Expressions.LastOrDefault();
@@ -47,13 +54,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         {
           var typeElement = declaredType.GetTypeElement();
           if (typeElement != null && typeElement.IsForeachEnumeratorPatternType())
+          {
             typeIsEnumerable = true;
+          }
         }
       }
 
       if (typeIsEnumerable)
       {
-        return new ForEachItem(expressionContext);
+        return new ForEachItem(expressionContext, myTemplatesManager);
       }
 
       return null;
@@ -61,7 +70,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
     private sealed class ForEachItem : KeywordStatementPostfixLookupItem<IForeachStatement>
     {
-      public ForEachItem([NotNull] PrefixExpressionContext context) : base("forEach", context) { }
+      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+      public ForEachItem(
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] LiveTemplatesManager templatesManager) : base("forEach", context)
+      {
+        myTemplatesManager = templatesManager;
+      }
 
       protected override string Template
       {
@@ -92,7 +108,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           new TemplateField("name", nameExpression, 0),
           iterator.NameIdentifier.GetDocumentRange().GetHotspotRange());
 
-        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {typeSpot, nameSpot});
 

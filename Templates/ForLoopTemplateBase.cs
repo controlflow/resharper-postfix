@@ -67,11 +67,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
     protected abstract class ForLookupItemBase : KeywordStatementPostfixLookupItem<IForStatement>
     {
+      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
       protected ForLookupItemBase(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
+        [NotNull] string shortcut,
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] LiveTemplatesManager templatesManager,
         [CanBeNull] string lengthPropertyName) : base(shortcut, context)
       {
         LengthPropertyName = lengthPropertyName;
+        myTemplatesManager = templatesManager;
       }
 
       [CanBeNull] protected string LengthPropertyName { get; private set; }
@@ -93,7 +98,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           condition.LeftOperand.GetDocumentRange().GetHotspotRange(),
           iterator.Operand.GetDocumentRange().GetHotspotRange());
 
-        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {nameSpot});
 

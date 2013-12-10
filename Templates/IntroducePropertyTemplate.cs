@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -12,16 +13,25 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "Property = expr;")]
   public class IntroducePropertyTemplate : IntroduceMemberTemplateBase
   {
+    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+    public IntroducePropertyTemplate([NotNull] LiveTemplatesManager templatesManager)
+    {
+      myTemplatesManager = templatesManager;
+    }
+
     protected override IntroduceMemberLookupItem CreateLookupItem(
       PrefixExpressionContext expression, IType expressionType, bool isStatic)
     {
-      return new IntroducePropertyLookupItem(expression, isStatic);
+      return new IntroducePropertyLookupItem(expression, myTemplatesManager, isStatic);
     }
 
     private sealed class IntroducePropertyLookupItem : IntroduceMemberLookupItem
     {
-      public IntroducePropertyLookupItem([NotNull] PrefixExpressionContext context, bool isStatic)
-        : base("prop", context, context.Type, isStatic) { }
+      public IntroducePropertyLookupItem(
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] LiveTemplatesManager templatesManager, bool isStatic)
+        : base("prop", context, templatesManager, context.Type, isStatic) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {

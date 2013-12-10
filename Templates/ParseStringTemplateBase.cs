@@ -22,18 +22,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   public abstract class ParseStringTemplateBase
   {
-    protected sealed class LookupItem : ExpressionPostfixLookupItem<IInvocationExpression>
+    protected sealed class ParseLookupItem : ExpressionPostfixLookupItem<IInvocationExpression>
     {
       private readonly bool myIsTryParse;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
+      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      [NotNull] private readonly IShellLocks myLocks;
 
-      public LookupItem(
+      public ParseLookupItem(
         [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
+        [NotNull] LiveTemplatesManager templatesManager, [NotNull] IShellLocks shellLocks,
         [NotNull] ILookupItemsOwner lookupItemsOwner, bool isTryParse)
         : base(shortcut, context)
       {
         myLookupItemsOwner = lookupItemsOwner;
         myIsTryParse = isTryParse;
+        myTemplatesManager = templatesManager;
+        myLocks = shellLocks;
       }
 
       protected override IInvocationExpression CreateExpression(
@@ -63,7 +68,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         var argumentsRange = expression.ArgumentList.GetDocumentRange();
         var endSelectionRange = argumentsRange.EndOffsetRange().TextRange;
 
-        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           solution, endSelectionRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {hotspotInfo});
 
@@ -76,7 +81,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         {
           if (myIsTryParse)
           {
-            Shell.Instance.Locks.QueueReadLock("Smart completion for .tryparse", () =>
+            myLocks.QueueReadLock("Smart completion for .tryparse", () =>
             {
               var manager = solution.GetComponent<IntellisenseManager>();
               manager.ExecuteManualCompletion(

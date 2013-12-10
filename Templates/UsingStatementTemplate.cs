@@ -23,6 +23,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "using (expr)")]
   public class UsingStatementTemplate : IPostfixTemplate
   {
+    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+    public UsingStatementTemplate([NotNull] LiveTemplatesManager templatesManager)
+    {
+      myTemplatesManager = templatesManager;
+    }
+
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
@@ -79,12 +86,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         node = usingStatement;
       }
 
-      return new LookupItem(expressionContext);
+      return new LookupItem(expressionContext, myTemplatesManager);
     }
 
     private sealed class LookupItem : KeywordStatementPostfixLookupItem<IUsingStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("using", context) { }
+      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+      public LookupItem(
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] LiveTemplatesManager templatesManager) : base("using", context)
+      {
+        myTemplatesManager = templatesManager;
+      }
 
       protected override string Template
       {
@@ -117,7 +131,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           new TemplateField("name", nameExpression, 0),
           declaration.NameIdentifier.GetDocumentRange().GetHotspotRange());
 
-        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {typeSpot, nameSpot});
 

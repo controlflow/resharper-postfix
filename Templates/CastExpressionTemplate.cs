@@ -20,6 +20,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "(SomeType) expr")]
   public class CastExpressionTemplate : IPostfixTemplate
   {
+    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+    public CastExpressionTemplate([NotNull] LiveTemplatesManager templatesManager)
+    {
+      myTemplatesManager = templatesManager;
+    }
+
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
       if (!context.ForceMode) return null;
@@ -34,12 +41,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         }
       }
 
-      return new CastItem(bestExpression ?? context.OuterExpression);
+      return new CastItem(bestExpression ?? context.OuterExpression, myTemplatesManager);
     }
 
     private sealed class CastItem : ExpressionPostfixLookupItem<ICastExpression>
     {
-      public CastItem([NotNull] PrefixExpressionContext context) : base("cast", context) { }
+      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+      public CastItem(
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] LiveTemplatesManager templatesManager) : base("cast", context)
+      {
+        myTemplatesManager = templatesManager;
+      }
 
       protected override ICastExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
@@ -56,7 +70,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           expression.TargetType.GetDocumentRange().GetHotspotRange());
 
         var endSelectionRange = expression.GetDocumentRange().EndOffsetRange().TextRange;
-        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), endSelectionRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {hotspotInfo});
 

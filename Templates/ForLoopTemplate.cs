@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -12,12 +13,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "for (var i = 0; i < expr.Length; i++)")]
   public class ForLoopTemplate : ForLoopTemplateBase, IPostfixTemplate
   {
+    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+    public ForLoopTemplate([NotNull] LiveTemplatesManager templatesManager)
+    {
+      myTemplatesManager = templatesManager;
+    }
+
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
       string lengthPropertyName;
       if (CreateItems(context, out lengthPropertyName))
       {
-        return new ForLookupItem(context.InnerExpression, lengthPropertyName);
+        return new ForLookupItem(
+          context.InnerExpression, myTemplatesManager, lengthPropertyName);
       }
 
       return null;
@@ -25,8 +34,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
     private sealed class ForLookupItem : ForLookupItemBase
     {
-      public ForLookupItem([NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
-        : base("for", context, lengthPropertyName) { }
+      public ForLookupItem(
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] LiveTemplatesManager templatesManager,
+        [CanBeNull] string lengthPropertyName)
+        : base("for", context, templatesManager, lengthPropertyName) { }
 
       protected override string Template
       {

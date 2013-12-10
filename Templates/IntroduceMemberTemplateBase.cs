@@ -59,14 +59,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
       [NotNull] private ICollection<string> myMemberNames;
       [CanBeNull] private IDeclaration myMemberDeclaration;
+      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
       protected IntroduceMemberLookupItem(
         [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
-        [NotNull] IType expressionType, bool isStatic) : base(shortcut, context)
+        [NotNull] LiveTemplatesManager templatesManager, [NotNull] IType expressionType,
+        bool isStatic) : base(shortcut, context)
       {
         IsStatic = isStatic;
         ExpressionType = expressionType;
         myMemberNames = EmptyList<string>.InstanceList;
+        myTemplatesManager = templatesManager;
       }
 
       protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
@@ -125,7 +128,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           myMemberDeclaration.GetNameDocumentRange().GetHotspotRange());
 
         var endSelectionRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
-        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), endSelectionRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {hotspotInfo});
 

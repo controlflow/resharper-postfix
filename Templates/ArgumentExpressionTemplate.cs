@@ -23,12 +23,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "Method(expr)")]
   public class ArgumentExpressionTemplate : IPostfixTemplate
   {
+    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+
+    public ArgumentExpressionTemplate([NotNull] LiveTemplatesManager templatesManager)
+    {
+      myTemplatesManager = templatesManager;
+    }
+
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (context.ForceMode)
       {
-        return new ArgumentItem(expressionContext, context.LookupItemsOwner);
+        return new ArgumentItem(expressionContext, context.LookupItemsOwner, myTemplatesManager);
       }
 
       if (expressionContext.CanBeStatement)
@@ -37,7 +44,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         if (CommonUtils.IsNiceExpression(expressionContext.Expression))
         {
           // foo.Bar().Baz.arg
-          return new ArgumentItem(expressionContext, context.LookupItemsOwner);
+          return new ArgumentItem(expressionContext, context.LookupItemsOwner, myTemplatesManager);
         }
       }
 
@@ -47,16 +54,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     private sealed class ArgumentItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
+      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public ArgumentItem([NotNull] PrefixExpressionContext context,
-        [NotNull] ILookupItemsOwner lookupItemsOwner)
-        : base("arg", context)
+      public ArgumentItem(
+        [NotNull] PrefixExpressionContext context,
+        [NotNull] ILookupItemsOwner lookupItemsOwner,
+        [NotNull] LiveTemplatesManager templatesManager) : base("arg", context)
       {
         myLookupItemsOwner = lookupItemsOwner;
+        myTemplatesManager = templatesManager;
       }
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
-        ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
         return factory.CreateExpression("Method($0)", expression);
       }
@@ -76,7 +86,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         var marker = argumentRange.EndOffsetRange().CreateRangeMarker();
         var length = (marker.Range.EndOffset - invocationRange.TextRange.EndOffset);
 
-        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), TextRange.InvalidRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] {hotspotInfo});
 
