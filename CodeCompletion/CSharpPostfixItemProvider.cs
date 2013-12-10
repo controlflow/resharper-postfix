@@ -22,8 +22,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
       var completionType = context.BasicContext.CodeCompletionType;
-      return completionType == CodeCompletionType.AutomaticCompletion
-          || completionType == CodeCompletionType.BasicCompletion;
+      return completionType == CodeCompletionType.AutomaticCompletion ||
+             completionType == CodeCompletionType.BasicCompletion;
     }
 
     public override bool IsAvailableEx(
@@ -58,19 +58,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         idsToRemove = new JetHashSet<string>(System.StringComparer.Ordinal);
 
         var firstCompletion = parameters.CodeCompletionTypes[0];
-        if (firstCompletion == CodeCompletionType.AutomaticCompletion)
+        if (firstCompletion != CodeCompletionType.AutomaticCompletion)
+          return false;
+
+        var autoItems = myTemplatesManager.GetAvailableItems(node, false, executionContext);
+        if (autoItems.Count > 0)
         {
-          var autoItems = myTemplatesManager.GetAvailableItems(node, false, executionContext);
-          if (autoItems.Count > 0)
-            foreach (var lookupItem in autoItems)
-              idsToRemove.Add(lookupItem.Identity);
+          foreach (var lookupItem in autoItems)
+          {
+            idsToRemove.Add(lookupItem.Identity);
+          }
         }
-        else return false;
       }
 
       foreach (var lookupItem in items)
+      {
         if (!idsToRemove.Contains(lookupItem.Identity))
+        {
           collector.AddAtDefaultPlace(lookupItem);
+        }
+      }
 
       return (items.Count > 0);
     }

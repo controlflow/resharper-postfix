@@ -33,8 +33,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
       var completionType = context.BasicContext.CodeCompletionType;
-      return completionType == CodeCompletionType.AutomaticCompletion
-          || completionType == CodeCompletionType.BasicCompletion;
+      return completionType == CodeCompletionType.AutomaticCompletion ||
+             completionType == CodeCompletionType.BasicCompletion;
     }
 
     protected override bool AddLookupItems(
@@ -79,8 +79,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 
       // decorate static lookup elements
       var itemsOwner = context.BasicContext.LookupItemsOwner;
-      foreach (var lookupItem in innerCollector.Items)
-      {
+      foreach (var lookupItem in innerCollector.Items) {
         var item = lookupItem as DeclaredElementLookupItem;
         if (item == null) continue;
 
@@ -116,8 +115,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
           marker = documentRange.EndOffsetRange().CreateRangeMarker();
         }
 
-        foreach (var referenceExpression in TextControlToPsi.GetElements<
-          IReferenceExpression>(solution, textControl.Document, range.StartOffset))
+        foreach (var referenceExpression in TextControlToPsi
+          .GetElements<IReferenceExpression>(solution, textControl.Document, range.StartOffset))
         {
           // 'remember' qualifier textually
           var qualifierExpression = referenceExpression.QualifierExpression;
@@ -131,7 +130,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 
           // insert qualifier as first argument
           var argumentPosition = TextRange.FromLength(
-            decoration.EndOffset - (parenthesisRange.Length / 2), 0);
+            decoration.EndOffset - (parenthesisRange.Length/2), 0);
           textControl.Document.ReplaceText(argumentPosition, qualifierText);
 
           // replace qualifier with type (predefined/user type)
@@ -183,7 +182,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
           if (typeParameters.Count > 0)
           {
             foreach (var typeParameter in typeParameters)
+            {
               substitution[typeParameter].Accept(this);
+            }
           }
         }
       }
@@ -198,10 +199,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         pointerType.ElementType.Accept(this);
       }
 
-      public override void VisitType(IType type) { }
-      public override void VisitMultitype(IMultitype multitype) { }
-      public override void VisitDynamicType(IDynamicType dynamicType) { }
-      public override void VisitAnonymousType(IAnonymousType anonymousType) { }
+      public override void VisitType(IType type) {}
+      public override void VisitMultitype(IMultitype multitype) {}
+      public override void VisitDynamicType(IDynamicType dynamicType) {}
+      public override void VisitAnonymousType(IAnonymousType anonymousType) {}
     }
 
     private static bool HasMultipleParameters(
@@ -211,7 +212,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
       if (methodsItem == null) return HasMultipleParameters(method);
 
       foreach (var instance in methodsItem.Methods)
+      {
         if (HasMultipleParameters(instance.Element)) return true;
+      }
 
       return false;
     }
@@ -232,7 +235,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         return method.Parameters.Count > 1;
 
       foreach (var instance in methodsItem.Methods)
+      {
         if (instance.Element.Parameters.Count <= 1) return false;
+      }
 
       return true;
     }
@@ -249,7 +254,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         myConversionRule = conversionRule;
       }
 
-      public override ResolveErrorType ErrorType { get { return ResolveErrorType.NOT_RESOLVED; } }
+      public override ResolveErrorType ErrorType
+      {
+        get { return ResolveErrorType.NOT_RESOLVED; }
+      }
+
       public override bool Accepts(IDeclaredElement declaredElement, ISubstitution substitution)
       {
         var method = declaredElement as IMethod;
@@ -262,8 +271,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
           if (firstParameter.Kind != ParameterKind.VALUE) return false;
 
           var parameterType = firstParameter.Type;
-          if (firstParameter.IsParameterArray)
-          {
+          if (firstParameter.IsParameterArray) {
             var arrayType = parameterType as IArrayType;
             if (arrayType != null && myExpressionType
               .IsImplicitlyConvertibleTo(arrayType.ElementType, myConversionRule)) return true;

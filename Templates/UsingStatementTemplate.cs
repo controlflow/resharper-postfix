@@ -15,23 +15,27 @@ using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   [PostfixTemplate(
     templateName: "using",
     description: "Wraps resource with using statement",
     example: "using (expr)")]
-  public class UsingStatementTemplate : IPostfixTemplate {
-    public ILookupItem CreateItems(PostfixTemplateContext context) {
+  public class UsingStatementTemplate : IPostfixTemplate
+  {
+    public ILookupItem CreateItems(PostfixTemplateContext context)
+    {
       var expressionContext = context.OuterExpression;
       if (!expressionContext.CanBeStatement) return null;
 
-      if (!context.ForceMode) {
+      if (!context.ForceMode)
+      {
         if (!expressionContext.Type.IsResolved) return null;
 
         var predefined = expressionContext.Expression.GetPredefinedType();
         var rule = expressionContext.Expression.GetTypeConversionRule();
-        if (!rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IDisposable)) {
+        if (!rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IDisposable))
+        {
           return null;
         }
       }
@@ -39,27 +43,34 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       // check expression is local variable reference
       ILocalVariable usingVar = null;
       var expr = expressionContext.Expression as IReferenceExpression;
-      if (expr != null && expr.QualifierExpression == null) {
+      if (expr != null && expr.QualifierExpression == null)
+      {
         usingVar = expr.Reference.Resolve().DeclaredElement as ILocalVariable;
       }
 
       ITreeNode node = expressionContext.Expression;
-      while (true) { // inspect containing using statements
+      while (true)
+      {
+        // inspect containing using statements
         var usingStatement = node.GetContainingNode<IUsingStatement>();
         if (usingStatement == null) break;
 
         // check if expressions is variable declared with using statement
         var declaration = usingStatement.Declaration;
-        if (usingVar != null && declaration != null) {
-          foreach (var member in declaration.DeclaratorsEnumerable) {
+        if (usingVar != null && declaration != null)
+        {
+          foreach (var member in declaration.DeclaratorsEnumerable)
+          {
             if (Equals(member.DeclaredElement, usingVar))
               return null;
           }
         }
 
         // check expression is already in using statement expression
-        if (declaration == null) {
-          foreach (var e in usingStatement.ExpressionsEnumerable) {
+        if (declaration == null)
+        {
+          foreach (var e in usingStatement.ExpressionsEnumerable)
+          {
             if (MiscUtil.AreExpressionsEquivalent(e, expressionContext.Expression))
               return null;
           }
@@ -71,24 +82,27 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return new LookupItem(expressionContext);
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IUsingStatement> {
+    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IUsingStatement>
+    {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("using", context) { }
 
-      protected override string Template {
+      protected override string Template
+      {
         get { return "using(T x = expr)"; }
       }
 
-      protected override void PlaceExpression(IUsingStatement statement,
-                                              ICSharpExpression expression,
-                                              CSharpElementFactory factory) {
+      protected override void PlaceExpression(
+        IUsingStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
+      {
         var declaration = (ILocalVariableDeclaration) statement.Declaration.Declarators[0];
         var initializer = (IExpressionInitializer) declaration.Initial;
 
         initializer.Value.ReplaceBy(expression);
       }
 
-      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
-                                            IUsingStatement statement, int? caretPosition) {
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, IUsingStatement statement, int? caretPosition)
+      {
         if (caretPosition == null) return;
 
         var declaration = (ILocalVariableDeclaration) statement.Declaration.Declarators[0];
@@ -105,7 +119,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { typeSpot, nameSpot });
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {typeSpot, nameSpot});
 
         session.Execute();
       }

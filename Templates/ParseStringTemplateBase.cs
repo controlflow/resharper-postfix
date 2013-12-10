@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
@@ -15,31 +17,35 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-using System;
-using System.Collections.Generic;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
-  public abstract class ParseStringTemplateBase {
-    protected sealed class LookupItem : ExpressionPostfixLookupItem<IInvocationExpression> {
+  public abstract class ParseStringTemplateBase
+  {
+    protected sealed class LookupItem : ExpressionPostfixLookupItem<IInvocationExpression>
+    {
       private readonly bool myIsTryParse;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
 
-      public LookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
-                        [NotNull] ILookupItemsOwner lookupItemsOwner, bool isTryParse)
-        : base(shortcut, context) {
+      public LookupItem(
+        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
+        [NotNull] ILookupItemsOwner lookupItemsOwner, bool isTryParse)
+        : base(shortcut, context)
+      {
         myLookupItemsOwner = lookupItemsOwner;
         myIsTryParse = isTryParse;
       }
 
-      protected override IInvocationExpression CreateExpression(CSharpElementFactory factory,
-                                                                ICSharpExpression expression) {
+      protected override IInvocationExpression CreateExpression(
+        CSharpElementFactory factory, ICSharpExpression expression)
+      {
         var template = myIsTryParse ? "int.TryParse($0, )" : "int.Parse($0)";
         return (IInvocationExpression) factory.CreateExpression(template, expression);
       }
 
-      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
-                                            IInvocationExpression expression, int? caretPosition) {
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, IInvocationExpression expression, int? caretPosition)
+      {
         var parseReference = (IReferenceExpression) expression.InvokedExpression;
         var typeQualifier = parseReference.QualifierExpression.NotNull();
 
@@ -59,16 +65,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
           solution, endSelectionRange, textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { hotspotInfo });
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {hotspotInfo});
 
         // paranthesis marker for parameter info
         var marker = expression.LPar.GetDocumentRange()
           .SetEndTo(expression.RPar.GetDocumentRange().TextRange.EndOffset)
           .CreateRangeMarker();
 
-        session.AdviceFinished((_, terminationType) => {
-          if (myIsTryParse) {
-            Shell.Instance.Locks.QueueReadLock("Smart completion for .tryparse", () => {
+        session.AdviceFinished((_, terminationType) =>
+        {
+          if (myIsTryParse)
+          {
+            Shell.Instance.Locks.QueueReadLock("Smart completion for .tryparse", () =>
+            {
               var manager = solution.GetComponent<IntellisenseManager>();
               manager.ExecuteManualCompletion(
                 CodeCompletionType.SmartCompletion,
@@ -78,7 +87,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
             });
           }
 
-          if (marker.IsValid) {
+          if (marker.IsValid)
+          {
             LookupUtil.ShowParameterInfo(
               solution, textControl, marker.Range, null, myLookupItemsOwner);
           }
@@ -88,13 +98,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
     }
 
-    [NotNull] private static IList<IType> GetTypesWithParsers([NotNull] ITreeNode context) {
+    [NotNull]
+    private static IList<IType> GetTypesWithParsers([NotNull] ITreeNode context)
+    {
       var symbolCache = context.GetPsiServices().Symbols;
       var symbolScope = symbolCache.GetSymbolScope(
         context.GetPsiModule(), context.GetResolveContext(), true, true);
 
       var list = new LocalList<IType>();
-      foreach (var type in TypesWithParsers) {
+      foreach (var type in TypesWithParsers)
+      {
         var typeElement = symbolScope.GetTypeElementByCLRName(type.FullName);
         if (typeElement == null) continue;
 
@@ -104,7 +117,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return list.ResultingList();
     }
 
-    [NotNull] private static readonly Type[] TypesWithParsers = {
+    [NotNull] private static readonly Type[] TypesWithParsers =
+    {
       typeof(int),
       typeof(byte),
       typeof(sbyte),

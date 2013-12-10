@@ -103,6 +103,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
     [NotNull] protected abstract TStatement CreateStatement([NotNull] CSharpElementFactory factory);
 
+    // todo: => PutExpression?
     protected abstract void PlaceExpression(
       [NotNull] TStatement statement, [NotNull] ICSharpExpression expression,
       [NotNull] CSharpElementFactory factory);

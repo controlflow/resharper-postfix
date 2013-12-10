@@ -28,7 +28,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 {
-  [Language(typeof (CSharpLanguage))]
+  [Language(typeof(CSharpLanguage))]
   public class CSharpEnumHelpersItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {
     protected override bool IsAvailable(CSharpCodeCompletionContext context)

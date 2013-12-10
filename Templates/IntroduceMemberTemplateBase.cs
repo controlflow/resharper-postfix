@@ -14,18 +14,22 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
-  public abstract class IntroduceMemberTemplateBase : IPostfixTemplate {
-    public ILookupItem CreateItems(PostfixTemplateContext context) {
+  public abstract class IntroduceMemberTemplateBase : IPostfixTemplate
+  {
+    public ILookupItem CreateItems(PostfixTemplateContext context)
+    {
       var functionDeclaration = context.ContainingFunction;
       if (functionDeclaration == null) return null;
 
       var classDeclaration = functionDeclaration.GetContainingNode<IClassDeclaration>();
       if (classDeclaration == null) return null;
 
-      if (context.ForceMode || functionDeclaration.DeclaredElement is IConstructor) {
-        foreach (var expression in context.Expressions) {
+      if (context.ForceMode || functionDeclaration.DeclaredElement is IConstructor)
+      {
+        foreach (var expression in context.Expressions)
+        {
           if (expression.Type.IsUnknown) continue;
           if (!expression.CanBeStatement) continue;
 
@@ -56,22 +60,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       [NotNull] private ICollection<string> myMemberNames;
       [CanBeNull] private IDeclaration myMemberDeclaration;
 
-      protected IntroduceMemberLookupItem([NotNull] string shortcut,
-                                          [NotNull] PrefixExpressionContext context,
-                                          [NotNull] IType expressionType, bool isStatic)
-        : base(shortcut, context) {
+      protected IntroduceMemberLookupItem(
+        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
+        [NotNull] IType expressionType, bool isStatic) : base(shortcut, context)
+      {
         IsStatic = isStatic;
         ExpressionType = expressionType;
         myMemberNames = EmptyList<string>.InstanceList;
       }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory) {
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
+      {
         return (IExpressionStatement) factory.CreateStatement("__ = expression;");
       }
 
-      protected override void PlaceExpression(IExpressionStatement statement,
-                                              ICSharpExpression expression,
-                                              CSharpElementFactory factory) {
+      protected override void PlaceExpression(
+        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
+      {
         var classDeclaration = statement.GetContainingNode<IClassDeclaration>().NotNull();
         var anchor = GetAnchorMember(classDeclaration.MemberDeclarations);
 
@@ -88,17 +93,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
         collection.Add(assignment.Source, new EntryOptions());
         collection.Prepare(newMember.DeclaredElement,
-          new SuggestionOptions { UniqueNameContext = classDeclaration });
+          new SuggestionOptions {UniqueNameContext = classDeclaration});
 
         newMember.SetName(collection.FirstName());
         myMemberNames = collection.AllNames();
         myMemberDeclaration = newMember;
       }
 
-      [CanBeNull] protected abstract ICSharpTypeMemberDeclaration GetAnchorMember(
+      [CanBeNull]
+      protected abstract ICSharpTypeMemberDeclaration GetAnchorMember(
         TreeNodeCollection<ICSharpTypeMemberDeclaration> members);
 
-      [NotNull] protected abstract IClassMemberDeclaration
+      [NotNull]
+      protected abstract IClassMemberDeclaration
         CreateMemberDeclaration([NotNull] CSharpElementFactory factory);
 
       protected override void AfterComplete(
@@ -120,7 +127,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         var endSelectionRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), endSelectionRange, textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] { hotspotInfo });
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {hotspotInfo});
 
         session.Execute();
       }

@@ -5,7 +5,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   [PostfixTemplate(
     templateName: "lock",
@@ -19,9 +19,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       if (!expressionContext.CanBeStatement) return null;
 
       var expressionType = expressionContext.Type;
-      if (expressionType.IsUnknown) {
+      if (expressionType.IsUnknown)
+      {
         if (!context.ForceMode) return null;
-      } else {
+      }
+      else
+      {
         if (context.ForceMode
           ? (expressionType.Classify == TypeClassification.VALUE_TYPE)
           : !expressionType.IsObject()) return null;
@@ -30,16 +33,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return new LookupItem(expressionContext);
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<ILockStatement> {
+    private sealed class LookupItem : KeywordStatementPostfixLookupItem<ILockStatement>
+    {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("lock", context) { }
 
-      protected override string Template {
+      protected override string Template
+      {
         get { return "lock(expr)"; }
       }
 
-      protected override void PlaceExpression(ILockStatement statement,
-                                              ICSharpExpression expression,
-                                              CSharpElementFactory factory) {
+      protected override void PlaceExpression(
+        ILockStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
+      {
         statement.Monitor.ReplaceBy(expression);
       }
     }

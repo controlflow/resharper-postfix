@@ -21,7 +21,7 @@ using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
 using JetBrains.Util.EventBus;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   [PostfixTemplate(
     templateName: "var",
@@ -32,8 +32,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
       var contexts = new List<PrefixExpressionContext>();
-      foreach (var exprContext in context.Expressions) {
-        if (exprContext.Expression is IReferenceExpression) {
+      foreach (var exprContext in context.Expressions)
+      {
+        if (exprContext.Expression is IReferenceExpression)
+        {
           // filter out too simple local references
           var target = exprContext.ReferencedElement;
           if (target is IParameter || target is ILocalVariable) continue;
@@ -45,7 +47,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         if (exprContext.Type.IsVoid()) continue;
 
         var referencedType = exprContext.ReferencedType;
-        if (referencedType != null) {
+        if (referencedType != null)
+        {
           if (!exprContext.CanBeStatement) continue; // can be relaxed?
           if (TypeUtils.IsInstantiable(referencedType, exprContext.Expression) == 0)
             continue;
@@ -56,8 +59,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
       if (contexts.Count == 0) return null;
 
-      var bestContext = contexts.FirstOrDefault(ctx => ctx.CanBeStatement)
-                     ?? contexts.FirstOrDefault();
+      var bestContext = contexts.FirstOrDefault(ctx => ctx.CanBeStatement) ??
+                        contexts.FirstOrDefault();
       if (bestContext == null) return null;
 
       if (bestContext.CanBeStatement)
@@ -69,25 +72,30 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         return new StatementFromTypeLookupItem(bestContext, referencedType, context.LookupItemsOwner);
       }
 
-      if (context.ForceMode) {
+      if (context.ForceMode)
+      {
         return new ExpressionLookupItem(bestContext);
       }
 
       return null;
     }
 
-    private sealed class ExpressionLookupItem : ExpressionPostfixLookupItem<ICSharpExpression> {
+    private sealed class ExpressionLookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    {
       public ExpressionLookupItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
-                                                            ICSharpExpression expression) {
+      protected override ICSharpExpression CreateExpression(
+        CSharpElementFactory factory, ICSharpExpression expression)
+      {
         return expression;
       }
 
-      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
-                                            ICSharpExpression expression, int? caretPosition) {
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
+      {
         ExecuteRefactoring(textControl, expression,
-          (control, solution, args) => {
+          (control, solution, args) =>
+          {
             var localVariable = args.Properties["result"] as ILocalVariable;
             if (localVariable == null) return;
 
@@ -102,7 +110,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
             var references = solution.GetPsiServices().Finder.FindReferences(
               localVariable, searchDomain, NullProgressIndicator.Instance);
 
-            if (references.Length == 1) {
+            if (references.Length == 1)
+            {
               var endOffset = references[0].GetDocumentRange().TextRange.EndOffset;
               textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
             }
@@ -110,34 +119,38 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       }
     }
 
-    private sealed class StatementLookupItem : StatementPostfixLookupItem<IExpressionStatement> {
+    private sealed class StatementLookupItem : StatementPostfixLookupItem<IExpressionStatement>
+    {
       public StatementLookupItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory) {
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
+      {
         return (IExpressionStatement) factory.CreateStatement("expr;");
       }
 
-      protected override void PlaceExpression(IExpressionStatement statement,
-                                              ICSharpExpression expression,
-                                              CSharpElementFactory factory) {
+      protected override void PlaceExpression(
+        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
+      {
         statement.Expression.ReplaceBy(expression);
       }
 
-      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
-                                            IExpressionStatement statement, int? caretPosition) {
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, IExpressionStatement statement, int? caretPosition)
+      {
         ExecuteRefactoring(textControl, statement.Expression);
       }
     }
 
-    private sealed class StatementFromTypeLookupItem : StatementPostfixLookupItem<IExpressionStatement> {
+    private sealed class StatementFromTypeLookupItem : StatementPostfixLookupItem<IExpressionStatement>
+    {
       [NotNull] private readonly IDeclaredType myReferencedType;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       private readonly bool myHasCtorWithParams;
 
-      public StatementFromTypeLookupItem([NotNull] PrefixExpressionContext context,
-                                         [NotNull] IDeclaredType referencedType,
-                                         [NotNull] ILookupItemsOwner lookupItemsOwner)
-        : base("var", context) {
+      public StatementFromTypeLookupItem(
+        [NotNull] PrefixExpressionContext context, [NotNull] IDeclaredType referencedType,
+        [NotNull] ILookupItemsOwner lookupItemsOwner) : base("var", context)
+      {
         myReferencedType = referencedType;
         myLookupItemsOwner = lookupItemsOwner;
 
@@ -145,41 +158,48 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         myHasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
       }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory) {
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
+      {
         return (IExpressionStatement) factory.CreateStatement("new $0();", myReferencedType);
       }
 
-      protected override void PlaceExpression(IExpressionStatement statement,
-                                              ICSharpExpression expression,
-                                              CSharpElementFactory factory) { }
+      protected override void PlaceExpression(
+        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory) { }
 
-      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
-                                            IExpressionStatement statement, int? caretPosition)
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, IExpressionStatement statement, int? caretPosition)
       {
-        if (myHasCtorWithParams) {
+        if (myHasCtorWithParams)
+        {
           var creationExpression = (IObjectCreationExpression) statement.Expression;
           var lparRange = creationExpression.LPar.GetDocumentRange();
           var rparRange = creationExpression.RPar.GetDocumentRange();
           var rangeMarker = lparRange.SetEndTo(rparRange.TextRange.EndOffset).CreateRangeMarker();
 
-          ExecuteRefactoring(textControl, statement.Expression, (control, solution, _) => {
-            if (rangeMarker.IsValid) {
+          ExecuteRefactoring(textControl, statement.Expression, (control, solution, _) =>
+          {
+            if (rangeMarker.IsValid)
+            {
               var range = rangeMarker.Range;
-              var offset = range.StartOffset + range.Length / 2;
+              var offset = range.StartOffset + range.Length/2;
               control.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
 
               LookupUtil.ShowParameterInfo(
                 solution, control, range, null, myLookupItemsOwner);
             }
           });
-        } else {
+        }
+        else
+        {
           ExecuteRefactoring(textControl, statement.Expression);
         }
       }
     }
 
-    private static void ExecuteRefactoring([NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression,
-                                           [CanBeNull] Action<ITextControl, ISolution, RefactoringDetailsArgs> executeAfter = null) {
+    private static void ExecuteRefactoring(
+      [NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression,
+      [CanBeNull] Action<ITextControl, ISolution, RefactoringDetailsArgs> executeAfter = null)
+    {
       const string name = "IntroVariableAction";
       var solution = expression.GetSolution();
       var rules = DataRules
@@ -188,11 +208,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
         .AddRule(name, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl)
         .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, expression);
 
-      Lifetimes.Using(lifetime => {
+      Lifetimes.Using(lifetime =>
+      {
         var workflow = new IntroduceVariableWorkflow(solution, null);
 
         // OMFG so ugly way to execute something after 'introduce variable' hotspots :(((
-        if (executeAfter != null) {
+        if (executeAfter != null)
+        {
           var refactoringId = RefactoringId.FromWorkflow(workflow);
           var definition = Lifetimes.Define(EternalLifetime.Instance, name);
 
@@ -206,13 +228,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
           workflow.EventBus
             .Event(RefactoringEvents.RefactoringFinished)
-            .Subscribe(definition.Lifetime, id => {
-            try {
-              if (id.Equals(refactoringId))
-                executeAfter(textControl, solution, details);
-            }
-            finally { definition.Terminate(); }
-          });
+            .Subscribe(definition.Lifetime, id =>
+            {
+              try
+              {
+                if (id.Equals(refactoringId))
+                  executeAfter(textControl, solution, details);
+              }
+              finally
+              {
+                definition.Terminate();
+              }
+            });
         }
 
         var dataContexts = solution.GetComponent<DataContexts>();

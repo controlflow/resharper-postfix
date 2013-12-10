@@ -5,19 +5,25 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 // todo: disable in cases like typeReference.Name == NotNullAttribute.if
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
-  public abstract class BooleanExpressionTemplateBase {
-    public ILookupItem CreateItems(PostfixTemplateContext context) {
-      foreach (var expressionContext in context.Expressions) {
-        if (expressionContext.Type.IsBool() || IsBooleanExpression(expressionContext.Expression)) {
+  public abstract class BooleanExpressionTemplateBase
+  {
+    public ILookupItem CreateItems(PostfixTemplateContext context)
+    {
+      foreach (var expressionContext in context.Expressions)
+      {
+        if (expressionContext.Type.IsBool() || IsBooleanExpression(expressionContext.Expression))
+        {
           var lookupItem = CreateItem(expressionContext);
           if (lookupItem != null) return lookupItem;
         }
       }
 
-      if (context.ForceMode) {
-        foreach (var expressionContext in context.Expressions) {
+      if (context.ForceMode)
+      {
+        foreach (var expressionContext in context.Expressions)
+        {
           var lookupItem = CreateItem(expressionContext);
           if (lookupItem != null) return lookupItem;
         }
@@ -26,7 +32,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return null;
     }
 
-    private static bool IsBooleanExpression([CanBeNull] ICSharpExpression expression) {
+    private static bool IsBooleanExpression([CanBeNull] ICSharpExpression expression)
+    {
       return expression is IRelationalExpression
           || expression is IEqualityExpression
           || expression is IConditionalAndExpression

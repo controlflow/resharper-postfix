@@ -15,22 +15,27 @@ using JetBrains.Util;
 // todo: disable here: 'foo.arg()'
 // todo: disable over namespaces
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
+namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   [PostfixTemplate(
     templateName: "arg",
     description: "Surrounds expression with invocation",
     example: "Method(expr)")]
-  public class ArgumentExpressionTemplate : IPostfixTemplate {
-    public ILookupItem CreateItems(PostfixTemplateContext context) {
+  public class ArgumentExpressionTemplate : IPostfixTemplate
+  {
+    public ILookupItem CreateItems(PostfixTemplateContext context)
+    {
       var expressionContext = context.OuterExpression;
-      if (context.ForceMode) {
+      if (context.ForceMode)
+      {
         return new ArgumentItem(expressionContext, context.LookupItemsOwner);
       }
 
-      if (expressionContext.CanBeStatement) {
+      if (expressionContext.CanBeStatement)
+      {
         // filter out expressions, unlikely suitable as arguments
-        if (CommonUtils.IsNiceExpression(expressionContext.Expression)) {
+        if (CommonUtils.IsNiceExpression(expressionContext.Expression))
+        {
           // foo.Bar().Baz.arg
           return new ArgumentItem(expressionContext, context.LookupItemsOwner);
         }
@@ -39,22 +44,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
       return null;
     }
 
-    private sealed class ArgumentItem : ExpressionPostfixLookupItem<ICSharpExpression> {
+    private sealed class ArgumentItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
 
       public ArgumentItem([NotNull] PrefixExpressionContext context,
-                          [NotNull] ILookupItemsOwner lookupItemsOwner)
-        : base("arg", context) {
+        [NotNull] ILookupItemsOwner lookupItemsOwner)
+        : base("arg", context)
+      {
         myLookupItemsOwner = lookupItemsOwner;
       }
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
-                                                            ICSharpExpression expression) {
+        ICSharpExpression expression)
+      {
         return factory.CreateExpression("Method($0)", expression);
       }
 
-      protected override void AfterComplete(ITextControl textControl, Suffix suffix,
-                                            ICSharpExpression expression, int? caretPosition) {
+      protected override void AfterComplete(
+        ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
+      {
         var invocationExpression = (IInvocationExpression) expression;
         var invocationRange = invocationExpression.InvokedExpression.GetDocumentRange();
         var hotspotInfo = new HotspotInfo(
@@ -69,9 +78,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.TemplateProviders
 
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), TextRange.InvalidRange, textControl,
-          LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] { hotspotInfo });
+          LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] {hotspotInfo});
 
-        session.AdviceFinished((sess, type) => {
+        session.AdviceFinished((sess, type) =>
+        {
           var invocation = sess.Hotspots[0].RangeMarker.Range;
           if (!invocation.IsValid) return;
 
