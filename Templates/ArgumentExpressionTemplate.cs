@@ -33,9 +33,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
-      if (context.ForceMode)
+      if (context.IsForceMode)
       {
-        return new ArgumentItem(expressionContext, context.LookupItemsOwner, myTemplatesManager);
+        var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
+        return new ArgumentItem(expressionContext, lookupItemsOwner, myTemplatesManager);
       }
 
       if (expressionContext.CanBeStatement)
@@ -44,7 +45,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         if (CommonUtils.IsNiceExpression(expressionContext.Expression))
         {
           // foo.Bar().Baz.arg
-          return new ArgumentItem(expressionContext, context.LookupItemsOwner, myTemplatesManager);
+          var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
+          return new ArgumentItem(expressionContext, lookupItemsOwner, myTemplatesManager);
         }
       }
 

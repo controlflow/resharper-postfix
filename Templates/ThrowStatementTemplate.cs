@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var referencedType = expressionContext.ReferencedType;
       var expression = expressionContext.Expression;
 
-      if (!context.ForceMode)
+      if (!context.IsForceMode)
       {
         var rule = expression.GetTypeConversionRule();
         var predefined = expression.GetPredefinedType();
@@ -52,8 +52,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var instantiable = TypeUtils.IsInstantiable(referencedType, expression);
       var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
 
+      var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
       return new ThrowTypeLookupItem(
-        expressionContext, referencedType, context.LookupItemsOwner, hasCtorWithParams);
+        expressionContext, referencedType, lookupItemsOwner, hasCtorWithParams);
     }
 
     private sealed class ThrowExpressionLookupItem : StatementPostfixLookupItem<IThrowStatement>

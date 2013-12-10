@@ -21,11 +21,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var expressionType = expressionContext.Type;
       if (expressionType.IsUnknown)
       {
-        if (!context.ForceMode) return null;
+        if (!context.IsForceMode) return null;
       }
       else
       {
-        if (context.ForceMode
+        if (context.IsForceMode
           ? (expressionType.Classify == TypeClassification.VALUE_TYPE)
           : !expressionType.IsObject()) return null;
       }

@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       if (!expressionContext.CanBeStatement) return false;
 
       var expression = expressionContext.Expression;
-      if (context.ForceMode || expression.IsPure())
+      if (context.IsForceMode || expression.IsPure())
       {
         if (expressionContext.Type is IArrayType)
         {
@@ -37,7 +37,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         {
           if (expressionContext.Type.IsUnknown) return false; // even in force mode
 
-          var table = expressionContext.Type.GetSymbolTable(context.PsiModule);
+          var table = expressionContext.Type
+            .GetSymbolTable(context.ExecutionContext.PsiModule);
+
           var publicProperties = table.Filter(
             myPropertyFilter, OverriddenFilter.INSTANCE,
             new AccessRightsFilter(new ElementAccessContext(expression)));

@@ -36,7 +36,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       if (expressionContext == null) return null;
       if (!expressionContext.CanBeStatement) return null;
 
-      var typeIsEnumerable = context.ForceMode;
+      var typeIsEnumerable = context.IsForceMode;
       if (!typeIsEnumerable)
       {
         if (!expressionContext.Type.IsResolved) return null;

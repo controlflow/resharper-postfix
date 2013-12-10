@@ -43,12 +43,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
       var forceMode = (completionType == CodeCompletionType.BasicCompletion);
       var lookupItemsOwner = context.BasicContext.LookupItemsOwner;
       var executionContext = new PostfixExecutionContext(
-        context.PsiModule, lookupItemsOwner, context.UnterminatedContext);
+        context.PsiModule, lookupItemsOwner, forceMode, context.UnterminatedContext);
 
       var treeNode = context.UnterminatedContext.TreeNode;
       if (treeNode == null) return false;
 
-      var items = myTemplatesManager.GetAvailableItems(treeNode, forceMode, executionContext);
+      var items = myTemplatesManager.GetAvailableItems(treeNode, executionContext);
 
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 
@@ -61,7 +61,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         if (firstCompletion != CodeCompletionType.AutomaticCompletion)
           return false;
 
-        var autoItems = myTemplatesManager.GetAvailableItems(node, false, executionContext);
+        var autoItems = myTemplatesManager.GetAvailableItems(node, executionContext);
         if (autoItems.Count > 0)
         {
           foreach (var lookupItem in autoItems)

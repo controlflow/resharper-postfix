@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var classDeclaration = functionDeclaration.GetContainingNode<IClassDeclaration>();
       if (classDeclaration == null) return null;
 
-      if (context.ForceMode || functionDeclaration.DeclaredElement is IConstructor)
+      if (context.IsForceMode || functionDeclaration.DeclaredElement is IConstructor)
       {
         foreach (var expression in context.Expressions)
         {

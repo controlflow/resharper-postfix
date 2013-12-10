@@ -69,10 +69,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         if (referencedType == null)
           return new StatementLookupItem(bestContext);
 
-        return new StatementFromTypeLookupItem(bestContext, referencedType, context.LookupItemsOwner);
+        var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
+        return new StatementFromTypeLookupItem(bestContext, referencedType, lookupItemsOwner);
       }
 
-      if (context.ForceMode)
+      if (context.IsForceMode)
       {
         return new ExpressionLookupItem(bestContext);
       }

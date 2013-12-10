@@ -14,14 +14,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var expressionContext = context.OuterExpression;
       if (!expressionContext.CanBeStatement) return null;
 
-      if (!context.ForceMode)
+      if (!context.IsForceMode)
       {
         if (expressionContext.Type.IsUnknown) return null;
         if (!IsNullableType(expressionContext.Type)) return null;
       }
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
-      if (!context.ForceMode)
+      if (!context.IsForceMode)
       {
         state = CheckNullabilityState(expressionContext);
       }

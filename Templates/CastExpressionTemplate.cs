@@ -29,7 +29,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
-      if (!context.ForceMode) return null;
+      if (!context.IsForceMode) return null;
 
       PrefixExpressionContext bestExpression = null;
       foreach (var expression in context.Expressions.Reverse())

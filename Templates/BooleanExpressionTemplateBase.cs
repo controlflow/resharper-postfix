@@ -20,7 +20,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         }
       }
 
-      if (context.ForceMode)
+      if (context.IsForceMode)
       {
         foreach (var expressionContext in context.Expressions)
         {

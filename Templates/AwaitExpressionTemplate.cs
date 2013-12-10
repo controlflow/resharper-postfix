@@ -20,7 +20,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var function = context.ContainingFunction;
       if (function == null) return null;
 
-      if (!context.ForceMode)
+      if (!context.IsForceMode)
       {
         if (!function.IsAsync) return null;
 

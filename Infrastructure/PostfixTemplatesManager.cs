@@ -58,9 +58,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull] public IList<ILookupItem> GetAvailableItems(
-      [NotNull] ITreeNode node, bool forceMode, [NotNull] PostfixExecutionContext context)
+      [NotNull] ITreeNode node, [NotNull] PostfixExecutionContext context)
     {
-      var postfixContext = GetAvailableItems2(node, forceMode, context);
+      var postfixContext = IsAvailable(node, context);
       if (postfixContext == null || postfixContext.Expressions.Count == 0)
         return EmptyList<ILookupItem>.InstanceList;
 
@@ -102,8 +102,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     // todo: use me
-    [CanBeNull] public PostfixTemplateContext GetAvailableItems2(
-      [NotNull] ITreeNode node, bool forceMode, [NotNull] PostfixExecutionContext context)
+    [CanBeNull] public PostfixTemplateContext IsAvailable(
+      [NotNull] ITreeNode node, [NotNull] PostfixExecutionContext context)
     {
       if (!(node is ICSharpIdentifier) && !(node is ITokenNode))
         return null;
@@ -120,9 +120,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var expression = referenceExpression.QualifierExpression;
         if (expression != null)
         {
-          return CollectAvailableTemplates(
-            referenceExpression, expression,
-            DocumentRange.InvalidRange, forceMode, context);
+          return new PostfixTemplateContext(
+            referenceExpression, expression, DocumentRange.InvalidRange, context);
         }
       }
 
@@ -142,8 +141,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var nodeRange = node.GetDocumentRange().TextRange;
             var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
 
-            return CollectAvailableTemplates(
-              referenceExpr, expression, replaceRange, forceMode, context);
+            return new PostfixTemplateContext(
+              referenceExpr, expression, replaceRange, context);
           }
         }
       }
@@ -161,8 +160,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var nodeRange = reparse.ToDocumentRange(node).TextRange;
             var replaceRange = typeUsageRange.SetEndTo(nodeRange.EndOffset);
 
-            return CollectAvailableTemplates(
-              typeUsage, expression, replaceRange, forceMode, context);
+            return new PostfixTemplateContext(
+              typeUsage, expression, replaceRange, context);
           }
         }
       }
@@ -183,8 +182,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var delimiterRange = reparse.ToDocumentRange(referenceName.Delimiter);
             var replaceRange = qualifierRange.SetEndTo(delimiterRange.TextRange.EndOffset);
 
-            return CollectAvailableTemplates(
-              referenceName, expression, replaceRange, forceMode, context);
+            return new PostfixTemplateContext(
+              referenceName, expression, replaceRange, context);
           }
         }
       }
@@ -203,8 +202,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var nodeRange = reparse.ToDocumentRange(node);
             var replaceRange = expressionRange.SetEndTo(nodeRange.TextRange.EndOffset);
 
-            return CollectAvailableTemplates(
-              coolNode /* TODO: ? */, expression, replaceRange, forceMode, context);
+            return new PostfixTemplateContext(
+              coolNode, expression, replaceRange, context);
           }
         }
       }
@@ -350,16 +349,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
 
       return expression;
-    }
-
-    // todo: inline
-    [NotNull]
-    private PostfixTemplateContext CollectAvailableTemplates(
-      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
-      DocumentRange replaceRange, bool forceMode, [NotNull] PostfixExecutionContext context)
-    {
-      return new PostfixTemplateContext(
-        reference, expression, replaceRange, forceMode, context);
     }
   }
 }

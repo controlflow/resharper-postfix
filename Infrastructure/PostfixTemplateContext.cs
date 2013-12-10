@@ -2,52 +2,45 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
-using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
-using JetBrains.ReSharper.Psi.Modules;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   public sealed class PostfixTemplateContext
   {
     [NotNull] private readonly ICSharpExpression myMostInnerExpression;
-    [CanBeNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
     [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
 
     public PostfixTemplateContext(
-      [NotNull] ITreeNode reference,
-      [NotNull] ICSharpExpression expression,
-      DocumentRange replaceRange, bool forceMode,
-      [NotNull] PostfixExecutionContext context)
+      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
+      DocumentRange replaceRange, [NotNull] PostfixExecutionContext executionContext)
     {
-      myReparsedContext = context.ReparsedContext;
       myMostInnerExpression = expression;
       PostfixReferenceNode = reference;
-      ForceMode = forceMode;
-      PsiModule = context.PsiModule;
-      LookupItemsOwner = context.LookupItemsOwner;
       MostInnerReplaceRange = replaceRange;
+      ExecutionContext = executionContext;
 
       if (!replaceRange.IsValid())
       {
         var referenceExpression = reference as IReferenceExpression;
         if (referenceExpression != null)
         {
-          MostInnerReplaceRange =
-            ToDocumentRange(referenceExpression.QualifierExpression.NotNull()).SetEndTo(
-              ToDocumentRange(referenceExpression.Delimiter.NotNull()).TextRange.EndOffset);
+          var qualifier = referenceExpression.QualifierExpression.NotNull();
+          var delimiter = referenceExpression.Delimiter.NotNull();
+          MostInnerReplaceRange = ToDocumentRange(qualifier)
+            .SetEndTo(ToDocumentRange(delimiter).TextRange.EndOffset);
         }
 
         var referenceName = reference as IReferenceName;
         if (referenceName != null)
         {
-          MostInnerReplaceRange =
-            ToDocumentRange(referenceName.Qualifier).SetEndTo(
-              ToDocumentRange(referenceName.Delimiter).TextRange.EndOffset);
+          var qualifier = referenceName.Qualifier;
+          var delimiter = referenceName.Delimiter;
+          MostInnerReplaceRange = ToDocumentRange(qualifier)
+            .SetEndTo(ToDocumentRange(delimiter).TextRange.EndOffset);
         }
       }
     }
@@ -66,19 +59,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       {
         if (node is ICSharpStatement) break;
 
-        var expr = node as ICSharpExpression;
-        if (expr == null || expr == reference) continue;
+        var expression = node as ICSharpExpression;
+        if (expression == null || expression == reference) continue;
 
-        var exprRange = myReparsedContext.ToDocumentRange(expr);
-        if (!exprRange.IsValid())
+        var reparsedContext = ExecutionContext.ReparsedContext;
+        var expressionRange = reparsedContext.ToDocumentRange(expression);
+        if (!expressionRange.IsValid())
           break; // stop when out of generated
-        if (exprRange.TextRange.EndOffset > endOffset)
+        if (expressionRange.TextRange.EndOffset > endOffset)
           break; // stop when 'a.var + b'
 
         // skip relational expressions like this: 'List<int.{here}>'
-        if (CommonUtils.IsRelationalExpressionWithTypeOperand(expr)) continue;
+        if (CommonUtils.IsRelationalExpressionWithTypeOperand(expression)) continue;
 
-        var expressionContext = new PrefixExpressionContext(this, expr);
+        var expressionContext = new PrefixExpressionContext(this, expression);
         if (expressionContext.ReferencedElement is ITypeElement)
         {
           // skip types that are parts of 'List<T.>'-like expressions
@@ -108,8 +102,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       get { return Expressions[Expressions.Count - 1]; }
     }
 
+    [NotNull] public PostfixExecutionContext ExecutionContext { get; private set; }
+
     // Double basic completion (or basic completion in R# 7.1)
-    public bool ForceMode { get; private set; }
+    public bool IsForceMode
+    {
+      get { return ExecutionContext.IsForceMode; }
+    }
 
     // Can be IReferenceExpression / IReferenceName / IErrorElement
     [NotNull] public ITreeNode PostfixReferenceNode { get; private set; }
@@ -128,12 +127,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       get { return myMostInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
     }
 
-    [NotNull] public ILookupItemsOwner LookupItemsOwner { get; private set; }
-    [NotNull] public IPsiModule PsiModule { get; private set; }
-
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {
-      return myReparsedContext.ToDocumentRange(node);
+      return ExecutionContext.ReparsedContext.ToDocumentRange(node);
     }
   }
 }

@@ -29,7 +29,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       if (instantiable != TypeInstantiability.NotInstantiable)
       {
         var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
-        return new NewItem(expressionContext, context.LookupItemsOwner, hasCtorWithParams);
+        var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
+
+        return new NewItem(expressionContext, lookupItemsOwner, hasCtorWithParams);
       }
 
       return null;

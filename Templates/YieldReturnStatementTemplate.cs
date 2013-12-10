@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var function = declaration.DeclaredElement;
       if (function == null) return null;
 
-      if (context.ForceMode)
+      if (context.IsForceMode)
       {
         return new YieldLookupItem(expressionContext);
       }

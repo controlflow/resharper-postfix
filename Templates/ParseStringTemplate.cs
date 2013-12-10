@@ -29,9 +29,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         var expressionType = expressionContext.Type;
         if (expressionType.IsResolved && expressionType.IsString())
         {
+          var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
           return new ParseLookupItem(
             "parse", expressionContext, myTemplatesManager,
-            myShellLocks, context.LookupItemsOwner, isTryParse: false);
+            myShellLocks, lookupItemsOwner, isTryParse: false);
         }
       }
 

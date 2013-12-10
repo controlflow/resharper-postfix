@@ -35,7 +35,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var expressionContext = context.OuterExpression;
       if (!expressionContext.CanBeStatement) return null;
 
-      if (!context.ForceMode)
+      if (!context.IsForceMode)
       {
         if (!expressionContext.Type.IsResolved) return null;
 
