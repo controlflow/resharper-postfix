@@ -48,7 +48,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
       var treeNode = context.UnterminatedContext.TreeNode;
       if (treeNode == null) return false;
 
-      var items = myTemplatesManager.GetAvailableItems(treeNode, executionContext);
+      // todo: sometimes prefer unterminated context!
+
+      var items = myTemplatesManager.GetAvailableItems(treeNode, executionContext, context.UnterminatedContext);
 
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 
@@ -61,7 +63,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         if (firstCompletion != CodeCompletionType.AutomaticCompletion)
           return false;
 
-        var autoItems = myTemplatesManager.GetAvailableItems(node, executionContext);
+        var autoItems = myTemplatesManager.GetAvailableItems(node, executionContext, context.UnterminatedContext);
         if (autoItems.Count > 0)
         {
           foreach (var lookupItem in autoItems)

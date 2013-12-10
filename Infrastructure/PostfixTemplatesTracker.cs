@@ -131,7 +131,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         // check exactly single item available
         var items = myTemplatesManager.GetAvailableItems(
-          token, context: executionContext);
+          token, context: executionContext, reparsedContext: TODO);
 
         if (items.Count == 1) return items[0];
         return null;

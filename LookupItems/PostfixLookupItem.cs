@@ -25,6 +25,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
   {
     [NotNull] private readonly string myShortcut;
     [NotNull] private readonly string myIdentifier;
+
+    private readonly PostfixExecutionContext myExecutionContext;
+    private readonly int myIndexOf;
+
+    // todo: drop diz shit
     [NotNull] private readonly IRangeMarker myExpressionRange;
     [NotNull] private readonly IRangeMarker myReferenceRange;
     [NotNull] private readonly Type myReferenceType;
@@ -39,9 +44,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       myIdentifier = shortcut;
       myShortcut = shortcut.ToLowerInvariant();
+
+      myExecutionContext = context.Parent.ExecutionContext;
+      myIndexOf = context.Parent.Expressions.IndexOf(context);
+
+
       myWasReparsed = !context.Expression.IsPhysical();
 
-      var shift = myWasReparsed ? +2 : 0;
+      var shift = myWasReparsed ? +2 : 0; // AAAAAAAAAAAAAAAAAAAAAAAA
       myExpressionRange = context.ExpressionRange.CreateRangeMarker();
       myReferenceRange = context.Parent.PostfixReferenceRange.CreateRangeMarker();
       myReferenceType = context.Parent.PostfixReferenceNode.GetType();
@@ -60,6 +70,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       LookupItemInsertType insertType, Suffix suffix,
       ISolution solution, bool keepCaretStill)
     {
+      solution.GetPsiServices().Files.CommitAllDocuments();
+      var position = TextControlToPsi.GetElementFromCaretPosition<ITreeNode>(solution, textControl);
+
+
+      var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
+      var context = templatesManager.IsAvailable(position, myExecutionContext);
+      
+
+
+      {
+        return;
+      }
+
       // find target expression after code completion
       var expressionRange = myExpressionRange.Range;
 

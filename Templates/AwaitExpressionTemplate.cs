@@ -34,9 +34,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
       // check expression is not already awaited
       var expression = (context.PostfixReferenceNode as IReferenceExpression);
-      var awaitExpression = AwaitExpressionNavigator.GetByTask(
-        expression.GetContainingParenthesizedExpression() as IUnaryExpression);
+      var unaryExpression = expression.GetContainingParenthesizedExpression();
 
+      var awaitExpression = AwaitExpressionNavigator.GetByTask(unaryExpression as IUnaryExpression);
       if (awaitExpression == null)
       {
         return new AwaitItem(expressionContext);

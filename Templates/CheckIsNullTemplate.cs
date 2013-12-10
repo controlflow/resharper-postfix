@@ -11,19 +11,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
   {
     public ILookupItem CreateItems(PostfixTemplateContext context)
     {
-      var exprContext = context.OuterExpression;
-      if (!exprContext.CanBeStatement) return null;
+      var expressionContext = context.OuterExpression;
+      if (!expressionContext.CanBeStatement) return null;
 
       if (!context.IsForceMode)
       {
-        if (exprContext.Type.IsUnknown) return null;
-        if (!IsNullableType(exprContext.Type)) return null;
+        var expressionType = expressionContext.Type;
+        if (expressionType.IsUnknown) return null;
+
+        if (!IsNullableType(expressionType)) return null;
       }
 
       var state = CSharpControlFlowNullReferenceState.UNKNOWN;
       if (!context.IsForceMode)
       {
-        state = CheckNullabilityState(exprContext);
+        state = CheckNullabilityState(expressionContext);
       }
 
       switch (state)
@@ -31,7 +33,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
         case CSharpControlFlowNullReferenceState.UNKNOWN:
         {
-          return new CheckForNullItem("null", exprContext, "if(expr==null)");
+          return new CheckForNullItem("null", expressionContext, "if(expr==null)");
         }
       }
 

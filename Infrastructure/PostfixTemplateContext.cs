@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -13,36 +14,42 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     [NotNull] private readonly ICSharpExpression myMostInnerExpression;
     [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
+    [CanBeNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 
     public PostfixTemplateContext(
       [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
-      DocumentRange replaceRange, [NotNull] PostfixExecutionContext executionContext)
+      [NotNull] PostfixExecutionContext executionContext,
+      [CanBeNull] ReparsedCodeCompletionContext reparsedContext)
     {
       myMostInnerExpression = expression;
       PostfixReferenceNode = reference;
-      MostInnerReplaceRange = replaceRange;
+
+
+      //MostInnerReplaceRange = replaceRange;
+      myReparsedContext = reparsedContext;
       ExecutionContext = executionContext;
 
-      if (!replaceRange.IsValid())
-      {
-        var referenceExpression = reference as IReferenceExpression;
-        if (referenceExpression != null)
-        {
-          var qualifier = referenceExpression.QualifierExpression.NotNull();
-          var delimiter = referenceExpression.Delimiter.NotNull();
-          MostInnerReplaceRange = ToDocumentRange(qualifier)
-            .SetEndTo(ToDocumentRange(delimiter).TextRange.EndOffset);
-        }
-
-        var referenceName = reference as IReferenceName;
-        if (referenceName != null)
-        {
-          var qualifier = referenceName.Qualifier;
-          var delimiter = referenceName.Delimiter;
-          MostInnerReplaceRange = ToDocumentRange(qualifier)
-            .SetEndTo(ToDocumentRange(delimiter).TextRange.EndOffset);
-        }
-      }
+      //if (!replaceRange.IsValid())
+      //{
+      //  var referenceExpression = reference as IReferenceExpression;
+      //  if (referenceExpression != null)
+      //  {
+      //    var qualifier = referenceExpression.QualifierExpression.NotNull();
+      //    var delimiter = referenceExpression.Delimiter.NotNull();
+      //    MostInnerReplaceRange = ToDocumentRange(qualifier)
+      //      .SetEndTo(ToDocumentRange(delimiter).TextRange.EndOffset);
+      //  }
+      //
+      //  var referenceName = reference as IReferenceName;
+      //  if (referenceName != null)
+      //  {
+      //    var qualifier = referenceName.Qualifier;
+      //    var delimiter = referenceName.Delimiter;
+      //    MostInnerReplaceRange = ToDocumentRange(qualifier)
+      //      .SetEndTo(ToDocumentRange(delimiter).TextRange.EndOffset);
+      //  }
+      //}
+      
     }
 
     [NotNull] private IList<PrefixExpressionContext> BuildExpression()
@@ -52,7 +59,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       // build expression contexts
       var expressionContexts = new List<PrefixExpressionContext>();
       var endOffset = Math.Max(
-        MostInnerReplaceRange.TextRange.EndOffset,
+        //MostInnerReplaceRange.TextRange.EndOffset,
+        0,
         ToDocumentRange(reference).TextRange.EndOffset);
 
       for (ITreeNode node = myMostInnerExpression; node != null; node = node.Parent)
@@ -62,7 +70,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var expression = node as ICSharpExpression;
         if (expression == null || expression == reference) continue;
 
-        var reparsedContext = ExecutionContext.ReparsedContext;
+        var reparsedContext = myReparsedContext;
         var expressionRange = reparsedContext.ToDocumentRange(expression);
         if (!expressionRange.IsValid())
           break; // stop when out of generated
@@ -114,6 +122,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull] public ITreeNode PostfixReferenceNode { get; private set; }
 
     // Minimal replace range 'string.if' of 'o as string.if'
+    [Obsolete("get rid of it")]
     public DocumentRange MostInnerReplaceRange { get; private set; }
 
     // Minimal reference-like/error node range
@@ -129,7 +138,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {
-      return ExecutionContext.ReparsedContext.ToDocumentRange(node);
+      return myReparsedContext.ToDocumentRange(node);
     }
   }
 }
