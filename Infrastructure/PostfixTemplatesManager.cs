@@ -60,8 +60,53 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [NotNull] public IList<ILookupItem> GetAvailableItems(
       [NotNull] ITreeNode node, bool forceMode, [NotNull] PostfixExecutionContext context)
     {
-      if (!(node is ICSharpIdentifier) && !(node is ITokenNode))
+      var postfixContext = GetAvailableItems2(node, forceMode, context);
+      if (postfixContext == null || postfixContext.Expressions.Count == 0)
         return EmptyList<ILookupItem>.InstanceList;
+
+      var store = node.GetSettingsStore();
+      var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
+      settings.DisabledProviders.SnapshotAndFreeze();
+
+      var isTypeExpression = postfixContext.InnerExpression.ReferencedElement is ITypeElement;
+      var items = new List<ILookupItem>();
+
+      var templateName = context.SpecificTemplateName;
+      foreach (var info in myTemplateProvidersInfos)
+      {
+        bool isEnabled;
+        if (!settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled))
+          isEnabled = !info.Metadata.DisabledByDefault;
+
+        if (!isEnabled) continue; // check disabled providers
+
+        if (templateName != null)
+        {
+          var name = info.Metadata.TemplateName;
+          if (!string.Equals(templateName, name, StringComparison.Ordinal))
+            continue;
+        }
+
+        if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
+
+        var lookupItem = info.Provider.CreateItems(postfixContext);
+        if (lookupItem != null) items.Add(lookupItem);
+      }
+
+      if (templateName != null) // do not like it
+      {
+        items.RemoveAll(x => x.Identity != templateName);
+      }
+
+      return items;
+    }
+
+    // todo: use me
+    [CanBeNull] public PostfixTemplateContext GetAvailableItems2(
+      [NotNull] ITreeNode node, bool forceMode, [NotNull] PostfixExecutionContext context)
+    {
+      if (!(node is ICSharpIdentifier) && !(node is ITokenNode))
+        return null;
 
       // 'booleanExpr.in' - unexpected identifier (keyword)
       if (node.Parent is IErrorElement
@@ -164,7 +209,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         }
       }
 
-      return EmptyList<ILookupItem>.InstanceList;
+      return null;
     }
 
     [CanBeNull]
@@ -307,50 +352,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return expression;
     }
 
+    // todo: inline
     [NotNull]
-    private IList<ILookupItem> CollectAvailableTemplates(
+    private PostfixTemplateContext CollectAvailableTemplates(
       [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
       DocumentRange replaceRange, bool forceMode, [NotNull] PostfixExecutionContext context)
     {
-      var postfixContext = new PostfixTemplateContext(
+      return new PostfixTemplateContext(
         reference, expression, replaceRange, forceMode, context);
-
-      if (postfixContext.Expressions.Count == 0)
-        return EmptyList<ILookupItem>.InstanceList;
-
-      var store = expression.GetSettingsStore();
-      var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
-      settings.DisabledProviders.SnapshotAndFreeze();
-
-      var isTypeExpression = postfixContext.InnerExpression.ReferencedElement is ITypeElement;
-      var items = new List<ILookupItem>();
-
-      var templateName = context.SpecificTemplateName;
-      foreach (var info in myTemplateProvidersInfos)
-      {
-        bool isEnabled;
-        if (!settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled))
-          isEnabled = !info.Metadata.DisabledByDefault;
-
-        if (!isEnabled) continue; // check disabled providers
-
-        if (templateName != null)
-        {
-          var name = info.Metadata.TemplateName;
-          if (!string.Equals(templateName, name, StringComparison.Ordinal))
-            continue;
-        }
-
-        if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
-
-        var lookupItem = info.Provider.CreateItems(postfixContext);
-        if (lookupItem != null) items.Add(lookupItem);
-      }
-
-      if (templateName != null) // do not like it
-        items.RemoveAll(x => x.Identity != templateName);
-
-      return items;
     }
   }
 }
