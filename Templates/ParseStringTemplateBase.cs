@@ -140,7 +140,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       typeof(DateTime),
       typeof(DateTimeOffset),
       typeof(Version),
-      typeof(Guid),
+      typeof(Guid)
     };
   }
 }

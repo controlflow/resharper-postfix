@@ -40,7 +40,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     public static void AdviceFinished(
       [NotNull] this HotspotSession session, [NotNull] Action<HotspotSession, TerminationType> action)
     {
-      session.Closed.Advise(EternalLifetime.Instance, (args) =>
+      session.Closed.Advise(EternalLifetime.Instance, args =>
       {
         action(session, args.TerminationType);
       });
