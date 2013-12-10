@@ -16,7 +16,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return TextRange.InvalidRange;
     }
 
-    public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
+    public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext acceptanceContext)
     {
       return false;
     }
