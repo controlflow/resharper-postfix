@@ -16,10 +16,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     [NotNull] private readonly ICSharpExpression myMostInnerExpression;
     [CanBeNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
+    [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
 
-    public PostfixTemplateContext([NotNull] ITreeNode reference,
-      [NotNull] ICSharpExpression expression, DocumentRange replaceRange,
-      bool forceMode, [NotNull] PostfixExecutionContext context)
+    public PostfixTemplateContext(
+      [NotNull] ITreeNode reference,
+      [NotNull] ICSharpExpression expression,
+      DocumentRange replaceRange, bool forceMode,
+      [NotNull] PostfixExecutionContext context)
     {
       myReparsedContext = context.ReparsedContext;
       myMostInnerExpression = expression;
@@ -47,6 +50,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
               ToDocumentRange(referenceName.Delimiter).TextRange.EndOffset);
         }
       }
+    }
+
+    [NotNull] private IList<PrefixExpressionContext> BuildExpression()
+    {
+      var reference = PostfixReferenceNode;
 
       // build expression contexts
       var expressionContexts = new List<PrefixExpressionContext>();
@@ -54,7 +62,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         MostInnerReplaceRange.TextRange.EndOffset,
         ToDocumentRange(reference).TextRange.EndOffset);
 
-      for (ITreeNode node = expression; node != null; node = node.Parent)
+      for (ITreeNode node = myMostInnerExpression; node != null; node = node.Parent)
       {
         if (node is ICSharpStatement) break;
 
@@ -74,20 +82,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (expressionContext.ReferencedElement is ITypeElement)
         {
           // skip types that are parts of 'List<T.>'-like expressions
-          if (!CommonUtils.CanTypeBecameExpression(expression)) continue;
+          if (!CommonUtils.CanTypeBecameExpression(myMostInnerExpression)) continue;
         }
 
         expressionContexts.Add(expressionContext);
         if (expressionContext.CanBeStatement) break;
       }
 
-      Expressions = (expressionContexts.Count == 0)
-        ? EmptyList<PrefixExpressionContext>.InstanceList
-        : expressionContexts.AsReadOnly();
+      return expressionContexts.AsReadOnly();
     }
 
     // Expression contexts: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
-    [NotNull] public IList<PrefixExpressionContext> Expressions { get; private set; }
+    [NotNull] public IList<PrefixExpressionContext> Expressions
+    {
+      get { return myExpressions ?? (myExpressions = BuildExpression()); }
+    }
 
     [NotNull] public PrefixExpressionContext InnerExpression
     {
