@@ -1,26 +1,31 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.Modules;
+using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  public sealed class PostfixExecutionContext
+  public class PostfixExecutionContext
   {
-    public PostfixExecutionContext(
-      [NotNull] IPsiModule psiModule,
-      [NotNull] ILookupItemsOwner lookupItemsOwner, bool isForceMode,
-      [CanBeNull] string specificTemplateName = null)
+    public PostfixExecutionContext(bool isForceMode, [NotNull] IPsiModule psiModule,
+      [NotNull] ILookupItemsOwner lookupItemsOwner, [NotNull] string reparseString)
     {
       PsiModule = psiModule;
       LookupItemsOwner = lookupItemsOwner;
+      ReparseString = reparseString;
       IsForceMode = isForceMode;
-      SpecificTemplateName = specificTemplateName;
     }
+
+    public bool IsForceMode { get; private set; }
 
     [NotNull] public IPsiModule PsiModule { get; private set; }
     [NotNull] public ILookupItemsOwner LookupItemsOwner { get; private set; }
-    public bool IsForceMode { get; private set; }
+    [NotNull] public string ReparseString { get; private set; }
 
-    [CanBeNull] public string SpecificTemplateName { get; private set; }
+    public virtual DocumentRange GetDocumentRange(ITreeNode treeNode)
+    {
+      return treeNode.GetDocumentRange();
+    }
   }
 }

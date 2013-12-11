@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.Modules;
+using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
@@ -33,17 +38,45 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
       return codeCompletionTypes.Length <= 2;
     }
 
+    private sealed class ReparsedPostfixExecutionContext : PostfixExecutionContext
+    {
+      [NotNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
+
+      public ReparsedPostfixExecutionContext(
+        bool isForceMode, [NotNull] IPsiModule psiModule,
+        [NotNull] ILookupItemsOwner lookupItemsOwner,
+        [NotNull] ReparsedCodeCompletionContext reparsedContext,
+        [NotNull] string reparseString)
+        : base(isForceMode, psiModule, lookupItemsOwner, reparseString)
+      {
+        myReparsedContext = reparsedContext;
+      }
+
+      public override DocumentRange GetDocumentRange(ITreeNode treeNode)
+      {
+        return myReparsedContext.ToDocumentRange(treeNode);
+      }
+
+      [NotNull]
+      public static PostfixExecutionContext Create(
+        [NotNull] CSharpCodeCompletionContext completionContext,
+        [NotNull] ReparsedCodeCompletionContext reparsedContext,
+        [NotNull] string reparseString)
+      {
+        var completionType = completionContext.BasicContext.CodeCompletionType;
+        var isForceMode = (completionType == CodeCompletionType.BasicCompletion);
+        var lookupItemsOwner = completionContext.BasicContext.LookupItemsOwner;
+
+        return new ReparsedPostfixExecutionContext(
+          isForceMode, completionContext.PsiModule,
+          lookupItemsOwner, reparsedContext, reparseString);
+      }
+    }
+
     protected override bool AddLookupItems(
       CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
-      var node = context.NodeInFile;
-      if (node == null) return false;
-
-      var completionType = context.BasicContext.CodeCompletionType;
-      var forceMode = (completionType == CodeCompletionType.BasicCompletion);
-      var lookupItemsOwner = context.BasicContext.LookupItemsOwner;
-      var executionContext = new PostfixExecutionContext(
-        context.PsiModule, lookupItemsOwner, forceMode, context.UnterminatedContext);
+      var executionContext = ReparsedPostfixExecutionContext.Create(context, context.UnterminatedContext, "__");
 
       var treeNode = context.UnterminatedContext.TreeNode;
       if (treeNode == null) return false;
@@ -55,7 +88,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 
       var parameters = context.BasicContext.Parameters;
-      if (forceMode && parameters.CodeCompletionTypes.Length > 1)
+      if (executionContext.IsForceMode && parameters.CodeCompletionTypes.Length > 1)
       {
         idsToRemove = new JetHashSet<string>(System.StringComparer.Ordinal);
 
@@ -63,7 +96,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         if (firstCompletion != CodeCompletionType.AutomaticCompletion)
           return false;
 
-        var autoItems = myTemplatesManager.GetAvailableItems(node, executionContext, context.UnterminatedContext);
+        var autoItems = myTemplatesManager.GetAvailableItems(treeNode, executionContext, context.UnterminatedContext);
         if (autoItems.Count > 0)
         {
           foreach (var lookupItem in autoItems)

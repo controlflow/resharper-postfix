@@ -61,10 +61,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull] public IList<ILookupItem> GetAvailableItems(
-      [NotNull] ITreeNode node, [NotNull] PostfixExecutionContext context,
-      [NotNull] ReparsedCodeCompletionContext reparsedContext)
+      [NotNull] ITreeNode node, [NotNull] PostfixExecutionContext context)
     {
-      var postfixContext = IsAvailable(node, context, reparsedContext);
+      var postfixContext = IsAvailable(node, context);
       if (postfixContext == null || postfixContext.Expressions.Count == 0)
       {
         return EmptyList<ILookupItem>.InstanceList;
@@ -77,7 +76,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var isTypeExpression = postfixContext.InnerExpression.ReferencedElement is ITypeElement;
       var items = new List<ILookupItem>();
 
-      var templateName = context.SpecificTemplateName;
+      //var templateName = context.SpecificTemplateName;
       foreach (var info in myTemplateProvidersInfos)
       {
         bool isEnabled;
@@ -86,12 +85,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         if (!isEnabled) continue; // check disabled providers
 
-        if (templateName != null)
-        {
-          var name = info.Metadata.TemplateName;
-          if (!string.Equals(templateName, name, StringComparison.Ordinal))
-            continue;
-        }
+        //if (templateName != null)
+        //{
+        //  var name = info.Metadata.TemplateName;
+        //  if (!string.Equals(templateName, name, StringComparison.Ordinal))
+        //    continue;
+        //}
 
         if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
 
@@ -99,22 +98,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (lookupItem != null) items.Add(lookupItem);
       }
 
-      if (templateName != null) // do not like it
-      {
-        for (var index = items.Count - 1; index >= 0; index--)
-        {
-          if (items[index].Identity == templateName)
-            items.RemoveAt(index);
-        }
-      }
+      //if (templateName != null) // do not like it
+      //{
+      //  for (var index = items.Count - 1; index >= 0; index--)
+      //  {
+      //    if (items[index].Identity == templateName)
+      //      items.RemoveAt(index);
+      //  }
+      //}
+
+      LookupItemsOwnerFactory
 
       return items;
     }
 
-    [CanBeNull]
-    public PostfixTemplateContext IsAvailable(
-      [NotNull] ITreeNode position, [NotNull] PostfixExecutionContext context,
-      [CanBeNull] ReparsedCodeCompletionContext reparsedContext)
+    [CanBeNull] public PostfixTemplateContext IsAvailable(
+      [NotNull] ITreeNode position, [NotNull] PostfixExecutionContext executionContext)
     {
       if (position is ICSharpIdentifier)
       {
@@ -125,12 +124,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           if (expression != null)
           {
             return new PostfixTemplateContext(
-              referenceExpression, expression, DocumentRange.InvalidRange);
+              referenceExpression, expression, executionContext);
           }
         }
       }
-
-
 
       return null;
     }
@@ -155,7 +152,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (expression != null)
         {
           return new PostfixTemplateContext(
-            referenceExpression, expression, DocumentRange.InvalidRange, context, reparsedContext);
+            referenceExpression, expression, //DocumentRange.InvalidRange,
+            context);
         }
       }
 
@@ -175,7 +173,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var replaceRange = expressionRange.SetEndTo(nodeRange.EndOffset);
 
             return new PostfixTemplateContext(
-              referenceExpr, expression, replaceRange, context, reparsedContext);
+              referenceExpr, expression, //replaceRange,
+              context);
           }
         }
       }
@@ -194,7 +193,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var replaceRange = typeUsageRange.SetEndTo(nodeRange.EndOffset);
 
             return new PostfixTemplateContext(
-              typeUsage, expression, replaceRange, context, reparsedContext);
+              typeUsage, expression, //replaceRange,
+              context);
           }
         }
       }
@@ -216,7 +216,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var replaceRange = qualifierRange.SetEndTo(delimiterRange.TextRange.EndOffset);
 
             return new PostfixTemplateContext(
-              referenceName, expression, replaceRange, context, reparsedContext);
+              referenceName, expression, //replaceRange,
+              context);
           }
         }
       }
@@ -236,7 +237,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
             var replaceRange = expressionRange.SetEndTo(nodeRange.TextRange.EndOffset);
 
             return new PostfixTemplateContext(
-              coolNode, expression, replaceRange, context, reparsedContext);
+              coolNode, expression, //replaceRange,
+              context);
           }
         }
       }

@@ -3,6 +3,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
@@ -26,7 +27,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] private readonly string myShortcut;
     [NotNull] private readonly string myIdentifier;
 
-    private readonly PostfixExecutionContext myExecutionContext;
+    //private readonly PostfixExecutionContext myExecutionContext;
+    private string myReparseString;
+
     private readonly int myIndexOf;
 
     // todo: drop diz shit
@@ -35,6 +38,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] private readonly Type myReferenceType;
     private readonly DocumentRange myReplaceRange;
     private readonly bool myWasReparsed;
+    
 
     protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
     protected const string CaretMarker = "POSTFIX_COMPLETION_CARET";
@@ -45,7 +49,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       myIdentifier = shortcut;
       myShortcut = shortcut.ToLowerInvariant();
 
-      myExecutionContext = context.Parent.ExecutionContext;
+      myReparseString = context.Parent.ExecutionContext.ReparseString;
+
+
+      //myReparseString = myExecutionContext.ReparseString;
+
+      //myExecutionContext = context.Parent.ExecutionContext;
       myIndexOf = context.Parent.Expressions.IndexOf(context);
 
 
@@ -74,9 +83,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var position = TextControlToPsi.GetElementFromCaretPosition<ITreeNode>(solution, textControl);
 
 
+      //new ReparsedCodeCompletionContext()
+
+      var itemsOwnerFactory = solution.GetComponent<LookupItemsOwnerFactory>();
+      var lookupItemsOwner = itemsOwnerFactory.CreateLookupItemsOwner(textControl);
+
+
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
-      var context = templatesManager.IsAvailable(position, myExecutionContext);
-      
+      var executionContext = new PostfixExecutionContext(
+        false, position.GetPsiModule(), lookupItemsOwner, myReparseString);
+
+      var context = templatesManager.IsAvailable(position, executionContext);
+      if (context != null)
+      {
+        
+      }
 
 
       {

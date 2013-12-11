@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
@@ -14,19 +12,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     [NotNull] private readonly ICSharpExpression myMostInnerExpression;
     [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
-    [CanBeNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 
     public PostfixTemplateContext(
       [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
-      [NotNull] PostfixExecutionContext executionContext,
-      [CanBeNull] ReparsedCodeCompletionContext reparsedContext)
+      [NotNull] PostfixExecutionContext executionContext)
     {
       myMostInnerExpression = expression;
       PostfixReferenceNode = reference;
 
 
       //MostInnerReplaceRange = replaceRange;
-      myReparsedContext = reparsedContext;
       ExecutionContext = executionContext;
 
       //if (!replaceRange.IsValid())
@@ -70,8 +65,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var expression = node as ICSharpExpression;
         if (expression == null || expression == reference) continue;
 
-        var reparsedContext = myReparsedContext;
-        var expressionRange = reparsedContext.ToDocumentRange(expression);
+        var expressionRange = ExecutionContext.GetDocumentRange(expression);
         if (!expressionRange.IsValid())
           break; // stop when out of generated
         if (expressionRange.TextRange.EndOffset > endOffset)
@@ -138,7 +132,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {
-      return myReparsedContext.ToDocumentRange(node);
+      return ExecutionContext.GetDocumentRange(node);
     }
   }
 }
