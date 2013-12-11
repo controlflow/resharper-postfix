@@ -3,6 +3,7 @@ using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
@@ -22,6 +23,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       return null;
     }
 
+
     private sealed class IfItem : StatementPostfixLookupItem<IIfStatement>
     {
       public IfItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
@@ -29,7 +31,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       protected override IIfStatement CreateStatement(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IIfStatement) factory.CreateStatement("if($0){}", expression);
+        return (IIfStatement) factory.CreateStatement("if($0)" + EmbeddedBracesTemplate, expression);
       }
     }
   }
