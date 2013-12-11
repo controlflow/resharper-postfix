@@ -3,12 +3,10 @@ using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.I18n.Services.Refactoring;
 using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Text;
@@ -21,14 +19,14 @@ using JetBrains.Util.Logging;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public abstract class PostfixLookupItem : PostfixLookupItemBase, ILookupItem
+  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
+    where TNode : class, ITreeNode
   {
     [NotNull] private readonly string myShortcut;
     [NotNull] private readonly string myIdentifier;
-
-    private readonly string myReparseString;
+    [NotNull] private readonly string myReparseString;
+    [NotNull] private readonly Type myExpressionType;
     private readonly DocumentRange myExpressionRange;
-    private readonly Type myExpressionType;
     private readonly int myContextIndex;
 
     protected PostfixLookupItem(
@@ -46,8 +44,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
     }
-
-    protected virtual bool RemoveSemicolon { get { return false; } }
 
     public void Accept(
       ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
@@ -83,6 +79,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         return;
       }
 
+      ITreeNodePointer<TNode> nodePointer = null;
       using (WriteLockCookie.Create())
       {
         var commandName = GetType().FullName + " expansion";
@@ -92,11 +89,28 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
           Assertion.Assert(fixedContext.Expression.IsPhysical(), "TODO");
 
-          ExpandPostfix(
+          var newNode = ExpandPostfix(
             textControl, suffix, solution,
             psiModule, fixedContext);
+
+          
+          nodePointer = newNode.CreatePointer();
         });
       }
+
+      if (nodePointer != null)
+      {
+        var node = nodePointer.GetTreeNode();
+        if (node != null)
+        {
+          AfterComplete(node);
+        }
+      }
+    }
+
+    protected virtual void AfterComplete([NotNull] TNode node)
+    {
+
     }
 
     [CanBeNull]
@@ -120,7 +134,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return null;
     }
 
-    protected abstract void ExpandPostfix(
+    protected abstract TNode ExpandPostfix(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
       [NotNull] ISolution solution, [NotNull] IPsiModule psiModule,
       [NotNull] PrefixExpressionContext expression);

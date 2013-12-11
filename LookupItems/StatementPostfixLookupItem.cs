@@ -9,19 +9,14 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public abstract class StatementPostfixLookupItem<TStatement> : PostfixLookupItem
+  public abstract class StatementPostfixLookupItem<TStatement> : PostfixLookupItem<TStatement>
     where TStatement : class, ICSharpStatement
   {
     protected StatementPostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
-    protected override bool RemoveSemicolon
-    {
-      get { return true; }
-    }
-
-    protected override void ExpandPostfix(
+    protected override TStatement ExpandPostfix(
       ITextControl textControl, Suffix suffix, ISolution solution,
       IPsiModule psiModule, PrefixExpressionContext expression)
     {
@@ -31,10 +26,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var statement = PrefixExpressionContext.CalculateCanBeStatement(expression.Expression);
       Assertion.AssertNotNull(statement, "TODO");
 
-      statement.ReplaceBy(newStatement);
+      newStatement = statement.ReplaceBy(newStatement);
+      return newStatement;
     }
 
     [NotNull] protected abstract TStatement CreateStatement(
       [NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
+
+    protected virtual void AfterComplete([NotNull] TStatement newStatement)
+    {
+      
+    }
   }
 }

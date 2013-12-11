@@ -4,7 +4,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  public abstract class ExpressionPostfixLookupItem<TExpression> : PostfixLookupItem
+  public abstract class ExpressionPostfixLookupItem<TExpression> : PostfixLookupItem<TExpression>
     where TExpression : class, ICSharpExpression
   {
     protected ExpressionPostfixLookupItem(

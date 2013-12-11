@@ -26,11 +26,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     {
       public IfItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
 
-
-      protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IIfStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IIfStatement)
-          factory.CreateStatement("if(expr)", null);
+        return (IIfStatement) factory.CreateStatement("if($0){}", expression);
       }
     }
   }
