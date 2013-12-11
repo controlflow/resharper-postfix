@@ -27,18 +27,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     [NotNull] private readonly string myShortcut;
     [NotNull] private readonly string myIdentifier;
 
-    //private readonly PostfixExecutionContext myExecutionContext;
-    private string myReparseString;
-
-    private readonly int myIndexOf;
-
-    // todo: drop diz shit
-    [NotNull] private readonly IRangeMarker myExpressionRange;
-    [NotNull] private readonly IRangeMarker myReferenceRange;
-    [NotNull] private readonly Type myReferenceType;
-    private readonly DocumentRange myReplaceRange;
-    private readonly bool myWasReparsed;
-    
+    private readonly string myReparseString;
+    private readonly DocumentRange myExpressionRange;
+    private readonly Type myExpressionType;
+    private readonly int myContextIndex;
 
     protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
     protected const string CaretMarker = "POSTFIX_COMPLETION_CARET";
@@ -48,23 +40,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       myIdentifier = shortcut;
       myShortcut = shortcut.ToLowerInvariant();
-
+      myExpressionType = context.Expression.GetType();
+      myExpressionRange = context.ExpressionRange;
+      myContextIndex = context.Parent.Expressions.IndexOf(context);
       myReparseString = context.Parent.ExecutionContext.ReparseString;
-
-
-      //myReparseString = myExecutionContext.ReparseString;
-
-      //myExecutionContext = context.Parent.ExecutionContext;
-      myIndexOf = context.Parent.Expressions.IndexOf(context);
-
-
-      myWasReparsed = !context.Expression.IsPhysical();
-
-      var shift = myWasReparsed ? +2 : 0; // AAAAAAAAAAAAAAAAAAAAAAAA
-      myExpressionRange = context.ExpressionRange.CreateRangeMarker();
-      myReferenceRange = context.Parent.PostfixReferenceRange.CreateRangeMarker();
-      myReferenceType = context.Parent.PostfixReferenceNode.GetType();
-      myReplaceRange = context.ReplaceRange.ExtendRight(shift);
     }
 
     public MatchingResult Match(string prefix, ITextControl textControl)
@@ -80,89 +59,84 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ISolution solution, bool keepCaretStill)
     {
       solution.GetPsiServices().Files.CommitAllDocuments();
+
       var position = TextControlToPsi.GetElementFromCaretPosition<ITreeNode>(solution, textControl);
-
-
-      //new ReparsedCodeCompletionContext()
 
       var itemsOwnerFactory = solution.GetComponent<LookupItemsOwnerFactory>();
       var lookupItemsOwner = itemsOwnerFactory.CreateLookupItemsOwner(textControl);
-
 
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
       var executionContext = new PostfixExecutionContext(
         false, position.GetPsiModule(), lookupItemsOwner, myReparseString);
 
       var context = templatesManager.IsAvailable(position, executionContext);
-      if (context != null)
-      {
-        
-      }
+      if (context == null) return;
 
 
-      {
-        return;
-      }
+
+      MessageBox.ShowInfo(context.OuterExpression.Expression.GetText());
+      MessageBox.ShowInfo(textControl.Document.GetText(nameRange));
+
 
       // find target expression after code completion
-      var expressionRange = myExpressionRange.Range;
-
-      if (myWasReparsed)
-      {
-        textControl.Document.ReplaceText(nameRange, "__");
-        solution.GetPsiServices().CommitAllDocuments();
-        nameRange = TextRange.FromLength(nameRange.StartOffset, 2);
-      }
-
-      var expression = (ICSharpExpression) FindMarkedNode(
-        solution, textControl, expressionRange, nameRange, typeof(ICSharpExpression));
-
-      if (expression == null)
-      {
-        // still can be parsed as IReferenceName
-        var referenceName = (IReferenceName) FindMarkedNode(
-          solution, textControl, expressionRange, nameRange, typeof(IReferenceName));
-
-        if (referenceName == null) return;
-
-        // reparse IReferenceName as ICSharpExpression
-        var factory = CSharpElementFactory.GetInstance(referenceName.GetPsiModule(), false);
-        expression = factory.CreateExpression(referenceName.GetText());
-      }
-
-      // take required component while tree is valid
-      var psiModule = expression.GetPsiModule();
-
-      var reference = FindMarkedNode(
-        solution, textControl, myReferenceRange.Range, nameRange, myReferenceType);
-
-      // Razor.{caret} case
-      if (reference == expression && myWasReparsed)
-      {
-        var parentReference = reference.Parent as IReferenceExpression;
-        if (parentReference != null && parentReference.NameIdentifier.Name == "__")
-          reference = parentReference;
-      }
-
-      // calculate textual range to remove
-      var replaceRange = CalculateRangeToRemove(nameRange, expression, reference);
-
-      // fix "x > 0.if" to "x > 0"
-      ICSharpExpression expressionCopy;
-      if (reference != null && expression.Contains(reference))
-      {
-        expressionCopy = FixExpression(expression, reference);
-      }
-      else
-      {
-        expressionCopy = expression.IsPhysical() ? expression.Copy(expression) : expression;
-      }
-
-      Assertion.Assert(!expressionCopy.IsPhysical(), "expressionCopy is physical");
-
-      ExpandPostfix(
-        textControl, suffix, solution,
-        replaceRange, psiModule, expressionCopy);
+      //var expressionRange = myExpressionRange.Range;
+      //
+      //if (myWasReparsed)
+      //{
+      //  textControl.Document.ReplaceText(nameRange, "__");
+      //  solution.GetPsiServices().CommitAllDocuments();
+      //  nameRange = TextRange.FromLength(nameRange.StartOffset, 2);
+      //}
+      //
+      //var expression = (ICSharpExpression) FindMarkedNode(
+      //  solution, textControl, expressionRange, nameRange, typeof(ICSharpExpression));
+      //
+      //if (expression == null)
+      //{
+      //  // still can be parsed as IReferenceName
+      //  var referenceName = (IReferenceName) FindMarkedNode(
+      //    solution, textControl, expressionRange, nameRange, typeof(IReferenceName));
+      //
+      //  if (referenceName == null) return;
+      //
+      //  // reparse IReferenceName as ICSharpExpression
+      //  var factory = CSharpElementFactory.GetInstance(referenceName.GetPsiModule(), false);
+      //  expression = factory.CreateExpression(referenceName.GetText());
+      //}
+      //
+      //// take required component while tree is valid
+      //var psiModule = expression.GetPsiModule();
+      //
+      //var reference = FindMarkedNode(
+      //  solution, textControl, myReferenceRange.Range, nameRange, myReferenceType);
+      //
+      //// Razor.{caret} case
+      //if (reference == expression && myWasReparsed)
+      //{
+      //  var parentReference = reference.Parent as IReferenceExpression;
+      //  if (parentReference != null && parentReference.NameIdentifier.Name == "__")
+      //    reference = parentReference;
+      //}
+      //
+      //// calculate textual range to remove
+      //var replaceRange = CalculateRangeToRemove(nameRange, expression, reference);
+      //
+      //// fix "x > 0.if" to "x > 0"
+      //ICSharpExpression expressionCopy;
+      //if (reference != null && expression.Contains(reference))
+      //{
+      //  expressionCopy = FixExpression(expression, reference);
+      //}
+      //else
+      //{
+      //  expressionCopy = expression.IsPhysical() ? expression.Copy(expression) : expression;
+      //}
+      //
+      //Assertion.Assert(!expressionCopy.IsPhysical(), "expressionCopy is physical");
+      //
+      //ExpandPostfix(
+      //  textControl, suffix, solution,
+      //  replaceRange, psiModule, expressionCopy);
     }
 
     [CanBeNull] private static ITreeNode FindMarkedNode(

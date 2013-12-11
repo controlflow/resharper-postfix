@@ -12,8 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   public sealed class PrefixExpressionContext
   {
     public PrefixExpressionContext(
-      [NotNull] PostfixTemplateContext parent,
-      [NotNull] ICSharpExpression expression)
+      [NotNull] PostfixTemplateContext parent, [NotNull] ICSharpExpression expression)
     {
       Parent = parent;
       Expression = expression;
@@ -23,32 +22,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var referenceExpression = expression as IReferenceExpression;
       if (referenceExpression != null)
       {
-        var result = referenceExpression.Reference.Resolve().Result;
-        ReferencedElement = result.DeclaredElement;
+        var resolveResult = referenceExpression.Reference.Resolve().Result;
+        ReferencedElement = resolveResult.DeclaredElement;
 
-        var typeElement = ReferencedElement as ITypeElement;
-        if (typeElement != null)
-        {
-          ReferencedType = TypeFactory.CreateType(typeElement, result.Substitution);
-        }
+        var element = ReferencedElement as ITypeElement;
+        if (element != null)
+          ReferencedType = TypeFactory.CreateType(element, resolveResult.Substitution);
       }
-      else
-      {
-        var typeExpression = expression as IPredefinedTypeExpression;
-        if (typeExpression != null)
-        {
-          var typeName = typeExpression.PredefinedTypeName;
-          if (typeName != null)
-          {
-            var result = typeName.Reference.Resolve().Result;
-            ReferencedElement = result.DeclaredElement;
 
-            var typeElement = ReferencedElement as ITypeElement;
-            if (typeElement != null)
-            {
-              ReferencedType = TypeFactory.CreateType(typeElement, result.Substitution);
-            }
-          }
+      var predefinedTypeExpression = expression as IPredefinedTypeExpression;
+      if (predefinedTypeExpression != null)
+      {
+        var typeName = predefinedTypeExpression.PredefinedTypeName;
+        if (typeName != null)
+        {
+          var resolveResult = typeName.Reference.Resolve().Result;
+          ReferencedElement = resolveResult.DeclaredElement;
+
+          var element = ReferencedElement as ITypeElement;
+          if (element != null)
+            ReferencedType = TypeFactory.CreateType(element, resolveResult.Substitution);
         }
       }
     }
@@ -104,22 +97,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
     public bool CanBeStatement { get; private set; }
 
-    // ranges
     public DocumentRange ExpressionRange
     {
       get { return Parent.ToDocumentRange(Expression); }
-    }
-
-    public DocumentRange ReplaceRange
-    {
-      get
-      {
-        var innerReplaceRange = Parent.MostInnerReplaceRange;
-        if (!ExpressionRange.Intersects(innerReplaceRange))
-          return ExpressionRange.JoinRight(innerReplaceRange);
-
-        return ExpressionRange.SetEndTo(innerReplaceRange.TextRange.EndOffset);
-      }
     }
   }
 }
