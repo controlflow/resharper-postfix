@@ -1,10 +1,6 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Modules;
-using JetBrains.TextControl;
 using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
@@ -16,26 +12,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
-    protected override TStatement ExpandPostfix(
-      ITextControl textControl, Suffix suffix, ISolution solution,
-      IPsiModule psiModule, PrefixExpressionContext expression)
+    protected override TStatement ExpandPostfix(PrefixExpressionContext expression)
     {
+      var psiModule = expression.Parent.ExecutionContext.PsiModule;
       var factory = CSharpElementFactory.GetInstance(psiModule);
       var newStatement = CreateStatement(factory, expression.Expression);
 
-      var statement = PrefixExpressionContext.CalculateCanBeStatement(expression.Expression);
-      Assertion.AssertNotNull(statement, "TODO");
+      var targetStatement = PrefixExpressionContext.CalculateCanBeStatement(expression.Expression);
+      Assertion.AssertNotNull(targetStatement, "targetStatement != null");
+      Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");
 
-      newStatement = statement.ReplaceBy(newStatement);
-      return newStatement;
+      return targetStatement.ReplaceBy(newStatement);
     }
 
     [NotNull] protected abstract TStatement CreateStatement(
       [NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
-
-    protected virtual void AfterComplete([NotNull] TStatement newStatement)
-    {
-      
-    }
   }
 }

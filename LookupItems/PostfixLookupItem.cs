@@ -49,7 +49,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
       Suffix suffix, ISolution solution, bool keepCaretStill)
     {
-      // inserting dummy identifier...
       textControl.Document.InsertText(
         nameRange.EndOffset, myReparseString, TextModificationSide.RightSide);
 
@@ -59,56 +58,47 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
       var itemsOwnerFactory = solution.GetComponent<LookupItemsOwnerFactory>();
       var lookupItemsOwner = itemsOwnerFactory.CreateLookupItemsOwner(textControl);
-
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
+
       var psiModule = position.GetPsiModule();
       var executionContext = new PostfixExecutionContext(
         false, psiModule, lookupItemsOwner, myReparseString);
 
-      var context = templatesManager.IsAvailable(position, executionContext);
-      if (context == null)
-      {
-        Logger.LogError("Should not happens normally");
-        return;
-      }
+      var postfixContext = templatesManager.IsAvailable(position, executionContext);
+      Assertion.AssertNotNull(postfixContext, "postfixContext != null");
 
-      var expressionContext = FindOriginalContext(context);
-      if (expressionContext == null)
-      {
-        Logger.LogError("Should not happens normally");
-        return;
-      }
+      var expressionContext = FindOriginalContext(postfixContext);
+      Assertion.AssertNotNull(expressionContext, "expressionContext != null");
 
-      ITreeNodePointer<TNode> nodePointer = null;
+      ITreeNodePointer<TNode> pointer = null;
       using (WriteLockCookie.Create())
       {
         var commandName = GetType().FullName + " expansion";
         solution.GetPsiServices().DoTransaction(commandName, () =>
         {
-          var fixedContext = context.FixExpression(expressionContext);
+          var fixedContext = postfixContext.FixExpression(expressionContext);
 
-          Assertion.Assert(fixedContext.Expression.IsPhysical(), "TODO");
+          var expression = fixedContext.Expression;
+          Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
 
-          var newNode = ExpandPostfix(
-            textControl, suffix, solution,
-            psiModule, fixedContext);
+          var newNode = ExpandPostfix(fixedContext);
+          Assertion.AssertNotNull(newNode, "newNode != null");
+          Assertion.Assert(newNode.IsPhysical(), "newNode.IsPhysical()");
 
-          
-          nodePointer = newNode.CreatePointer();
+          pointer = newNode.CreatePointer();
         });
       }
 
-      if (nodePointer != null)
+      if (pointer != null)
       {
-        var node = nodePointer.GetTreeNode();
-        if (node != null)
-        {
-          AfterComplete(node);
-        }
+        var newNode = pointer.GetTreeNode();
+        if (newNode != null) AfterComplete(textControl, newNode);
       }
     }
 
-    protected virtual void AfterComplete([NotNull] TNode node)
+    protected abstract TNode ExpandPostfix([NotNull] PrefixExpressionContext expression);
+
+    protected virtual void AfterComplete([NotNull] ITextControl textControl, [NotNull] TNode node)
     {
 
     }
@@ -133,11 +123,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
       return null;
     }
-
-    protected abstract TNode ExpandPostfix(
-      [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
-      [NotNull] ISolution solution, [NotNull] IPsiModule psiModule,
-      [NotNull] PrefixExpressionContext expression);
 
     public IconId Image
     {
