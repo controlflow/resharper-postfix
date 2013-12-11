@@ -7,6 +7,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   public interface IPostfixTemplate
   {
+    // todo: rename
     [CanBeNull] ILookupItem CreateItems([NotNull] PostfixTemplateContext context);
   }
 

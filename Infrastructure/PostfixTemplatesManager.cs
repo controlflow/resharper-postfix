@@ -227,7 +227,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         }
       }
 
-
       return null;
     }
 

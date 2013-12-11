@@ -22,19 +22,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       return null;
     }
 
-    private sealed class IfItem : KeywordStatementPostfixLookupItem<IIfStatement>
+    private sealed class IfItem : StatementPostfixLookupItem<IIfStatement>
     {
       public IfItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
 
-      protected override string Template
-      {
-        get { return "if(expr)"; }
-      }
 
-      protected override void PlaceExpression(
-        IIfStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
+      protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        statement.Condition.ReplaceBy(expression);
+        return (IIfStatement)
+          factory.CreateStatement("if(expr)", null);
       }
     }
   }

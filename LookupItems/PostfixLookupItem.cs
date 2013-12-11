@@ -31,9 +31,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     private readonly Type myExpressionType;
     private readonly int myContextIndex;
 
-    protected const string PostfixMarker = "POSTFIX_COMPLETION_MARKER";
-    protected const string CaretMarker = "POSTFIX_COMPLETION_CARET";
-
     protected PostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
     {
@@ -93,8 +90,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         {
           var fixedContext = context.FixExpression(expressionContext);
 
+          Assertion.Assert(fixedContext.Expression.IsPhysical(), "TODO");
+
           ExpandPostfix(
-            textControl, suffix, solution, psiModule, fixedContext.Expression);
+            textControl, suffix, solution,
+            psiModule, fixedContext);
         });
       }
     }
@@ -122,26 +122,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
     protected abstract void ExpandPostfix(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
-      [NotNull] ISolution solution, 
-      [NotNull] IPsiModule psiModule, [NotNull] ICSharpExpression expression);
-
-    protected void AfterComplete(
-      [NotNull] ITextControl textControl, [NotNull] Suffix suffix, int? caretPosition)
-    {
-      if (caretPosition != null)
-      {
-        textControl.Caret.MoveTo(
-          caretPosition.Value, CaretVisualPlacement.DontScrollIfVisible);
-      }
-
-      ReplaySuffix(textControl, suffix);
-    }
-
-    protected virtual void ReplaySuffix(
-      [NotNull] ITextControl textControl, [NotNull] Suffix suffix)
-    {
-      suffix.Playback(textControl);
-    }
+      [NotNull] ISolution solution, [NotNull] IPsiModule psiModule,
+      [NotNull] PrefixExpressionContext expression);
 
     public IconId Image
     {

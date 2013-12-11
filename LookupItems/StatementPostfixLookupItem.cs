@@ -1,13 +1,11 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.LiveTemplates.Surround;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Modules;
-using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
@@ -18,51 +16,25 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
-    protected override bool RemoveSemicolon { get { return true; } }
+    protected override bool RemoveSemicolon
+    {
+      get { return true; }
+    }
 
     protected override void ExpandPostfix(
       ITextControl textControl, Suffix suffix, ISolution solution,
-      IPsiModule psiModule, ICSharpExpression expression)
+      IPsiModule psiModule, PrefixExpressionContext expression)
     {
       var factory = CSharpElementFactory.GetInstance(psiModule);
-      var newStatement = CreateStatement(factory);
+      var newStatement = CreateStatement(factory, expression.Expression);
 
-      var statement = expression.GetContainingNode<IStatement>();
-
-      
+      var statement = PrefixExpressionContext.CalculateCanBeStatement(expression.Expression);
+      Assertion.AssertNotNull(statement, "TODO");
 
       statement.ReplaceBy(newStatement);
     }
 
-    protected virtual bool SuppressSemicolonSuffix { get { return false; } }
-
-    protected virtual void AfterComplete(
-      [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
-      [NotNull] TStatement statement, int? caretPosition)
-    {
-      if (SuppressSemicolonSuffix && suffix.HasPresentation && suffix.Presentation == ';')
-      {
-        suffix = Suffix.Empty;
-      }
-
-      AfterComplete(textControl, suffix, caretPosition);
-    }
-
-    [NotNull] protected abstract TStatement CreateStatement([NotNull] CSharpElementFactory factory);
-
-    // todo: => PutExpression?
-    protected abstract void PlaceExpression(
-      [NotNull] TStatement statement, [NotNull] ICSharpExpression expression,
-      [NotNull] CSharpElementFactory factory);
-
-    private static bool IsMarkerExpressionStatement(
-      [NotNull] IExpressionStatement expressionStatement, [NotNull] string markerName)
-    {
-      var reference = expressionStatement.Expression as IReferenceExpression;
-      return reference != null
-          && reference.QualifierExpression == null
-          && reference.Delimiter == null
-          && reference.NameIdentifier.Name == markerName;
-    }
+    [NotNull] protected abstract TStatement CreateStatement(
+      [NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
   }
 }

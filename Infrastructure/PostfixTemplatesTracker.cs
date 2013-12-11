@@ -39,19 +39,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
       [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
       [NotNull] private readonly ICommandProcessor myCommandProcessor;
-      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
+      [NotNull] private readonly LookupItemsOwnerFactory myItemsOwnerFactory;
 
       public ExpandPostfixTemplateHandler(
         [NotNull] TextControlChangeUnitFactory changeUnitFactory,
         [NotNull] PostfixTemplatesManager templatesManager,
         [NotNull] ILookupWindowManager lookupWindowManager,
         [NotNull] ICommandProcessor commandProcessor,
-        [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
+        [NotNull] LookupItemsOwnerFactory itemsOwnerFactory)
       {
         myChangeUnitFactory = changeUnitFactory;
         myLookupWindowManager = lookupWindowManager;
         myCommandProcessor = commandProcessor;
-        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
+        myItemsOwnerFactory = itemsOwnerFactory;
         myTemplatesManager = templatesManager;
       }
 
@@ -88,8 +88,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
               if (template != null)
               {
                 var nameLength = template.Identity.Length;
-                var nameRange = TextRange.FromLength(
-                  textControl.Caret.Offset() - nameLength, nameLength);
+                var offset = textControl.Caret.Offset() - nameLength;
+                var nameRange = TextRange.FromLength(offset, nameLength);
 
                 // invoke item completion manually
                 template.Accept(
@@ -124,7 +124,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var token = TextControlToPsi.GetSourceTokenBeforeCaret(solution, textControl);
         if (token == null) return null;
 
-        var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+        var lookupItemsOwner = myItemsOwnerFactory.CreateLookupItemsOwner(textControl);
         var executionContext = new PostfixExecutionContext(
           true, token.GetPsiModule(), lookupItemsOwner, reparseString: genericPrefix);
 
