@@ -2,6 +2,7 @@
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.LiveTemplates.Surround;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Modules;
@@ -27,6 +28,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var newStatement = CreateStatement(factory);
 
       var statement = expression.GetContainingNode<IStatement>();
+
+      
+
       statement.ReplaceBy(newStatement);
     }
 

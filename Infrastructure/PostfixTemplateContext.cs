@@ -8,7 +8,7 @@ using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
-  public sealed class PostfixTemplateContext
+  public class PostfixTemplateContext
   {
     [NotNull] private readonly ITreeNode myReference;
     [NotNull] private readonly PostfixExecutionContext myExecutionContext;
@@ -110,13 +110,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return ExecutionContext.GetDocumentRange(node);
     }
 
-    // todo: temporary, prettify this shit...
-    public Func<PostfixTemplateContext, PrefixExpressionContext, PrefixExpressionContext> Fix =
-      (context, expressionContext) => expressionContext;
-
-    public PrefixExpressionContext FixExpression(PrefixExpressionContext executionContext)
+    public virtual PrefixExpressionContext FixExpression([NotNull] PrefixExpressionContext context)
     {
-      return executionContext;
+      return context;
     }
   }
 }

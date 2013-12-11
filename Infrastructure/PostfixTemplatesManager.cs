@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.Application.PersistentMap;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -103,62 +105,108 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       //  }
       //}
 
+      
+
       return items;
     }
+
+    private sealed class ReferenceExpressionPostfixTemplateContext : PostfixTemplateContext
+    {
+      public ReferenceExpressionPostfixTemplateContext(
+        [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression,
+        [NotNull] PostfixExecutionContext executionContext)
+        : base(reference, expression, executionContext) { }
+
+      public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
+      {
+        var referenceExpression = (IReferenceExpression) Reference;
+
+        var expression = context.Expression;
+        if (expression.Parent == referenceExpression) // foo.bar => foo
+        {
+          var newExpression = referenceExpression.ReplaceBy(expression);
+          return new PrefixExpressionContext(this, newExpression);
+        }
+
+        if (expression.Contains(referenceExpression)) // boo > foo.bar => boo > foo
+        {
+          var qualifier = referenceExpression.QualifierExpression.NotNull();
+          var newExpression = referenceExpression.ReplaceBy(qualifier);
+        }
+
+        return context;
+      }
+    }
+
+    private sealed class ReferenceNamePostfixTemplateContext : PostfixTemplateContext
+    {
+      public ReferenceNamePostfixTemplateContext(
+        [NotNull] IReferenceName reference, [NotNull] ICSharpExpression expression,
+        [NotNull] PostfixExecutionContext executionContext)
+        : base(reference, expression, executionContext) { }
+
+      public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
+      {
+        var referenceName = (IReferenceName) Reference;
+
+        var expression = context.Expression;
+        if (expression.Contains(referenceName)) // x is T.bar => x is T
+        {
+          var qualifier = referenceName.Qualifier.NotNull();
+          var newExpression = referenceName.ReplaceBy(qualifier);
+        }
+
+        return context;
+      }
+    }
+
+    private sealed class BrokenStatementPostfixTemplateContext : PostfixTemplateContext
+    {
+      public BrokenStatementPostfixTemplateContext(
+        [NotNull] IReferenceName reference, [NotNull] ICSharpExpression expression,
+        [NotNull] PostfixExecutionContext executionContext)
+        : base(reference, expression, executionContext) { }
+
+      public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
+      {
+
+
+
+
+        GC.KeepAlive(this);
+
+        return context;
+      }
+    }
+
 
     [CanBeNull] public PostfixTemplateContext IsAvailable(
       [NotNull] ITreeNode position, [NotNull] PostfixExecutionContext executionContext)
     {
+      if (!(position is ICSharpIdentifier)) return null;
+
       // expr.__
-      if (position is ICSharpIdentifier)
+      var referenceExpression = position.Parent as IReferenceExpression;
+      if (referenceExpression != null && referenceExpression.Delimiter != null)
       {
-        var referenceExpression = position.Parent as IReferenceExpression;
-        if (referenceExpression != null)
+        var expression = referenceExpression.QualifierExpression;
+        if (expression != null)
         {
-          var expression = referenceExpression.QualifierExpression;
-          if (expression != null)
-          {
-            return new PostfixTemplateContext(
-              referenceExpression, expression, executionContext)
-            {
-              Fix = (context, expressionContext) =>
-              {
-                if (expressionContext.Expression.Parent == referenceExpression)
-                {
-                  var newExpr = referenceExpression.ReplaceBy(expressionContext.Expression);
-                  return new PrefixExpressionContext(context, newExpr);
-                }
-
-                if (expressionContext.Expression.Contains(referenceExpression))
-                {
-                  var t = referenceExpression.QualifierExpression.NotNull().ReplaceBy(referenceExpression);
-                  return new PrefixExpressionContext(context, t);
-                }
-
-                return expressionContext;
-              }
-            };
-          }
+          return new ReferenceExpressionPostfixTemplateContext(referenceExpression, expression, executionContext);
         }
       }
 
       // String.__
       var referenceName = position.Parent as IReferenceName;
-      if (referenceName != null &&
-          referenceName.Qualifier != null &&
-          referenceName.Delimiter != null)
+      if (referenceName != null && referenceName.Qualifier != null && referenceName.Delimiter != null)
       {
-        var usage = referenceName.Parent as ITypeUsage;
-        if (usage != null)
+        var typeUsage = referenceName.Parent as ITypeUsage;
+        if (typeUsage != null)
         {
-          var expression = usage.Parent as ICSharpExpression;
+          var expression = typeUsage.Parent as ICSharpExpression;
           if (expression != null)
           {
-            return new PostfixTemplateContext(
-              referenceName, expression, executionContext)
-            {
-              
-            };
+            return new ReferenceNamePostfixTemplateContext(referenceName, expression, executionContext);
           }
         }
       }
@@ -174,13 +222,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expression = FindExpressionBrokenByKeyword2(expressionStatement, out coolNode);
           if (expression != null)
           {
-            return new PostfixTemplateContext(
-              coolNode, expression, executionContext);
+            return new PostfixTemplateContext(coolNode, expression, executionContext);
           }
         }
       }
 
-      
 
       return null;
     }
