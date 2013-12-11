@@ -107,8 +107,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       //  }
       //}
 
-      LookupItemsOwnerFactory
-
       return items;
     }
 

@@ -83,20 +83,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 
       // todo: sometimes prefer unterminated context!
 
-      var items = myTemplatesManager.GetAvailableItems(treeNode, executionContext, context.UnterminatedContext);
+      var items = myTemplatesManager.GetAvailableItems(treeNode, executionContext);
 
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 
       var parameters = context.BasicContext.Parameters;
       if (executionContext.IsForceMode && parameters.CodeCompletionTypes.Length > 1)
       {
-        idsToRemove = new JetHashSet<string>(System.StringComparer.Ordinal);
+        idsToRemove = new JetHashSet<string>(StringComparer.Ordinal);
 
         var firstCompletion = parameters.CodeCompletionTypes[0];
         if (firstCompletion != CodeCompletionType.AutomaticCompletion)
           return false;
 
-        var autoItems = myTemplatesManager.GetAvailableItems(treeNode, executionContext, context.UnterminatedContext);
+        var autoItems = myTemplatesManager.GetAvailableItems(treeNode, executionContext);
         if (autoItems.Count > 0)
         {
           foreach (var lookupItem in autoItems)
