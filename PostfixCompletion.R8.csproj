@@ -79,7 +79,7 @@
     <Content Include="Templates\ForLoopTemplate.cs" />
     <Content Include="Templates\ForLoopTemplateBase.cs" />
     <Content Include="Templates\ForReverseLoopTemplate.cs" />
-    <Content Include="Templates\ElseStatementTemplate.cs" />
+    <Compile Include="Templates\ElseStatementTemplate.cs" />
     <Compile Include="Templates\IfStatementTemplate.cs" />
     <Content Include="Templates\IntroduceFieldTemplate.cs" />
     <Content Include="Templates\IntroduceMemberTemplateBase.cs" />

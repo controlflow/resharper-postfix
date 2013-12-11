@@ -122,9 +122,9 @@
     <Content Include="..\Templates\CheckNotNullTemplate.cs">
       <Link>Templates\CheckNotNullTemplate.cs</Link>
     </Content>
-    <Content Include="..\Templates\ElseStatementTemplate.cs">
+    <Compile Include="..\Templates\ElseStatementTemplate.cs">
       <Link>Templates\ElseStatementTemplate.cs</Link>
-    </Content>
+    </Compile>
     <Content Include="..\Templates\ForEachLoopTemplate.cs">
       <Link>Templates\ForEachLoopTemplate.cs</Link>
     </Content>
