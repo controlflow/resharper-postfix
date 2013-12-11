@@ -2,6 +2,7 @@
 using JetBrains.Application;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -25,66 +26,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected override bool RemoveSemicolon { get { return true; } }
 
     protected override void ExpandPostfix(
-      ITextControl textControl, Suffix suffix,
-      ISolution solution, DocumentRange replaceRange,
+      ITextControl textControl, Suffix suffix, ISolution solution,
       IPsiModule psiModule, ICSharpExpression expression)
     {
-      textControl.Document.ReplaceText(
-        replaceRange.TextRange, "using(null){" + PostfixMarker + "}");
+      var factory = CSharpElementFactory.GetInstance(psiModule);
+      var newStatement = CreateStatement(factory);
 
-      solution.GetPsiServices().CommitAllDocuments();
-
-      int? caretPosition = null;
-      TStatement newStatement = null;
-      using (WriteLockCookie.Create())
-      {
-        var commandName = GetType().FullName + " expansion";
-        solution.GetPsiServices().DoTransaction(commandName, () =>
-        {
-          var expressionStatements = TextControlToPsi.GetElements<IUsingStatement>(
-            solution, textControl.Document, replaceRange.TextRange.StartOffset);
-
-          foreach (var block in expressionStatements)
-          {
-            var body = block.Body as IBlock;
-            if (body == null) continue;
-
-            if (body.Statements.Count != 1) continue;
-            var statement = body.Statements[0] as IExpressionStatement;
-            if (statement == null) continue;
-
-            if (!IsMarkerExpressionStatement(statement, PostfixMarker)) continue;
-
-            var factory = CSharpElementFactory.GetInstance(psiModule);
-            newStatement = CreateStatement(factory);
-
-            // find caret marker in created statement
-            var caretMarker = new TreeNodeMarker(Guid.NewGuid().ToString());
-            var collector = new RecursiveElementCollector<IExpressionStatement>(
-              expressionStatement => IsMarkerExpressionStatement(expressionStatement, CaretMarker));
-            var caretNodes = collector.ProcessElement(newStatement).GetResults();
-            if (caretNodes.Count == 1) caretMarker.Mark(caretNodes[0]);
-
-            // replace marker statement with the new one
-            newStatement = block.ReplaceBy(newStatement);
-            PlaceExpression(newStatement, expression, factory);
-
-            // find and remove caret marker node
-            var caretNode = caretMarker.FindMarkedNode(newStatement);
-            if (caretNode != null)
-            {
-              caretPosition = caretNode.GetDocumentRange().TextRange.StartOffset;
-              LowLevelModificationUtil.DeleteChild(caretNode);
-            }
-
-            caretMarker.Unmark(newStatement);
-            break;
-          }
-        });
-      }
-
-      if (newStatement != null)
-        AfterComplete(textControl, suffix, newStatement, caretPosition);
+      var statement = expression.GetContainingNode<IStatement>();
+      statement.ReplaceBy(newStatement);
     }
 
     protected virtual bool SuppressSemicolonSuffix { get { return false; } }

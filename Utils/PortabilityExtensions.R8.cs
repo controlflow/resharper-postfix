@@ -9,6 +9,8 @@ using EternalLifetime = JetBrains.DataFlow.EternalLifetime;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
+  // todo: drop 7.0 files
+
   public static class PortabilityExtensions
   {
     public static PredefinedType GetPredefinedType([NotNull] this ITreeNode node)

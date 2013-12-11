@@ -53,10 +53,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       // build expression contexts
       var expressionContexts = new List<PrefixExpressionContext>();
-      var endOffset = Math.Max(
-        //MostInnerReplaceRange.TextRange.EndOffset,
-        0,
-        ToDocumentRange(reference).TextRange.EndOffset);
+      var endOffset = ToDocumentRange(reference).TextRange.EndOffset;
+      var prevStartOffset = -1;
 
       for (ITreeNode node = myMostInnerExpression; node != null; node = node.Parent)
       {
@@ -70,6 +68,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           break; // stop when out of generated
         if (expressionRange.TextRange.EndOffset > endOffset)
           break; // stop when 'a.var + b'
+        if (expressionRange.TextRange.StartOffset == prevStartOffset)
+          break; // track start offset is changes when we are going up
+
+        prevStartOffset = expressionRange.TextRange.StartOffset;
 
         // skip relational expressions like this: 'List<int.{here}>'
         if (CommonUtils.IsRelationalExpressionWithTypeOperand(expression)) continue;
@@ -133,6 +135,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {
       return ExecutionContext.GetDocumentRange(node);
+    }
+
+    public Func<PostfixTemplateContext, PrefixExpressionContext, PrefixExpressionContext> Fix =
+      (context, expressionContext) => expressionContext;
+
+    public PrefixExpressionContext FixExpression(PrefixExpressionContext executionContext)
+    {
+      return executionContext;
     }
   }
 }

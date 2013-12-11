@@ -119,7 +119,25 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           if (expression != null)
           {
             return new PostfixTemplateContext(
-              referenceExpression, expression, executionContext);
+              referenceExpression, expression, executionContext)
+            {
+              Fix = (context, expressionContext) =>
+              {
+                if (expressionContext.Expression.Parent == referenceExpression)
+                {
+                  var newExpr = referenceExpression.ReplaceBy(expressionContext.Expression);
+                  return new PrefixExpressionContext(context, newExpr);
+                }
+
+                if (expressionContext.Expression.Contains(referenceExpression))
+                {
+                  var t = referenceExpression.QualifierExpression.NotNull().ReplaceBy(referenceExpression);
+                  return new PrefixExpressionContext(context, t);
+                }
+
+                return expressionContext;
+              }
+            };
           }
         }
       }
@@ -137,7 +155,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           if (expression != null)
           {
             return new PostfixTemplateContext(
-              referenceName, expression, executionContext);
+              referenceName, expression, executionContext)
+            {
+              
+            };
           }
         }
       }

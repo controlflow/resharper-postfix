@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Linq;
 using JetBrains.Annotations;
+using JetBrains.Application;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
-using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Text;
@@ -19,6 +17,7 @@ using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
 using JetBrains.ReSharper.Psi.Modules;
+using JetBrains.Util.Logging;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
@@ -54,10 +53,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected virtual bool RemoveSemicolon { get { return false; } }
 
     public void Accept(
-      ITextControl textControl, TextRange nameRange,
-      LookupItemInsertType insertType, Suffix suffix,
-      ISolution solution, bool keepCaretStill)
+      ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
+      Suffix suffix, ISolution solution, bool keepCaretStill)
     {
+      // inserting dummy identifier...
+      textControl.Document.InsertText(
+        nameRange.EndOffset, myReparseString, TextModificationSide.RightSide);
+
       solution.GetPsiServices().Files.CommitAllDocuments();
 
       var position = TextControlToPsi.GetElementFromCaretPosition<ITreeNode>(solution, textControl);
@@ -66,213 +68,61 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var lookupItemsOwner = itemsOwnerFactory.CreateLookupItemsOwner(textControl);
 
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
+      var psiModule = position.GetPsiModule();
       var executionContext = new PostfixExecutionContext(
-        false, position.GetPsiModule(), lookupItemsOwner, myReparseString);
+        false, psiModule, lookupItemsOwner, myReparseString);
 
       var context = templatesManager.IsAvailable(position, executionContext);
-      if (context == null) return;
+      if (context == null)
+      {
+        Logger.LogError("Should not happens normally");
+        return;
+      }
 
+      var expressionContext = FindOriginalContext(context);
+      if (expressionContext == null)
+      {
+        Logger.LogError("Should not happens normally");
+        return;
+      }
 
+      using (WriteLockCookie.Create())
+      {
+        var commandName = GetType().FullName + " expansion";
+        solution.GetPsiServices().DoTransaction(commandName, () =>
+        {
+          var fixedContext = context.FixExpression(expressionContext);
 
-      MessageBox.ShowInfo(context.OuterExpression.Expression.GetText());
-      MessageBox.ShowInfo(textControl.Document.GetText(nameRange));
-
-
-      // find target expression after code completion
-      //var expressionRange = myExpressionRange.Range;
-      //
-      //if (myWasReparsed)
-      //{
-      //  textControl.Document.ReplaceText(nameRange, "__");
-      //  solution.GetPsiServices().CommitAllDocuments();
-      //  nameRange = TextRange.FromLength(nameRange.StartOffset, 2);
-      //}
-      //
-      //var expression = (ICSharpExpression) FindMarkedNode(
-      //  solution, textControl, expressionRange, nameRange, typeof(ICSharpExpression));
-      //
-      //if (expression == null)
-      //{
-      //  // still can be parsed as IReferenceName
-      //  var referenceName = (IReferenceName) FindMarkedNode(
-      //    solution, textControl, expressionRange, nameRange, typeof(IReferenceName));
-      //
-      //  if (referenceName == null) return;
-      //
-      //  // reparse IReferenceName as ICSharpExpression
-      //  var factory = CSharpElementFactory.GetInstance(referenceName.GetPsiModule(), false);
-      //  expression = factory.CreateExpression(referenceName.GetText());
-      //}
-      //
-      //// take required component while tree is valid
-      //var psiModule = expression.GetPsiModule();
-      //
-      //var reference = FindMarkedNode(
-      //  solution, textControl, myReferenceRange.Range, nameRange, myReferenceType);
-      //
-      //// Razor.{caret} case
-      //if (reference == expression && myWasReparsed)
-      //{
-      //  var parentReference = reference.Parent as IReferenceExpression;
-      //  if (parentReference != null && parentReference.NameIdentifier.Name == "__")
-      //    reference = parentReference;
-      //}
-      //
-      //// calculate textual range to remove
-      //var replaceRange = CalculateRangeToRemove(nameRange, expression, reference);
-      //
-      //// fix "x > 0.if" to "x > 0"
-      //ICSharpExpression expressionCopy;
-      //if (reference != null && expression.Contains(reference))
-      //{
-      //  expressionCopy = FixExpression(expression, reference);
-      //}
-      //else
-      //{
-      //  expressionCopy = expression.IsPhysical() ? expression.Copy(expression) : expression;
-      //}
-      //
-      //Assertion.Assert(!expressionCopy.IsPhysical(), "expressionCopy is physical");
-      //
-      //ExpandPostfix(
-      //  textControl, suffix, solution,
-      //  replaceRange, psiModule, expressionCopy);
+          ExpandPostfix(
+            textControl, suffix, solution, psiModule, fixedContext.Expression);
+        });
+      }
     }
 
-    [CanBeNull] private static ITreeNode FindMarkedNode(
-      [NotNull] ISolution solution, [NotNull] ITextControl textControl,
-      TextRange markerRange, TextRange nameRange, [NotNull] Type nodeType)
+    [CanBeNull]
+    private PrefixExpressionContext FindOriginalContext([NotNull] PostfixTemplateContext context)
     {
-      var node = TextControlToPsi.GetSourceTokenAtOffset(
-        solution, textControl, markerRange.StartOffset);
-
-      while (node != null)
+      var startOffset = myExpressionRange.TextRange.StartOffset;
+      foreach (var expressionContext in context.Expressions)
       {
-        if (nodeType.IsInstanceOfType(node))
+        if (expressionContext.Expression.GetType() == myExpressionType &&
+            expressionContext.ExpressionRange.TextRange.StartOffset == startOffset)
         {
-          var range = node.GetDocumentRange().TextRange;
-          if (range == markerRange
-              || range == markerRange.SetEndTo(nameRange.EndOffset)
-              || range == markerRange.SetEndTo(nameRange.StartOffset))
-          {
-            return node;
-          }
-
-          // "x as T.   \r\nvar t = ..." case
-          if (node is IIsExpression || node is IAsExpression)
-          {
-            var typeUsage = node.LastChild as IUserTypeUsage;
-            if (typeUsage != null)
-            {
-              var delimiter = typeUsage.ScalarTypeName.Delimiter;
-              if (delimiter != null)
-              {
-                var endOffset = delimiter.GetDocumentRange().TextRange.EndOffset;
-                if (range.SetEndTo(endOffset) == markerRange) return node;
-              }
-            }
-          }
-
-          var referenceName = node as IReferenceName;
-          if (referenceName != null)
-          {
-            var delimiter = referenceName.Delimiter;
-            if (delimiter != null)
-            {
-              var endOffset = delimiter.GetDocumentRange().TextRange.EndOffset;
-              if (range.SetEndTo(endOffset) == markerRange) return node;
-            }
-          }
+          return expressionContext;
         }
+      }
 
-        node = node.Parent;
+      if (context.Expressions.Count < myContextIndex)
+      {
+        return context.Expressions[myContextIndex];
       }
 
       return null;
     }
 
-    private DocumentRange CalculateRangeToRemove(TextRange nameRange,
-      [NotNull] ICSharpExpression expression, [CanBeNull] ITreeNode reference)
-    {
-      var nameEndOffset = nameRange.EndOffset;
-      var replaceOffsetEnd = myReplaceRange.TextRange.EndOffset;
-
-      var replaceRange = (nameEndOffset > replaceOffsetEnd)
-        ? myReplaceRange.SetEndTo(nameEndOffset) : myReplaceRange;
-
-      // append semicolon to range if needed
-      if (reference is IReferenceExpression && RemoveSemicolon)
-      {
-        var semicolon = CommonUtils.FindSemicolonAfter(expression, reference);
-        if (semicolon != null)
-        {
-          var endOffset = semicolon.GetDocumentRange().TextRange.EndOffset;
-          if (endOffset > replaceRange.TextRange.EndOffset)
-            return replaceRange.SetEndTo(endOffset);
-        }
-      }
-
-      return replaceRange;
-    }
-
-    [NotNull] private static ICSharpExpression FixExpression(
-      [NotNull] ICSharpExpression expression, [CanBeNull] ITreeNode reference)
-    {
-      var referenceExpression = reference as IReferenceExpression;
-      if (referenceExpression != null)
-      {
-        var marker = new TreeNodeMarker<IReferenceExpression>(referenceExpression);
-        var exprCopy = expression.Copy(expression);
-        var refCopy = marker.GetAndDispose(exprCopy);
-
-        var exprToFix = refCopy.QualifierExpression.NotNull();
-        LowLevelModificationUtil.ReplaceChildRange(refCopy, refCopy, exprToFix);
-
-        if (exprToFix.NextSibling is IErrorElement)
-          LowLevelModificationUtil.DeleteChild(exprToFix.NextSibling);
-
-        return exprCopy;
-      }
-
-      var referenceName = reference as IReferenceName;
-      if (referenceName != null)
-      {
-        var marker = new TreeNodeMarker<IReferenceName>(referenceName);
-        var exprCopy = expression.Copy(expression);
-        var refCopy = marker.GetAndDispose(exprCopy);
-
-        var exprToFix = refCopy.Qualifier.NotNull();
-        LowLevelModificationUtil.ReplaceChildRange(refCopy, refCopy, exprToFix);
-
-        if (exprToFix.NextSibling is IErrorElement)
-          LowLevelModificationUtil.DeleteChild(exprToFix.NextSibling);
-
-        if (exprToFix.Parent != null && exprToFix.Parent.NextSibling is IErrorElement)
-          LowLevelModificationUtil.DeleteChild(exprToFix.Parent.NextSibling);
-
-        return exprCopy;
-      }
-      else
-      {
-        var errorsCollector = new RecursiveElementCollector<IErrorElement>();
-        expression.ProcessDescendants(errorsCollector);
-        var errorElements = errorsCollector.GetResults().Select(
-          errorElement => new TreeNodeMarker<IErrorElement>(errorElement)).ToList();
-
-        var exprCopy = expression.Copy(expression);
-        foreach (var errorMarker in errorElements)
-        {
-          var element = errorMarker.GetAndDispose(exprCopy);
-          LowLevelModificationUtil.DeleteChild(element);
-        }
-
-        return exprCopy;
-      }
-    }
-
     protected abstract void ExpandPostfix(
       [NotNull] ITextControl textControl, [NotNull] Suffix suffix,
-      [NotNull] ISolution solution, DocumentRange replaceRange,
+      [NotNull] ISolution solution, 
       [NotNull] IPsiModule psiModule, [NotNull] ICSharpExpression expression);
 
     protected void AfterComplete(
