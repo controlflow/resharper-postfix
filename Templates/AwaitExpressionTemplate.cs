@@ -33,7 +33,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       }
 
       // check expression is not already awaited
-      var expression = (context.PostfixReferenceNode as IReferenceExpression);
+      var expression = (context.Reference as IReferenceExpression);
       var unaryExpression = expression.GetContainingParenthesizedExpression();
 
       var awaitExpression = AwaitExpressionNavigator.GetByTask(unaryExpression as IUnaryExpression);

@@ -12,6 +12,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
   [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]
   [BaseTypeRequired(typeof(IPostfixTemplate))]
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public sealed class PostfixTemplateAttribute : ShellComponentAttribute
   {
     [NotNull] public string TemplateName { get; private set; }

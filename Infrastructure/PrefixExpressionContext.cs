@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       Parent = parent;
       Expression = expression;
       Type = expression.Type();
-      CanBeStatement = CalculateCanBeStatement(expression);
+      CanBeStatement = CalculateCanBeStatement(expression) != null;
 
       var referenceExpression = expression as IReferenceExpression;
       if (referenceExpression != null)
@@ -46,44 +46,51 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
     }
 
-    private static bool CalculateCanBeStatement([NotNull] ICSharpExpression expression)
+    [CanBeNull]
+    public static ICSharpStatement CalculateCanBeStatement([NotNull] ICSharpExpression expression)
     {
-      if (ExpressionStatementNavigator.GetByExpression(expression) != null)
-        return true;
+      var expressionStatement = ExpressionStatementNavigator.GetByExpression(expression);
+      if (expressionStatement != null)
+        return expressionStatement;
 
       // Razor support
-      var argument = CSharpArgumentNavigator.GetByValue(
-        ReferenceExpressionNavigator.GetByQualifierExpression(expression));
-      if (argument != null && argument.Kind == ParameterKind.VALUE)
-      {
-        var invocation = InvocationExpressionNavigator.GetByArgument(argument);
-        if (invocation != null)
-        {
-          var referenceExpression = invocation.InvokedExpression as IReferenceExpression;
-          if (referenceExpression != null && referenceExpression.QualifierExpression == null)
-          {
-            var services = argument.GetSolution().GetComponent<IProjectFileTypeServices>();
-            var sourceFile = argument.GetSourceFile();
-            if (sourceFile != null)
-            {
-              var razorService = services.TryGetService<IRazorPsiServices>(sourceFile.LanguageType);
-              if (razorService != null && razorService.IsSpecialMethodInvocation(invocation, RazorMethodType.Write))
-                return true;
-            }
-          }
-        }
-      }
+      //var qualifierExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+      //var argument = CSharpArgumentNavigator.GetByValue(qualifierExpression);
+      //
+      //if (argument != null && argument.Kind == ParameterKind.VALUE)
+      //{
+      //  var invocation = InvocationExpressionNavigator.GetByArgument(argument);
+      //  if (invocation != null)
+      //  {
+      //    var referenceExpression = invocation.InvokedExpression as IReferenceExpression;
+      //    if (referenceExpression != null && referenceExpression.QualifierExpression == null)
+      //    {
+      //      var services = argument.GetSolution().GetComponent<IProjectFileTypeServices>();
+      //      var sourceFile = argument.GetSourceFile();
+      //      if (sourceFile != null)
+      //      {
+      //        var razorService = services.TryGetService<IRazorPsiServices>(sourceFile.LanguageType);
+      //        if (razorService != null && razorService.IsSpecialMethodInvocation(invocation, RazorMethodType.Write))
+      //          return null;
+      //      }
+      //    }
+      //  }
+      //}
 
+      // todo: check!
       // handle broken trees like: "lines.     \r\n   NextLineStatemement();"
       var containingStatement = expression.GetContainingNode<ICSharpStatement>();
       if (containingStatement != null)
       {
         var expressionOffset = expression.GetTreeStartOffset();
         var statementOffset = containingStatement.GetTreeStartOffset();
-        return (expressionOffset == statementOffset);
+        if (expressionOffset == statementOffset)
+        {
+          return containingStatement;
+        }
       }
 
-      return false;
+      return null;
     }
 
     [NotNull] public PostfixTemplateContext Parent { get; private set; }

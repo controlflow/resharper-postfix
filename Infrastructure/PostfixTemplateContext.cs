@@ -10,53 +10,30 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   public sealed class PostfixTemplateContext
   {
-    [NotNull] private readonly ICSharpExpression myMostInnerExpression;
+    [NotNull] private readonly ITreeNode myReference;
+    [NotNull] private readonly PostfixExecutionContext myExecutionContext;
+    [NotNull] private readonly ICSharpExpression myInnerExpression;
     [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
 
     public PostfixTemplateContext(
       [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
       [NotNull] PostfixExecutionContext executionContext)
     {
-      myMostInnerExpression = expression;
-      PostfixReferenceNode = reference;
-
-
-      //MostInnerReplaceRange = replaceRange;
-      ExecutionContext = executionContext;
-
-      //if (!replaceRange.IsValid())
-      //{
-      //  var referenceExpression = reference as IReferenceExpression;
-      //  if (referenceExpression != null)
-      //  {
-      //    var qualifier = referenceExpression.QualifierExpression.NotNull();
-      //    var delimiter = referenceExpression.Delimiter.NotNull();
-      //    MostInnerReplaceRange = ToDocumentRange(qualifier)
-      //      .SetEndTo(ToDocumentRange(delimiter).TextRange.EndOffset);
-      //  }
-      //
-      //  var referenceName = reference as IReferenceName;
-      //  if (referenceName != null)
-      //  {
-      //    var qualifier = referenceName.Qualifier;
-      //    var delimiter = referenceName.Delimiter;
-      //    MostInnerReplaceRange = ToDocumentRange(qualifier)
-      //      .SetEndTo(ToDocumentRange(delimiter).TextRange.EndOffset);
-      //  }
-      //}
-      
+      myReference = reference;
+      myInnerExpression = expression;
+      myExecutionContext = executionContext;
     }
 
     [NotNull] private IList<PrefixExpressionContext> BuildExpression()
     {
-      var reference = PostfixReferenceNode;
+      var reference = Reference;
 
       // build expression contexts
-      var expressionContexts = new List<PrefixExpressionContext>();
+      var contexts = new List<PrefixExpressionContext>();
       var endOffset = ToDocumentRange(reference).TextRange.EndOffset;
       var prevStartOffset = -1;
 
-      for (ITreeNode node = myMostInnerExpression; node != null; node = node.Parent)
+      for (ITreeNode node = myInnerExpression; node != null; node = node.Parent)
       {
         if (node is ICSharpStatement) break;
 
@@ -80,56 +57,52 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (expressionContext.ReferencedElement is ITypeElement)
         {
           // skip types that are parts of 'List<T.>'-like expressions
-          if (!CommonUtils.CanTypeBecameExpression(myMostInnerExpression)) continue;
+          if (!CommonUtils.CanTypeBecameExpression(myInnerExpression)) continue;
         }
 
-        expressionContexts.Add(expressionContext);
+        contexts.Add(expressionContext);
         if (expressionContext.CanBeStatement) break;
       }
 
-      return expressionContexts.AsReadOnly();
+      return contexts.AsReadOnly();
     }
 
-    // Expression contexts: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
+    // Expressions: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
     [NotNull] public IList<PrefixExpressionContext> Expressions
     {
       get { return myExpressions ?? (myExpressions = BuildExpression()); }
     }
 
+    // Most inner expression: '0.var'
     [NotNull] public PrefixExpressionContext InnerExpression
     {
       get { return Expressions[0]; }
     }
 
+    // Most outer expression: '(a + b.Length) > 0.var'
     [NotNull] public PrefixExpressionContext OuterExpression
     {
       get { return Expressions[Expressions.Count - 1]; }
     }
 
-    [NotNull] public PostfixExecutionContext ExecutionContext { get; private set; }
+    [NotNull] public PostfixExecutionContext ExecutionContext
+    {
+      get { return myExecutionContext; }
+    }
 
-    // Double basic completion (or basic completion in R# 7.1)
+    [NotNull] public ITreeNode Reference
+    {
+      get { return myReference; }
+    }
+
     public bool IsForceMode
     {
       get { return ExecutionContext.IsForceMode; }
     }
 
-    // Can be IReferenceExpression / IReferenceName / IErrorElement
-    [NotNull] public ITreeNode PostfixReferenceNode { get; private set; }
-
-    // Minimal replace range 'string.if' of 'o as string.if'
-    [Obsolete("get rid of it")]
-    public DocumentRange MostInnerReplaceRange { get; private set; }
-
-    // Minimal reference-like/error node range
-    public DocumentRange PostfixReferenceRange
-    {
-      get { return ToDocumentRange(PostfixReferenceNode); }
-    }
-
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {
-      get { return myMostInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
+      get { return myInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
     }
 
     internal DocumentRange ToDocumentRange(ITreeNode node)
@@ -137,6 +110,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       return ExecutionContext.GetDocumentRange(node);
     }
 
+    // todo: temporary, prettify this shit...
     public Func<PostfixTemplateContext, PrefixExpressionContext, PrefixExpressionContext> Fix =
       (context, expressionContext) => expressionContext;
 
