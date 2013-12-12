@@ -4,10 +4,15 @@ using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.PersistentMap;
 using JetBrains.Application.Settings;
+using JetBrains.DocumentManagers;
+using JetBrains.DocumentModel.Transactions;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Files;
+using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
@@ -130,8 +135,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         if (expression.Contains(referenceExpression)) // boo > foo.bar => boo > foo
         {
-          var qualifier = referenceExpression.QualifierExpression.NotNull();
-          var newExpression = referenceExpression.ReplaceBy(qualifier);
+          var qualifier = referenceExpression.QualifierExpression;
+          referenceExpression.ReplaceBy(qualifier.NotNull());
         }
 
         return context;
@@ -163,17 +168,42 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     private sealed class BrokenStatementPostfixTemplateContext : PostfixTemplateContext
     {
       public BrokenStatementPostfixTemplateContext(
-        [NotNull] IReferenceName reference, [NotNull] ICSharpExpression expression,
+        [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
         [NotNull] PostfixExecutionContext executionContext)
         : base(reference, expression, executionContext) { }
 
       public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
       {
+        var expressionRange = ExecutionContext.GetDocumentRange(context.Expression);
+        var referenceRange = ExecutionContext.GetDocumentRange(Reference);
 
+        var text = expressionRange.SetEndTo(referenceRange.TextRange.EndOffset).GetText();
+        var indexOf = text.IndexOf('.');
+        if (indexOf > 0)
+        {
+          var realReferenceRange = referenceRange.SetStartTo(
+            expressionRange.TextRange.StartOffset + indexOf);
 
+          var solution = ExecutionContext.PsiModule.GetSolution();
+          
 
+          solution.GetPsiServices().DoTransaction("AAA", () =>
+          {
+            document.ReplaceText(realReferenceRange.TextRange, ")");
+            document.InsertText(expressionRange.TextRange.StartOffset, "unchecked(");
+          });
 
-        GC.KeepAlive(this);
+          var fixedDoc = document.GetText();
+          GC.KeepAlive(fixedDoc);
+
+          ExecutionContext.PsiModule.GetPsiServices().CommitAllDocuments();
+
+          
+          var t = TextControlToPsi.GetElement<IUncheckedExpression>(
+            solution, document, expressionRange.TextRange.StartOffset);
+
+          GC.KeepAlive(t);
+        }
 
         return context;
       }
@@ -222,7 +252,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var expression = FindExpressionBrokenByKeyword2(expressionStatement, out coolNode);
           if (expression != null)
           {
-            return new PostfixTemplateContext(coolNode, expression, executionContext);
+            return new BrokenStatementPostfixTemplateContext(brokenStatement, expression, executionContext);
           }
         }
       }
