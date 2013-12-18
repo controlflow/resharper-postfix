@@ -71,11 +71,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       ITreeNodePointer<TNode> pointer = null;
       using (WriteLockCookie.Create())
       {
+        // run fix without not under PSI transaction
+        var fixedContext = postfixContext.FixExpression(expressionContext);
         var commandName = GetType().FullName + " expansion";
+
         solution.GetPsiServices().DoTransaction(commandName, () =>
         {
-          var fixedContext = postfixContext.FixExpression(expressionContext);
-
           var expression = fixedContext.Expression;
           Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
 
