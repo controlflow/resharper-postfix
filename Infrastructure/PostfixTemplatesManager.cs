@@ -128,6 +128,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         [NotNull] PostfixExecutionContext executionContext)
         : base(reference, expression, executionContext) { }
 
+      private static readonly string FixCommandName =
+        typeof(ReferenceExpressionPostfixTemplateContext) + ".FixExpression";
+
       public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
       {
         var referenceExpression = (IReferenceExpression) Reference;
@@ -135,14 +138,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var expression = context.Expression;
         if (expression.Parent == referenceExpression) // foo.bar => foo
         {
-          var newExpression = referenceExpression.ReplaceBy(expression);
+          ICSharpExpression newExpression = null;
+          expression.GetPsiServices().DoTransaction(FixCommandName,
+            () => newExpression = referenceExpression.ReplaceBy(expression));
+
+          Assertion.AssertNotNull(newExpression, "newExpression != null");
+          Assertion.Assert(newExpression.IsPhysical(), "newExpression.IsPhysical()");
+
           return new PrefixExpressionContext(this, newExpression);
         }
 
         if (expression.Contains(referenceExpression)) // boo > foo.bar => boo > foo
         {
           var qualifier = referenceExpression.QualifierExpression;
-          referenceExpression.ReplaceBy(qualifier.NotNull());
+          expression.GetPsiServices().DoTransaction(FixCommandName,
+            () => referenceExpression.ReplaceBy(qualifier.NotNull()));
+
+          Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
         }
 
         return context;
@@ -178,59 +190,52 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         [NotNull] PostfixExecutionContext executionContext)
         : base(reference, expression, executionContext) { }
 
+      private static readonly string FixCommandName =
+        typeof(BrokenStatementPostfixTemplateContext) + ".FixExpression";
+
       public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
       {
         var expressionRange = ExecutionContext.GetDocumentRange(context.Expression);
         var referenceRange = ExecutionContext.GetDocumentRange(Reference);
 
         var text = expressionRange.SetEndTo(referenceRange.TextRange.EndOffset).GetText();
-        var indexOf = text.IndexOf('.');
-        if (indexOf > 0)
+        var indexOfReferenceDot = text.IndexOf('.');
+        if (indexOfReferenceDot <= 0) return context;
+
+        var realReferenceRange = referenceRange.SetStartTo(
+          expressionRange.TextRange.StartOffset + indexOfReferenceDot);
+
+        var solution = ExecutionContext.PsiModule.GetSolution();
+        var document = context.Expression.GetDocumentRange().Document;
+
+        using (solution.CreateTransactionCookie(
+          DefaultAction.Commit, FixCommandName, NullProgressIndicator.Instance))
         {
-          var realReferenceRange = referenceRange.SetStartTo(
-            expressionRange.TextRange.StartOffset + indexOf);
+          document.ReplaceText(realReferenceRange.TextRange, ")");
+          document.InsertText(expressionRange.TextRange.StartOffset, "unchecked(");
+        }
 
-          var solution = ExecutionContext.PsiModule.GetSolution();
-          var document = context.Expression.GetDocumentRange().Document;
+        solution.GetPsiServices().CommitAllDocuments();
 
-          using (solution.CreateTransactionCookie(
-            DefaultAction.Commit, "AAA", NullProgressIndicator.Instance))
+        var uncheckedExpression = TextControlToPsi.GetElement<IUncheckedExpression>(
+          solution, document, expressionRange.TextRange.StartOffset + 1);
+        if (uncheckedExpression != null)
+        {
+          var operand = uncheckedExpression.Operand;
+          solution.GetPsiServices().DoTransaction(FixCommandName, () =>
           {
-            document.ReplaceText(realReferenceRange.TextRange, ")");
-            document.InsertText(expressionRange.TextRange.StartOffset, "unchecked(");
-          }
+            LowLevelModificationUtil.DeleteChild(operand);
+            LowLevelModificationUtil.ReplaceChildRange(
+              uncheckedExpression, uncheckedExpression, operand); 
+          });
 
-          solution.GetPsiServices().CommitAllDocuments();
-
-          var uncheckedExpression = TextControlToPsi.GetElement<IUncheckedExpression>(
-            solution, document, expressionRange.TextRange.StartOffset + 1);
-          if (uncheckedExpression != null)
-          {
-            var operand = uncheckedExpression.Operand;
-
-            solution.GetPsiServices().DoTransaction("Blah", () =>
-            {
-              LowLevelModificationUtil.DeleteChild(operand);
-              LowLevelModificationUtil.ReplaceChildRange(
-                uncheckedExpression, uncheckedExpression, operand);
-
-              
-            });
-
-            Assertion.Assert(operand.IsPhysical(), "operand.IsPhysical()");
-
-            return new PrefixExpressionContext(this, operand);
-          }
-
-          
-
-          GC.KeepAlive(uncheckedExpression);
+          Assertion.Assert(operand.IsPhysical(), "operand.IsPhysical()");
+          return new PrefixExpressionContext(this, operand);
         }
 
         return context;
       }
     }
-
 
     [CanBeNull] public PostfixTemplateContext IsAvailable(
       [NotNull] ITreeNode position, [NotNull] PostfixExecutionContext executionContext)
