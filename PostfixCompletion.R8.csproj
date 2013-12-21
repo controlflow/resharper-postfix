@@ -112,9 +112,6 @@
     </None>
     <None Include="PostfixCompletion.nuspec" />
     <None Include="Readme.md" />
-    <None Include="packages.R8.config">
-      <Link>packages.config</Link>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="Settings\PostfixOptionsPage.xaml">

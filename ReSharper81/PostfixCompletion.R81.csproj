@@ -56,14 +56,23 @@
     <Compile Include="..\CodeCompletion\CSharpStaticMethodsItemProvider.cs">
       <Link>CodeCompletion\CSharpStaticMethodsItemProvider.cs</Link>
     </Compile>
+    <Compile Include="..\Infrastructure\Contexts\BrokenStatementPostfixTemplateContext.cs">
+      <Link>Infrastructure\Contexts\BrokenStatementPostfixTemplateContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\Contexts\PostfixExecutionContext.cs">
+      <Link>Infrastructure\Contexts\PostfixExecutionContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\Contexts\PostfixTemplateContext.cs">
+      <Link>Infrastructure\Contexts\PostfixTemplateContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\Contexts\ReferenceExpressionPostfixTemplateContext.cs">
+      <Link>Infrastructure\Contexts\ReferenceExpressionPostfixTemplateContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Infrastructure\Contexts\ReferenceNamePostfixTemplateContext.cs">
+      <Link>Infrastructure\Contexts\ReferenceNamePostfixTemplateContext.cs</Link>
+    </Compile>
     <Compile Include="..\Infrastructure\IPostfixTemplate.cs">
       <Link>Infrastructure\IPostfixTemplate.cs</Link>
-    </Compile>
-    <Compile Include="..\Infrastructure\PostfixExecutionContext.cs">
-      <Link>Infrastructure\PostfixExecutionContext.cs</Link>
-    </Compile>
-    <Compile Include="..\Infrastructure\PostfixTemplateContext.cs">
-      <Link>Infrastructure\PostfixTemplateContext.cs</Link>
     </Compile>
     <Compile Include="..\Infrastructure\PostfixTemplatesManager.cs">
       <Link>Infrastructure\PostfixTemplatesManager.cs</Link>
@@ -101,99 +110,99 @@
     <Compile Include="..\Settings\PostfixTemplateViewModel.cs">
       <Link>Settings\PostfixTemplateViewModel.cs</Link>
     </Compile>
-    <Content Include="..\Templates\ArgumentExpressionTemplate.cs">
+    <Compile Include="..\Templates\ArgumentExpressionTemplate.cs">
       <Link>Templates\ArgumentExpressionTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\AwaitExpressionTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\AwaitExpressionTemplate.cs">
       <Link>Templates\AwaitExpressionTemplate.cs</Link>
-    </Content>
+    </Compile>
     <Compile Include="..\Templates\BooleanExpressionTemplateBase.cs">
       <Link>Templates\BooleanExpressionTemplateBase.cs</Link>
     </Compile>
-    <Content Include="..\Templates\CastExpressionTemplate.cs">
+    <Compile Include="..\Templates\CastExpressionTemplate.cs">
       <Link>Templates\CastExpressionTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\CheckForNullTemplateBase.cs">
+    </Compile>
+    <Compile Include="..\Templates\CheckForNullTemplateBase.cs">
       <Link>Templates\CheckForNullTemplateBase.cs</Link>
-    </Content>
-    <Content Include="..\Templates\CheckIsNullTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\CheckIsNullTemplate.cs">
       <Link>Templates\CheckIsNullTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\CheckNotNullTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\CheckNotNullTemplate.cs">
       <Link>Templates\CheckNotNullTemplate.cs</Link>
-    </Content>
+    </Compile>
     <Compile Include="..\Templates\ElseStatementTemplate.cs">
       <Link>Templates\ElseStatementTemplate.cs</Link>
     </Compile>
-    <Content Include="..\Templates\ForEachLoopTemplate.cs">
+    <Compile Include="..\Templates\ForEachLoopTemplate.cs">
       <Link>Templates\ForEachLoopTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ForLoopTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\ForLoopTemplate.cs">
       <Link>Templates\ForLoopTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ForLoopTemplateBase.cs">
+    </Compile>
+    <Compile Include="..\Templates\ForLoopTemplateBase.cs">
       <Link>Templates\ForLoopTemplateBase.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ForReverseLoopTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\ForReverseLoopTemplate.cs">
       <Link>Templates\ForReverseLoopTemplate.cs</Link>
-    </Content>
+    </Compile>
     <Compile Include="..\Templates\IfStatementTemplate.cs">
       <Link>Templates\IfStatementTemplate.cs</Link>
     </Compile>
-    <Content Include="..\Templates\IntroduceFieldTemplate.cs">
+    <Compile Include="..\Templates\IntroduceFieldTemplate.cs">
       <Link>Templates\IntroduceFieldTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\IntroduceMemberTemplateBase.cs">
+    </Compile>
+    <Compile Include="..\Templates\IntroduceMemberTemplateBase.cs">
       <Link>Templates\IntroduceMemberTemplateBase.cs</Link>
-    </Content>
-    <Content Include="..\Templates\IntroducePropertyTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\IntroducePropertyTemplate.cs">
       <Link>Templates\IntroducePropertyTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\IntroduceVariableTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\IntroduceVariableTemplate.cs">
       <Link>Templates\IntroduceVariableTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\LockStatementExpression.cs">
+    </Compile>
+    <Compile Include="..\Templates\LockStatementExpression.cs">
       <Link>Templates\LockStatementExpression.cs</Link>
-    </Content>
-    <Content Include="..\Templates\NotExpressionTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\NotExpressionTemplate.cs">
       <Link>Templates\NotExpressionTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ObjectCreationTypeTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\ObjectCreationTypeTemplate.cs">
       <Link>Templates\ObjectCreationTypeTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ParenthesizedExpressionTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\ParenthesizedExpressionTemplate.cs">
       <Link>Templates\ParenthesizedExpressionTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ParseStringTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\ParseStringTemplate.cs">
       <Link>Templates\ParseStringTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ParseStringTemplateBase.cs">
+    </Compile>
+    <Compile Include="..\Templates\ParseStringTemplateBase.cs">
       <Link>Templates\ParseStringTemplateBase.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ReturnStatementTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\ReturnStatementTemplate.cs">
       <Link>Templates\ReturnStatementTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\SwitchStatementTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\SwitchStatementTemplate.cs">
       <Link>Templates\SwitchStatementTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\ThrowStatementTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\ThrowStatementTemplate.cs">
       <Link>Templates\ThrowStatementTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\TryParseStringTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\TryParseStringTemplate.cs">
       <Link>Templates\TryParseStringTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\TypeOfExpressionTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\TypeOfExpressionTemplate.cs">
       <Link>Templates\TypeOfExpressionTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\UsingStatementTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\UsingStatementTemplate.cs">
       <Link>Templates\UsingStatementTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\WhileLoopTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\WhileLoopTemplate.cs">
       <Link>Templates\WhileLoopTemplate.cs</Link>
-    </Content>
-    <Content Include="..\Templates\YieldReturnStatementTemplate.cs">
+    </Compile>
+    <Compile Include="..\Templates\YieldReturnStatementTemplate.cs">
       <Link>Templates\YieldReturnStatementTemplate.cs</Link>
-    </Content>
+    </Compile>
     <Compile Include="..\Utils\CommonUtils.cs">
       <Link>Utils\CommonUtils.cs</Link>
     </Compile>
