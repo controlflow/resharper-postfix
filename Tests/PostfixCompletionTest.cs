@@ -1,4 +1,10 @@
-﻿using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
+﻿using JetBrains.Application.Settings;
+using JetBrains.Application.Settings.Store.Implementation;
+using JetBrains.DataFlow;
+using JetBrains.ProjectModel;
+using JetBrains.ProjectModel.DataContext;
+using JetBrains.ReSharper.Feature.Services.Refactorings;
+using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
@@ -13,6 +19,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     protected override string RelativeTestDataPath // sad panda :(
     {
       get { return PostfixCompletionTestsAssembly.TestDataPath + @"\Completion"; }
+    }
+
+    protected override void DoTest(IProject testProject)
+    {
+      var settingsStore1 = Application.Shell.Instance.GetComponent<SettingsStore>();
+
+      Lifetimes.Using(lifetime =>
+      {
+        ChangeSettingsTemporarily(lifetime);
+        var settingsStore = settingsStore1.BindToContextTransient(ContextRange.Smart(testProject.ToDataContext()));
+        settingsStore.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
+        settingsStore.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
+        base.DoTest(testProject);
+      });
     }
 
     [Test] public void TestIf01() { DoNamedTest(); }

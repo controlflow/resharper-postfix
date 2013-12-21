@@ -50,13 +50,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       protected override IObjectCreationExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IObjectCreationExpression) factory.CreateExpression("new $0()", expression);
+        var template = string.Format("new {0}()", expression.GetText());
+        return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
       }
 
       protected override void AfterComplete(
         ITextControl textControl, IObjectCreationExpression expression)
       {
-        base.AfterComplete(textControl, expression);
+        var caretNode = (myHasCtorWithParams ? expression.LPar : (ITreeNode) expression);
+        var endOffset = caretNode.GetDocumentRange().TextRange.EndOffset;
+        textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+
         if (!myHasCtorWithParams) return;
 
         var parenthesisRange =

@@ -79,7 +79,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       protected override IThrowStatement CreateStatement(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IThrowStatement) factory.CreateStatement("throw new $0();", expression);
+        return (IThrowStatement) factory.CreateStatement("throw new $0();", expression.GetText());
       }
 
       protected override void AfterComplete(ITextControl textControl, IThrowStatement statement)

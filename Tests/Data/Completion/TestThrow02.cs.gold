@@ -1,11 +1,9 @@
 ﻿// ${COMPLETE_ITEM:throw}
 
-using System;
-
 class Foo
 {
   void Bar()
   {
-    throw new Exception({caret});
+    throw new System.Exception({caret});
   }
 }

@@ -67,23 +67,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       {
         var referencedType = bestContext.ReferencedType;
         if (referencedType == null)
-          return new StatementLookupItem(bestContext);
+          return new IntroduceVarStatementItem(bestContext);
 
         var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-        return new StatementFromTypeLookupItem(bestContext, referencedType, lookupItemsOwner);
+        return new IntroduceVarByTypeItem(bestContext, referencedType, lookupItemsOwner);
       }
 
       if (context.IsForceMode)
       {
-        return new ExpressionLookupItem(bestContext);
+        return new IntroduceVarExpressionItem(bestContext);
       }
 
       return null;
     }
 
-    private sealed class ExpressionLookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    private sealed class IntroduceVarExpressionItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public ExpressionLookupItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
+      public IntroduceVarExpressionItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
 
       protected override ICSharpExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
@@ -119,14 +119,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       }
     }
 
-    private sealed class StatementLookupItem : StatementPostfixLookupItem<IExpressionStatement>
+    private sealed class IntroduceVarStatementItem : StatementPostfixLookupItem<IExpressionStatement>
     {
-      public StatementLookupItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
+      public IntroduceVarStatementItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
 
       protected override IExpressionStatement CreateStatement(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IExpressionStatement) factory.CreateStatement("0$;", expression);
+        return (IExpressionStatement) factory.CreateStatement("$0;", expression);
       }
 
       protected override void AfterComplete(ITextControl textControl, IExpressionStatement statement)
@@ -135,13 +135,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       }
     }
 
-    private sealed class StatementFromTypeLookupItem : StatementPostfixLookupItem<IExpressionStatement>
+    private sealed class IntroduceVarByTypeItem : StatementPostfixLookupItem<IExpressionStatement>
     {
       [NotNull] private readonly IDeclaredType myReferencedType;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       private readonly bool myHasCtorWithParams;
 
-      public StatementFromTypeLookupItem(
+      public IntroduceVarByTypeItem(
         [NotNull] PrefixExpressionContext context, [NotNull] IDeclaredType referencedType,
         [NotNull] ILookupItemsOwner lookupItemsOwner) : base("var", context)
       {
