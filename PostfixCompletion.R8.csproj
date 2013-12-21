@@ -104,6 +104,7 @@
     <Compile Include="Templates\YieldReturnStatementTemplate.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Utils\PortabilityExtensions.R8.cs" />
+    <Compile Include="Utils\RazorUtil.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
   </ItemGroup>
   <ItemGroup>

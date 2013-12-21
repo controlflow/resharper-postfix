@@ -9,6 +9,9 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
+  // todo: support razor
+  // todo: support removal of ( )
+
   public abstract class StatementPostfixLookupItem<TStatement> : PostfixLookupItem<TStatement>
     where TStatement : class, ICSharpStatement
   {
@@ -38,7 +41,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var factory = CSharpElementFactory.GetInstance(psiModule);
       var newStatement = CreateStatement(factory, context.Expression);
 
-      var targetStatement = PrefixExpressionContext.CalculateCanBeStatement(context.Expression);
+      var targetStatement = context.GetContainingStatement();
       Assertion.AssertNotNull(targetStatement, "targetStatement != null");
       Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");
 

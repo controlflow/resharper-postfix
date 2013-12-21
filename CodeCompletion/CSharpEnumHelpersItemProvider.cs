@@ -6,6 +6,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
@@ -15,9 +16,11 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.I18n.Services.Refactoring;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resources;
+using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.Text;
@@ -112,10 +115,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
       var maxLength = memberValues.Max(x => x.Second.Length);
       var reparsedDotRange = referenceExpression.Delimiter.GetTreeTextRange();
       var originalDotRange = context.UnterminatedContext.ToOriginalTreeRange(reparsedDotRange);
-      var originalDotToken = context.BasicContext.File.FindTokenAt(originalDotRange.StartOffset);
-      if (originalDotToken == null) return false;
-
-      var pointer = originalDotToken.CreateTreeElementPointer();
+      var dotMarker = context.BasicContext.File.GetDocumentRange(originalDotRange).CreateRangeMarker();
 
       foreach (var member in memberValues)
       {
@@ -124,7 +124,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 
         var instance = new DeclaredElementInstance<IField>(member.First, substitution);
         var textLookupItem = new EnumMemberLookupItem(
-          pointer, instance, normalizedValue, value, isFlagsEnum);
+          dotMarker, instance, normalizedValue, value, isFlagsEnum);
 
         collector.AddAtDefaultPlace(textLookupItem);
       }
@@ -152,18 +152,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 
     private sealed class EnumMemberLookupItem : PostfixLookupItemBase, ILookupItem
     {
-      [NotNull] private readonly ITreeNodePointer<ITreeNode> myDotPointer;
+      [NotNull] private readonly IRangeMarker myDotRangeMarker;
       [NotNull] private readonly IElementInstancePointer<IField> myMemberPointer;
       [NotNull] private readonly string myShortName;
       private readonly bool myIsFlags;
 
       public EnumMemberLookupItem(
-        [NotNull] ITreeNodePointer<ITreeNode> dotPointer,
+        [NotNull] IRangeMarker dotRangeMarker,
         [NotNull] DeclaredElementInstance<IField> enumMember,
-        [NotNull] string normalizedValue,
-        [NotNull] string value, bool isFlags)
+        [NotNull] string normalizedValue, [NotNull] string value, bool isFlags)
       {
-        myDotPointer = dotPointer;
+        myDotRangeMarker = dotRangeMarker;
         myMemberPointer = enumMember.CreateElementInstancePointer();
         myShortName = enumMember.Element.ShortName;
         myIsFlags = isFlags && normalizedValue.Any(x => x != '0');
@@ -184,33 +183,29 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
       {
         textControl.Document.ReplaceText(nameRange, "E()");
 
-        var services = solution.GetPsiServices();
-        services.CommitAllDocuments();
+        var psiServices = solution.GetPsiServices();
+        psiServices.CommitAllDocuments();
 
         var enumMember = myMemberPointer.Resolve();
         if (enumMember == null) return;
 
-        var dotToken = myDotPointer.GetTreeNode();
-        if (dotToken == null) return;
-
-        var referenceExpression = dotToken.Parent as IReferenceExpression;
-        if (referenceExpression == null) return;
-
+        var referenceExpression = FindReferenceExpression(textControl, solution);
         var invocation = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
         if (invocation == null) return;
 
-        var factory = CSharpElementFactory.GetInstance(dotToken.GetPsiModule());
+        var factory = CSharpElementFactory.GetInstance(referenceExpression.GetPsiModule());
         var template = myIsFlags ? "($0 & $1) != 0" : "$0 == $1";
         var enumMemberCheck = factory.CreateExpression(
           template, referenceExpression.QualifierExpression, enumMember);
 
         ITreeNodePointer<ICSharpExpression> caretPointer = null;
-        services.DoTransaction(typeof(CSharpEnumHelpersItemProvider).FullName, () =>
+        var commandName = typeof(CSharpEnumHelpersItemProvider).FullName;
+        psiServices.DoTransaction(commandName, () =>
         {
           using (WriteLockCookie.Create())
           {
-            var check = invocation.ReplaceBy(enumMemberCheck);
-            caretPointer = check.CreatePointer();
+            var memberCheck = invocation.ReplaceBy(enumMemberCheck);
+            caretPointer = memberCheck.CreatePointer();
           }
         });
 
@@ -222,6 +217,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
           var offset = checkExpression.GetDocumentRange().TextRange.EndOffset;
           textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
         }
+      }
+
+      [CanBeNull] private IReferenceExpression FindReferenceExpression(
+        [NotNull] ITextControl textControl, [NotNull] ISolution solution)
+      {
+        var dotRange = myDotRangeMarker.DocumentRange;
+        if (!dotRange.IsValid()) return null;
+
+        var tokenOffset = dotRange.TextRange.StartOffset;
+        foreach (var token in TextControlToPsi
+          .GetElements<ITokenNode>(solution, textControl.Document, tokenOffset))
+        {
+          if (token.GetTokenType() == CSharpTokenType.DOT)
+          {
+            var expression = token.Parent as IReferenceExpression;
+            if (expression != null) return expression;
+          }
+        }
+
+        return null;
       }
 
       public MatchingResult Match(string prefix, ITextControl textControl)

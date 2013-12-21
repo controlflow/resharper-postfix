@@ -209,6 +209,9 @@
     <Compile Include="..\Utils\PortabilityExtensions.R8.cs">
       <Link>Utils\PortabilityExtensions.R8.cs</Link>
     </Compile>
+    <Compile Include="..\Utils\RazorUtil.cs">
+      <Link>Utils\RazorUtil.cs</Link>
+    </Compile>
     <Compile Include="..\Utils\TypeUtils.cs">
       <Link>Utils\TypeUtils.cs</Link>
     </Compile>

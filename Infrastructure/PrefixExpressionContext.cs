@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       Parent = parent;
       Expression = expression;
       Type = expression.Type();
-      CanBeStatement = CalculateCanBeStatement(expression) != null;
+      CanBeStatement = GetContainingStatement() != null;
 
       var referenceExpression = expression as IReferenceExpression;
       if (referenceExpression != null)
@@ -43,48 +43,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [CanBeNull]
-    public static ICSharpStatement CalculateCanBeStatement([NotNull] ICSharpExpression expression)
+    public ICSharpStatement GetContainingStatement()
     {
-      var expressionStatement = ExpressionStatementNavigator.GetByExpression(expression);
-      if (expressionStatement != null)
-        return expressionStatement;
+      var expression = Parent.GetOuterExpression(Expression);
 
-      // Razor support
-      //var qualifierExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-      //var argument = CSharpArgumentNavigator.GetByValue(qualifierExpression);
-      //
-      //if (argument != null && argument.Kind == ParameterKind.VALUE)
-      //{
-      //  var invocation = InvocationExpressionNavigator.GetByArgument(argument);
-      //  if (invocation != null)
-      //  {
-      //    var referenceExpression = invocation.InvokedExpression as IReferenceExpression;
-      //    if (referenceExpression != null && referenceExpression.QualifierExpression == null)
-      //    {
-      //      var services = argument.GetSolution().GetComponent<IProjectFileTypeServices>();
-      //      var sourceFile = argument.GetSourceFile();
-      //      if (sourceFile != null)
-      //      {
-      //        var razorService = services.TryGetService<IRazorPsiServices>(sourceFile.LanguageType);
-      //        if (razorService != null && razorService.IsSpecialMethodInvocation(invocation, RazorMethodType.Write))
-      //          return null;
-      //      }
-      //    }
-      //  }
-      //}
+      ICSharpStatement statement = ExpressionStatementNavigator.GetByExpression(expression);
+      if (statement != null) return statement;
 
-      // todo: check!
-      // handle broken trees like: "lines.     \r\n   NextLineStatemement();"
-      var containingStatement = expression.GetContainingNode<ICSharpStatement>();
-      if (containingStatement != null)
-      {
-        var expressionOffset = expression.GetTreeStartOffset();
-        var statementOffset = containingStatement.GetTreeStartOffset();
-        if (expressionOffset == statementOffset)
-        {
-          return containingStatement;
-        }
-      }
+      statement = RazorUtil.CanBeStatement(expression);
+      if (statement != null) return statement;
 
       return null;
     }

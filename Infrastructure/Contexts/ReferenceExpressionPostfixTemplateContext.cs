@@ -42,5 +42,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
       return context;
     }
+
+    public override ICSharpExpression GetOuterExpression(ICSharpExpression expression)
+    {
+      var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+      if (referenceExpression != null && referenceExpression == Reference)
+      {
+        return referenceExpression;
+      }
+
+      return base.GetOuterExpression(expression);
+    }
   }
 }

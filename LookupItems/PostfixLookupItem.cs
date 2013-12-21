@@ -50,17 +50,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
       solution.GetPsiServices().Files.CommitAllDocuments();
 
-      var position = TextControlToPsi.GetElementFromCaretPosition<ITreeNode>(solution, textControl);
-
       var itemsOwnerFactory = solution.GetComponent<LookupItemsOwnerFactory>();
       var lookupItemsOwner = itemsOwnerFactory.CreateLookupItemsOwner(textControl);
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
 
-      var psiModule = position.GetPsiModule();
-      var executionContext = new PostfixExecutionContext(
-        false, psiModule, lookupItemsOwner, myReparseString);
+      PostfixTemplateContext postfixContext = null;
+      foreach (var position in TextControlToPsi.GetElements<ITokenNode>(
+        solution, textControl.Document, textControl.Caret.Offset()))
+      {
+        var psiModule = position.GetPsiModule();
+        var executionContext = new PostfixExecutionContext(
+          false, psiModule, lookupItemsOwner, myReparseString);
 
-      var postfixContext = templatesManager.IsAvailable(position, executionContext);
+        postfixContext = templatesManager.IsAvailable(position, executionContext);
+        if (postfixContext != null) break;
+      }
+
       Assertion.AssertNotNull(postfixContext, "postfixContext != null");
 
       var expressionContext = FindOriginalContext(postfixContext);

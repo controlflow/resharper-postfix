@@ -113,5 +113,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     {
       return context;
     }
+
+    public virtual ICSharpExpression GetOuterExpression([NotNull] ICSharpExpression expression)
+    {
+      return expression;
+    }
   }
 }
