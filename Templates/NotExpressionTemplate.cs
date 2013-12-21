@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "!expr", WorksOnTypes = true /* don't like it */)]
   public class NotExpressionTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
-    protected override ILookupItem CreateItem(PrefixExpressionContext expression)
+    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
     {
       return new LookupItem(expression);
     }

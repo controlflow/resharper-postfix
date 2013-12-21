@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   public abstract class IntroduceMemberTemplateBase : IPostfixTemplate
   {
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var functionDeclaration = context.ContainingFunction;
       if (functionDeclaration == null) return null;

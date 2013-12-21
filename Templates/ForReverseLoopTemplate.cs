@@ -20,7 +20,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       myTemplatesManager = templatesManager;
     }
 
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       string lengthPropertyName;
       if (CreateItems(context, out lengthPropertyName))

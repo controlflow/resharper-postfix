@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "return expr;")]
   public class YieldReturnStatementTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (!expressionContext.CanBeStatement) return null;

@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "new SomeType()", WorksOnTypes = true)]
   public class ObjectCreationTypeTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
 

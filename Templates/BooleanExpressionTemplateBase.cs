@@ -9,13 +9,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   public abstract class BooleanExpressionTemplateBase
   {
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       foreach (var expressionContext in context.Expressions)
       {
         if (expressionContext.Type.IsBool() || IsBooleanExpression(expressionContext.Expression))
         {
-          var lookupItem = CreateItem(expressionContext);
+          var lookupItem = CreateBooleanItem(expressionContext);
           if (lookupItem != null) return lookupItem;
         }
       }
@@ -24,7 +24,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       {
         foreach (var expressionContext in context.Expressions)
         {
-          var lookupItem = CreateItem(expressionContext);
+          var lookupItem = CreateBooleanItem(expressionContext);
           if (lookupItem != null) return lookupItem;
         }
       }
@@ -43,6 +43,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     }
 
     [CanBeNull]
-    protected abstract ILookupItem CreateItem([NotNull] PrefixExpressionContext expression);
+    protected abstract ILookupItem CreateBooleanItem([NotNull] PrefixExpressionContext expression);
   }
 }

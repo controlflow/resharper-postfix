@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "if (!expr)", WorksOnTypes = true)]
   public class ElseStatementTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
-    protected override ILookupItem CreateItem(PrefixExpressionContext expression)
+    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
     {
       if (expression.CanBeStatement)
       {

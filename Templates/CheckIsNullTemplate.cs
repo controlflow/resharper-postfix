@@ -9,7 +9,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "if (expr == null)")]
   public class CheckIsNullTemplate : CheckForNullTemplateBase, IPostfixTemplate
   {
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (!expressionContext.CanBeStatement) return null;

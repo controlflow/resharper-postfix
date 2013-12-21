@@ -92,7 +92,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 
         if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
 
-        var lookupItem = info.Provider.CreateItems(postfixContext);
+        var lookupItem = info.Provider.CreateItem(postfixContext);
         if (lookupItem != null) items.Add(lookupItem);
       }
 

@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       myTemplatesManager = templatesManager;
     }
 
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       if (!context.IsForceMode) return null;
 

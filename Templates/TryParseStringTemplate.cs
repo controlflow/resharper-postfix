@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       myShellLocks = shellLocks;
     }
 
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       foreach (var expressionContext in context.Expressions)
       {

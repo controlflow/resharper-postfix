@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "typeof(TExpr)", WorksOnTypes = true)]
   public class TypeOfExpressionTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
       if (expressionContext.ReferencedElement is ITypeElement)

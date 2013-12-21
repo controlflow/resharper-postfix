@@ -29,7 +29,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "var x = expr;", WorksOnTypes = true)]
   public sealed class IntroduceVariableTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItems(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var contexts = new List<PrefixExpressionContext>();
       foreach (var exprContext in context.Expressions)
