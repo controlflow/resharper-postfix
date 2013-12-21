@@ -70,17 +70,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       public ReturnLookupItem([NotNull] PrefixExpressionContext context)
         : base("return", context) { }
 
-      protected override bool SuppressSemicolonSuffix { get { return true; } }
-
-      protected override IReturnStatement CreateStatement(CSharpElementFactory factory)
+      protected override IReturnStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IReturnStatement) factory.CreateStatement("return expr;");
-      }
-
-      protected override void PlaceExpression(
-        IReturnStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        statement.Value.ReplaceBy(expression);
+        return (IReturnStatement) factory.CreateStatement("return $0;", expression);
       }
     }
   }

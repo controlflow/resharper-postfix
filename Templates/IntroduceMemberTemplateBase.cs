@@ -58,7 +58,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       protected readonly bool IsStatic;
 
       [NotNull] private ICollection<string> myMemberNames;
-      [CanBeNull] private IDeclaration myMemberDeclaration;
+      [CanBeNull] private IDeclaration myMemberDeclaration; // todo: to pointer?
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
       protected IntroduceMemberLookupItem(
@@ -72,22 +72,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         myTemplatesManager = templatesManager;
       }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
+      protected override IExpressionStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IExpressionStatement) factory.CreateStatement("__ = expression;");
-      }
+        var statement = (IExpressionStatement) factory.CreateStatement("__ = expression;");
 
-      protected override void PlaceExpression(
-        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
         var classDeclaration = statement.GetContainingNode<IClassDeclaration>().NotNull();
-        var anchor = GetAnchorMember(classDeclaration.MemberDeclarations);
+        var anchor = GetAnchorMember(classDeclaration.MemberDeclarations.ToList());
 
         var newDeclaration = CreateMemberDeclaration(factory);
         var newMember = classDeclaration.AddClassMemberDeclarationAfter(
-          newDeclaration, (IClassMemberDeclaration) anchor);
+          newDeclaration, (IClassMemberDeclaration)anchor);
 
-        var assignment = (IAssignmentExpression) statement.Expression;
+        var assignment = (IAssignmentExpression)statement.Expression;
         assignment.SetSource(expression);
 
         var suggestionManager = statement.GetPsiServices().Naming.Suggestion;
@@ -96,26 +93,24 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
         collection.Add(assignment.Source, new EntryOptions());
         collection.Prepare(newMember.DeclaredElement,
-          new SuggestionOptions {UniqueNameContext = classDeclaration});
+          new SuggestionOptions { UniqueNameContext = classDeclaration });
 
         newMember.SetName(collection.FirstName());
         myMemberNames = collection.AllNames();
         myMemberDeclaration = newMember;
+
+        return statement;
       }
 
       [CanBeNull]
-      protected abstract ICSharpTypeMemberDeclaration GetAnchorMember(
-        TreeNodeCollection<ICSharpTypeMemberDeclaration> members);
+      protected abstract ICSharpTypeMemberDeclaration GetAnchorMember(IList<ICSharpTypeMemberDeclaration> members);
 
       [NotNull]
-      protected abstract IClassMemberDeclaration
-        CreateMemberDeclaration([NotNull] CSharpElementFactory factory);
+      protected abstract IClassMemberDeclaration CreateMemberDeclaration([NotNull] CSharpElementFactory factory);
 
       protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix,
-        IExpressionStatement statement, int? caretPosition)
+        ITextControl textControl, IExpressionStatement statement)
       {
-        // note: supress suffix, yeah
         if (myMemberDeclaration == null) return;
 
         var assignment = (IAssignmentExpression) statement.Expression;

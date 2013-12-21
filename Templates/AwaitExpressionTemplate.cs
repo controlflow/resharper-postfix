@@ -49,8 +49,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     {
       public AwaitItem([NotNull] PrefixExpressionContext context) : base("await", context) { }
 
-      protected override IAwaitExpression CreateExpression(CSharpElementFactory factory,
-        ICSharpExpression expression)
+      protected override IAwaitExpression CreateExpression(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IAwaitExpression) factory.CreateExpression("await $0", expression);
       }

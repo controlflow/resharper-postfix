@@ -61,8 +61,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         return (ICastExpression) factory.CreateExpression("(T) $0", expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, ICastExpression expression, int? caretPosition)
+      protected override void AfterComplete(ITextControl textControl, ICastExpression expression)
       {
         var typeExpression = new MacroCallExpressionNew(new GuessExpectedTypeMacroDef());
         var hotspotInfo = new HotspotInfo(

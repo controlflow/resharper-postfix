@@ -43,7 +43,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       protected override IForStatement CreateStatement(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var template = "for(var x=0;x<$0;x++)" + EmbeddedBracesTemplate;
+        var template = "for(var x=0;x<$0;x++)" + EmbeddedStatementBracesTemplate;
         var forStatement = (IForStatement) factory.CreateStatement(template, expression);
 
         var condition = (IRelationalExpression) forStatement.Condition;

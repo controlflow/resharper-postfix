@@ -22,18 +22,23 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.UseBracesForEmbeddedStatements);
     }
 
-    protected string EmbeddedBracesTemplate
+    protected string EmbeddedStatementBracesTemplate
     {
       get { return myUseBraces ? "{using(null){}}" : "using(null){}"; }
     }
 
-    protected override TStatement ExpandPostfix(PrefixExpressionContext expression)
+    protected string RequiredBracesTemplate
     {
-      var psiModule = expression.Parent.ExecutionContext.PsiModule;
-      var factory = CSharpElementFactory.GetInstance(psiModule);
-      var newStatement = CreateStatement(factory, expression.Expression);
+      get { return "{using(null){}}"; }
+    }
 
-      var targetStatement = PrefixExpressionContext.CalculateCanBeStatement(expression.Expression);
+    protected override TStatement ExpandPostfix(PrefixExpressionContext context)
+    {
+      var psiModule = context.Parent.ExecutionContext.PsiModule;
+      var factory = CSharpElementFactory.GetInstance(psiModule);
+      var newStatement = CreateStatement(factory, context.Expression);
+
+      var targetStatement = PrefixExpressionContext.CalculateCanBeStatement(context.Expression);
       Assertion.AssertNotNull(targetStatement, "targetStatement != null");
       Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");
 
@@ -55,9 +60,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return (statements.Count == 1) ? statements[0] : null;
     }
 
-    protected override void AfterComplete(ITextControl textControl, TStatement node)
+    protected override void AfterComplete(ITextControl textControl, TStatement statement)
     {
-      foreach (var child in node.Children())
+      foreach (var child in statement.Children())
       {
         var usingStatement = myUseBraces
           ? (UnwrapFromBraces(child) as IUsingStatement)
@@ -79,7 +84,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       // at the end of the statement otherwise...
       // todo: HOW ABOUT NO?
       {
-        var endOffset = node.GetDocumentRange().TextRange.EndOffset;
+        var endOffset = statement.GetDocumentRange().TextRange.EndOffset;
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
       }
     }

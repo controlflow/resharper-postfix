@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
       if (context.IsForceMode)
       {
-        return new YieldLookupItem(expressionContext);
+        return new YieldItem(expressionContext);
       }
 
       var returnType = function.ReturnType;
@@ -60,7 +60,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         var rule = expressionContext.Expression.GetTypeConversionRule();
         if (rule.IsImplicitlyConvertibleTo(expressionContext.Type, returnType))
         {
-          return new YieldLookupItem(expressionContext);
+          return new YieldItem(expressionContext);
         }
       }
 
@@ -83,21 +83,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       return false;
     }
 
-    private sealed class YieldLookupItem : StatementPostfixLookupItem<IYieldStatement>
+    private sealed class YieldItem : StatementPostfixLookupItem<IYieldStatement>
     {
-      public YieldLookupItem([NotNull] PrefixExpressionContext context) : base("yield", context) { }
+      public YieldItem([NotNull] PrefixExpressionContext context) : base("yield", context) { }
 
-      protected override bool SuppressSemicolonSuffix { get { return true; } }
-
-      protected override IYieldStatement CreateStatement(CSharpElementFactory factory)
+      protected override IYieldStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IYieldStatement) factory.CreateStatement("yield return expr;");
-      }
-
-      protected override void PlaceExpression(
-        IYieldStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        statement.Expression.ReplaceBy(expression);
+        return (IYieldStatement) factory.CreateStatement("yield return $0;", expression);
       }
     }
   }

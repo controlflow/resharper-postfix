@@ -49,7 +49,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       }
 
       protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IInvocationExpression expression, int? caretPosition)
+        ITextControl textControl, IInvocationExpression expression)
       {
         var parseReference = (IReferenceExpression) expression.InvokedExpression;
         var typeQualifier = parseReference.QualifierExpression.NotNull();

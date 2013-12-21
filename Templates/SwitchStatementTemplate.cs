@@ -34,26 +34,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       return null;
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<ISwitchStatement>
+    private sealed class LookupItem : StatementPostfixLookupItem<ISwitchStatement>
     {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("switch", context) { }
 
-      protected override string Template
-      {
-        get { return "switch(expr)"; }
-      }
-
       // switch statement can't be without braces
-      protected override ISwitchStatement CreateStatement(CSharpElementFactory factory)
+      protected override ISwitchStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var template = Template + "{" + CaretMarker + ";}";
-        return (ISwitchStatement) factory.CreateStatement(template);
-      }
-
-      protected override void PlaceExpression(
-        ISwitchStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        statement.Condition.ReplaceBy(expression);
+        var template = "switch($0)" + RequiredBracesTemplate;
+        return (ISwitchStatement) factory.CreateStatement(template, expression);
       }
     }
   }

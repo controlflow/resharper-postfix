@@ -29,9 +29,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       if (instantiable != TypeInstantiability.NotInstantiable)
       {
         var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
-        var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-
-        return new NewItem(expressionContext, lookupItemsOwner, hasCtorWithParams);
+        return new NewItem(expressionContext, hasCtorWithParams);
       }
 
       return null;
@@ -39,38 +37,26 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
     private sealed class NewItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
     {
-      [NotNull] private readonly string myTypeText;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       private readonly bool myHasCtorWithParams;
 
-      public NewItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] ILookupItemsOwner lookupItemsOwner,
-        bool hasCtorWithParams) : base("new", context)
+      public NewItem([NotNull] PrefixExpressionContext context, bool hasCtorWithParams)
+        : base("new", context)
       {
-        myLookupItemsOwner = lookupItemsOwner;
         myHasCtorWithParams = hasCtorWithParams;
-        myTypeText = context.Expression.GetText();
+        myLookupItemsOwner = context.Parent.ExecutionContext.LookupItemsOwner;
       }
 
       protected override IObjectCreationExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var format = myHasCtorWithParams ? "new {0}({1})" : "new {0}(){1}";
-        var template = string.Format(format, myTypeText, CaretMarker);
-
-        return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
+        return (IObjectCreationExpression) factory.CreateExpression("new $0()", expression);
       }
 
       protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IObjectCreationExpression expression, int? caretPosition)
+        ITextControl textControl, IObjectCreationExpression expression)
       {
-        if (caretPosition == null)
-        {
-          caretPosition = expression.GetDocumentRange().TextRange.EndOffset;
-        }
-
-        base.AfterComplete(textControl, suffix, expression, caretPosition);
+        base.AfterComplete(textControl, expression);
         if (!myHasCtorWithParams) return;
 
         var parenthesisRange =

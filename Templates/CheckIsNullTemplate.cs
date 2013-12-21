@@ -33,7 +33,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
         case CSharpControlFlowNullReferenceState.UNKNOWN:
         {
-          return new CheckForNullItem("null", expressionContext, "if(expr==null)");
+          return new CheckForNullItem("null", expressionContext, "if($0==null)");
         }
       }
 

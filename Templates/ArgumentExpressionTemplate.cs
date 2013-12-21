@@ -53,7 +53,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       return null;
     }
 
-    private sealed class ArgumentItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    private class ArgumentItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
@@ -73,8 +73,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         return factory.CreateExpression("Method($0)", expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
+      protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)
       {
         var invocationExpression = (IInvocationExpression) expression;
         var invocationRange = invocationExpression.InvokedExpression.GetDocumentRange();
@@ -104,6 +103,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           LookupUtil.ShowParameterInfo(
             solution, textControl, range, null, myLookupItemsOwner);
         });
+
+        //session.Lifetime.AddAction(() =>
+        //{
+        //  
+        //});
 
         session.Execute();
       }

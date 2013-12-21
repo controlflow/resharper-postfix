@@ -15,6 +15,8 @@ using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
+// todo: do not create var if expr type is IDisposable itself?
+
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   [PostfixTemplate(
@@ -86,38 +88,31 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         node = usingStatement;
       }
 
-      return new LookupItem(expressionContext, myTemplatesManager);
+      return new UsingItem(expressionContext, myTemplatesManager);
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IUsingStatement>
+    private sealed class UsingItem : StatementPostfixLookupItem<IUsingStatement>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public LookupItem(
+      public UsingItem(
         [NotNull] PrefixExpressionContext context,
         [NotNull] LiveTemplatesManager templatesManager) : base("using", context)
       {
         myTemplatesManager = templatesManager;
       }
 
-      protected override string Template
+      protected override IUsingStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        get { return "using(T x = expr)"; }
-      }
-
-      protected override void PlaceExpression(
-        IUsingStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        var declaration = (ILocalVariableDeclaration) statement.Declaration.Declarators[0];
-        var initializer = (IExpressionInitializer) declaration.Initial;
-
-        initializer.Value.ReplaceBy(expression);
+        var template = "using (T x = $0)" + EmbeddedStatementBracesTemplate;
+        return (IUsingStatement) factory.CreateStatement(template, expression);
       }
 
       protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IUsingStatement statement, int? caretPosition)
+        ITextControl textControl, IUsingStatement statement)
       {
-        if (caretPosition == null) return;
+        base.AfterComplete(textControl, statement);
 
         var declaration = (ILocalVariableDeclaration) statement.Declaration.Declarators[0];
         var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
@@ -132,7 +127,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           declaration.NameIdentifier.GetDocumentRange().GetHotspotRange());
 
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
+          statement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {typeSpot, nameSpot});
 
         session.Execute();

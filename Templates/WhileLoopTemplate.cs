@@ -16,25 +16,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     {
       if (expression.CanBeStatement)
       {
-        return new LookupItem(expression);
+        return new WhileItem(expression);
       }
 
       return null;
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<IWhileStatement>
+    private sealed class WhileItem : StatementPostfixLookupItem<IWhileStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("while", context) { }
+      public WhileItem([NotNull] PrefixExpressionContext context) : base("while", context) { }
 
-      protected override string Template
+      protected override IWhileStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        get { return "while(expr)"; }
-      }
-
-      protected override void PlaceExpression(
-        IWhileStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        statement.Condition.ReplaceBy(expression);
+        var template = "while($0)" + EmbeddedStatementBracesTemplate;
+        return (IWhileStatement) factory.CreateStatement(template, expression);
       }
     }
   }

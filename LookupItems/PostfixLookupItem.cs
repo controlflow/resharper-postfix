@@ -20,9 +20,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
   public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
     where TNode : class, ITreeNode
   {
-    [NotNull] private readonly string myShortcut;
-    [NotNull] private readonly string myIdentifier;
-    [NotNull] private readonly string myReparseString;
+    [NotNull] private readonly string myShortcut, myIdentifier, myReparseString;
     [NotNull] private readonly Type myExpressionType;
     private readonly DocumentRange myExpressionRange;
     private readonly int myContextIndex;
@@ -95,12 +93,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       }
     }
 
-    protected abstract TNode ExpandPostfix([NotNull] PrefixExpressionContext expression);
-
-    protected virtual void AfterComplete([NotNull] ITextControl textControl, [NotNull] TNode node)
-    {
-
-    }
+    protected abstract TNode ExpandPostfix([NotNull] PrefixExpressionContext context);
+    protected virtual void AfterComplete([NotNull] ITextControl textControl, [NotNull] TNode node) { }
 
     [CanBeNull]
     private PrefixExpressionContext FindOriginalContext([NotNull] PostfixTemplateContext context)
@@ -110,15 +104,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       {
         if (expressionContext.Expression.GetType() == myExpressionType &&
             expressionContext.ExpressionRange.TextRange.StartOffset == startOffset)
-        {
           return expressionContext;
-        }
       }
 
       if (context.Expressions.Count < myContextIndex)
-      {
         return context.Expressions[myContextIndex];
-      }
 
       return null;
     }

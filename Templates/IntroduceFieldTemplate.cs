@@ -1,9 +1,10 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
@@ -43,8 +44,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         return declaration;
       }
 
-      protected override ICSharpTypeMemberDeclaration GetAnchorMember(
-        TreeNodeCollection<ICSharpTypeMemberDeclaration> members)
+      protected override ICSharpTypeMemberDeclaration GetAnchorMember(IList<ICSharpTypeMemberDeclaration> members)
       {
         return members.LastOrDefault(m => m.DeclaredElement is IField && m.IsStatic == IsStatic);
       }

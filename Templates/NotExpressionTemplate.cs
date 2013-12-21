@@ -5,7 +5,6 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
-using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
@@ -33,8 +32,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         return CSharpExpressionUtil.CreateLogicallyNegatedExpression(expression) ?? expression;
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
+      protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)
       {
         // collapse '!!b' into 'b'
         var unary = expression as IUnaryOperatorExpression;
@@ -54,12 +52,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           }
         }
 
-        if (caretPosition == null)
-        {
-          caretPosition = expression.GetDocumentRange().TextRange.EndOffset;
-        }
-
-        base.AfterComplete(textControl, suffix, expression, caretPosition);
+        base.AfterComplete(textControl, expression);
       }
     }
   }

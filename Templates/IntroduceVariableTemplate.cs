@@ -91,8 +91,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         return expression;
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, ICSharpExpression expression, int? caretPosition)
+      protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)
       {
         ExecuteRefactoring(textControl, expression,
           (control, solution, args) =>
@@ -124,19 +123,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     {
       public StatementLookupItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
+      protected override IExpressionStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IExpressionStatement) factory.CreateStatement("expr;");
+        return (IExpressionStatement) factory.CreateStatement("0$;", expression);
       }
 
-      protected override void PlaceExpression(
-        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        statement.Expression.ReplaceBy(expression);
-      }
-
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IExpressionStatement statement, int? caretPosition)
+      protected override void AfterComplete(ITextControl textControl, IExpressionStatement statement)
       {
         ExecuteRefactoring(textControl, statement.Expression);
       }
@@ -159,16 +152,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         myHasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
       }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory)
+      protected override IExpressionStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IExpressionStatement) factory.CreateStatement("new $0();", myReferencedType);
       }
 
-      protected override void PlaceExpression(
-        IExpressionStatement statement, ICSharpExpression expression, CSharpElementFactory factory) { }
-
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IExpressionStatement statement, int? caretPosition)
+      protected override void AfterComplete(ITextControl textControl, IExpressionStatement statement)
       {
         if (myHasCtorWithParams)
         {

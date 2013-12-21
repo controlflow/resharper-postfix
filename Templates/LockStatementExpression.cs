@@ -33,19 +33,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       return new LookupItem(expressionContext);
     }
 
-    private sealed class LookupItem : KeywordStatementPostfixLookupItem<ILockStatement>
+    private sealed class LookupItem : StatementPostfixLookupItem<ILockStatement>
     {
       public LookupItem([NotNull] PrefixExpressionContext context) : base("lock", context) { }
 
-      protected override string Template
+      protected override ILockStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        get { return "lock(expr)"; }
-      }
-
-      protected override void PlaceExpression(
-        ILockStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        statement.Monitor.ReplaceBy(expression);
+        var template = "lock($0)" + EmbeddedStatementBracesTemplate;
+        return (ILockStatement) factory.CreateStatement(template, expression);
       }
     }
   }

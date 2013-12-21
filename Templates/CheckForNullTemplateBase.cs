@@ -45,27 +45,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       return classification == null || classification == TypeClassification.REFERENCE_TYPE;
     }
 
-    protected sealed class CheckForNullItem : KeywordStatementPostfixLookupItem<IIfStatement>
+    protected sealed class CheckForNullItem : StatementPostfixLookupItem<IIfStatement>
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullItem(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
-        [NotNull] string template) : base(shortcut, context)
+      public CheckForNullItem([NotNull] string shortcut,
+                              [NotNull] PrefixExpressionContext context,
+                              [NotNull] string template)
+        : base(shortcut, context)
       {
         myTemplate = template;
       }
 
-      protected override string Template
+      protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        get { return myTemplate; }
-      }
-
-      protected override void PlaceExpression(
-        IIfStatement statement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
-        var checkedExpr = (IEqualityExpression) statement.Condition;
-        checkedExpr.LeftOperand.ReplaceBy(expression);
+        return (IIfStatement) factory.CreateStatement(myTemplate + EmbeddedStatementBracesTemplate, expression);
       }
     }
   }

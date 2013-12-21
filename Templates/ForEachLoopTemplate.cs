@@ -68,33 +68,27 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       return null;
     }
 
-    private sealed class ForEachItem : KeywordStatementPostfixLookupItem<IForeachStatement>
+    private sealed class ForEachItem : StatementPostfixLookupItem<IForeachStatement>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public ForEachItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager) : base("forEach", context)
+      public ForEachItem([NotNull] PrefixExpressionContext context,
+                         [NotNull] LiveTemplatesManager templatesManager)
+        : base("forEach", context)
       {
         myTemplatesManager = templatesManager;
       }
 
-      protected override string Template
+      protected override IForeachStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        get { return "foreach(var x in expr)"; }
+        var template = "foreach(var x in expr)" + EmbeddedStatementBracesTemplate;
+        return (IForeachStatement) factory.CreateStatement(template, expression);
       }
 
-      protected override void PlaceExpression(IForeachStatement statement,
-        ICSharpExpression expression,
-        CSharpElementFactory factory)
+      protected override void AfterComplete(ITextControl textControl, IForeachStatement statement)
       {
-        statement.Collection.ReplaceBy(expression);
-      }
-
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IForeachStatement statement, int? caretPosition)
-      {
-        if (caretPosition == null) return;
+        base.AfterComplete(textControl, statement);
 
         var iterator = statement.IteratorDeclaration;
         var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
@@ -109,22 +103,22 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           iterator.NameIdentifier.GetDocumentRange().GetHotspotRange());
 
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
+          statement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {typeSpot, nameSpot});
 
         // special case: handle [.] suffix
-        if (suffix.HasPresentation && suffix.Presentation == '.')
-        {
-          session.AdviceFinished((_, terminationType) =>
-          {
-            if (terminationType == TerminationType.Finished)
-            {
-              var nameValue = session.Hotspots[1].CurrentValue;
-              textControl.Document.InsertText(textControl.Caret.Offset(), nameValue);
-              suffix.Playback(textControl);
-            }
-          });
-        }
+        //if (suffix.HasPresentation && suffix.Presentation == '.')
+        //{
+        //  session.AdviceFinished((_, terminationType) =>
+        //  {
+        //    if (terminationType == TerminationType.Finished)
+        //    {
+        //      var nameValue = session.Hotspots[1].CurrentValue;
+        //      textControl.Document.InsertText(textControl.Caret.Offset(), nameValue);
+        //      suffix.Playback(textControl);
+        //    }
+        //  });
+        //}
 
         session.Execute();
       }

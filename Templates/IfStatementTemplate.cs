@@ -31,7 +31,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       protected override IIfStatement CreateStatement(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var template = "if($0)" + EmbeddedBracesTemplate;
+        var template = "if($0)" + EmbeddedStatementBracesTemplate;
         return (IIfStatement) factory.CreateStatement(template, expression);
       }
     }
