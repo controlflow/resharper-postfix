@@ -44,7 +44,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       [NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
 
     [ContractAnnotation("null => null"), CanBeNull]
-    private ICSharpStatement UnwrapFromBraces(ICSharpStatement statement)
+    private ICSharpStatement UnwrapFromBraces(ITreeNode statement)
     {
       if (statement == null) return null;
 
@@ -60,7 +60,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       foreach (var child in node.Children())
       {
         var usingStatement = myUseBraces
-          ? UnwrapFromBraces(child as ICSharpStatement) as IUsingStatement
+          ? (UnwrapFromBraces(child) as IUsingStatement)
           : (child as IUsingStatement);
 
         if (usingStatement == null) continue;

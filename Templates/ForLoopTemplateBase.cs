@@ -4,7 +4,6 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
-using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -27,47 +26,44 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       if (!expressionContext.CanBeStatement) return false;
 
       var expression = expressionContext.Expression;
-      if (context.IsForceMode || expression.IsPure())
+      if (!context.IsForceMode && !expression.IsPure()) return false;
+
+      if (expressionContext.Type is IArrayType)
       {
-        if (expressionContext.Type is IArrayType)
+        lengthPropertyName = "Length";
+      }
+      else
+      {
+        if (expressionContext.Type.IsUnknown) return false; // even in force mode
+
+        var table = expressionContext.Type
+          .GetSymbolTable(context.ExecutionContext.PsiModule);
+
+        var publicProperties = table.Filter(
+          myPropertyFilter, OverriddenFilter.INSTANCE,
+          new AccessRightsFilter(new ElementAccessContext(expression)));
+
+        var result = publicProperties.GetResolveResult("Count");
+        var resolveResult = result.DeclaredElement as IProperty;
+        if (resolveResult != null)
         {
-          lengthPropertyName = "Length";
+          if (resolveResult.IsStatic) return false;
+          if (!resolveResult.Type.IsInt()) return false;
+          lengthPropertyName = "Count";
         }
         else
         {
-          if (expressionContext.Type.IsUnknown) return false; // even in force mode
-
-          var table = expressionContext.Type
-            .GetSymbolTable(context.ExecutionContext.PsiModule);
-
-          var publicProperties = table.Filter(
-            myPropertyFilter, OverriddenFilter.INSTANCE,
-            new AccessRightsFilter(new ElementAccessContext(expression)));
-
-          var result = publicProperties.GetResolveResult("Count");
-          var resolveResult = result.DeclaredElement as IProperty;
-          if (resolveResult != null)
-          {
-            if (resolveResult.IsStatic) return false;
-            if (!resolveResult.Type.IsInt()) return false;
-            lengthPropertyName = "Count";
-          }
-          else
-          {
-            if (!expressionContext.Type.IsInt()) return false;
-          }
+          if (!expressionContext.Type.IsInt()) return false;
         }
-
-        return true;
       }
 
-      return false;
+      return true;
     }
 
     [NotNull] private readonly DeclaredElementTypeFilter myPropertyFilter =
       new DeclaredElementTypeFilter(ResolveErrorType.NOT_RESOLVED, CLRDeclaredElementType.PROPERTY);
 
-    protected abstract class ForLookupItemBase : KeywordStatementPostfixLookupItem<IForStatement>
+    protected abstract class ForLookupItemBase : StatementPostfixLookupItem<IForStatement>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
@@ -83,10 +79,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
       [CanBeNull] protected string LengthPropertyName { get; private set; }
 
-      protected override void AfterComplete(
-        ITextControl textControl, Suffix suffix, IForStatement statement, int? caretPosition)
+      protected override void AfterComplete(ITextControl textControl, IForStatement statement)
       {
-        if (caretPosition == null) return;
+        base.AfterComplete(textControl, statement);
 
         var condition = (IRelationalExpression) statement.Condition;
         var variable = (ILocalVariableDeclaration) statement.Initializer.Declaration.Declarators[0];
@@ -101,7 +96,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           iterator.Operand.GetDocumentRange().GetHotspotRange());
 
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          statement.GetSolution(), new TextRange(caretPosition.Value), textControl,
+          statement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {nameSpot});
 
         session.Execute();

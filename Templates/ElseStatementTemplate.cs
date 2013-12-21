@@ -31,7 +31,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       protected override IIfStatement CreateStatement(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var statement = (IIfStatement) factory.CreateStatement("if($0)" + EmbeddedBracesTemplate, expression);
+        var template = "if($0)" + EmbeddedBracesTemplate;
+        var statement = (IIfStatement) factory.CreateStatement(template, expression);
+
         var negated = CSharpExpressionUtil.CreateLogicallyNegatedExpression(statement.Condition);
         statement.Condition.ReplaceBy(negated.NotNull());
 

@@ -40,14 +40,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         [CanBeNull] string lengthPropertyName)
         : base("for", context, templatesManager, lengthPropertyName) { }
 
-      protected override string Template
+      protected override IForStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
-        get { return "for(var x=0;x<expr;x++)"; }
-      }
+        var template = "for(var x=0;x<$0;x++)" + EmbeddedBracesTemplate;
+        var forStatement = (IForStatement) factory.CreateStatement(template, expression);
 
-      protected override void PlaceExpression(
-        IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
         var condition = (IRelationalExpression) forStatement.Condition;
         if (LengthPropertyName == null)
         {
@@ -59,6 +57,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           lengthAccess = condition.RightOperand.ReplaceBy(lengthAccess);
           lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
         }
+
+        return forStatement;
       }
     }
   }

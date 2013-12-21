@@ -40,14 +40,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         [CanBeNull] string lengthPropertyName)
         : base("forR", context, templatesManager, lengthPropertyName) { }
 
-      protected override string Template
+      protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        get { return "for(var x=expr-1;x>=0;x--)"; }
-      }
+        var template = "for(var x=$0;x>=0;x--)" + EmbeddedBracesTemplate;
+        var forStatement = (IForStatement) factory.CreateStatement(template, expression);
 
-      protected override void PlaceExpression(
-        IForStatement forStatement, ICSharpExpression expression, CSharpElementFactory factory)
-      {
         var variable = (ILocalVariableDeclaration) forStatement.Initializer.Declaration.Declarators[0];
         var initializer = (IExpressionInitializer) variable.Initial;
 
@@ -63,6 +60,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
           lengthAccess.ReplaceBy(factory.CreateExpression("$0 - 1", lengthAccess));
         }
+
+        return forStatement;
       }
     }
   }
