@@ -1,6 +1,5 @@
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
@@ -11,6 +10,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [NotNull] PostfixExecutionContext executionContext)
       : base(reference, expression, executionContext) { }
 
+    private static readonly string FixCommandName =
+      typeof(ReferenceNamePostfixTemplateContext) + ".FixExpression";
+
     public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
     {
       var referenceName = (IReferenceName)Reference;
@@ -18,8 +20,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var expression = context.Expression;
       if (expression.Contains(referenceName)) // x is T.bar => x is T
       {
-        var qualifier = referenceName.Qualifier.NotNull();
-        var newExpression = referenceName.ReplaceBy(qualifier);
+        expression.GetPsiServices().DoTransaction(FixCommandName,
+          () => referenceName.ReplaceBy(referenceName.Qualifier));
       }
 
       return context;

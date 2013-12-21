@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
-using JetBrains.Application.CommandProcessing;
-using JetBrains.Application.PersistentMap;
-using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
-using JetBrains.DocumentManagers;
-using JetBrains.DocumentModel;
-using JetBrains.DocumentModel.Transactions;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.ExtensionsAPI;
-using JetBrains.ReSharper.Psi.Files;
-using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
@@ -116,12 +105,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       //  }
       //}
 
-      
-
       return items;
     }
-
-    
 
     [CanBeNull] public PostfixTemplateContext IsAvailable(
       [NotNull] ITreeNode position, [NotNull] PostfixExecutionContext executionContext)
@@ -161,8 +146,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         var expressionStatement = brokenStatement.PrevSibling as IExpressionStatement;
         if (expressionStatement != null)
         {
-          ITreeNode coolNode;
-          var expression = FindExpressionBrokenByKeyword2(expressionStatement, out coolNode);
+          var expression = FindExpressionBrokenByKeyword(expressionStatement);
           if (expression != null)
           {
             return new BrokenStatementPostfixTemplateContext(brokenStatement, expression, executionContext);
@@ -195,12 +179,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [CanBeNull]
-    private static ICSharpExpression FindExpressionBrokenByKeyword2(
-      [NotNull] IExpressionStatement statement, out ITreeNode coolNode)
+    private static ICSharpExpression FindExpressionBrokenByKeyword([NotNull] IExpressionStatement statement)
     {
       ICSharpExpression expression = null;
       var errorFound = false;
-      coolNode = null;
 
       for (ITreeNode treeNode = statement, last;; treeNode = last)
       {
@@ -210,19 +192,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (!errorFound) errorFound = last is IErrorElement;
         if (errorFound && last.Parent is ITypeUsage)
         {
-          if (last is IReferenceName && last.Parent is IUserTypeUsage)
-            coolNode = last;
-
           expression = last.Parent.Parent as ICSharpExpression;
           break;
         }
 
         // skip "expression statement is not closed with ';'" and friends
-        while (last is IErrorElement)
-        {
-          coolNode = last;
-          last = last.PrevSibling;
-        }
+        while (last is IErrorElement) last = last.PrevSibling;
 
         if (last == null) break;
       }

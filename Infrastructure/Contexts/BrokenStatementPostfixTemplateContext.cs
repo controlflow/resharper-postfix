@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var referenceRange = ExecutionContext.GetDocumentRange(Reference);
 
       var text = expressionRange.SetEndTo(referenceRange.TextRange.EndOffset).GetText();
-      var indexOfReferenceDot = text.IndexOf('.');
+      var indexOfReferenceDot = text.LastIndexOf('.');
       if (indexOfReferenceDot <= 0) return context;
 
       var realReferenceRange = referenceRange.SetStartTo(
