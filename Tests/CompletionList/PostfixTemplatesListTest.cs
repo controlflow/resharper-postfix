@@ -5,14 +5,14 @@ using NUnit.Framework;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   [TestNetFramework4]
-  public class PostfixCompletionListTest : CodeCompletionTestBase
+  public class PostfixTemplatesListTest : CodeCompletionTestBase
   {
     protected override bool ExecuteAction { get { return false; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
 
     protected override string RelativeTestDataPath
     {
-      get { return PostfixCompletionTestsAssembly.TestDataPath + @"\Completion\List"; }
+      get { return PostfixTestsAssembly.TestDataPath + @"\Completion\List"; }
     }
 
     [Test] public void TestUnresolved01() { DoNamedTest(); }

@@ -7,14 +7,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   [TestNetFramework4]
   [TestFileExtension(RazorCSharpProjectFileType.RazorCSharpExtension)]
-  public class PostfixCompletionRazorTest : CodeCompletionTestBase
+  public class PostfixRazorTest : CodeCompletionTestBase
   {
     protected override bool ExecuteAction { get { return true; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
 
     protected override string RelativeTestDataPath // sad panda :(
     {
-      get { return PostfixCompletionTestsAssembly.TestDataPath + @"\Completion\Razor"; }
+      get { return PostfixTestsAssembly.TestDataPath + @"\Completion\Razor"; }
     }
 
     [Test] public void TestRazor01() { DoNamedTest("Model.cs"); }

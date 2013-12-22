@@ -11,14 +11,14 @@ using NUnit.Framework;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
 {
   [TestNetFramework4]
-  public class PostfixCompletionTest : CodeCompletionTestBase
+  public class PostfixTemplatesTest : CodeCompletionTestBase
   {
     protected override bool ExecuteAction { get { return true; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
 
     protected override string RelativeTestDataPath // sad panda :(
     {
-      get { return PostfixCompletionTestsAssembly.TestDataPath + @"\Completion"; }
+      get { return PostfixTestsAssembly.TestDataPath + @"\Completion"; }
     }
 
     protected override void DoTest(IProject testProject)

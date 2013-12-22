@@ -4,7 +4,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.DataFlow;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion;
 using JetBrains.ReSharper.PostfixTemplates;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
@@ -15,9 +14,9 @@ using NUnit.Framework;
 
 // ReSharper disable once CheckNamespace
 [SetUpFixture]
-public class PostfixCompletionTestsAssembly : ReSharperTestEnvironmentAssembly
+public class PostfixTestsAssembly : ReSharperTestEnvironmentAssembly
 {
-  static PostfixCompletionTestsAssembly()
+  static PostfixTestsAssembly()
   {
     var binPath = FileSystemPath.Parse(Environment.CurrentDirectory);
     var parentDirectory = binPath.Directory.Directory;

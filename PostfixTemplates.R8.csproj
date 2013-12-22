@@ -111,7 +111,7 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="PostfixCompletion.nuspec" />
+    <None Include="PostfixTemplates.nuspec" />
     <None Include="Readme.md" />
   </ItemGroup>
   <ItemGroup>
