@@ -1,18 +1,18 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
+using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
+namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
     templateName: "cast",

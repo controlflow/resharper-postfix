@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.UI.Avalon.TreeListView;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
+namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
   public sealed class PostfixTemplateViewModel : ObservableObject
   {

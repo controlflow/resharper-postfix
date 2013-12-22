@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   [ShellComponent]
   public class PostfixTemplatesManager

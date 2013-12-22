@@ -14,7 +14,7 @@ using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
+namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
   public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
     where TNode : class, ITreeNode

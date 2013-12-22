@@ -1,13 +1,13 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.TextControl;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
+namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   // todo: if (!boo.not) { }
 

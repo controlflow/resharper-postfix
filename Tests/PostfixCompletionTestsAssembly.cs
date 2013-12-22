@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion;
+using JetBrains.ReSharper.PostfixTemplates;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.Psi.JavaScript.Impl.PsiModules.ReferencedFilesSupport;

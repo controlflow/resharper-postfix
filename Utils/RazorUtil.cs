@@ -11,7 +11,7 @@ using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   public static class RazorUtil
   {

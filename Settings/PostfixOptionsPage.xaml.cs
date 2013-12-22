@@ -5,7 +5,7 @@ using JetBrains.UI.Application.PluginSupport;
 using JetBrains.UI.CrossFramework;
 using JetBrains.UI.Options;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
+namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
   [OptionsPage(
     id: PID, name: "Postfix Templates",

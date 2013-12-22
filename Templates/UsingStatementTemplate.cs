@@ -1,11 +1,11 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
+using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -17,7 +17,7 @@ using JetBrains.Util;
 
 // todo: do not create var if expr type is IDisposable itself?
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
+namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
     templateName: "using",

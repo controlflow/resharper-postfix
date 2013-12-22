@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   public class PostfixExecutionContext
   {

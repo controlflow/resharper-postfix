@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -11,7 +11,7 @@ using JetBrains.TextControl;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
+namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
   public abstract class StatementPostfixLookupItem<TStatement> : PostfixLookupItem<TStatement>
     where TStatement : class, ICSharpStatement

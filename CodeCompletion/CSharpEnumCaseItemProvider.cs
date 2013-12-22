@@ -8,12 +8,12 @@ using JetBrains.Application;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.I18n.Services.Refactoring;
+using JetBrains.ReSharper.PostfixTemplates.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
@@ -29,10 +29,10 @@ using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
+namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
   [Language(typeof(CSharpLanguage))]
-  public class CSharpEnumHelpersItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
+  public class CSharpEnumCaseItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
@@ -198,7 +198,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         var enumMemberCheck = factory.CreateExpression(
           template, referenceExpression.QualifierExpression, enumMember);
 
-        var commandName = typeof(CSharpEnumHelpersItemProvider).FullName;
+        var commandName = typeof(CSharpEnumCaseItemProvider).FullName;
         var caretPointer = psiServices.DoTransaction(commandName, () =>
         {
           using (WriteLockCookie.Create())

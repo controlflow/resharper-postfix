@@ -8,7 +8,7 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Web.CodeBehindSupport;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   public static class CommonUtils
   {

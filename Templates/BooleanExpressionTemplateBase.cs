@@ -5,7 +5,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 // todo: disable in cases like typeReference.Name == NotNullAttribute.if
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
+namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class BooleanExpressionTemplateBase
   {

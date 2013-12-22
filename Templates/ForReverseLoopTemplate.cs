@@ -4,7 +4,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
+namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
     templateName: "forr",

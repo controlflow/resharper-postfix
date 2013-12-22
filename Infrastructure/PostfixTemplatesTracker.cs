@@ -14,7 +14,7 @@ using JetBrains.TextControl.Actions;
 using JetBrains.TextControl.Util;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   [SolutionComponent]
   public sealed class PostfixTemplatesTracker

@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   public class ReferenceNamePostfixTemplateContext : PostfixTemplateContext
   {

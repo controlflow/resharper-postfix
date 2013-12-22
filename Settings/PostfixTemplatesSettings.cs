@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.Application.Settings.Store;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
+namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
   [SettingsKey(typeof(EnvironmentSettings), "Postfix templates settings")]
   public sealed class PostfixTemplatesSettings

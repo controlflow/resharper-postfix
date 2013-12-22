@@ -8,7 +8,7 @@ using JetBrains.DataFlow;
 using JetBrains.UI.Extensions.Commands;
 using JetBrains.UI.Options;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
+namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
   public sealed class PostfixOptionsViewModel
   {

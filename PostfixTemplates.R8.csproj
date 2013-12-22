@@ -9,7 +9,7 @@
     <ProjectGuid>{50365433-AAE1-4755-9562-B777F23B7C23}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JetBrains.ReSharper.ControlFlow.PostfixCompletion</RootNamespace>
+    <RootNamespace>JetBrains.ReSharper.PostfixTemplates</RootNamespace>
     <AssemblyName>PostfixTemplates</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Roadmap.txt" />
-    <Compile Include="CodeCompletion\CSharpEnumHelpersItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpEnumCaseItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharpPostfixItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharpStaticMethodsItemProvider.cs" />
     <Compile Include="Infrastructure\Contexts\BrokenStatementPostfixTemplateContext.cs" />

@@ -47,8 +47,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CodeCompletion\CSharpEnumHelpersItemProvider.cs">
-      <Link>CodeCompletion\CSharpEnumHelpersItemProvider.cs</Link>
+    <Compile Include="..\CodeCompletion\CSharpEnumCaseItemProvider.cs">
+      <Link>CodeCompletion\CSharpEnumCaseItemProvider.cs</Link>
     </Compile>
     <Compile Include="..\CodeCompletion\CSharpPostfixItemProvider.cs">
       <Link>CodeCompletion\CSharpPostfixItemProvider.cs</Link>
@@ -98,14 +98,14 @@
     <Compile Include="..\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\Settings\PostfixCompletionSettings.cs">
-      <Link>Settings\PostfixCompletionSettings.cs</Link>
-    </Compile>
     <Compile Include="..\Settings\PostfixOptionsPage.xaml.cs">
       <Link>Settings\PostfixOptionsPage.xaml.cs</Link>
     </Compile>
     <Compile Include="..\Settings\PostfixOptionsViewModel.cs">
       <Link>Settings\PostfixOptionsViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\Settings\PostfixTemplatesSettings.cs">
+      <Link>Settings\PostfixTemplatesSettings.cs</Link>
     </Compile>
     <Compile Include="..\Settings\PostfixTemplateViewModel.cs">
       <Link>Settings\PostfixTemplateViewModel.cs</Link>

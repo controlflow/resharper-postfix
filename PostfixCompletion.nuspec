@@ -7,8 +7,8 @@
     <title>Postfix Templates plugin</title>
     <authors>Alexander Shvedov</authors>
     <owners>controlflow</owners>
-    <projectUrl>https://github.com/controlflow/PostfixCompletion</projectUrl>
-    <iconUrl>https://raw.github.com/controlflow/PostfixCompletion/master/Content/icon.png</iconUrl>
+    <projectUrl>https://github.com/controlflow/resharper-postfix</projectUrl>
+    <iconUrl>https://raw.github.com/controlflow/resharper-postfix/master/Content/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.

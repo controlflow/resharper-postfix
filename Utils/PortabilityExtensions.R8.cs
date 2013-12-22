@@ -1,13 +1,13 @@
 ﻿using System;
 using JetBrains.Annotations;
+using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Tree;
-using EternalLifetime = JetBrains.DataFlow.EternalLifetime;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   // todo: drop 7.0 files
 

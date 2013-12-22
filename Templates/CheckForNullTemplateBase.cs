@@ -1,12 +1,12 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.ControlFlow;
 using JetBrains.ReSharper.Psi.ControlFlow.CSharp;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
+namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class CheckForNullTemplateBase
   {

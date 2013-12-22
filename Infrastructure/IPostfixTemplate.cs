@@ -3,11 +3,10 @@ using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   public interface IPostfixTemplate
   {
-    // todo: rename
     [CanBeNull] ILookupItem CreateItem([NotNull] PostfixTemplateContext context);
   }
 

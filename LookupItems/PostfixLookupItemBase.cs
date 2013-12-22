@@ -2,7 +2,7 @@
 using JetBrains.TextControl;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
+namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
   public abstract class PostfixLookupItemBase
   {
@@ -12,7 +12,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 
     public TextRange GetVisualReplaceRange(ITextControl textControl, TextRange nameRange)
     {
-      // note: prefix highlighter disallows highlighting to be any position
       return TextRange.InvalidRange;
     }
 

@@ -12,7 +12,7 @@ using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
+namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
   [Language(typeof(CSharpLanguage))]
   public class CSharpPostfixItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
