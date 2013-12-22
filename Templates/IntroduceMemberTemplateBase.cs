@@ -75,7 +75,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         var statement = (IExpressionStatement) factory.CreateStatement("__ = expression;");
 
-        var classDeclaration = statement.GetContainingNode<IClassDeclaration>().NotNull();
+        var classDeclaration = expression.GetContainingNode<IClassDeclaration>().NotNull();
         var anchor = GetAnchorMember(classDeclaration.MemberDeclarations.ToList());
 
         var newDeclaration = CreateMemberDeclaration(factory);
