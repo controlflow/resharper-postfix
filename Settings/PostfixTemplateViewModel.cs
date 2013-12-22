@@ -11,7 +11,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       [NotNull] string description, [NotNull] string example,
       [NotNull] string settingsKey, bool isChecked)
     {
-      Name = name;
+      Name = "." + name.ToLowerInvariant();
       Description = description;
       Example = example;
       SettingsKey = settingsKey;
@@ -21,7 +21,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     [NotNull] public string Name { get; private set; }
     [NotNull] public string Description { get; private set; }
     [NotNull] public string Example { get; private set; }
-
     [NotNull] public string SettingsKey { get; private set; }
 
     public bool IsChecked

@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.I18n.Services.Refactoring;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
@@ -57,8 +58,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected readonly bool IsStatic;
 
       [NotNull] private ICollection<string> myMemberNames;
-      [CanBeNull] private IDeclaration myMemberDeclaration; // todo: to pointer?
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      [CanBeNull] private ITreeNodePointer<IClassMemberDeclaration> myMember;
 
       protected IntroduceMemberLookupItem(
         [NotNull] string shortcut, [NotNull] PrefixExpressionContext context, 
@@ -91,11 +92,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         collection.Add(assignment.Source, new EntryOptions());
         collection.Prepare(newMember.DeclaredElement,
-          new SuggestionOptions { UniqueNameContext = classDeclaration });
+          new SuggestionOptions { UniqueNameContext = classDeclaration.Body });
 
         newMember.SetName(collection.FirstName());
         myMemberNames = collection.AllNames();
-        myMemberDeclaration = newMember;
+        myMember = newMember.CreatePointer();
 
         return statement;
       }
@@ -106,10 +107,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull]
       protected abstract IClassMemberDeclaration CreateMemberDeclaration([NotNull] CSharpElementFactory factory);
 
-      protected override void AfterComplete(
-        ITextControl textControl, IExpressionStatement statement)
+      protected override void AfterComplete(ITextControl textControl, IExpressionStatement statement)
       {
-        if (myMemberDeclaration == null) return;
+        if (myMember == null) return;
+
+        var memberDeclaration = myMember.GetTreeNode();
+        if (memberDeclaration == null) return;
 
         var assignment = (IAssignmentExpression) statement.Expression;
         var memberIdentifier = ((IReferenceExpression) assignment.Dest).NameIdentifier;
@@ -118,7 +121,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var hotspotInfo = new HotspotInfo(
           new TemplateField("memberName", suggestionsExpression, 0),
           memberIdentifier.GetDocumentRange().GetHotspotRange(),
-          myMemberDeclaration.GetNameDocumentRange().GetHotspotRange());
+          memberDeclaration.GetNameDocumentRange().GetHotspotRange());
 
         var endSelectionRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(

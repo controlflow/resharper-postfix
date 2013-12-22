@@ -1,0 +1,13 @@
+﻿// ${COMPLETE_ITEM:prop}
+
+class Person
+{
+  public string Name { get; set; }
+  public string Name1 { get; set; }
+
+  public Person(string name)
+  {
+    Name = name;
+    Name1 = name;{caret}
+  }
+}

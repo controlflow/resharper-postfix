@@ -17,22 +17,19 @@
       <RowDefinition Height="1*" />
     </Grid.RowDefinitions>
 
-    <TextBlock Text="Postfix templates:"
-               Margin="{StaticResource LabelMargin}" FontWeight="SemiBold" />
-    <TextBlock Grid.Row="0" TextAlignment="Right"
-               Margin="{StaticResource LabelMargin}">
+    <TextBlock Text="Postfix templates:" FontWeight="SemiBold"
+               Margin="{StaticResource LabelMargin}" />
+    <TextBlock Grid.Row="0" TextAlignment="Right" Margin="{StaticResource LabelMargin}">
       <Hyperlink Command="{Binding Reset}">Reset</Hyperlink>
     </TextBlock>
 
-    <Border Grid.Row="1" Margin="2"
-            BorderThickness="1" BorderBrush="Silver">
-      <tgv:TreeGridView ItemsSource="{Binding Templates}"
-                        BorderThickness="1" BorderBrush="Gray"
-                        SelectionMode="Single">
+    <Border Grid.Row="1" Margin="2" BorderThickness="1" BorderBrush="Silver">
+      <tgv:TreeGridView ItemsSource="{Binding Templates}" BorderThickness="1"
+                        BorderBrush="Gray" SelectionMode="Single">
         <tgv:TreeGridView.RowStyle>
           <Style TargetType="tgv:TreeGridRow">
             <EventSetter Event="MouseDoubleClick" Handler="DoubleClickCheck" />
-            <EventSetter Event="KeyDown" Handler="SpacebarCheck"></EventSetter>
+            <EventSetter Event="PreviewKeyDown" Handler="SpacebarCheck" />
           </Style>
         </tgv:TreeGridView.RowStyle>
         <tgv:TreeGridView.CellStyle>
@@ -45,8 +42,9 @@
           <tgv:TreeGridColumnDefinition Header="Shortcut">
             <tgv:TreeGridColumnDefinition.CellTemplate>
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
-                <CheckBox Content="{Binding Name, Mode=OneTime}" Margin="4"
-                          IsChecked="{Binding IsChecked}" FontWeight="SemiBold" />
+                <CheckBox Content="{Binding Name, Mode=OneTime}"
+                          IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                          Margin="4" FontWeight="SemiBold" />
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
           </tgv:TreeGridColumnDefinition>
@@ -85,11 +83,11 @@
                  Margin="2,4" FontWeight="SemiBold" />
 
       <StackPanel Grid.Row="1" Grid.Column="0">
-        <CheckBox IsChecked="{Binding ShowPostfixTemplatesInCodeCompletion.Value}"
+        <CheckBox IsChecked="{Binding ShowPostfixTemplatesInCodeCompletion.Value, Mode=TwoWay}"
                   Margin="10,2" Content="Show postfix templates" />
-        <CheckBox IsChecked="{Binding ShowStaticMembersInCodeCompletion.Value}"
+        <CheckBox IsChecked="{Binding ShowStaticMembersInCodeCompletion.Value, Mode=TwoWay}"
                   Margin="10,2" Content="Show static methods as instance"/>
-        <CheckBox IsChecked="{Binding ShowEnumHelpersInCodeCompletion.Value}"
+        <CheckBox IsChecked="{Binding ShowEnumHelpersInCodeCompletion.Value, Mode=TwoWay}"
                   Margin="10,2" Content="Show enumeration members"/>
       </StackPanel>
 
@@ -97,9 +95,8 @@
                  Margin="2,4" FontWeight="SemiBold" />
 
       <StackPanel Grid.Row="1" Grid.Column="1">
-        <CheckBox IsChecked="{Binding UseBracesForEmbeddedStatements.Value}" Margin="10,2">
-          <TextBlock TextWrapping="Wrap" Text="Insert curly braces after statement templates"/>
-        </CheckBox>
+        <CheckBox IsChecked="{Binding UseBracesForEmbeddedStatements.Value, Mode=TwoWay}"
+                  Margin="10,2" Content="Insert curly braces after statement templates"/>
       </StackPanel>
     </Grid>
   </Grid>
