@@ -198,18 +198,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
         var enumMemberCheck = factory.CreateExpression(
           template, referenceExpression.QualifierExpression, enumMember);
 
-        ITreeNodePointer<ICSharpExpression> caretPointer = null;
         var commandName = typeof(CSharpEnumHelpersItemProvider).FullName;
-        psiServices.DoTransaction(commandName, () =>
+        var caretPointer = psiServices.DoTransaction(commandName, () =>
         {
           using (WriteLockCookie.Create())
           {
             var memberCheck = invocation.ReplaceBy(enumMemberCheck);
-            caretPointer = memberCheck.CreatePointer();
+            return memberCheck.CreatePointer();
           }
         });
-
-        if (caretPointer == null) return;
 
         var checkExpression = caretPointer.GetTreeNode();
         if (checkExpression != null)

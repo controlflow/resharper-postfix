@@ -81,7 +81,7 @@
       <Link>Infrastructure\PostfixTemplatesTracker.cs</Link>
     </Compile>
     <Compile Include="..\Infrastructure\PrefixExpressionContext.cs">
-      <Link>Infrastructure\PrefixExpressionContext.cs</Link>
+      <Link>Infrastructure\Contexts\PrefixExpressionContext.cs</Link>
     </Compile>
     <Compile Include="..\LookupItems\ExpressionPostfixLookupItem.cs">
       <Link>LookupItems\ExpressionPostfixLookupItem.cs</Link>

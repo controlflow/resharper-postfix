@@ -24,9 +24,19 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     public static void DoTransaction(
-      [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull] Action action)
+      [NotNull] this IPsiServices services, [NotNull] string commandName,
+      [NotNull, InstantHandle] Action action)
     {
       services.Transactions.Execute(commandName, action);
+    }
+
+    public static T DoTransaction<T>(
+      [NotNull] this IPsiServices services, [NotNull] string commandName,
+      [NotNull, InstantHandle] Func<T> func)
+    {
+      var value = default(T);
+      services.Transactions.Execute(commandName, () => value = func());
+      return value;
     }
 
     public static DocumentRange GetHotspotRange(this DocumentRange documentRange)

@@ -41,6 +41,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
     }
 
+    protected string ExpandCommandName
+    {
+      get { return GetType().FullName + " expansion"; }
+    }
+
     public void Accept(
       ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
       Suffix suffix, ISolution solution, bool keepCaretStill)
@@ -71,27 +76,21 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var expressionContext = FindOriginalContext(postfixContext);
       Assertion.AssertNotNull(expressionContext, "expressionContext != null");
 
-      ITreeNodePointer<TNode> pointer = null;
+      ITreeNodePointer<TNode> pointer;
       using (WriteLockCookie.Create())
       {
-        // run fix without not under PSI transaction
         var fixedContext = postfixContext.FixExpression(expressionContext);
-        var commandName = GetType().FullName + " expansion";
 
-        solution.GetPsiServices().DoTransaction(commandName, () =>
-        {
-          var expression = fixedContext.Expression;
-          Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
+        var expression = fixedContext.Expression;
+        Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
 
-          var newNode = ExpandPostfix(fixedContext);
-          Assertion.AssertNotNull(newNode, "newNode != null");
-          Assertion.Assert(newNode.IsPhysical(), "newNode.IsPhysical()");
+        var newNode = ExpandPostfix(fixedContext);
+        Assertion.AssertNotNull(newNode, "newNode != null");
+        Assertion.Assert(newNode.IsPhysical(), "newNode.IsPhysical()");
 
-          pointer = newNode.CreatePointer();
-        });
+        pointer = newNode.CreatePointer();
       }
 
-      if (pointer != null)
       {
         var newNode = pointer.GetTreeNode();
         if (newNode != null) AfterComplete(textControl, newNode);

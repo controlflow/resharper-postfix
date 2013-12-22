@@ -1,16 +1,25 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
+using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
+using JetBrains.DocumentModel;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Razor.Impl.Tree;
+using JetBrains.ReSharper.Psi.Razor.Tree;
+using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
+using JetBrains.Util.Logging;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
   // todo: support razor
-  // todo: support removal of ( )
+  // todo: support removal of ( )?
 
   public abstract class StatementPostfixLookupItem<TStatement> : PostfixLookupItem<TStatement>
     where TStatement : class, ICSharpStatement
@@ -39,25 +48,48 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       var psiModule = context.Parent.ExecutionContext.PsiModule;
       var factory = CSharpElementFactory.GetInstance(psiModule);
-      var newStatement = CreateStatement(factory, context.Expression);
+      var psiServices = psiModule.GetPsiServices();
 
       var targetStatement = context.GetContainingStatement();
-      Assertion.AssertNotNull(targetStatement, "targetStatement != null");
-      Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");
+      var expressionRange = context.Expression.GetDocumentRange();
 
-      return targetStatement.ReplaceBy(newStatement);
+      if (targetStatement.GetDocumentRange().IsValid())
+      {
+        return psiServices.DoTransaction(ExpandCommandName, () =>
+        {
+          var newStatement = CreateStatement(factory, context.Expression);
+
+          Assertion.AssertNotNull(targetStatement, "targetStatement != null");
+          Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");
+
+          return targetStatement.ReplaceBy(newStatement);
+        });
+      }
+
+      var razorStatement = RazorUtil.FixExpressionToStatement(expressionRange, psiServices);
+      if (razorStatement != null)
+      {
+        return psiServices.DoTransaction(ExpandCommandName, () =>
+        {
+          var newStatement = CreateStatement(factory, context.Expression);
+          return razorStatement.ReplaceBy(newStatement);
+        });
+      }
+
+      Logger.Fail("Failed to resolve target statement to replace");
+      return null;
     }
 
     [NotNull] protected abstract TStatement CreateStatement(
       [NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
 
     [ContractAnnotation("null => null"), CanBeNull]
-    private ICSharpStatement UnwrapFromBraces(ITreeNode statement)
+    private static ICSharpStatement UnwrapFromBraces(ITreeNode statement)
     {
       if (statement == null) return null;
 
       var blockStatement = statement as IBlock;
-      if (blockStatement == null) return null;
+      if (blockStatement == null) return (statement as ICSharpStatement);
 
       var statements = blockStatement.Statements;
       return (statements.Count == 1) ? statements[0] : null;
@@ -67,10 +99,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       foreach (var child in statement.Children())
       {
-        var usingStatement = myUseBraces
-          ? (UnwrapFromBraces(child) as IUsingStatement)
-          : (child as IUsingStatement);
-
+        var usingStatement = UnwrapFromBraces(child) as IUsingStatement;
         if (usingStatement == null) continue;
 
         var resourceExpression = usingStatement.Expressions.FirstOrDefault();
@@ -85,7 +114,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       }
 
       // at the end of the statement otherwise...
-      // todo: HOW ABOUT NO?
       {
         var endOffset = statement.GetDocumentRange().TextRange.EndOffset;
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);

@@ -16,11 +16,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     protected override TExpression ExpandPostfix(PrefixExpressionContext context)
     {
       var psiModule = context.Parent.ExecutionContext.PsiModule;
-      var factory = CSharpElementFactory.GetInstance(psiModule);
-      var oldExpression = context.Expression;
-      var newExpression = CreateExpression(factory, oldExpression);
+      var expression = psiModule.GetPsiServices().DoTransaction(ExpandCommandName, () =>
+      {
+        var factory = CSharpElementFactory.GetInstance(psiModule);
+        var oldExpression = context.Expression;
+        var newExpression = CreateExpression(factory, oldExpression);
 
-      return oldExpression.ReplaceBy(newExpression);
+        return oldExpression.ReplaceBy(newExpression);
+      });
+
+      return expression;
     }
 
     [NotNull] protected abstract TExpression CreateExpression(

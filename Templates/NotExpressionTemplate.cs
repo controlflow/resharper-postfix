@@ -41,12 +41,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           var unary2 = UnaryOperatorExpressionNavigator.GetByOperand(unary);
           if (unary2 != null && unary2.UnaryOperatorType == UnaryOperatorType.EXCL)
           {
-            expression.GetPsiServices().DoTransaction(
-              typeof(NotExpressionTemplate).FullName, () =>
+            expression = expression.GetPsiServices().DoTransaction(ExpandCommandName,
+              () =>
               {
                 using (WriteLockCookie.Create())
                 {
-                  expression = unary2.ReplaceBy(unary.Operand);
+                  return unary2.ReplaceBy(unary.Operand);
                 }
               });
           }
