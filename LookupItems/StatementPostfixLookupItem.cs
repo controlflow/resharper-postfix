@@ -1,16 +1,8 @@
-﻿using System;
-using JetBrains.Annotations;
-using JetBrains.Application.Progress;
+﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
-using JetBrains.DocumentModel;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
-using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Razor.Impl.Tree;
-using JetBrains.ReSharper.Psi.Razor.Tree;
-using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;

@@ -38,11 +38,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
       return codeCompletionTypes.Length <= 2;
     }
 
+    // move out?
     private sealed class ReparsedPostfixExecutionContext : PostfixExecutionContext
     {
       [NotNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 
-      public ReparsedPostfixExecutionContext(
+      private ReparsedPostfixExecutionContext(
         bool isForceMode, [NotNull] IPsiModule psiModule,
         [NotNull] ILookupItemsOwner lookupItemsOwner,
         [NotNull] ReparsedCodeCompletionContext reparsedContext,

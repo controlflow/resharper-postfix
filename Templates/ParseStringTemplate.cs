@@ -1,7 +1,4 @@
-﻿using JetBrains.Annotations;
-using JetBrains.Application;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
-using JetBrains.ReSharper.Feature.Services.Lookup;
+﻿using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates

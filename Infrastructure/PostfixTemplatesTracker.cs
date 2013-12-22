@@ -1,4 +1,5 @@
-﻿using JetBrains.ActionManagement;
+﻿using System.Linq;
+using JetBrains.ActionManagement;
 using JetBrains.Annotations;
 using JetBrains.Application.CommandProcessing;
 using JetBrains.Application.DataContext;
@@ -25,11 +26,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
     {
       // override livetemplates expand action
-      var expandLiveTemplateAction = manager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
-      if (expandLiveTemplateAction != null)
+      var expandAction = manager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
+      if (expandAction != null)
       {
-        expandLiveTemplateAction.AddHandler(lifetime, new ExpandPostfixTemplateHandler(
-          changeUnitFactory, templatesManager, lookupWindowManager, processor, lookupItemsOwnerFactory));
+        var postfixHandler = new ExpandPostfixTemplateHandler(
+          changeUnitFactory, templatesManager, lookupWindowManager, processor, lookupItemsOwnerFactory);
+        expandAction.AddHandler(lifetime, postfixHandler);
       }
     }
 
@@ -112,28 +114,41 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         nextExecute();
       }
 
-      [CanBeNull]
-      private ILookupItem GetTemplateFromTextControl(
+      [CanBeNull] private ILookupItem GetTemplateFromTextControl(
         [NotNull] ITextControl textControl, [NotNull] ISolution solution)
       {
-        solution.GetPsiServices().CommitAllDocuments();
-
         var caretOffset = textControl.Caret.Offset();
         var genericPrefix = LiveTemplatesManager.GetPrefix(textControl.Document, caretOffset);
 
-        var token = TextControlToPsi.GetSourceTokenBeforeCaret(solution, textControl);
-        if (token == null) return null;
+        // fast check
+        // todo: less ugly plz!
+        if (myTemplatesManager.TemplateProvidersInfos.All(x => x.Metadata.TemplateName != genericPrefix))
+          return null;
 
-        var lookupItemsOwner = myItemsOwnerFactory.CreateLookupItemsOwner(textControl);
-        var executionContext = new PostfixExecutionContext(
-          true, token.GetPsiModule(), lookupItemsOwner, reparseString: genericPrefix);
+        bool rollback = true;
+        try
+        {
+          textControl.Document.InsertText(caretOffset, "__");
+          solution.GetPsiServices().CommitAllDocuments();
 
-        // check exactly single item available
-        var items = myTemplatesManager.GetAvailableItems(
-          token, context: executionContext);
+          var token = TextControlToPsi.GetSourceTokenBeforeCaret(solution, textControl);
+          if (token == null) return null;
 
-        if (items.Count == 1) return items[0];
-        return null;
+          var lookupItemsOwner = myItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+          var executionContext = new PostfixExecutionContext(
+            true, token.GetPsiModule(), lookupItemsOwner, reparseString: genericPrefix);
+
+          var items = myTemplatesManager.GetAvailableItems(token, executionContext, templateName: genericPrefix);
+          if (items.Count != 1) return null;
+
+          rollback = false;
+          return items[0];
+        }
+        finally
+        {
+          if (rollback)
+            textControl.Document.DeleteText(TextRange.FromLength(caretOffset, 2));
+        }
       }
     }
   }

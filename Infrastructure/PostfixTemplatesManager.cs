@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
@@ -57,7 +58,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     }
 
     [NotNull] public IList<ILookupItem> GetAvailableItems(
-      [NotNull] ITreeNode node, [NotNull] PostfixExecutionContext context)
+      [NotNull] ITreeNode node, [NotNull] PostfixExecutionContext context,
+      [CanBeNull] string templateName = null)
     {
       var postfixContext = IsAvailable(node, context);
       if (postfixContext == null || postfixContext.Expressions.Count == 0)
@@ -74,36 +76,28 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       var isTypeExpression = postfixContext.InnerExpression.ReferencedElement is ITypeElement;
       var items = new List<ILookupItem>();
 
-      //var templateName = context.SpecificTemplateName;
       foreach (var info in myTemplateProvidersInfos)
       {
-        bool isEnabled;
-        if (!settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled))
-          isEnabled = !info.Metadata.DisabledByDefault;
+        // check disabled providers
+        {
+          bool isEnabled;
+          if (!settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled))
+            isEnabled = !info.Metadata.DisabledByDefault;
 
-        if (!isEnabled) continue; // check disabled providers
+          if (!isEnabled) continue;
+        }
 
-        //if (templateName != null)
-        //{
-        //  var name = info.Metadata.TemplateName;
-        //  if (!string.Equals(templateName, name, StringComparison.Ordinal))
-        //    continue;
-        //}
+        if (templateName != null)
+        {
+          var name = info.Metadata.TemplateName;
+          if (!string.Equals(templateName, name, StringComparison.Ordinal)) continue;
+        }
 
         if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
 
         var lookupItem = info.Provider.CreateItem(postfixContext);
         if (lookupItem != null) items.Add(lookupItem);
       }
-
-      //if (templateName != null) // do not like it
-      //{
-      //  for (var index = items.Count - 1; index >= 0; index--)
-      //  {
-      //    if (items[index].Identity == templateName)
-      //      items.RemoveAt(index);
-      //  }
-      //}
 
       return items;
     }

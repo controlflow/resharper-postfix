@@ -5,7 +5,6 @@ using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
-using JetBrains.ReSharper.I18n.Services.Refactoring;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
