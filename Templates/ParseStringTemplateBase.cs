@@ -22,23 +22,20 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 {
   public abstract class ParseStringTemplateBase
   {
-    protected sealed class ParseLookupItem : ExpressionPostfixLookupItem<IInvocationExpression>
+    protected sealed class ParseItem : ExpressionPostfixLookupItem<IInvocationExpression>
     {
       private readonly bool myIsTryParse;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-      [NotNull] private readonly IShellLocks myLocks;
 
-      public ParseLookupItem(
+      public ParseItem(
         [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager, [NotNull] IShellLocks shellLocks,
         [NotNull] ILookupItemsOwner lookupItemsOwner, bool isTryParse)
         : base(shortcut, context)
       {
         myLookupItemsOwner = lookupItemsOwner;
         myIsTryParse = isTryParse;
-        myTemplatesManager = templatesManager;
-        myLocks = shellLocks;
+        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override IInvocationExpression CreateExpression(
@@ -81,7 +78,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         {
           if (myIsTryParse)
           {
-            myLocks.QueueReadLock("Smart completion for .tryparse", () =>
+            solution
+              .GetComponent<IShellLocks>()
+              .QueueReadLock("Smart completion for .tryparse", () =>
             {
               var manager = solution.GetComponent<IntellisenseManager>();
               manager.ExecuteManualCompletion(

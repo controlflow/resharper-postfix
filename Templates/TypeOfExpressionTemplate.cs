@@ -18,15 +18,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       var expressionContext = context.InnerExpression;
       if (expressionContext.ReferencedElement is ITypeElement)
       {
-        return new LookupItem(expressionContext);
+        return new TypeOfItem(expressionContext);
       }
 
       return null;
     }
 
-    private class LookupItem : ExpressionPostfixLookupItem<ITypeofExpression>
+    private class TypeOfItem : ExpressionPostfixLookupItem<ITypeofExpression>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("typeOf", context) { }
+      public TypeOfItem([NotNull] PrefixExpressionContext context) : base("typeOf", context) { }
 
       protected override ITypeofExpression CreateExpression(CSharpElementFactory factory,
         ICSharpExpression expression)

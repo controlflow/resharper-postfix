@@ -14,25 +14,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "Property = expr;")]
   public class IntroducePropertyTemplate : IntroduceMemberTemplateBase
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-    public IntroducePropertyTemplate([NotNull] LiveTemplatesManager templatesManager)
-    {
-      myTemplatesManager = templatesManager;
-    }
-
-    protected override IntroduceMemberLookupItem CreateLookupItem(
+    protected override IntroduceMemberLookupItem CreateItem(
       PrefixExpressionContext expression, IType expressionType, bool isStatic)
     {
-      return new IntroducePropertyLookupItem(expression, myTemplatesManager, isStatic);
+      return new IntroducePropertyLookupItem(expression, isStatic);
     }
 
     private sealed class IntroducePropertyLookupItem : IntroduceMemberLookupItem
     {
       public IntroducePropertyLookupItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager, bool isStatic)
-        : base("prop", context, templatesManager, context.Type, isStatic) { }
+        [NotNull] PrefixExpressionContext context, bool isStatic)
+        : base("prop", context, context.Type, isStatic) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {
@@ -50,8 +42,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
       protected override ICSharpTypeMemberDeclaration GetAnchorMember(IList<ICSharpTypeMemberDeclaration> members)
       {
-        var anchor = members.LastOrDefault(m => m.DeclaredElement is IProperty && m.IsStatic == IsStatic) ??
-                     members.LastOrDefault(m => m.DeclaredElement is IField && m.IsStatic == IsStatic);
+        var anchor = members.LastOrDefault(member =>
+                       member.DeclaredElement is IProperty && member.IsStatic == IsStatic) ??
+                     members.LastOrDefault(member =>
+                       member.DeclaredElement is IField && member.IsStatic == IsStatic);
         if (anchor == null && IsStatic)
         {
           return members.LastOrDefault(m => m.DeclaredElement is IProperty) ??

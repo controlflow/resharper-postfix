@@ -27,5 +27,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     [Test] public void TestRazor08() { DoNamedTest("Model.cs"); }
     [Test] public void TestRazor09() { DoNamedTest("Model.cs"); }
     [Test] public void TestRazor10() { DoNamedTest("Model.cs"); }
+
+    //[Test] public void TestEnum01() { DoNamedTest("Model.cs"); }
   }
 }

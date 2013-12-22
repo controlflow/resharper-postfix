@@ -23,13 +23,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "foreach (var x in expr)")]
   public class ForEachLoopTemplate : IPostfixTemplate
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-    public ForEachLoopTemplate([NotNull] LiveTemplatesManager templatesManager)
-    {
-      myTemplatesManager = templatesManager;
-    }
-
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.Expressions.LastOrDefault();
@@ -62,7 +55,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
       if (typeIsEnumerable)
       {
-        return new ForEachItem(expressionContext, myTemplatesManager);
+        return new ForEachItem(expressionContext);
       }
 
       return null;
@@ -72,17 +65,15 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public ForEachItem([NotNull] PrefixExpressionContext context,
-                         [NotNull] LiveTemplatesManager templatesManager)
-        : base("forEach", context)
+      public ForEachItem([NotNull] PrefixExpressionContext context) : base("forEach", context)
       {
-        myTemplatesManager = templatesManager;
+        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override IForeachStatement CreateStatement(
         CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var template = "foreach(var x in expr)" + EmbeddedStatementBracesTemplate;
+        var template = "foreach(var x in $0)" + EmbeddedStatementBracesTemplate;
         return (IForeachStatement) factory.CreateStatement(template, expression);
       }
 

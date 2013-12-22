@@ -25,8 +25,6 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.CodeCompletion
 {
-  // todo: decorate step - hide overriden signatures (do we need this?)
-
   [Language(typeof(CSharpLanguage))]
   public class CSharpStaticMethodsItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {

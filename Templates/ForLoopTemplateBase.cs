@@ -68,13 +68,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
       protected ForLookupItemBase(
-        [NotNull] string shortcut,
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager,
+        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
         [CanBeNull] string lengthPropertyName) : base(shortcut, context)
       {
         LengthPropertyName = lengthPropertyName;
-        myTemplatesManager = templatesManager;
+        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
       }
 
       [CanBeNull] protected string LengthPropertyName { get; private set; }

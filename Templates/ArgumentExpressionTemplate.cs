@@ -23,20 +23,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "Method(expr)")]
   public class ArgumentExpressionTemplate : IPostfixTemplate
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-    public ArgumentExpressionTemplate([NotNull] LiveTemplatesManager templatesManager)
-    {
-      myTemplatesManager = templatesManager;
-    }
-
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (context.IsForceMode)
       {
         var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-        return new ArgumentItem(expressionContext, lookupItemsOwner, myTemplatesManager);
+        return new ArgumentItem(expressionContext, lookupItemsOwner);
       }
 
       if (expressionContext.CanBeStatement)
@@ -46,7 +39,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         {
           // foo.Bar().Baz.arg
           var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-          return new ArgumentItem(expressionContext, lookupItemsOwner, myTemplatesManager);
+          return new ArgumentItem(expressionContext, lookupItemsOwner);
         }
       }
 
@@ -60,11 +53,10 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
       public ArgumentItem(
         [NotNull] PrefixExpressionContext context,
-        [NotNull] ILookupItemsOwner lookupItemsOwner,
-        [NotNull] LiveTemplatesManager templatesManager) : base("arg", context)
+        [NotNull] ILookupItemsOwner lookupItemsOwner) : base("arg", context)
       {
         myLookupItemsOwner = lookupItemsOwner;
-        myTemplatesManager = templatesManager;
+        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override ICSharpExpression CreateExpression(

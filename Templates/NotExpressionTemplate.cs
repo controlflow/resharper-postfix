@@ -19,12 +19,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
   {
     protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
     {
-      return new LookupItem(expression);
+      return new NotItem(expression);
     }
 
-    private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    private sealed class NotItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("not", context) { }
+      public NotItem([NotNull] PrefixExpressionContext context) : base("not", context) { }
 
       protected override ICSharpExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)

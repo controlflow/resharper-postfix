@@ -25,13 +25,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "using (expr)")]
   public class UsingStatementTemplate : IPostfixTemplate
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-    public UsingStatementTemplate([NotNull] LiveTemplatesManager templatesManager)
-    {
-      myTemplatesManager = templatesManager;
-    }
-
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
@@ -88,18 +81,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         node = usingStatement;
       }
 
-      return new UsingItem(expressionContext, myTemplatesManager);
+      return new UsingItem(expressionContext);
     }
 
     private sealed class UsingItem : StatementPostfixLookupItem<IUsingStatement>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public UsingItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager) : base("using", context)
+      public UsingItem([NotNull] PrefixExpressionContext context) : base("using", context)
       {
-        myTemplatesManager = templatesManager;
+        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override IUsingStatement CreateStatement(

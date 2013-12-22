@@ -30,12 +30,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         }
       }
 
-      return new LookupItem(bestExpression ?? context.OuterExpression);
+      return new ParenthesesItem(bestExpression ?? context.OuterExpression);
     }
 
-    private sealed class LookupItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    private sealed class ParenthesesItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("par", context) { }
+      public ParenthesesItem([NotNull] PrefixExpressionContext context) : base("par", context) { }
 
       protected override ICSharpExpression CreateExpression(
         CSharpElementFactory factory, ICSharpExpression expression)

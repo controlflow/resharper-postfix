@@ -20,13 +20,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "(SomeType) expr")]
   public class CastExpressionTemplate : IPostfixTemplate
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-    public CastExpressionTemplate([NotNull] LiveTemplatesManager templatesManager)
-    {
-      myTemplatesManager = templatesManager;
-    }
-
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       if (!context.IsForceMode) return null;
@@ -41,18 +34,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         }
       }
 
-      return new CastItem(bestExpression ?? context.OuterExpression, myTemplatesManager);
+      return new CastItem(bestExpression ?? context.OuterExpression);
     }
 
     private sealed class CastItem : ExpressionPostfixLookupItem<ICastExpression>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public CastItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager) : base("cast", context)
+      public CastItem([NotNull] PrefixExpressionContext context) : base("cast", context)
       {
-        myTemplatesManager = templatesManager;
+        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override ICastExpression CreateExpression(

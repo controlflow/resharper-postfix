@@ -30,12 +30,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
           : !expressionType.IsObject()) return null;
       }
 
-      return new LookupItem(expressionContext);
+      return new LockItem(expressionContext);
     }
 
-    private sealed class LookupItem : StatementPostfixLookupItem<ILockStatement>
+    private sealed class LockItem : StatementPostfixLookupItem<ILockStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("lock", context) { }
+      public LockItem([NotNull] PrefixExpressionContext context) : base("lock", context) { }
 
       protected override ILockStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

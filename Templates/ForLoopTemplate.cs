@@ -13,20 +13,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "for (var i = 0; i < expr.Length; i++)")]
   public class ForLoopTemplate : ForLoopTemplateBase, IPostfixTemplate
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-    public ForLoopTemplate([NotNull] LiveTemplatesManager templatesManager)
-    {
-      myTemplatesManager = templatesManager;
-    }
-
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       string lengthPropertyName;
       if (CreateItems(context, out lengthPropertyName))
       {
-        return new ForLookupItem(
-          context.InnerExpression, myTemplatesManager, lengthPropertyName);
+        return new ForLookupItem(context.InnerExpression, lengthPropertyName);
       }
 
       return null;
@@ -35,10 +27,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     private sealed class ForLookupItem : ForLookupItemBase
     {
       public ForLookupItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager,
-        [CanBeNull] string lengthPropertyName)
-        : base("for", context, templatesManager, lengthPropertyName) { }
+        [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
+        : base("for", context, lengthPropertyName) { }
 
       protected override IForStatement CreateStatement(
         CSharpElementFactory factory, ICSharpExpression expression)

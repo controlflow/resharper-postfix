@@ -41,15 +41,14 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
             if (target == null || target is IField || target is IProperty) continue;
           }
 
-          return CreateLookupItem(
-            expression, expression.Type, functionDeclaration.IsStatic);
+          return CreateItem(expression, expression.Type, functionDeclaration.IsStatic);
         }
       }
 
       return null;
     }
 
-    protected abstract IntroduceMemberLookupItem CreateLookupItem(
+    protected abstract IntroduceMemberLookupItem CreateItem(
       [NotNull] PrefixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
 
     protected abstract class IntroduceMemberLookupItem : StatementPostfixLookupItem<IExpressionStatement>
@@ -62,14 +61,13 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
       protected IntroduceMemberLookupItem(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager, [NotNull] IType expressionType,
-        bool isStatic) : base(shortcut, context)
+        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context, 
+        [NotNull] IType expressionType, bool isStatic) : base(shortcut, context)
       {
         IsStatic = isStatic;
         ExpressionType = expressionType;
         myMemberNames = EmptyList<string>.InstanceList;
-        myTemplatesManager = templatesManager;
+        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override IExpressionStatement CreateStatement(

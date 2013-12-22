@@ -13,20 +13,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "for (var i = expr.Length - 1; i >= 0; i--)")]
   public class ForReverseLoopTemplate : ForLoopTemplateBase, IPostfixTemplate
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-    public ForReverseLoopTemplate([NotNull] LiveTemplatesManager templatesManager)
-    {
-      myTemplatesManager = templatesManager;
-    }
-
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       string lengthPropertyName;
       if (CreateItems(context, out lengthPropertyName))
       {
-        return new ReverseForLookupItem(
-          context.InnerExpression, myTemplatesManager, lengthPropertyName);
+        return new ReverseForLookupItem(context.InnerExpression, lengthPropertyName);
       }
 
       return null;
@@ -35,12 +27,11 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     private sealed class ReverseForLookupItem : ForLookupItemBase
     {
       public ReverseForLookupItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager,
-        [CanBeNull] string lengthPropertyName)
-        : base("forR", context, templatesManager, lengthPropertyName) { }
+        [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
+        : base("forR", context, lengthPropertyName) { }
 
-      protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IForStatement CreateStatement(
+        CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = "for(var x=$0;x>=0;x--)" + EmbeddedStatementBracesTemplate;
         var forStatement = (IForStatement) factory.CreateStatement(template, expression);

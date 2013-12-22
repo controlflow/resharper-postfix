@@ -53,31 +53,32 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var targetStatement = context.GetContainingStatement();
       var expressionRange = context.Expression.GetDocumentRange();
 
-      if (targetStatement.GetDocumentRange().IsValid())
+      // Razor issue - hard to convert expression to statement
+      if (!targetStatement.GetDocumentRange().IsValid())
       {
-        return psiServices.DoTransaction(ExpandCommandName, () =>
+        var newStatement = psiServices.DoTransaction(
+          ExpandCommandName, () => CreateStatement(factory, context.Expression));
+
+        var razorStatement = RazorUtil.FixExpressionToStatement(expressionRange, psiServices);
+        if (razorStatement != null)
         {
-          var newStatement = CreateStatement(factory, context.Expression);
+          return psiServices.DoTransaction(
+            ExpandCommandName, () => razorStatement.ReplaceBy(newStatement));
+        }
 
-          Assertion.AssertNotNull(targetStatement, "targetStatement != null");
-          Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");
-
-          return targetStatement.ReplaceBy(newStatement);
-        });
+        Logger.Fail("Failed to resolve target statement to replace");
+        return null;
       }
 
-      var razorStatement = RazorUtil.FixExpressionToStatement(expressionRange, psiServices);
-      if (razorStatement != null)
+      return psiServices.DoTransaction(ExpandCommandName, () =>
       {
-        return psiServices.DoTransaction(ExpandCommandName, () =>
-        {
-          var newStatement = CreateStatement(factory, context.Expression);
-          return razorStatement.ReplaceBy(newStatement);
-        });
-      }
+        var newStatement = CreateStatement(factory, context.Expression);
 
-      Logger.Fail("Failed to resolve target statement to replace");
-      return null;
+        Assertion.AssertNotNull(targetStatement, "targetStatement != null");
+        Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");
+
+        return targetStatement.ReplaceBy(newStatement);
+      });
     }
 
     [NotNull] protected abstract TStatement CreateStatement(

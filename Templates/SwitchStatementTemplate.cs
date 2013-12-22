@@ -27,16 +27,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
         if (type.IsPredefinedIntegral() || type.IsEnumType())
         {
-          return new LookupItem(expressionContext);
+          return new SwitchItem(expressionContext);
         }
       }
 
       return null;
     }
 
-    private sealed class LookupItem : StatementPostfixLookupItem<ISwitchStatement>
+    private sealed class SwitchItem : StatementPostfixLookupItem<ISwitchStatement>
     {
-      public LookupItem([NotNull] PrefixExpressionContext context) : base("switch", context) { }
+      public SwitchItem([NotNull] PrefixExpressionContext context) : base("switch", context) { }
 
       // switch statement can't be without braces
       protected override ISwitchStatement CreateStatement(

@@ -12,16 +12,6 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "int.Parse(expr)")]
   public class ParseStringTemplate : ParseStringTemplateBase, IPostfixTemplate
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-    [NotNull] private readonly IShellLocks myShellLocks;
-
-    public ParseStringTemplate(
-      [NotNull] LiveTemplatesManager templatesManager, [NotNull] IShellLocks shellLocks)
-    {
-      myTemplatesManager = templatesManager;
-      myShellLocks = shellLocks;
-    }
-
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       foreach (var expressionContext in context.Expressions)
@@ -30,9 +20,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
         if (expressionType.IsResolved && expressionType.IsString())
         {
           var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-          return new ParseLookupItem(
-            "parse", expressionContext, myTemplatesManager,
-            myShellLocks, lookupItemsOwner, isTryParse: false);
+          return new ParseItem("parse", expressionContext, lookupItemsOwner, isTryParse: false);
         }
       }
 

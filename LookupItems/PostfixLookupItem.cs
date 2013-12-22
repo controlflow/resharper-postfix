@@ -76,7 +76,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       var expressionContext = FindOriginalContext(postfixContext);
       Assertion.AssertNotNull(expressionContext, "expressionContext != null");
 
-      ITreeNodePointer<TNode> pointer;
+      TNode newNode;
       using (WriteLockCookie.Create())
       {
         var fixedContext = postfixContext.FixExpression(expressionContext);
@@ -84,17 +84,12 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         var expression = fixedContext.Expression;
         Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
 
-        var newNode = ExpandPostfix(fixedContext);
+        newNode = ExpandPostfix(fixedContext);
         Assertion.AssertNotNull(newNode, "newNode != null");
         Assertion.Assert(newNode.IsPhysical(), "newNode.IsPhysical()");
-
-        pointer = newNode.CreatePointer();
       }
 
-      {
-        var newNode = pointer.GetTreeNode();
-        if (newNode != null) AfterComplete(textControl, newNode);
-      }
+      AfterComplete(textControl, newNode);
     }
 
     protected abstract TNode ExpandPostfix([NotNull] PrefixExpressionContext context);

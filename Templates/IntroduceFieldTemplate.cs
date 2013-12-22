@@ -14,27 +14,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
     example: "_field = expr;")]
   public class IntroduceFieldTemplate : IntroduceMemberTemplateBase
   {
-    [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-    public IntroduceFieldTemplate([NotNull] LiveTemplatesManager templatesManager)
-    {
-      myTemplatesManager = templatesManager;
-    }
-
-    protected override IntroduceMemberLookupItem CreateLookupItem(
+    protected override IntroduceMemberLookupItem CreateItem(
       PrefixExpressionContext expression, IType expressionType, bool isStatic)
     {
-      return new IntroduceFieldLookupItem(
-        expression, myTemplatesManager, expressionType, isStatic);
+      return new IntroduceFieldLookupItem(expression, expressionType, isStatic);
     }
 
     private sealed class IntroduceFieldLookupItem : IntroduceMemberLookupItem
     {
       public IntroduceFieldLookupItem(
         [NotNull] PrefixExpressionContext context,
-        [NotNull] LiveTemplatesManager templatesManager,
         [NotNull] IType expressionType, bool isStatic)
-        : base("field", context, templatesManager, expressionType, isStatic) { }
+        : base("field", context, expressionType, isStatic) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {
@@ -46,7 +37,8 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Templates
 
       protected override ICSharpTypeMemberDeclaration GetAnchorMember(IList<ICSharpTypeMemberDeclaration> members)
       {
-        return members.LastOrDefault(m => m.DeclaredElement is IField && m.IsStatic == IsStatic);
+        return members.LastOrDefault(member =>
+          member.DeclaredElement is IField && member.IsStatic == IsStatic);
       }
     }
   }
