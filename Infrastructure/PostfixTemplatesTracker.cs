@@ -66,7 +66,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var sourceFile = textControl.Document.GetPsiSourceFile(solution);
           if (sourceFile != null)
           {
-            var template = GetTemplateFromTextControl(textControl, solution);
+            var template = GetTemplateFromTextControl(textControl, solution, isExecuting: false);
             if (template != null) return true;
           }
         }
@@ -86,7 +86,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           {
             using (myCommandProcessor.UsingCommand(commandName))
             {
-              var template = GetTemplateFromTextControl(textControl, solution);
+              var template = GetTemplateFromTextControl(textControl, solution, isExecuting: true);
               if (template != null)
               {
                 var nameLength = template.Identity.Length;
@@ -115,7 +115,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       }
 
       [CanBeNull] private ILookupItem GetTemplateFromTextControl(
-        [NotNull] ITextControl textControl, [NotNull] ISolution solution)
+        [NotNull] ITextControl textControl, [NotNull] ISolution solution, bool isExecuting)
       {
         var caretOffset = textControl.Caret.Offset();
         var genericPrefix = LiveTemplatesManager.GetPrefix(textControl.Document, caretOffset);
@@ -125,7 +125,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
         if (myTemplatesManager.TemplateProvidersInfos.All(x => x.Metadata.TemplateName != genericPrefix))
           return null;
 
-        bool rollback = true;
+        var rollback = true;
         try
         {
           textControl.Document.InsertText(caretOffset, "__");
@@ -141,7 +141,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
           var items = myTemplatesManager.GetAvailableItems(token, executionContext, templateName: genericPrefix);
           if (items.Count != 1) return null;
 
-          rollback = false;
+          if (isExecuting) rollback = false;
           return items[0];
         }
         finally

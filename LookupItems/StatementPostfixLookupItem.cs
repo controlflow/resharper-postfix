@@ -1,6 +1,9 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings;
+using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -10,9 +13,6 @@ using JetBrains.Util.Logging;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
 {
-  // todo: support razor
-  // todo: support removal of ( )?
-
   public abstract class StatementPostfixLookupItem<TStatement> : PostfixLookupItem<TStatement>
     where TStatement : class, ICSharpStatement
   {
@@ -26,14 +26,17 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
       myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.UseBracesForEmbeddedStatements);
     }
 
+    private const string CaretTemplate =
+      "return unchecked(checked(\"If you see this - please report a bug :(\"))";
+
     protected string EmbeddedStatementBracesTemplate
     {
-      get { return myUseBraces ? "{using(null){}}" : "using(null){}"; }
+      get { return myUseBraces ? "{" + CaretTemplate + "}" : CaretTemplate; }
     }
 
     protected string RequiredBracesTemplate
     {
-      get { return "{using(null){}}"; }
+      get { return "{" + CaretTemplate + "}"; }
     }
 
     protected override TStatement ExpandPostfix(PrefixExpressionContext context)
@@ -54,8 +57,16 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
         var razorStatement = RazorUtil.FixExpressionToStatement(expressionRange, psiServices);
         if (razorStatement != null)
         {
-          return psiServices.DoTransaction(
-            ExpandCommandName, () => razorStatement.ReplaceBy(newStatement));
+          return psiServices.DoTransaction(ExpandCommandName, () =>
+          {
+            var statement = razorStatement.ReplaceBy(newStatement);
+
+            // force Razor's bracing style
+            var codeFormatter = statement.Language.LanguageServiceNotNull().CodeFormatter.NotNull();
+            codeFormatter.Format(statement, CodeFormatProfile.SOFT, NullProgressIndicator.Instance);
+
+            return statement;
+          });
         }
 
         Logger.Fail("Failed to resolve target statement to replace");
@@ -92,14 +103,18 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.LookupItems
     {
       foreach (var child in statement.Children())
       {
-        var usingStatement = UnwrapFromBraces(child) as IUsingStatement;
-        if (usingStatement == null) continue;
+        var returnStatement = UnwrapFromBraces(child) as IReturnStatement;
+        if (returnStatement == null) continue;
 
-        var resourceExpression = usingStatement.Expressions.FirstOrDefault();
-        if (resourceExpression is ILiteralExpression &&
-            resourceExpression.ConstantValue.IsPureNull(usingStatement.Language))
+        var uncheckedExpression = returnStatement.Value as IUncheckedExpression;
+        if (uncheckedExpression == null) continue;
+
+        var checkedExpression = uncheckedExpression.Operand as ICheckedExpression;
+        if (checkedExpression == null) continue;
+
+        if (checkedExpression.Operand is ILiteralExpression)
         {
-          var caretRange = usingStatement.GetDocumentRange().TextRange;
+          var caretRange = returnStatement.GetDocumentRange().TextRange;
           textControl.Caret.MoveTo(caretRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
           textControl.Document.DeleteText(caretRange);
           return;
