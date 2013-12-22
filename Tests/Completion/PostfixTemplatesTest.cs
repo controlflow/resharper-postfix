@@ -8,18 +8,14 @@ using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeComp
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates.Completion
 {
   [TestNetFramework4]
   public class PostfixTemplatesTest : CodeCompletionTestBase
   {
     protected override bool ExecuteAction { get { return true; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
-
-    protected override string RelativeTestDataPath // sad panda :(
-    {
-      get { return PostfixTestsAssembly.TestDataPath + @"\Completion"; }
-    }
+    protected override string RelativeTestDataPath { get { return ""; } }
 
     protected override void DoTest(IProject testProject)
     {

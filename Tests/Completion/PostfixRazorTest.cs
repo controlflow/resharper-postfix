@@ -3,7 +3,7 @@ using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeComp
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates.Completion
 {
   [TestNetFramework4]
   [TestFileExtension(RazorCSharpProjectFileType.RazorCSharpExtension)]
@@ -11,11 +11,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
   {
     protected override bool ExecuteAction { get { return true; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
-
-    protected override string RelativeTestDataPath // sad panda :(
-    {
-      get { return PostfixTestsAssembly.TestDataPath + @"\Completion\Razor"; }
-    }
+    protected override string RelativeTestDataPath { get { return @"Razor"; } }
 
     [Test] public void TestRazor01() { DoNamedTest("Model.cs"); }
     [Test] public void TestRazor02() { DoNamedTest("Model.cs"); }

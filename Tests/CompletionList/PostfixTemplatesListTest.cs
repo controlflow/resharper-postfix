@@ -2,18 +2,14 @@
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates.CompletionList
 {
   [TestNetFramework4]
   public class PostfixTemplatesListTest : CodeCompletionTestBase
   {
     protected override bool ExecuteAction { get { return false; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
-
-    protected override string RelativeTestDataPath
-    {
-      get { return PostfixTestsAssembly.TestDataPath + @"\Completion\List"; }
-    }
+    protected override string RelativeTestDataPath { get { return @"List"; } }
 
     [Test] public void TestUnresolved01() { DoNamedTest(); }
     [Test] public void TestUnresolved02() { DoNamedTest(); }

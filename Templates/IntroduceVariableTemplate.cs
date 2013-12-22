@@ -213,6 +213,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
           RefactoringDetailsArgs details = null;
 
+          // todo: drop diz!
           workflow.EventBus
             .Event(RefactoringEvents.RefactoringDetails)
             .Subscribe(definition.Lifetime, args => details = args);

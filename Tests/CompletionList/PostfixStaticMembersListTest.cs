@@ -2,7 +2,7 @@
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
-namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
+namespace JetBrains.ReSharper.PostfixTemplates.CompletionList
 {
   [TestNetFramework4]
   public class PostfixStaticMembersListTest : CodeCompletionTestBase
@@ -10,10 +10,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
     protected override bool ExecuteAction { get { return false; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
 
-    protected override string RelativeTestDataPath
-    {
-      get { return PostfixTestsAssembly.TestDataPath + @"\Completion\Statics\List"; }
-    }
+    protected override string RelativeTestDataPath { get { return @"Statics\List"; } }
 
     [Test] public void TestStatic01() { DoNamedTest(); }
     [Test] public void TestStatic02() { DoNamedTest(); }
