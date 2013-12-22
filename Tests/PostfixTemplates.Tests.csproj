@@ -8,8 +8,8 @@
     <ProjectGuid>{6DC588F6-B12C-447E-92D7-9C21A003179C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JetBrains.ReSharper.ControlFlow.PostfixCompletion</RootNamespace>
-    <AssemblyName>PostfixCompletion.Tests</AssemblyName>
+    <RootNamespace>JetBrains.ReSharper.PostfixTemplates</RootNamespace>
+    <AssemblyName>PostfixTemplates.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -71,9 +71,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PostfixCompletion.R8.csproj">
+    <ProjectReference Include="..\PostfixTemplates.R8.csproj">
       <Project>{50365433-aae1-4755-9562-b777f23b7c23}</Project>
-      <Name>PostfixCompletion.R8</Name>
+      <Name>PostfixTemplates.R8</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -8,13 +8,12 @@ using JetBrains.UI.Options;
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 {
   [OptionsPage(
-    id: PID,
-    name: "Postfix completion",
+    id: PID, name: "Postfix Templates",
     typeofIcon: typeof(ServicesThemedIcons.SurroundTemplate),
     ParentId = PluginsPage.Pid)]
   public sealed partial class PostfixOptionsPage : IOptionsPage
   {
-    public const string PID = "PostfixCompletion";
+    private const string PID = "PostfixTemplates";
 
     public PostfixOptionsPage([NotNull] Lifetime lifetime,
       [NotNull] OptionsSettingsSmartContext store,

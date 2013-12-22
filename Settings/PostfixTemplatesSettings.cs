@@ -6,8 +6,8 @@ using JetBrains.Application.Settings.Store;
 
 namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 {
-  [SettingsKey(typeof(EnvironmentSettings), "Postfix completion settings")]
-  public sealed class PostfixCompletionSettings
+  [SettingsKey(typeof(EnvironmentSettings), "Postfix templates settings")]
+  public sealed class PostfixTemplatesSettings
   {
     [SettingsIndexedEntry("Template providers list disabled/enabled list")]
     public IIndexedEntry<string, bool> DisabledProviders;
@@ -24,9 +24,9 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 
   public static class PostfixSettingsAccessor
   {
-    [NotNull] public static readonly Expression<Func<PostfixCompletionSettings, IIndexedEntry<string, bool>>>
+    [NotNull] public static readonly Expression<Func<PostfixTemplatesSettings, IIndexedEntry<string, bool>>>
       DisabledProviders = x => x.DisabledProviders;
-    [NotNull] public static readonly Expression<Func<PostfixCompletionSettings, bool>>
+    [NotNull] public static readonly Expression<Func<PostfixTemplatesSettings, bool>>
       UseBracesForEmbeddedStatements = x => x.UseBracesForEmbeddedStatements,
       ShowStaticMethodsInCodeCompletion = x => x.ShowStaticMethodsInCodeCompletion,
       ShowEnumHelpersInCodeCompletion = x => x.ShowEnumHelpersInCodeCompletion;

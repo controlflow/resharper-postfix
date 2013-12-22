@@ -1,17 +1,18 @@
 ﻿using System.Reflection;
 using JetBrains.Application.PluginSupport;
 
-[assembly: AssemblyTitle("PostfixCompletion.Tests")]
-[assembly: AssemblyDescription("ReSharper code completion plugin tests")]
+[assembly: AssemblyTitle("PostfixTemplates.Tests")]
+[assembly: AssemblyDescription("Templating/code completion plugin for ReSharper tests")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Shvedov Alexander")]
-[assembly: AssemblyProduct("PostfixCompletion.Tests")]
+[assembly: AssemblyProduct("Postfix Templates")]
 [assembly: AssemblyCopyright("Copyright © Shvedov Alexander, 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("0.9.0.0")]
+[assembly: AssemblyVersion("1.5.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: PluginDescription("Code completion plugin")]
+[assembly: PluginTitle("Postfix Templates")]
+[assembly: PluginDescription("Templating/code completion plugin for ReSharper")]
 [assembly: PluginVendor("Shvedov Alexander")]

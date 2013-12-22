@@ -9,8 +9,8 @@
     <ProjectGuid>{837AD254-C0A4-4DB6-97AC-A99E26A149E5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JetBrains.ReSharper.ControlFlow.PostfixCompletion</RootNamespace>
-    <AssemblyName>PostfixCompletion</AssemblyName>
+    <RootNamespace>JetBrains.ReSharper.PostfixTemplates</RootNamespace>
+    <AssemblyName>PostfixTemplates</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

@@ -14,7 +14,12 @@
   + fix: check Razor issues + tests
   + fix: checked ASP.NET issues
 
-[>v1.2]
+[v.1.5]
+
+  + core: rewrite in a easier, intellij-postfix way
+  + core: always use reparse, drop keywords handling
+
+[vNext]
 
   feature: .notnull/.null on non-pure expressions to introduce var
   feature: ".for" should match .foreach first, not .for?
@@ -24,4 +29,3 @@
     .var, .not, .paren, .log?, .alert?, .while,
     .throw, .switch, .def/.undef, .return, .new)
   feature: language-specific settings tabs
-  feature: @-less completion for Razor?

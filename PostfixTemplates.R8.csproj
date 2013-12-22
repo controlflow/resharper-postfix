@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JetBrains.ReSharper.ControlFlow.PostfixCompletion</RootNamespace>
-    <AssemblyName>PostfixCompletion</AssemblyName>
+    <AssemblyName>PostfixTemplates</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -69,7 +69,7 @@
       <DependentUpon>PostfixOptionsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\PostfixOptionsViewModel.cs" />
-    <Compile Include="Settings\PostfixCompletionSettings.cs" />
+    <Compile Include="Settings\PostfixTemplatesSettings.cs" />
     <Compile Include="Settings\PostfixTemplateViewModel.cs" />
     <Compile Include="Templates\ArgumentExpressionTemplate.cs" />
     <Compile Include="Templates\BooleanExpressionTemplateBase.cs" />

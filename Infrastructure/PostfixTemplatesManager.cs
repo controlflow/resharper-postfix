@@ -70,7 +70,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion
       // todo: filter out namespaces
 
       var store = node.GetSettingsStore();
-      var settings = store.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
+      var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
       var isTypeExpression = postfixContext.InnerExpression.ReferencedElement is ITypeElement;

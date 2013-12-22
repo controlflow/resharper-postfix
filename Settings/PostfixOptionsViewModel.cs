@@ -43,7 +43,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 
     private void FillTemplates()
     {
-      var settings = myStore.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
+      var settings = myStore.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
       PropertyChangedEventHandler handler = (sender, args) =>
@@ -78,7 +78,7 @@ namespace JetBrains.ReSharper.ControlFlow.PostfixCompletion.Settings
 
     private void ResetExecute()
     {
-      var settings = myStore.GetKey<PostfixCompletionSettings>(SettingsOptimization.OptimizeDefault);
+      var settings = myStore.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
       foreach (var provider in settings.DisabledProviders.EnumIndexedValues())
