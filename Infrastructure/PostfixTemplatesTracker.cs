@@ -23,14 +23,14 @@ namespace JetBrains.ReSharper.PostfixTemplates
       [NotNull] Lifetime lifetime, [NotNull] PostfixTemplatesManager templatesManager,
       [NotNull] IActionManager manager, [NotNull] TextControlChangeUnitFactory changeUnitFactory,
       [NotNull] ILookupWindowManager lookupWindowManager, [NotNull] ICommandProcessor processor,
-      [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
+      [NotNull] LookupItemsOwnerFactory lookupItemsFactory)
     {
       // override livetemplates expand action
       var expandAction = manager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
       if (expandAction != null)
       {
         var postfixHandler = new ExpandPostfixTemplateHandler(
-          changeUnitFactory, templatesManager, lookupWindowManager, processor, lookupItemsOwnerFactory);
+          changeUnitFactory, templatesManager, lookupWindowManager, processor, lookupItemsFactory);
         expandAction.AddHandler(lifetime, postfixHandler);
       }
     }

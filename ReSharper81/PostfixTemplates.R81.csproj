@@ -71,6 +71,9 @@
     <Compile Include="..\Infrastructure\Contexts\ReferenceNamePostfixTemplateContext.cs">
       <Link>Infrastructure\Contexts\ReferenceNamePostfixTemplateContext.cs</Link>
     </Compile>
+    <Compile Include="..\Infrastructure\Contexts\ReparsedPostfixExecutionContext.cs">
+      <Link>Infrastructure\Contexts\ReparsedPostfixExecutionContext.cs</Link>
+    </Compile>
     <Compile Include="..\Infrastructure\IPostfixTemplate.cs">
       <Link>Infrastructure\IPostfixTemplate.cs</Link>
     </Compile>

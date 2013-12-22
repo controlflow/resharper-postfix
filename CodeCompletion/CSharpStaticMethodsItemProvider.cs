@@ -52,7 +52,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       if (!qualifierType.IsResolved) return false;
 
       var settingsStore = qualifier.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowStaticMethodsInCodeCompletion))
+      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowStaticMethods))
         return false;
 
       // prepare symbol table of suitable static methods

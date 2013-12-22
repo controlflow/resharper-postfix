@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       : base(shortcut, context)
     {
       var settingsStore = context.Parent.Reference.GetSettingsStore();
-      myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.UseBracesForEmbeddedStatements);
+      myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
     }
 
     private const string CaretTemplate =

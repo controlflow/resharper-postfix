@@ -23,6 +23,8 @@ using JetBrains.Util.EventBus;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // allow over variables in force mode
+
   [PostfixTemplate(
     templateName: "var",
     description: "Introduces variable for expression",

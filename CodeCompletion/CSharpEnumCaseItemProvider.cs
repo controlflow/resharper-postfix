@@ -69,7 +69,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       }
 
       var settingsStore = qualifier.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowEnumHelpersInCodeCompletion))
+      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowEnumHelpers))
         return false;
 
       return AddEnumerationMembers(

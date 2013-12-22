@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using System.Windows;
+using System.Windows.Input;
+using JetBrains.Annotations;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.UI.Application.PluginSupport;
@@ -28,5 +30,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     public string Id { get { return PID; } }
     public bool OnOk() { return true; }
     public bool ValidatePage() { return true; }
+
+    private void DoubleClickCheck(object sender, MouseButtonEventArgs e)
+    {
+      var viewModel = ((FrameworkElement) sender).DataContext as PostfixTemplateViewModel;
+      if (viewModel != null)
+        viewModel.IsChecked = !viewModel.IsChecked;
+    }
+
+    private void SpacebarCheck(object sender, KeyEventArgs e)
+    {
+      if (e.Key != Key.Space) return;
+
+      var viewModel = ((FrameworkElement)sender).DataContext as PostfixTemplateViewModel;
+      if (viewModel != null)
+        viewModel.IsChecked = !viewModel.IsChecked;
+    }
   }
 }

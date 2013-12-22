@@ -51,6 +51,7 @@
     <Compile Include="CodeCompletion\CSharpEnumCaseItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharpPostfixItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharpStaticMethodsItemProvider.cs" />
+    <Compile Include="Infrastructure\Contexts\ReparsedPostfixExecutionContext.cs" />
     <Compile Include="Infrastructure\Contexts\BrokenStatementPostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\ReferenceExpressionPostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\ReferenceNamePostfixTemplateContext.cs" />

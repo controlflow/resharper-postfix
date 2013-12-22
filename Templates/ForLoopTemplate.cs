@@ -9,7 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   [PostfixTemplate(
     templateName: "for",
     description: "Iterates over collection with index",
-    example: "for (var i = 0; i < expr.Length; i++)")]
+    example: "for (var i = 0; i < xs.Length; i++)")]
   public class ForLoopTemplate : ForLoopTemplateBase, IPostfixTemplate
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)

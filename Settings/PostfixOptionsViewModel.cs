@@ -23,22 +23,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       myStore = store;
       myTemplatesManager = templatesManager;
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
-      UseBracesForEmbeddedStatements = new Property<bool>(lifetime, "UseBracesForEmbeddedStatements");
+      ShowPostfixTemplatesInCodeCompletion = new Property<bool>(lifetime, "ShowPostfixTemplatesInCodeCompletion");
       ShowStaticMembersInCodeCompletion = new Property<bool>(lifetime, "ShowStaticMethodsInCodeCompletion");
       ShowEnumHelpersInCodeCompletion = new Property<bool>(lifetime, "ShowEnumHelpersInCodeCompletion");
+      UseBracesForEmbeddedStatements = new Property<bool>(lifetime, "UseBracesForEmbeddedStatements");
       Reset = new DelegateCommand(ResetExecute);
 
-      store.SetBinding(lifetime, PostfixSettingsAccessor.UseBracesForEmbeddedStatements, UseBracesForEmbeddedStatements);
-      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethodsInCodeCompletion, ShowStaticMembersInCodeCompletion);
-      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpersInCodeCompletion, ShowEnumHelpersInCodeCompletion);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowPostfixItems, ShowPostfixTemplatesInCodeCompletion);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethods, ShowStaticMembersInCodeCompletion);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpers, ShowEnumHelpersInCodeCompletion);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForEmbeddedStatements);
 
       FillTemplates();
     }
 
     [NotNull] public ObservableCollection<PostfixTemplateViewModel> Templates { get; private set; }
-    [NotNull] public IProperty<bool> UseBracesForEmbeddedStatements { get; private set; }
+    [NotNull] public IProperty<bool> ShowPostfixTemplatesInCodeCompletion { get; private set; }
     [NotNull] public IProperty<bool> ShowStaticMembersInCodeCompletion { get; private set; }
-    [NotNull] public Property<bool> ShowEnumHelpersInCodeCompletion { get; private set; }
+    [NotNull] public IProperty<bool> ShowEnumHelpersInCodeCompletion { get; private set; }
+    [NotNull] public IProperty<bool> UseBracesForEmbeddedStatements { get; private set; }
     [NotNull] public ICommand Reset { get; private set; }
 
     private void FillTemplates()
