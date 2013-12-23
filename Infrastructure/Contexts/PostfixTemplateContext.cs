@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     [NotNull] private readonly ICSharpExpression myInnerExpression;
     [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
 
-    public PostfixTemplateContext(
+    protected PostfixTemplateContext(
       [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
       [NotNull] PostfixExecutionContext executionContext)
     {

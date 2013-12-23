@@ -71,21 +71,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
         // run postfix templates like non-force mode enabled
         var nonForceExecutionContext = executionContext.WithForceMode(false);
+
         var automaticPostfixItems = myTemplatesManager.GetAvailableItems(position, nonForceExecutionContext);
         if (automaticPostfixItems.Count > 0)
         {
           idsToRemove = new JetHashSet<string>(StringComparer.Ordinal);
           foreach (var lookupItem in automaticPostfixItems)
-          {
             idsToRemove.Add(lookupItem.Identity);
-          }
         }
       }
 
       foreach (var lookupItem in items)
       {
-        if (!idsToRemove.Contains(lookupItem.Identity))
-          collector.AddAtDefaultPlace(lookupItem);
+        if (idsToRemove.Contains(lookupItem.Identity)) continue;
+
+        collector.AddAtDefaultPlace(lookupItem);
       }
 
       return (items.Count > 0);

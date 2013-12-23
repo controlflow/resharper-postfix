@@ -60,8 +60,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       PostfixTemplateContext postfixContext = null;
       var identifierOffset = textControl.Caret.Offset() - myReparseString.Length;
-      foreach (var position in TextControlToPsi.
-        GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
+      foreach (var position in TextControlToPsi
+        .GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
       {
         var psiModule = position.GetPsiModule();
         var executionContext = new PostfixExecutionContext(
