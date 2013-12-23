@@ -13,11 +13,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
   {
     [NotNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 
-    private ReparsedPostfixExecutionContext(
-      bool isForceMode, [NotNull] IPsiModule psiModule,
-      [NotNull] ILookupItemsOwner lookupItemsOwner,
-      [NotNull] ReparsedCodeCompletionContext reparsedContext,
-      [NotNull] string reparseString)
+    private ReparsedPostfixExecutionContext(bool isForceMode,
+      [NotNull] IPsiModule psiModule, [NotNull] ILookupItemsOwner lookupItemsOwner,
+      [NotNull] ReparsedCodeCompletionContext reparsedContext, [NotNull] string reparseString)
       : base(isForceMode, psiModule, lookupItemsOwner, reparseString)
     {
       myReparsedContext = reparsedContext;
@@ -28,6 +26,14 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return myReparsedContext.ToDocumentRange(treeNode);
     }
 
+    public override PostfixExecutionContext WithForceMode(bool enabled)
+    {
+      if (enabled == IsForceMode) return this;
+
+      return new ReparsedPostfixExecutionContext(
+        enabled, PsiModule, LookupItemsOwner, myReparsedContext, ReparseString);
+    }
+
     [NotNull]
     public static PostfixExecutionContext Create(
       [NotNull] CSharpCodeCompletionContext completionContext,
@@ -35,8 +41,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
       [NotNull] string reparseString)
     {
       var completionType = completionContext.BasicContext.CodeCompletionType;
-      var isForceMode = (completionType == CodeCompletionType.BasicCompletion);
       var lookupItemsOwner = completionContext.BasicContext.LookupItemsOwner;
+      var isForceMode = (completionType == CodeCompletionType.BasicCompletion);
 
       return new ReparsedPostfixExecutionContext(
         isForceMode, completionContext.PsiModule,

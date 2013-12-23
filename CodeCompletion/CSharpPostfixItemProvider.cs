@@ -43,30 +43,42 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems))
         return false;
 
-      var executionContext = ReparsedPostfixExecutionContext.Create(context, context.UnterminatedContext, "__");
+      PostfixExecutionContext executionContext;
+      IList<ILookupItem> items;
+      ITreeNode position;
 
-      var treeNode = context.UnterminatedContext.TreeNode;
-      if (treeNode == null) return false;
+      {
+        executionContext = ReparsedPostfixExecutionContext.Create(context, context.UnterminatedContext, "__");
+        position = context.UnterminatedContext.TreeNode;
+        items = myTemplatesManager.GetAvailableItems(position, executionContext);
+      }
 
-      // todo: sometimes prefer unterminated context!
-
-      var items = myTemplatesManager.GetAvailableItems(treeNode, executionContext);
+      if (items.Count == 0) // try terminated context if unterminated sucks :(
+      {
+        executionContext = ReparsedPostfixExecutionContext.Create(context, context.TerminatedContext, "__;");
+        position = context.TerminatedContext.TreeNode;
+        items = myTemplatesManager.GetAvailableItems(position, executionContext);
+      }
 
       ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
 
+      // double completion support
       var parameters = context.BasicContext.Parameters;
       if (executionContext.IsForceMode && parameters.CodeCompletionTypes.Length > 1)
       {
-        idsToRemove = new JetHashSet<string>(StringComparer.Ordinal);
-
         var firstCompletion = parameters.CodeCompletionTypes[0];
         if (firstCompletion != CodeCompletionType.AutomaticCompletion) return false;
 
-        var autoItems = myTemplatesManager.GetAvailableItems(treeNode, executionContext);
-        if (autoItems.Count > 0)
+        // run postfix templates like non-force mode enabled
+        var nonForceExecutionContext = executionContext.WithForceMode(false);
+        var automaticPostfixItems = myTemplatesManager.GetAvailableItems(position, nonForceExecutionContext);
+        if (automaticPostfixItems.Count > 0)
         {
-          foreach (var lookupItem in autoItems)
+          idsToRemove = new JetHashSet<string>(StringComparer.Ordinal);
+          foreach (var lookupItem in automaticPostfixItems)
+          {
             idsToRemove.Add(lookupItem.Identity);
+          }
         }
       }
 

@@ -24,8 +24,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       {
         var providerType = provider.GetType();
         var attributes = (PostfixTemplateAttribute[])
-          providerType.GetCustomAttributes(
-            typeof(PostfixTemplateAttribute), inherit: false);
+          providerType.GetCustomAttributes(typeof(PostfixTemplateAttribute), inherit: false);
 
         if (attributes.Length == 1)
         {
@@ -58,18 +57,16 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [NotNull] public IList<ILookupItem> GetAvailableItems(
-      [NotNull] ITreeNode node, [NotNull] PostfixExecutionContext context,
+      [CanBeNull] ITreeNode position, [NotNull] PostfixExecutionContext context,
       [CanBeNull] string templateName = null)
     {
-      var postfixContext = IsAvailable(node, context);
-      if (postfixContext == null || postfixContext.Expressions.Count == 0)
-      {
+      var postfixContext = IsAvailable(position, context);
+      if (postfixContext == null || postfixContext.Expressions.Count == 0 || position == null)
         return EmptyList<ILookupItem>.InstanceList;
-      }
 
       // todo: filter out namespaces
 
-      var store = node.GetSettingsStore();
+      var store = position.GetSettingsStore();
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
@@ -103,7 +100,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [CanBeNull] public PostfixTemplateContext IsAvailable(
-      [NotNull] ITreeNode position, [NotNull] PostfixExecutionContext executionContext)
+      [CanBeNull] ITreeNode position, [NotNull] PostfixExecutionContext executionContext)
     {
       if (!(position is ICSharpIdentifier)) return null;
 

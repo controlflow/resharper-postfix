@@ -59,8 +59,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
 
       PostfixTemplateContext postfixContext = null;
-      foreach (var position in TextControlToPsi.GetElements<ITokenNode>(
-        solution, textControl.Document, textControl.Caret.Offset()))
+      var identifierOffset = textControl.Caret.Offset() - myReparseString.Length;
+      foreach (var position in TextControlToPsi.
+        GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
       {
         var psiModule = position.GetPsiModule();
         var executionContext = new PostfixExecutionContext(

@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Windows.Forms.VisualStyles;
+using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
@@ -32,6 +33,13 @@ namespace JetBrains.ReSharper.PostfixTemplates
     public virtual DocumentRange GetDocumentRange(ITreeNode treeNode)
     {
       return treeNode.GetDocumentRange();
+    }
+
+    [NotNull] public virtual PostfixExecutionContext WithForceMode(bool enabled)
+    {
+      if (enabled == IsForceMode) return this;
+
+      return new PostfixExecutionContext(enabled, PsiModule, LookupItemsOwner, ReparseString);
     }
   }
 }
