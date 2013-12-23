@@ -44,7 +44,7 @@
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
                 <CheckBox Content="{Binding Name, Mode=OneTime}"
                           IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                          Margin="4" FontWeight="SemiBold" />
+                          Margin="3" FontWeight="SemiBold" />
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
           </tgv:TreeGridColumnDefinition>
@@ -52,7 +52,7 @@
           <tgv:TreeGridColumnDefinition Header="Description">
             <tgv:TreeGridColumnDefinition.CellTemplate>
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
-                <TextBlock Text="{Binding Description, Mode=OneTime}" Margin="4" />
+                <TextBlock Text="{Binding Description, Mode=OneTime}" Margin="3" />
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
           </tgv:TreeGridColumnDefinition>
@@ -61,7 +61,7 @@
             <tgv:TreeGridColumnDefinition.CellTemplate>
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
                 <TextBlock Text="{Binding Example, Mode=OneTime}"
-                           FontFamily="Consolas" Margin="4" />
+                           FontFamily="Consolas" Margin="3" />
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
           </tgv:TreeGridColumnDefinition>

@@ -64,13 +64,14 @@ namespace JetBrains.ReSharper.PostfixTemplates
       if (postfixContext == null || postfixContext.Expressions.Count == 0 || position == null)
         return EmptyList<ILookupItem>.InstanceList;
 
-      // todo: filter out namespaces
-
       var store = position.GetSettingsStore();
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var isTypeExpression = postfixContext.InnerExpression.ReferencedElement is ITypeElement;
+      var referencedElement = postfixContext.InnerExpression.ReferencedElement;
+      if (referencedElement is INamespace) return EmptyList<ILookupItem>.InstanceList;
+
+      var isTypeExpression = referencedElement is ITypeElement;
       var items = new List<ILookupItem>();
 
       foreach (var info in myTemplateProvidersInfos)

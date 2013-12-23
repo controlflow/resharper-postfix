@@ -68,10 +68,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
                           && !metadata.DisabledByDefault) || isEnabled;
 
         var itemViewModel = new PostfixTemplateViewModel(
-          name: metadata.TemplateName,
-          description: metadata.Description,
-          example: metadata.Example,
-          settingsKey: providerInfo.SettingsKey,
+          name: metadata.TemplateName, description: metadata.Description,
+          example: metadata.Example, settingsKey: providerInfo.SettingsKey,
           isChecked: isEnabled);
 
         itemViewModel.PropertyChanged += handler;
