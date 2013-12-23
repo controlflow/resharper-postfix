@@ -11,6 +11,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CompletionList
     protected override bool CheckAutomaticCompletionDefault() { return true; }
     protected override string RelativeTestDataPath { get { return @"List"; } }
 
+    [Test] public void TestNamespace01() { DoNamedTest(); }
+
     [Test] public void TestUnresolved01() { DoNamedTest(); }
     [Test] public void TestUnresolved02() { DoNamedTest(); }
     [Test] public void TestUnresolved03() { DoNamedTest(); }
