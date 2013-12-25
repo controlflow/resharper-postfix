@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -19,6 +20,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
     where TNode : class, ITreeNode
   {
+    [NotNull] private readonly Lifetime myLifetime;
     [NotNull] private readonly string myShortcut, myIdentifier, myReparseString;
     [NotNull] private readonly Type myExpressionType;
     private readonly DocumentRange myExpressionRange;
@@ -27,12 +29,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     protected PostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
     {
+      var postfixContext = context.PostfixContext;
+
       myIdentifier = shortcut;
       myShortcut = shortcut.ToLowerInvariant();
       myExpressionType = context.Expression.GetType();
       myExpressionRange = context.ExpressionRange;
-      myContextIndex = context.PostfixContext.Expressions.IndexOf(context);
-      myReparseString = context.PostfixContext.ExecutionContext.ReparseString;
+      myContextIndex = postfixContext.Expressions.IndexOf(context);
+      myReparseString = postfixContext.ExecutionContext.ReparseString;
+      myLifetime = postfixContext.ExecutionContext.Lifetime;
     }
 
     public MatchingResult Match(string prefix, ITextControl textControl)
@@ -45,9 +50,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return GetType().FullName + " expansion"; }
     }
 
-    public void Accept(
-      ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
-      Suffix suffix, ISolution solution, bool keepCaretStill)
+    public void Accept(ITextControl textControl, TextRange nameRange,
+                       LookupItemInsertType insertType, Suffix suffix,
+                       ISolution solution, bool keepCaretStill)
     {
       textControl.Document.InsertText(
         nameRange.EndOffset, myReparseString, TextModificationSide.RightSide);
@@ -55,17 +60,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       solution.GetPsiServices().Files.CommitAllDocuments();
 
       var itemsOwnerFactory = solution.GetComponent<LookupItemsOwnerFactory>();
-      var lookupItemsOwner = itemsOwnerFactory.CreateLookupItemsOwner(textControl);
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
+      var lookupItemsOwner = itemsOwnerFactory.CreateLookupItemsOwner(textControl);
 
       PostfixTemplateContext postfixContext = null;
-      var identifierOffset = textControl.Caret.Offset() - myReparseString.Length;
+      var identifierOffset = (textControl.Caret.Offset() - myReparseString.Length);
+
       foreach (var position in TextControlToPsi
         .GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
       {
-        var psiModule = position.GetPsiModule();
         var executionContext = new PostfixExecutionContext(
-          false, psiModule, lookupItemsOwner, myReparseString);
+          myLifetime, solution, textControl, lookupItemsOwner, myReparseString, false);
 
         postfixContext = templatesManager.IsAvailable(position, executionContext);
         if (postfixContext != null) break;

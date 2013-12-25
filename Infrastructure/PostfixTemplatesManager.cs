@@ -56,7 +56,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       get { return myTemplateProvidersInfos; }
     }
 
-    [NotNull] public IList<ILookupItem> GetAvailableItems(
+    [NotNull] public IList<ILookupItem> CollectItems(
       [NotNull] PostfixTemplateContext context, [CanBeNull] string templateName = null)
     {
       var store = context.Reference.GetSettingsStore();

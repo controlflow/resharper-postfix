@@ -20,37 +20,43 @@ namespace JetBrains.ReSharper.PostfixTemplates
   [SolutionComponent]
   public sealed class PostfixTemplatesTracker
   {
-    public PostfixTemplatesTracker(
-      [NotNull] Lifetime lifetime, [NotNull] PostfixTemplatesManager templatesManager,
-      [NotNull] IActionManager manager, [NotNull] TextControlChangeUnitFactory changeUnitFactory,
-      [NotNull] ILookupWindowManager lookupWindowManager, [NotNull] ICommandProcessor processor,
-      [NotNull] LookupItemsOwnerFactory lookupItemsFactory)
+    public PostfixTemplatesTracker([NotNull] Lifetime lifetime,
+                                   [NotNull] IActionManager manager,
+                                   [NotNull] ICommandProcessor commandProcessor,
+                                   [NotNull] ILookupWindowManager lookupWindowManager,
+                                   [NotNull] PostfixTemplatesManager templatesManager,
+                                   [NotNull] LookupItemsOwnerFactory lookupItemsFactory,
+                                   [NotNull] TextControlChangeUnitFactory changeUnitFactory)
     {
       // override livetemplates expand action
       var expandAction = manager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
       if (expandAction != null)
       {
         var postfixHandler = new ExpandPostfixTemplateHandler(
-          changeUnitFactory, templatesManager, lookupWindowManager, processor, lookupItemsFactory);
+          lifetime, commandProcessor, lookupWindowManager,
+          templatesManager, lookupItemsFactory, changeUnitFactory);
+
         expandAction.AddHandler(lifetime, postfixHandler);
       }
     }
 
     private sealed class ExpandPostfixTemplateHandler : IActionHandler
     {
-      [NotNull] private readonly ILookupWindowManager myLookupWindowManager;
-      [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
-      [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
+      [NotNull] private readonly Lifetime myLifetime;
       [NotNull] private readonly ICommandProcessor myCommandProcessor;
+      [NotNull] private readonly ILookupWindowManager myLookupWindowManager;
+      [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
       [NotNull] private readonly LookupItemsOwnerFactory myItemsOwnerFactory;
+      [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
 
-      public ExpandPostfixTemplateHandler(
-        [NotNull] TextControlChangeUnitFactory changeUnitFactory,
-        [NotNull] PostfixTemplatesManager templatesManager,
-        [NotNull] ILookupWindowManager lookupWindowManager,
-        [NotNull] ICommandProcessor commandProcessor,
-        [NotNull] LookupItemsOwnerFactory itemsOwnerFactory)
+      public ExpandPostfixTemplateHandler([NotNull] Lifetime lifetime,
+                                          [NotNull] ICommandProcessor commandProcessor,
+                                          [NotNull] ILookupWindowManager lookupWindowManager,
+                                          [NotNull] PostfixTemplatesManager templatesManager,
+                                          [NotNull] LookupItemsOwnerFactory itemsOwnerFactory,
+                                          [NotNull] TextControlChangeUnitFactory changeUnitFactory)
       {
+        myLifetime = lifetime;
         myChangeUnitFactory = changeUnitFactory;
         myLookupWindowManager = lookupWindowManager;
         myCommandProcessor = commandProcessor;
@@ -67,7 +73,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           var sourceFile = textControl.Document.GetPsiSourceFile(solution);
           if (sourceFile != null)
           {
-            var template = GetTemplateFromTextControl(textControl, solution);
+            var template = GetTemplateFromTextControl(solution, textControl);
             if (template != null) return true;
           }
         }
@@ -78,58 +84,68 @@ namespace JetBrains.ReSharper.PostfixTemplates
       public void Execute(IDataContext context, DelegateExecute nextExecute)
       {
         var solution = context.GetData(ProjectModel.DataContext.DataConstants.SOLUTION);
+        if (solution == null) return;
+
         var textControl = context.GetData(TextControl.DataContext.DataConstants.TEXT_CONTROL);
-        if (textControl != null && solution != null && myLookupWindowManager.CurrentLookup == null)
+        if (textControl == null) return;
+
+        if (myLookupWindowManager.CurrentLookup != null) return;
+
+        const string commandName = "Expanding postfix template with [Tab]";
+        var updateCookie = myChangeUnitFactory.CreateChangeUnit(textControl, commandName);
+        try
         {
-          const string commandName = "Expanding postfix template";
-          var updateCookie = myChangeUnitFactory.CreateChangeUnit(textControl, commandName);
-          try
+          using (myCommandProcessor.UsingCommand(commandName))
           {
-            using (myCommandProcessor.UsingCommand(commandName))
+            var postfixItem = GetTemplateFromTextControl(solution, textControl);
+            if (postfixItem != null)
             {
-              var postfixItem = GetTemplateFromTextControl(textControl, solution);
-              if (postfixItem != null)
-              {
-                var nameLength = postfixItem.Identity.Length;
-                var offset = textControl.Caret.Offset() - nameLength;
-                var nameRange = TextRange.FromLength(offset, nameLength);
+              var nameLength = postfixItem.Identity.Length;
+              var offset = textControl.Caret.Offset() - nameLength;
 
-                postfixItem.Accept(textControl, nameRange,
-                  LookupItemInsertType.Insert, Suffix.Empty, solution, false);
+              postfixItem.Accept(
+                textControl, TextRange.FromLength(offset, nameLength),
+                LookupItemInsertType.Insert, Suffix.Empty,
+                solution, keepCaretStill: false);
 
-                return;
-              }
-
-              updateCookie.Dispose();
+              return;
             }
-          }
-          catch
-          {
+
             updateCookie.Dispose();
-            throw;
           }
+        }
+        catch
+        {
+          updateCookie.Dispose();
+          throw;
         }
 
         nextExecute();
       }
 
-      [CanBeNull] private ILookupItem GetTemplateFromTextControl(
-        [NotNull] ITextControl textControl, [NotNull] ISolution solution)
+      [CanBeNull]
+      private ILookupItem GetTemplateFromTextControl([NotNull] ISolution solution,
+                                                     [NotNull] ITextControl textControl)
       {
         var offset = textControl.Caret.Offset();
         var prefix = LiveTemplatesManager.GetPrefix(textControl.Document, offset);
 
         if (!TemplateWithNameExists(prefix)) return null;
 
-        var postfixItems = TryReparseWith(textControl, solution, prefix, "__")
-                        ?? TryReparseWith(textControl, solution, prefix, "__;");
+        var postfixItems = TryReparseWith(solution, textControl, prefix, "__")
+                        ?? TryReparseWith(solution, textControl, prefix, "__;");
 
-        return (postfixItems != null && postfixItems.Count == 1) ? postfixItems[0] : null;
+        if (postfixItems == null) return null;
+        if (postfixItems.Count != 1) return null;
+
+        return postfixItems[0];
       }
 
-      [CanBeNull] private IList<ILookupItem> TryReparseWith(
-        [NotNull] ITextControl textControl, [NotNull] ISolution solution,
-        [NotNull] string prefix, [NotNull] string reparseString)
+      [CanBeNull]
+      private IList<ILookupItem> TryReparseWith([NotNull] ISolution solution,
+                                                [NotNull] ITextControl textControl,
+                                                [NotNull] string templateName,
+                                                [NotNull] string reparseString)
       {
         var offset = textControl.Caret.Offset();
         var document = textControl.Document;
@@ -139,16 +155,16 @@ namespace JetBrains.ReSharper.PostfixTemplates
           document.InsertText(offset, reparseString);
           solution.GetPsiServices().CommitAllDocuments();
 
-          ILookupItemsOwner itemsOwner = null;
+          var itemsOwner = myItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+          var executionContext = new PostfixExecutionContext(
+            myLifetime, solution, textControl, itemsOwner, reparseString, false);
+
           foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, document, offset))
           {
-            itemsOwner = itemsOwner ?? myItemsOwnerFactory.CreateLookupItemsOwner(textControl);
-            var context = new PostfixExecutionContext(true, position.GetPsiModule(), itemsOwner, reparseString);
+            var postfixContext = myTemplatesManager.IsAvailable(position, executionContext);
+            if (postfixContext == null) continue;
 
-            var templateContext = myTemplatesManager.IsAvailable(position, context);
-            if (templateContext == null) continue;
-
-            return myTemplatesManager.GetAvailableItems(templateContext, templateName: prefix);
+            return myTemplatesManager.CollectItems(postfixContext, templateName: templateName);
           }
 
           return null;

@@ -9,13 +9,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   public abstract class ExpressionPostfixLookupItem<TExpression> : PostfixLookupItem<TExpression>
     where TExpression : class, ICSharpExpression
   {
-    protected ExpressionPostfixLookupItem(
-      [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
+    protected ExpressionPostfixLookupItem([NotNull] string shortcut,
+                                          [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
     protected override TExpression ExpandPostfix(PrefixExpressionContext context)
     {
-      var psiModule = context.PostfixContext.ExecutionContext.PsiModule;
+      var psiModule = context.PostfixContext.Reference.GetPsiModule();
       var expression = psiModule.GetPsiServices().DoTransaction(ExpandCommandName, () =>
       {
         var factory = CSharpElementFactory.GetInstance(psiModule);
@@ -28,8 +28,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       return expression;
     }
 
-    [NotNull] protected abstract TExpression CreateExpression(
-      [NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
+    [NotNull]
+    protected abstract TExpression CreateExpression([NotNull] CSharpElementFactory factory,
+                                                    [NotNull] ICSharpExpression expression);
 
     protected override void AfterComplete(ITextControl textControl, TExpression expression)
     {

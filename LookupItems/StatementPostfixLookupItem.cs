@@ -18,8 +18,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   {
     private readonly bool myUseBraces;
 
-    protected StatementPostfixLookupItem(
-      [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
+    protected StatementPostfixLookupItem([NotNull] string shortcut,
+                                         [NotNull] PrefixExpressionContext context)
       : base(shortcut, context)
     {
       Assertion.Assert(context.CanBeStatement, "context.CanBeStatement");
@@ -43,9 +43,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     protected override TStatement ExpandPostfix(PrefixExpressionContext context)
     {
-      var psiModule = context.PostfixContext.ExecutionContext.PsiModule;
-      var factory = CSharpElementFactory.GetInstance(psiModule);
+      var psiModule = context.PostfixContext.Reference.GetPsiModule();
       var psiServices = psiModule.GetPsiServices();
+      var factory = CSharpElementFactory.GetInstance(psiModule);
 
       var targetStatement = context.GetContainingStatement();
       var expressionRange = context.Expression.GetDocumentRange();

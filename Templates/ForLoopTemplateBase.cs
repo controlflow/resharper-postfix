@@ -18,7 +18,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class ForLoopTemplateBase
   {
-    protected bool CreateItems(PostfixTemplateContext context, out string lengthPropertyName)
+    protected bool CreateItems([NotNull] PostfixTemplateContext context,
+                               [CanBeNull] out string lengthPropertyName)
     {
       lengthPropertyName = null;
 
@@ -36,10 +37,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         if (expressionContext.Type.IsUnknown) return false; // even in force mode
 
-        var table = expressionContext.Type
-          .GetSymbolTable(context.ExecutionContext.PsiModule);
+        var psiModule = expressionContext.Expression.GetPsiModule();
+        var symbolTable = expressionContext.Type.GetSymbolTable(psiModule);
 
-        var publicProperties = table.Filter(
+        var publicProperties = symbolTable.Filter(
           myPropertyFilter, OverriddenFilter.INSTANCE,
           new AccessRightsFilter(new ElementAccessContext(expression)));
 
@@ -67,9 +68,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      protected ForLookupItemBase(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
-        [CanBeNull] string lengthPropertyName) : base(shortcut, context)
+      protected ForLookupItemBase([NotNull] string shortcut,
+                                  [NotNull] PrefixExpressionContext context,
+                                  [CanBeNull] string lengthPropertyName)
+        : base(shortcut, context)
       {
         LengthPropertyName = lengthPropertyName;
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
+using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -16,10 +17,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   [Language(typeof(CSharpLanguage))]
   public class CSharpPostfixItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {
+    [NotNull] private readonly Lifetime myLifetime;
     [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
 
-    public CSharpPostfixItemProvider([NotNull] PostfixTemplatesManager templatesManager)
+    public CSharpPostfixItemProvider([NotNull] Lifetime lifetime,
+                                     [NotNull] PostfixTemplatesManager templatesManager)
     {
+      myLifetime = lifetime;
       myTemplatesManager = templatesManager;
     }
 
@@ -30,41 +34,36 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
              completionType == CodeCompletionType.BasicCompletion;
     }
 
-    public override bool IsAvailableEx(
-      CodeCompletionType[] codeCompletionTypes, CSharpCodeCompletionContext specificContext)
+    public override bool IsAvailableEx([NotNull] CodeCompletionType[] codeCompletionTypes,
+                                       [NotNull] CSharpCodeCompletionContext specificContext)
     {
       return codeCompletionTypes.Length <= 2;
     }
 
-    protected override bool AddLookupItems(
-      CSharpCodeCompletionContext context, GroupedItemsCollector collector)
+    protected override bool AddLookupItems(CSharpCodeCompletionContext context,
+                                           GroupedItemsCollector collector)
     {
       var settingsStore = context.BasicContext.File.GetSettingsStore();
       if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems))
         return false;
 
-      // todo: plz prettify me somehow!
-      PostfixExecutionContext executionContext;
-      PostfixTemplateContext postfixContext;
-      ITreeNode position;
+      var executionContext = new ReparsedPostfixExecutionContext(
+        myLifetime, context.BasicContext, context.UnterminatedContext, "__");
+      var postfixContext = myTemplatesManager.IsAvailable(
+        context.UnterminatedContext.TreeNode, executionContext);
 
+      if (postfixContext == null) // try unterminated context if terminated sucks
       {
-        executionContext = ReparsedPostfixExecutionContext.Create(context, context.UnterminatedContext, "__");
-        position = context.UnterminatedContext.TreeNode;
-        postfixContext = myTemplatesManager.IsAvailable(position, executionContext);
-
-        if (postfixContext == null) // try unterminated context if terminated sucks
-        {
-          executionContext = ReparsedPostfixExecutionContext.Create(context, context.TerminatedContext, "__;");
-          position = context.TerminatedContext.TreeNode;
-          postfixContext = myTemplatesManager.IsAvailable(position, executionContext);
-        }
+        executionContext = new ReparsedPostfixExecutionContext(
+          myLifetime, context.BasicContext, context.TerminatedContext, "__;");
+        postfixContext = myTemplatesManager.IsAvailable(
+          context.TerminatedContext.TreeNode, executionContext);
       }
 
       if (postfixContext == null || postfixContext.Expressions.Count == 0) return false;
 
-      var items = myTemplatesManager.GetAvailableItems(postfixContext);
-      if (items.Count == 0) return false;
+      var lookupItems = myTemplatesManager.CollectItems(postfixContext);
+      if (lookupItems.Count == 0) return false;
 
       ICollection<string> toRemove = EmptyList<string>.InstanceList;
 
@@ -75,32 +74,28 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var firstCompletion = parameters.CodeCompletionTypes[0];
         if (firstCompletion != CodeCompletionType.AutomaticCompletion) return false;
 
-        // run postfix templates like non-force mode enabled
-        var nonForceExecutionContext = executionContext.WithForceMode(false);
+        // run postfix templates like we are in auto completion
+        executionContext.IsAutoCompletion = true;
 
-        var forcedContext = myTemplatesManager.IsAvailable(position, nonForceExecutionContext);
-        if (forcedContext != null)
+        var automaticPostfixItems = myTemplatesManager.CollectItems(postfixContext);
+        if (automaticPostfixItems.Count > 0)
         {
-          var automaticPostfixItems = myTemplatesManager.GetAvailableItems(forcedContext);
-          if (automaticPostfixItems.Count > 0)
+          toRemove = new JetHashSet<string>(StringComparer.Ordinal);
+          foreach (var lookupItem in automaticPostfixItems)
           {
-            toRemove = new JetHashSet<string>(StringComparer.Ordinal);
-            foreach (var lookupItem in automaticPostfixItems)
-            {
-              toRemove.Add(lookupItem.Identity);
-            }
+            toRemove.Add(lookupItem.Identity);
           }
         }
       }
 
-      foreach (var lookupItem in items)
+      foreach (var lookupItem in lookupItems)
       {
         if (toRemove.Contains(lookupItem.Identity)) continue;
 
         collector.AddAtDefaultPlace(lookupItem);
       }
 
-      return (items.Count > 0);
+      return (lookupItems.Count > 0);
     }
   }
 }

@@ -1,10 +1,12 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
@@ -26,7 +28,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       if (context.IsForceMode)
       {
-
+        // disable .arg
 
         return new ArgumentItem(context.OuterExpression);
       }
@@ -34,7 +36,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return null;
     }
 
-    private class ArgumentItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    private class ArgumentItem : ExpressionPostfixLookupItem<IInvocationExpression>
     {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
@@ -46,19 +48,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = executionContext.LiveTemplatesManager;
       }
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
-                                                            ICSharpExpression expression)
+      protected override IInvocationExpression CreateExpression(CSharpElementFactory factory,
+                                                                ICSharpExpression expression)
       {
-        return factory.CreateExpression("Method($0)", expression);
+        return (IInvocationExpression) factory.CreateExpression("Method($0)", expression);
       }
 
-      protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)
+      protected override void AfterComplete(ITextControl textControl, IInvocationExpression expression)
       {
-        var invocationExpression = (IInvocationExpression) expression;
-        var invocationRange = invocationExpression.InvokedExpression.GetDocumentRange();
+        var invocationRange = expression.InvokedExpression.GetDocumentRange();
         var hotspotInfo = new HotspotInfo(new TemplateField("Method", 0), invocationRange.GetHotspotRange());
 
-        var argument = invocationExpression.Arguments[0];
+        var argument = expression.Arguments[0];
         var argumentRange = argument.Value.GetDocumentRange();
 
         var solution = expression.GetSolution();
@@ -69,16 +70,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           expression.GetSolution(), TextRange.InvalidRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] {hotspotInfo});
 
+        var settingsStore = expression.GetSettingsStore();
+        var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+
+        //session.Closed.Advise();
+        // todo: pass lifetime
+
         session.AdviceFinished((sess, type) =>
         {
-          var invocation = sess.Hotspots[0].RangeMarker.Range;
-          if (!invocation.IsValid) return;
+          var invocationDocumentRange = sess.Hotspots[0].RangeMarker.Range;
+          if (!invocationDocumentRange.IsValid) return;
 
           textControl.Caret.MoveTo(
-            invocation.EndOffset + length, CaretVisualPlacement.DontScrollIfVisible);
+            invocationDocumentRange.EndOffset + length, CaretVisualPlacement.DontScrollIfVisible);
 
-          var range = TextRange.FromLength(invocation.EndOffset, length + 1);
-          LookupUtil.ShowParameterInfo(solution, textControl, range, null, myLookupItemsOwner);
+          if (invokeParameterInfo)
+          {
+            var paramsRange = TextRange.FromLength(invocationDocumentRange.EndOffset, length + 1);
+            LookupUtil.ShowParameterInfo(solution, textControl, paramsRange, null, myLookupItemsOwner);
+          }
         });
 
         session.Execute();

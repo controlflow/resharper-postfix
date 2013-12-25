@@ -1,30 +1,42 @@
-﻿using System.Windows.Forms.VisualStyles;
+﻿using System;
 using JetBrains.Annotations;
+using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   public class PostfixExecutionContext
   {
-    public PostfixExecutionContext(bool isForceMode, [NotNull] IPsiModule psiModule,
-      [NotNull] ILookupItemsOwner lookupItemsOwner, [NotNull] string reparseString)
+    public PostfixExecutionContext([NotNull] Lifetime lifetime,
+                                   [NotNull] ISolution solution,
+                                   [NotNull] ITextControl textControl,
+                                   [NotNull] ILookupItemsOwner lookupItemsOwner,
+                                   [NotNull] string reparseString,
+                                   bool isAutoCompletion)
     {
-      PsiModule = psiModule;
+      Lifetime = lifetime;
+      Solution = solution;
+      TextControl = textControl;
       LookupItemsOwner = lookupItemsOwner;
       ReparseString = reparseString;
-      IsForceMode = isForceMode;
-
-      LiveTemplatesManager = psiModule.GetSolution().GetComponent<LiveTemplatesManager>();
+      IsForceMode = !isAutoCompletion;
+      IsAutoCompletion = isAutoCompletion;
+      LiveTemplatesManager = solution.GetComponent<LiveTemplatesManager>();
     }
 
+    // todo: rename to IsAutoCompletion
+    [Obsolete("FUUU")]
     public bool IsForceMode { get; private set; }
+    public bool IsAutoCompletion { get; internal set; }
 
-    [NotNull] public IPsiModule PsiModule { get; private set; }
+    [NotNull] public Lifetime Lifetime { get; private set; }
+    [NotNull] public ISolution Solution { get; private set; }
+    [NotNull] public ITextControl TextControl { get; private set; }
     [NotNull] public ILookupItemsOwner LookupItemsOwner { get; private set; }
     [NotNull] public string ReparseString { get; private set; }
 
@@ -33,13 +45,6 @@ namespace JetBrains.ReSharper.PostfixTemplates
     public virtual DocumentRange GetDocumentRange(ITreeNode treeNode)
     {
       return treeNode.GetDocumentRange();
-    }
-
-    [NotNull] public virtual PostfixExecutionContext WithForceMode(bool enabled)
-    {
-      if (enabled == IsForceMode) return this;
-
-      return new PostfixExecutionContext(enabled, PsiModule, LookupItemsOwner, ReparseString);
     }
   }
 }

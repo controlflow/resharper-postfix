@@ -33,6 +33,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       store.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethods, ShowStaticMembersInCodeCompletion);
       store.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpers, ShowEnumHelpersInCodeCompletion);
       store.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForEmbeddedStatements);
+      store.SetBinding(lifetime, PostfixSettingsAccessor.InvokeParameterInfo, InvokeParameterInfoFromTemplates);
 
       FillTemplates();
     }
@@ -42,6 +43,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     [NotNull] public IProperty<bool> ShowStaticMembersInCodeCompletion { get; private set; }
     [NotNull] public IProperty<bool> ShowEnumHelpersInCodeCompletion { get; private set; }
     [NotNull] public IProperty<bool> UseBracesForEmbeddedStatements { get; private set; }
+    [NotNull] public IProperty<bool> InvokeParameterInfoFromTemplates { get; private set; }
     [NotNull] public ICommand Reset { get; private set; }
 
     private void FillTemplates()

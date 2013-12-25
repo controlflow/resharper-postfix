@@ -23,6 +23,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
     [SettingsEntry(true, "Insert braces for embedded statements")]
     public bool UseBracesForEmbeddedStatements;
+
+    [SettingsEntry(true, "Invoke parameter info from templates")]
+    public bool InvokeParameterInfoFromTemplates;
   }
 
   public static class PostfixSettingsAccessor
@@ -33,6 +36,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       ShowPostfixItems = x => x.ShowPostfixItemsInCodeCompletion,
       ShowStaticMethods = x => x.ShowStaticMethodsInCodeCompletion,
       ShowEnumHelpers = x => x.ShowEnumHelpersInCodeCompletion,
-      BracesForStatements = x => x.UseBracesForEmbeddedStatements;
+      BracesForStatements = x => x.UseBracesForEmbeddedStatements,
+      InvokeParameterInfo = x => x.InvokeParameterInfoFromTemplates;
   }
 }

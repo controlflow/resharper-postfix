@@ -22,45 +22,45 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
     {
+      var psiServices = Reference.GetPsiServices();
       var expressionRange = ExecutionContext.GetDocumentRange(context.Expression);
       var referenceRange = ExecutionContext.GetDocumentRange(Reference);
 
-      var text = expressionRange.SetEndTo(referenceRange.TextRange.EndOffset).GetText();
-      var indexOfReferenceDot = text.LastIndexOf('.');
+      var textWithReference = expressionRange.SetEndTo(referenceRange.TextRange.EndOffset).GetText();
+
+      var indexOfReferenceDot = textWithReference.LastIndexOf('.');
       if (indexOfReferenceDot <= 0) return context;
 
       var realReferenceRange = referenceRange.SetStartTo(
         expressionRange.TextRange.StartOffset + indexOfReferenceDot);
 
-      var solution = ExecutionContext.PsiModule.GetSolution();
-      var document = context.Expression.GetDocumentRange().Document;
+      var document = expressionRange.Document;
 
-      using (solution.CreateTransactionCookie(
+      using (psiServices.Solution.CreateTransactionCookie(
         DefaultAction.Commit, FixCommandName, NullProgressIndicator.Instance))
       {
         document.ReplaceText(realReferenceRange.TextRange, ")");
         document.InsertText(expressionRange.TextRange.StartOffset, "unchecked(");
       }
 
-      solution.GetPsiServices().CommitAllDocuments();
+      psiServices.CommitAllDocuments();
 
       var uncheckedExpression = TextControlToPsi.GetElement<IUncheckedExpression>(
-        solution, document, expressionRange.TextRange.StartOffset + 1);
-      if (uncheckedExpression != null)
+        psiServices.Solution, document, expressionRange.TextRange.StartOffset + 1);
+
+      if (uncheckedExpression == null) return context;
+
+      var operand = uncheckedExpression.Operand;
+      psiServices.DoTransaction(FixCommandName, () =>
       {
-        var operand = uncheckedExpression.Operand;
-        solution.GetPsiServices().DoTransaction(FixCommandName, () =>
-        {
-          LowLevelModificationUtil.DeleteChild(operand);
-          LowLevelModificationUtil.ReplaceChildRange(
-            uncheckedExpression, uncheckedExpression, operand);
-        });
+        LowLevelModificationUtil.DeleteChild(operand);
+        LowLevelModificationUtil.ReplaceChildRange(
+          uncheckedExpression, uncheckedExpression, operand);
+      });
 
-        Assertion.Assert(operand.IsPhysical(), "operand.IsPhysical()");
-        return new PrefixExpressionContext(this, operand);
-      }
+      Assertion.Assert(operand.IsPhysical(), "operand.IsPhysical()");
 
-      return context;
+      return new PrefixExpressionContext(this, operand);
     }
   }
 }
