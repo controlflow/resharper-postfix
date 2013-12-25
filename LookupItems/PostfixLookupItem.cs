@@ -50,6 +50,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return GetType().FullName + " expansion"; }
     }
 
+    [NotNull] protected Lifetime Lifetime
+    {
+      get { return myLifetime; }
+    }
+
     public void Accept(ITextControl textControl, TextRange nameRange,
                        LookupItemInsertType insertType, Suffix suffix,
                        ISolution solution, bool keepCaretStill)

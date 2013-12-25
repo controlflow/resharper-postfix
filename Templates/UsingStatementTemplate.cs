@@ -30,27 +30,22 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var expressionContext = context.OuterExpression;
       if (!expressionContext.CanBeStatement) return null;
 
-      if (!context.IsForceMode)
+      var expression = expressionContext.Expression;
+
+      if (context.IsAutoCompletion)
       {
         if (!expressionContext.Type.IsResolved) return null;
 
-        var predefined = expressionContext.Expression.GetPredefinedType();
-        var rule = expressionContext.Expression.GetTypeConversionRule();
-        if (!rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IDisposable))
-        {
-          return null;
-        }
+        var predefinedType = expression.GetPredefinedType();
+        var conversionRule = expression.GetTypeConversionRule();
+        if (!conversionRule.IsImplicitlyConvertibleTo(
+          expressionContext.Type, predefinedType.IDisposable)) return null;
       }
 
       // check expression is local variable reference
-      ILocalVariable usingVar = null;
-      var expr = expressionContext.Expression as IReferenceExpression;
-      if (expr != null && expr.QualifierExpression == null)
-      {
-        usingVar = expr.Reference.Resolve().DeclaredElement as ILocalVariable;
-      }
+      var resourceVariable = expressionContext.ReferencedElement as ILocalVariable;
 
-      ITreeNode node = expressionContext.Expression;
+      ITreeNode node = expression;
       while (true)
       {
         // inspect containing using statements
@@ -59,11 +54,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         // check if expressions is variable declared with using statement
         var declaration = usingStatement.Declaration;
-        if (usingVar != null && declaration != null)
+        if (resourceVariable != null && declaration != null)
         {
           foreach (var member in declaration.DeclaratorsEnumerable)
           {
-            if (Equals(member.DeclaredElement, usingVar))
+            if (Equals(member.DeclaredElement, resourceVariable))
               return null;
           }
         }
@@ -73,7 +68,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           foreach (var e in usingStatement.ExpressionsEnumerable)
           {
-            if (MiscUtil.AreExpressionsEquivalent(e, expressionContext.Expression))
+            if (MiscUtil.AreExpressionsEquivalent(e, expression))
               return null;
           }
         }
@@ -93,15 +88,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
-      protected override IUsingStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IUsingStatement CreateStatement(CSharpElementFactory factory,
+                                                         ICSharpExpression expression)
       {
         var template = "using (T x = $0)" + EmbeddedStatementBracesTemplate;
         return (IUsingStatement) factory.CreateStatement(template, expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, IUsingStatement statement)
+      protected override void AfterComplete(ITextControl textControl, IUsingStatement statement)
       {
         base.AfterComplete(textControl, statement);
 

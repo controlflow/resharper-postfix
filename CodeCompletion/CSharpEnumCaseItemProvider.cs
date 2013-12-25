@@ -41,8 +41,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           || completionType == CodeCompletionType.BasicCompletion;
     }
 
-    protected override bool AddLookupItems(
-      CSharpCodeCompletionContext context, GroupedItemsCollector collector)
+    protected override bool AddLookupItems(CSharpCodeCompletionContext context,
+                                           GroupedItemsCollector collector)
     {
       var unterminated = context.UnterminatedContext;
       if (unterminated == null) return false;
@@ -79,9 +79,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     [NotNull] private static readonly IClrTypeName 
       FlagsAttributeClrName = new ClrTypeName(typeof(FlagsAttribute).FullName);
 
-    private static bool AddEnumerationMembers(
-      [NotNull] CSharpCodeCompletionContext context, [NotNull] GroupedItemsCollector collector,
-      [NotNull] IDeclaredType qualifierType, [NotNull] IReferenceExpression referenceExpression)
+    private static bool AddEnumerationMembers([NotNull] CSharpCodeCompletionContext context,
+                                              [NotNull] GroupedItemsCollector collector,
+                                              [NotNull] IDeclaredType qualifierType,
+                                              [NotNull] IReferenceExpression referenceExpression)
     {
       var enumerationType = (IEnum) qualifierType.GetTypeElement().NotNull();
       var substitution = qualifierType.GetSubstitution();
@@ -115,7 +116,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       var maxLength = memberValues.Max(x => x.Second.Length);
       var reparsedDotRange = referenceExpression.Delimiter.GetTreeTextRange();
       var originalDotRange = context.UnterminatedContext.ToOriginalTreeRange(reparsedDotRange);
-      var dotMarker = context.BasicContext.File.GetDocumentRange(originalDotRange).CreateRangeMarker();
+      var file = context.BasicContext.File;
+      var dotMarker = file.GetDocumentRange(originalDotRange).CreateRangeMarker();
 
       foreach (var member in memberValues)
       {
@@ -153,19 +155,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     private sealed class EnumMemberLookupItem : PostfixLookupItemBase, ILookupItem
     {
       [NotNull] private readonly IRangeMarker myDotRangeMarker;
-      [NotNull] private readonly IElementInstancePointer<IField> myMemberPointer;
+      [NotNull] private readonly IElementInstancePointer<IField> myPointer;
       [NotNull] private readonly string myShortName;
       private readonly bool myIsFlags;
 
-      public EnumMemberLookupItem(
-        [NotNull] IRangeMarker dotRangeMarker,
-        [NotNull] DeclaredElementInstance<IField> enumMember,
-        [NotNull] string normalizedValue, [NotNull] string value, bool isFlags)
+      public EnumMemberLookupItem([NotNull] IRangeMarker dotRangeMarker,
+                                  [NotNull] DeclaredElementInstance<IField> enumMember,
+                                  [NotNull] string normalizedValue,
+                                  [NotNull] string value, bool isFlags)
       {
         myDotRangeMarker = dotRangeMarker;
-        myMemberPointer = enumMember.CreateElementInstancePointer();
+        myPointer = enumMember.CreateElementInstancePointer();
         myShortName = enumMember.Element.ShortName;
-        myIsFlags = isFlags && normalizedValue.Any(x => x != '0');
+        myIsFlags = isFlags && normalizedValue.Any(x => x != '0'); // ugh :(
 
         DisplayName = new RichText(myShortName, new TextStyle(FontStyle.Bold));
         Identity = "   ENUM_MEMBER_" + normalizedValue;
@@ -177,16 +179,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         }
       }
 
-      public void Accept(ITextControl textControl,
-        TextRange nameRange, LookupItemInsertType insertType,
-        Suffix suffix, ISolution solution, bool keepCaretStill)
+      public void Accept(ITextControl textControl, TextRange nameRange,
+                         LookupItemInsertType insertType, Suffix suffix,
+                         ISolution solution, bool keepCaretStill)
       {
         textControl.Document.ReplaceText(nameRange, "E()");
 
         var psiServices = solution.GetPsiServices();
         psiServices.CommitAllDocuments();
 
-        var enumMember = myMemberPointer.Resolve();
+        var enumMember = myPointer.Resolve();
         if (enumMember == null) return;
 
         var referenceExpression = FindReferenceExpression(textControl, solution);
@@ -216,8 +218,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         }
       }
 
-      [CanBeNull] private IReferenceExpression FindReferenceExpression(
-        [NotNull] ITextControl textControl, [NotNull] ISolution solution)
+      [CanBeNull]
+      private IReferenceExpression FindReferenceExpression([NotNull] ITextControl textControl,
+                                                           [NotNull] ISolution solution)
       {
         var dotRange = myDotRangeMarker.DocumentRange;
         if (!dotRange.IsValid()) return null;

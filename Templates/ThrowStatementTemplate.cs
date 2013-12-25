@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var referencedType = expressionContext.ReferencedType;
       var expression = expressionContext.Expression;
 
-      if (!context.IsForceMode)
+      if (context.IsAutoCompletion)
       {
         var rule = expression.GetTypeConversionRule();
         var predefined = expression.GetPredefinedType();
@@ -57,8 +57,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       public ThrowValueItem([NotNull] PrefixExpressionContext context) : base("throw", context) { }
 
-      protected override IThrowStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IThrowStatement CreateStatement(CSharpElementFactory factory,
+                                                         ICSharpExpression expression)
       {
         return (IThrowStatement) factory.CreateStatement("throw $0;", expression);
       }
@@ -67,17 +67,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     private sealed class ThrowByTypeItem : StatementPostfixLookupItem<IThrowStatement>
     {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
-      private readonly bool myHasCtorWithParams;
+      private readonly bool myHasParameters;
 
-      public ThrowByTypeItem([NotNull] PrefixExpressionContext context, bool hasCtorWithParams)
+      public ThrowByTypeItem([NotNull] PrefixExpressionContext context, bool hasParameters)
         : base("throw", context)
       {
         myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
-        myHasCtorWithParams = hasCtorWithParams;
+        myHasParameters = hasParameters;
       }
 
-      protected override IThrowStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IThrowStatement CreateStatement(CSharpElementFactory factory,
+                                                         ICSharpExpression expression)
       {
         return (IThrowStatement) factory.CreateStatement("throw new $0();", expression.GetText());
       }
@@ -85,20 +85,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected override void AfterComplete(ITextControl textControl, IThrowStatement statement)
       {
         var exception = (IObjectCreationExpression) statement.Exception;
-        var endOffset = myHasCtorWithParams
+        var endOffset = myHasParameters
           ? exception.LPar.GetDocumentRange().TextRange.EndOffset
           : statement.GetDocumentRange().TextRange.EndOffset;
 
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
-        if (!myHasCtorWithParams) return;
+        if (!myHasParameters) return;
 
-        var parenthesisRange =
-          exception.LPar.GetDocumentRange().SetEndTo(
-            exception.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
+        var parenthesisRange = exception.LPar.GetDocumentRange().SetEndTo(
+          exception.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
 
         var solution = statement.GetSolution();
-        LookupUtil.ShowParameterInfo(
-          solution, textControl, parenthesisRange, null, myLookupItemsOwner);
+        LookupUtil.ShowParameterInfo(solution, textControl, parenthesisRange, null, myLookupItemsOwner);
       }
     }
   }

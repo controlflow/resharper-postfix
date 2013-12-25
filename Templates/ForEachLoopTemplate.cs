@@ -29,7 +29,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (expressionContext == null) return null;
       if (!expressionContext.CanBeStatement) return null;
 
-      var typeIsEnumerable = context.IsForceMode;
+      var typeIsEnumerable = !context.IsAutoCompletion;
       if (!typeIsEnumerable)
       {
         if (!expressionContext.Type.IsResolved) return null;
@@ -37,7 +37,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var predefined = expressionContext.Expression.GetPredefinedType();
         var rule = expressionContext.Expression.GetTypeConversionRule();
         if (rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IEnumerable))
+        {
           typeIsEnumerable = true;
+        }
       }
 
       if (!typeIsEnumerable)
@@ -53,12 +55,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         }
       }
 
-      if (typeIsEnumerable)
-      {
-        return new ForEachItem(expressionContext);
-      }
-
-      return null;
+      if (!typeIsEnumerable) return null;
+      return new ForEachItem(expressionContext);
     }
 
     private sealed class ForEachItem : StatementPostfixLookupItem<IForeachStatement>
@@ -70,8 +68,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
-      protected override IForeachStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IForeachStatement CreateStatement(CSharpElementFactory factory,
+                                                           ICSharpExpression expression)
       {
         var template = "foreach(var x in $0)" + EmbeddedStatementBracesTemplate;
         return (IForeachStatement) factory.CreateStatement(template, expression);

@@ -75,12 +75,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         return new IntroduceVarByTypeItem(bestContext, referencedType, lookupItemsOwner);
       }
 
-      if (context.IsForceMode)
-      {
-        return new IntroduceVarExpressionItem(bestContext);
-      }
+      if (context.IsAutoCompletion) return null;
 
-      return null;
+      return new IntroduceVarExpressionItem(bestContext);
     }
 
     private sealed class IntroduceVarExpressionItem : ExpressionPostfixLookupItem<ICSharpExpression>

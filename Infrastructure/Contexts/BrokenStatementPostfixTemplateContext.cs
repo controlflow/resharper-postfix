@@ -12,9 +12,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public class BrokenStatementPostfixTemplateContext : PostfixTemplateContext
   {
-    public BrokenStatementPostfixTemplateContext(
-      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
-      [NotNull] PostfixExecutionContext executionContext)
+    public BrokenStatementPostfixTemplateContext([NotNull] ITreeNode reference,
+                                                 [NotNull] ICSharpExpression expression,
+                                                 [NotNull] PostfixExecutionContext executionContext)
       : base(reference, expression, executionContext) { }
 
     private static readonly string FixCommandName =

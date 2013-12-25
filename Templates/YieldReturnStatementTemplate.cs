@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var function = declaration.DeclaredElement;
       if (function == null) return null;
 
-      if (context.IsForceMode)
+      if (!context.IsAutoCompletion)
       {
         return new YieldItem(expressionContext);
       }

@@ -17,13 +17,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
+      var containingFunction = context.ContainingFunction;
+      if (containingFunction == null) return null;
 
-      var function = context.ContainingFunction;
-      if (function == null) return null;
-
-      if (!context.IsForceMode)
+      if (context.IsAutoCompletion)
       {
-        if (!function.IsAsync) return null;
+        if (!containingFunction.IsAsync) return null;
 
         var expressionType = expressionContext.Type;
         if (!expressionType.IsUnknown)
@@ -34,24 +33,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
 
       // check expression is not already awaited
-      var expression = (context.Reference as IReferenceExpression);
-      var unaryExpression = expression.GetContainingParenthesizedExpression();
+      var referenceExpression = context.Reference as IReferenceExpression;
+      var expression = referenceExpression.GetContainingParenthesizedExpression();
+      var task = AwaitExpressionNavigator.GetByTask(expression as IUnaryExpression);
+      if (task != null) return null;
 
-      var awaitExpression = AwaitExpressionNavigator.GetByTask(unaryExpression as IUnaryExpression);
-      if (awaitExpression == null)
-      {
-        return new AwaitItem(expressionContext);
-      }
-
-      return null;
+      return new AwaitItem(expressionContext);
     }
 
     private sealed class AwaitItem : ExpressionPostfixLookupItem<IAwaitExpression>
     {
       public AwaitItem([NotNull] PrefixExpressionContext context) : base("await", context) { }
 
-      protected override IAwaitExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IAwaitExpression CreateExpression(CSharpElementFactory factory,
+                                                           ICSharpExpression expression)
       {
         return (IAwaitExpression) factory.CreateExpression("await $0", expression);
       }

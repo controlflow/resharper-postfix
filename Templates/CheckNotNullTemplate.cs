@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           return new CheckForNullStatementItem("notNull", outerExpression, "if($0!=null)");
         }
       }
-      else if (context.IsForceMode)
+      else if (!context.IsAutoCompletion)
       {
         var innerExpression = context.InnerExpression;
         if (IsNullable(innerExpression))

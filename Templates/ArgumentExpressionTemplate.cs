@@ -26,14 +26,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      if (context.IsForceMode)
-      {
-        // disable .arg
+      if (context.IsAutoCompletion) return null;
 
-        return new ArgumentItem(context.OuterExpression);
-      }
+      // disable .arg
 
-      return null;
+      return new ArgumentItem(context.OuterExpression);
     }
 
     private class ArgumentItem : ExpressionPostfixLookupItem<IInvocationExpression>
@@ -57,7 +54,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected override void AfterComplete(ITextControl textControl, IInvocationExpression expression)
       {
         var invocationRange = expression.InvokedExpression.GetDocumentRange();
-        var hotspotInfo = new HotspotInfo(new TemplateField("Method", 0), invocationRange.GetHotspotRange());
+        var hotspotInfo = new HotspotInfo(
+          new TemplateField("Method", 0), invocationRange.GetHotspotRange());
 
         var argument = expression.Arguments[0];
         var argumentRange = argument.Value.GetDocumentRange();
@@ -70,19 +68,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           expression.GetSolution(), TextRange.InvalidRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] {hotspotInfo});
 
-        var settingsStore = expression.GetSettingsStore();
-        var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+        var settings = expression.GetSettingsStore();
+        var invokeParameterInfo = settings.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
 
-        //session.Closed.Advise();
-        // todo: pass lifetime
-
-        session.AdviceFinished((sess, type) =>
+        session.Closed.Advise(Lifetime, _ =>
         {
-          var invocationDocumentRange = sess.Hotspots[0].RangeMarker.Range;
+          var invocationDocumentRange = session.Hotspots[0].RangeMarker.Range;
           if (!invocationDocumentRange.IsValid) return;
 
-          textControl.Caret.MoveTo(
-            invocationDocumentRange.EndOffset + length, CaretVisualPlacement.DontScrollIfVisible);
+          var endOffset = invocationDocumentRange.EndOffset + length;
+          textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
           if (invokeParameterInfo)
           {

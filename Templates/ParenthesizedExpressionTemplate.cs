@@ -18,27 +18,27 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      if (!context.IsForceMode) return null;
+      if (context.IsAutoCompletion) return null;
 
-      PrefixExpressionContext bestExpression = null;
-      foreach (var expression in context.Expressions.Reverse())
+      PrefixExpressionContext bestContext = null;
+      foreach (var expressionContext in context.Expressions.Reverse())
       {
-        if (CommonUtils.IsNiceExpression(expression.Expression))
+        if (CommonUtils.IsNiceExpression(expressionContext.Expression))
         {
-          bestExpression = expression;
+          bestContext = expressionContext;
           break;
         }
       }
 
-      return new ParenthesesItem(bestExpression ?? context.OuterExpression);
+      return new ParenthesesItem(bestContext ?? context.OuterExpression);
     }
 
     private sealed class ParenthesesItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
       public ParenthesesItem([NotNull] PrefixExpressionContext context) : base("par", context) { }
 
-      protected override ICSharpExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
+                                                            ICSharpExpression expression)
       {
         return factory.CreateExpression("($0)", expression);
       }

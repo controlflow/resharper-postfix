@@ -60,7 +60,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           context.TerminatedContext.TreeNode, executionContext);
       }
 
-      if (postfixContext == null || postfixContext.Expressions.Count == 0) return false;
+      if (postfixContext == null || postfixContext.Expressions.Count == 0)
+        return false;
 
       var lookupItems = myTemplatesManager.CollectItems(postfixContext);
       if (lookupItems.Count == 0) return false;
@@ -69,7 +70,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       // double completion support
       var parameters = context.BasicContext.Parameters;
-      if (executionContext.IsForceMode && parameters.CodeCompletionTypes.Length > 1)
+      if (!executionContext.IsAutoCompletion && parameters.CodeCompletionTypes.Length > 1)
       {
         var firstCompletion = parameters.CodeCompletionTypes[0];
         if (firstCompletion != CodeCompletionType.AutomaticCompletion) return false;

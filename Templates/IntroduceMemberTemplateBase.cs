@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var classDeclaration = functionDeclaration.GetContainingNode<IClassDeclaration>();
       if (classDeclaration == null) return null;
 
-      if (context.IsForceMode || functionDeclaration.DeclaredElement is IConstructor)
+      if (!context.IsAutoCompletion || functionDeclaration.DeclaredElement is IConstructor)
       {
         foreach (var expression in context.Expressions)
         {
@@ -49,8 +49,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return null;
     }
 
-    protected abstract IntroduceMemberLookupItem CreateItem(
-      [NotNull] PrefixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
+    protected abstract IntroduceMemberLookupItem CreateItem([NotNull] PrefixExpressionContext expression,
+                                                            [NotNull] IType expressionType, bool isStatic);
 
     protected abstract class IntroduceMemberLookupItem : StatementPostfixLookupItem<IExpressionStatement>
     {
@@ -59,11 +59,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       [NotNull] private ICollection<string> myMemberNames;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-      [CanBeNull] private ITreeNodePointer<IClassMemberDeclaration> myMember;
+      [CanBeNull] private ITreeNodePointer<IClassMemberDeclaration> myMemberPointer;
 
-      protected IntroduceMemberLookupItem(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context, 
-        [NotNull] IType expressionType, bool isStatic) : base(shortcut, context)
+      protected IntroduceMemberLookupItem([NotNull] string shortcut,
+                                          [NotNull] PrefixExpressionContext context,
+                                          [NotNull] IType expressionType, bool isStatic)
+        : base(shortcut, context)
       {
         IsStatic = isStatic;
         ExpressionType = expressionType;
@@ -71,8 +72,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
-      protected override IExpressionStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory,
+                                                              ICSharpExpression expression)
       {
         var statement = (IExpressionStatement) factory.CreateStatement("__ = expression;");
 
@@ -81,9 +82,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         var newDeclaration = CreateMemberDeclaration(factory);
         var newMember = classDeclaration.AddClassMemberDeclarationAfter(
-          newDeclaration, (IClassMemberDeclaration)anchor);
+          newDeclaration, (IClassMemberDeclaration) anchor);
 
-        var assignment = (IAssignmentExpression)statement.Expression;
+        var assignment = (IAssignmentExpression) statement.Expression;
         assignment.SetSource(expression);
 
         var suggestionManager = statement.GetPsiServices().Naming.Suggestion;
@@ -96,22 +97,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         newMember.SetName(collection.FirstName());
         myMemberNames = collection.AllNames();
-        myMember = newMember.CreatePointer();
+        myMemberPointer = newMember.CreatePointer();
 
         return statement;
       }
 
       [CanBeNull]
-      protected abstract ICSharpTypeMemberDeclaration GetAnchorMember(IList<ICSharpTypeMemberDeclaration> members);
+      protected abstract ICSharpTypeMemberDeclaration GetAnchorMember(
+        [NotNull] IList<ICSharpTypeMemberDeclaration> members);
 
       [NotNull]
       protected abstract IClassMemberDeclaration CreateMemberDeclaration([NotNull] CSharpElementFactory factory);
 
       protected override void AfterComplete(ITextControl textControl, IExpressionStatement statement)
       {
-        if (myMember == null) return;
+        if (myMemberPointer == null) return;
 
-        var memberDeclaration = myMember.GetTreeNode();
+        var memberDeclaration = myMemberPointer.GetTreeNode();
         if (memberDeclaration == null) return;
 
         var assignment = (IAssignmentExpression) statement.Expression;

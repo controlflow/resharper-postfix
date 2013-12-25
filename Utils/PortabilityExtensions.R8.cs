@@ -39,6 +39,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return value;
     }
 
+    // todo: inline
     public static DocumentRange GetHotspotRange(this DocumentRange documentRange)
     {
       return documentRange;
@@ -49,6 +50,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return CSharpDeclaredElementUtil.IsForeachEnumeratorPatternType(typeElement);
     }
 
+    // todo: remove
     public static void AdviceFinished(
       [NotNull] this HotspotSession session, [NotNull] Action<HotspotSession, TerminationType> action)
     {

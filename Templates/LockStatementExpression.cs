@@ -19,15 +19,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (!expressionContext.CanBeStatement) return null;
 
       var expressionType = expressionContext.Type;
-      if (expressionType.IsUnknown)
+
+      if (context.IsAutoCompletion)
       {
-        if (!context.IsForceMode) return null;
+        if (expressionType.IsUnknown) return null;
+        if (!expressionType.IsObject()) return null;
       }
       else
       {
-        if (context.IsForceMode
-          ? (expressionType.Classify == TypeClassification.VALUE_TYPE)
-          : !expressionType.IsObject()) return null;
+        if (expressionType.Classify == TypeClassification.VALUE_TYPE) return null;
       }
 
       return new LockItem(expressionContext);
@@ -37,7 +37,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       public LockItem([NotNull] PrefixExpressionContext context) : base("lock", context) { }
 
-      protected override ILockStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ILockStatement CreateStatement(CSharpElementFactory factory,
+                                                        ICSharpExpression expression)
       {
         var template = "lock($0)" + EmbeddedStatementBracesTemplate;
         return (ILockStatement) factory.CreateStatement(template, expression);

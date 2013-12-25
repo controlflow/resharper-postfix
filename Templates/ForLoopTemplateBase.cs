@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (!expressionContext.CanBeStatement) return false;
 
       var expression = expressionContext.Expression;
-      if (!context.IsForceMode && !expression.IsPure()) return false;
+      if (context.IsAutoCompletion && !expression.IsPure()) return false;
 
       if (expressionContext.Type is IArrayType)
       {

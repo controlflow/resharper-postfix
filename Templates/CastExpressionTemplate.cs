@@ -22,19 +22,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      if (!context.IsForceMode) return null;
+      if (context.IsAutoCompletion) return null;
 
-      PrefixExpressionContext bestExpression = null;
-      foreach (var expression in context.Expressions.Reverse())
+      PrefixExpressionContext bestContext = null;
+      foreach (var expressionContext in context.Expressions.Reverse())
       {
-        if (CommonUtils.IsNiceExpression(expression.Expression))
+        if (CommonUtils.IsNiceExpression(expressionContext.Expression))
         {
-          bestExpression = expression;
+          bestContext = expressionContext;
           break;
         }
       }
 
-      return new CastItem(bestExpression ?? context.OuterExpression);
+      return new CastItem(bestContext ?? context.OuterExpression);
     }
 
     private sealed class CastItem : ExpressionPostfixLookupItem<ICastExpression>
@@ -46,8 +46,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
-      protected override ICastExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ICastExpression CreateExpression(CSharpElementFactory factory,
+                                                          ICSharpExpression expression)
       {
         return (ICastExpression) factory.CreateExpression("(T) $0", expression);
       }

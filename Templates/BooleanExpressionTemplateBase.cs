@@ -13,27 +13,32 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       foreach (var expressionContext in context.Expressions)
       {
-        if (expressionContext.Type.IsBool() || IsBooleanExpression(expressionContext.Expression))
+        if (IsBooleanExpression(expressionContext))
         {
           var lookupItem = CreateBooleanItem(expressionContext);
           if (lookupItem != null) return lookupItem;
         }
       }
 
-      if (context.IsForceMode)
+      if (context.IsAutoCompletion) return null;
+
+      foreach (var expressionContext in context.Expressions)
       {
-        foreach (var expressionContext in context.Expressions)
-        {
-          var lookupItem = CreateBooleanItem(expressionContext);
-          if (lookupItem != null) return lookupItem;
-        }
+        var lookupItem = CreateBooleanItem(expressionContext);
+        if (lookupItem != null) return lookupItem;
       }
 
       return null;
     }
 
-    private static bool IsBooleanExpression([CanBeNull] ICSharpExpression expression)
+    [CanBeNull]
+    protected abstract ILookupItem CreateBooleanItem([NotNull] PrefixExpressionContext expression);
+
+    private static bool IsBooleanExpression([NotNull] PrefixExpressionContext context)
     {
+      if (context.Type.IsBool()) return false;
+
+      var expression = context.Expression;
       return expression is IRelationalExpression
           || expression is IEqualityExpression
           || expression is IConditionalAndExpression
@@ -41,8 +46,5 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           || expression is IUnaryOperatorExpression // TODO: check with +expr and other non-boolean unary
           || expression is IIsExpression;
     }
-
-    [CanBeNull]
-    protected abstract ILookupItem CreateBooleanItem([NotNull] PrefixExpressionContext expression);
   }
 }

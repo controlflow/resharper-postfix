@@ -94,9 +94,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
       get { return myReference; }
     }
 
-    public bool IsForceMode
+    public bool IsAutoCompletion
     {
-      get { return ExecutionContext.IsForceMode; }
+      get { return ExecutionContext.IsAutoCompletion; }
     }
 
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction

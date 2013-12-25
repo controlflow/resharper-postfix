@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var function = declaration.DeclaredElement;
       if (function == null) return null;
 
-      if (context.IsForceMode)
+      if (!context.IsAutoCompletion)
       {
         return new ReturnLookupItem(expressionContext);
       }
@@ -45,12 +45,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           var genericTask = returnType as IDeclaredType;
           if (genericTask != null && genericTask.IsGenericTask())
           {
-            var element = genericTask.GetTypeElement();
-            if (element != null)
+            var typeElement = genericTask.GetTypeElement();
+            if (typeElement != null)
             {
-              var typeParameters = element.TypeParameters;
+              var typeParameters = typeElement.TypeParameters;
               if (typeParameters.Count == 1)
-                returnType = genericTask.GetSubstitution()[typeParameters[0]];
+              {
+                var typeParameter = typeParameters[0];
+                returnType = genericTask.GetSubstitution()[typeParameter];
+              }
             }
           }
         }
@@ -70,8 +73,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public ReturnLookupItem([NotNull] PrefixExpressionContext context)
         : base("return", context) { }
 
-      protected override IReturnStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IReturnStatement CreateStatement(CSharpElementFactory factory,
+                                                          ICSharpExpression expression)
       {
         return (IReturnStatement) factory.CreateStatement("return $0;", expression);
       }
