@@ -112,7 +112,6 @@ Join
 + TrimEnd
 + TrimStart
 + []
-+ arg
 + foreach
 + notnull
 + null

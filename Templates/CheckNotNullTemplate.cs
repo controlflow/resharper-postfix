@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var outerExpression = context.OuterExpression;
       if (outerExpression.CanBeStatement)
       {
-        if (IsNullableType(outerExpression.Type))
+        if (IsNullable(outerExpression))
         {
           return new CheckForNullStatementItem("notNull", outerExpression, "if($0!=null)");
         }
@@ -21,7 +21,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       else if (context.IsForceMode)
       {
         var innerExpression = context.InnerExpression;
-        if (IsNullableType(innerExpression.Type))
+        if (IsNullable(innerExpression))
         {
           return new CheckForNullExpressionItem("notNull", innerExpression, "$0!=null");
         }

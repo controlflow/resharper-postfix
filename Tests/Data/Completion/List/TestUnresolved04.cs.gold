@@ -16,5 +16,6 @@
 + while
 + yield
 # AUTOMATIC #
-+ arg
++ notnull
++ null
 + var

@@ -17,6 +17,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
+
       var function = context.ContainingFunction;
       if (function == null) return null;
 

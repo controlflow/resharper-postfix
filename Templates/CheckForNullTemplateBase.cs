@@ -8,16 +8,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class CheckForNullTemplateBase
   {
-    protected static bool IsNullableType([NotNull] IType type)
+    protected static bool IsNullable([NotNull] PrefixExpressionContext expressionContext)
     {
-      switch (type.Classify)
+      var expression = expressionContext.Expression;
+      if (expression is IThisExpression) return false;
+      if (expression is IBaseExpression) return false;
+      if (expression is IObjectCreationExpression) return false;
+
+      switch (expressionContext.Type.Classify)
       {
         case null:
         case TypeClassification.REFERENCE_TYPE:
           return true;
 
         case TypeClassification.VALUE_TYPE:
-          return type.IsNullable();
+          return expressionContext.Type.IsNullable();
 
         default:
           return false;
@@ -30,7 +35,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       public CheckForNullStatementItem([NotNull] string shortcut,
                                        [NotNull] PrefixExpressionContext context,
-                                       [NotNull] string template) : base(shortcut, context)
+                                       [NotNull] string template)
+        : base(shortcut, context)
       {
         myTemplate = template;
       }

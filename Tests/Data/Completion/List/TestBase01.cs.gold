@@ -1,11 +1,8 @@
-﻿BaseMethod
-+ Equals
-FooArgOverloaded
+﻿+ Equals
 + GetHashCode
 + GetType
-SingleFooArg
++ MemberwiseClone
 + ToString
-TwoFooArg
 + arg
 + await
 + cast
@@ -15,23 +12,19 @@ TwoFooArg
 + if
 + lock
 + not
-+ notnull
-+ null
 + par
 + prop
 + return
 + throw
 + using
++ var
 + while
 + yield
 # AUTOMATIC #
-BaseMethod
 + Equals
-FooArgOverloaded
 + GetHashCode
 + GetType
-SingleFooArg
++ MemberwiseClone
 + ToString
-TwoFooArg
-+ notnull
-+ null
++ lock
++ var

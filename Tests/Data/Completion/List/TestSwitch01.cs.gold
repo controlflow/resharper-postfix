@@ -28,5 +28,6 @@ CompareTo
 Equals
 GetHashCode
 GetTypeCode
-arg
+notnull
+null
 var

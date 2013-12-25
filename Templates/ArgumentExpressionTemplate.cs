@@ -25,22 +25,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var expressionContext = context.OuterExpression;
       if (context.IsForceMode)
       {
-        var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-        return new ArgumentItem(expressionContext, lookupItemsOwner);
-      }
-
-      if (expressionContext.CanBeStatement)
-      {
-        // filter out expressions, unlikely suitable as arguments
-        if (CommonUtils.IsNiceExpression(expressionContext.Expression))
-        {
-          // foo.Bar().Baz.arg
-          var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-          return new ArgumentItem(expressionContext, lookupItemsOwner);
-        }
+        return new ArgumentItem(context.OuterExpression);
       }
 
       return null;
@@ -51,16 +38,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public ArgumentItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] ILookupItemsOwner lookupItemsOwner) : base("arg", context)
+      public ArgumentItem([NotNull] PrefixExpressionContext context) : base("arg", context)
       {
-        myLookupItemsOwner = lookupItemsOwner;
-        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
+        var executionContext = context.Parent.ExecutionContext;
+        myLookupItemsOwner = executionContext.LookupItemsOwner;
+        myTemplatesManager = executionContext.LiveTemplatesManager;
       }
 
-      protected override ICSharpExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
+                                                            ICSharpExpression expression)
       {
         return factory.CreateExpression("Method($0)", expression);
       }
@@ -69,8 +55,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         var invocationExpression = (IInvocationExpression) expression;
         var invocationRange = invocationExpression.InvokedExpression.GetDocumentRange();
-        var hotspotInfo = new HotspotInfo(
-          new TemplateField("Method", 0), invocationRange.GetHotspotRange());
+        var hotspotInfo = new HotspotInfo(new TemplateField("Method", 0), invocationRange.GetHotspotRange());
 
         var argument = invocationExpression.Arguments[0];
         var argumentRange = argument.Value.GetDocumentRange();
@@ -95,11 +80,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           LookupUtil.ShowParameterInfo(
             solution, textControl, range, null, myLookupItemsOwner);
         });
-
-        //session.Lifetime.AddAction(() =>
-        //{
-        //  
-        //});
 
         session.Execute();
       }
