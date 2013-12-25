@@ -28,7 +28,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         if (attributes.Length == 1)
         {
-          var info = new TemplateProviderInfo(provider, providerType.FullName, attributes[0]);
+          var info = new TemplateProviderInfo(provider, attributes[0], providerType.FullName);
           infos.Add(info);
         }
       }
@@ -38,17 +38,18 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     public sealed class TemplateProviderInfo
     {
-      [NotNull] public IPostfixTemplate Provider { get; private set; }
-      [NotNull] public PostfixTemplateAttribute Metadata { get; private set; }
-      [NotNull] public string SettingsKey { get; private set; }
-
       public TemplateProviderInfo([NotNull] IPostfixTemplate provider,
-        [NotNull] string providerKey, [NotNull] PostfixTemplateAttribute metadata)
+                                  [NotNull] PostfixTemplateAttribute metadata,
+                                  [NotNull] string providerKey)
       {
         Provider = provider;
         Metadata = metadata;
         SettingsKey = providerKey;
       }
+
+      [NotNull] public IPostfixTemplate Provider { get; private set; }
+      [NotNull] public PostfixTemplateAttribute Metadata { get; private set; }
+      [NotNull] public string SettingsKey { get; private set; }
     }
 
     [NotNull] public IList<TemplateProviderInfo> TemplateProvidersInfos
@@ -56,8 +57,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
       get { return myTemplateProvidersInfos; }
     }
 
-    [NotNull] public IList<ILookupItem> CollectItems(
-      [NotNull] PostfixTemplateContext context, [CanBeNull] string templateName = null)
+    [NotNull]
+    public IList<ILookupItem> CollectItems([NotNull] PostfixTemplateContext context,
+                                           [CanBeNull] string templateName = null)
     {
       var store = context.Reference.GetSettingsStore();
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
@@ -95,8 +97,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return items;
     }
 
-    [CanBeNull] public PostfixTemplateContext IsAvailable(
-      [CanBeNull] ITreeNode position, [NotNull] PostfixExecutionContext executionContext)
+    [CanBeNull]
+    public PostfixTemplateContext IsAvailable([CanBeNull] ITreeNode position,
+                                              [NotNull] PostfixExecutionContext context)
     {
       if (!(position is ICSharpIdentifier)) return null;
 
@@ -107,7 +110,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
         var expression = referenceExpression.QualifierExpression;
         if (expression != null)
         {
-          return new ReferenceExpressionPostfixTemplateContext(referenceExpression, expression, executionContext);
+          return new ReferenceExpressionPostfixTemplateContext(referenceExpression, expression, context);
         }
       }
 
@@ -121,7 +124,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           var expression = typeUsage.Parent as ICSharpExpression;
           if (expression != null)
           {
-            return new ReferenceNamePostfixTemplateContext(referenceName, expression, executionContext);
+            return new ReferenceNamePostfixTemplateContext(referenceName, expression, context);
           }
         }
       }
@@ -136,7 +139,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           var expression = FindExpressionBrokenByKeyword(expressionStatement);
           if (expression != null)
           {
-            return new BrokenStatementPostfixTemplateContext(brokenStatement, expression, executionContext);
+            return new BrokenStatementPostfixTemplateContext(brokenStatement, expression, context);
           }
         }
       }

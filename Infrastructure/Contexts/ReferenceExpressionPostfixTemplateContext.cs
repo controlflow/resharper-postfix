@@ -6,9 +6,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public class ReferenceExpressionPostfixTemplateContext : PostfixTemplateContext
   {
-    public ReferenceExpressionPostfixTemplateContext(
-      [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression,
-      [NotNull] PostfixExecutionContext executionContext)
+    public ReferenceExpressionPostfixTemplateContext([NotNull] IReferenceExpression reference,
+                                                     [NotNull] ICSharpExpression expression,
+                                                     [NotNull] PostfixExecutionContext executionContext)
       : base(reference, expression, executionContext) { }
 
     private static readonly string FixCommandName =
@@ -45,10 +45,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     public override ICSharpExpression GetOuterExpression(ICSharpExpression expression)
     {
-      var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-      if (referenceExpression != null && referenceExpression == Reference)
+      var reference = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
+      if (reference != null && reference == Reference)
       {
-        return referenceExpression;
+        return reference;
       }
 
       return base.GetOuterExpression(expression);

@@ -1,9 +1,11 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Web.CodeBehindSupport;
 using JetBrains.Util;
@@ -12,8 +14,39 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public static class CommonUtils
   {
-    public static DocumentRange ToDocumentRange(
-      [CanBeNull] this ReparsedCodeCompletionContext context, [NotNull] ITreeNode treeNode)
+    public static PredefinedType GetPredefinedType([NotNull] this ITreeNode node)
+    {
+      return node.GetPsiModule().GetPredefinedType(node.GetResolveContext());
+    }
+
+    public static void CommitAllDocuments([NotNull] this IPsiServices services)
+    {
+      services.Files.CommitAllDocuments();
+    }
+
+    public static void DoTransaction(
+      [NotNull] this IPsiServices services, [NotNull] string commandName,
+      [NotNull, InstantHandle] Action action)
+    {
+      services.Transactions.Execute(commandName, action);
+    }
+
+    public static T DoTransaction<T>(
+      [NotNull] this IPsiServices services, [NotNull] string commandName,
+      [NotNull, InstantHandle] Func<T> func)
+    {
+      var value = default(T);
+      services.Transactions.Execute(commandName, () => value = func());
+      return value;
+    }
+
+    public static bool IsForeachEnumeratorPatternType([NotNull] this ITypeElement typeElement)
+    {
+      return CSharpDeclaredElementUtil.IsForeachEnumeratorPatternType(typeElement);
+    }
+
+    public static DocumentRange ToDocumentRange([CanBeNull] this ReparsedCodeCompletionContext context,
+                                                [NotNull] ITreeNode treeNode)
     {
       var documentRange = treeNode.GetDocumentRange();
       if (context == null) return documentRange;
@@ -41,22 +74,6 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         return originalDocRange;
       }
-    }
-
-    [CanBeNull] public static ITokenNode FindSemicolonAfter(
-      [NotNull] ICSharpExpression expression, [NotNull] ITreeNode reference)
-    {
-      var statement = ExpressionStatementNavigator.GetByExpression(expression);
-      if (statement == null)
-      {
-        var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression);
-        if (referenceExpression != null && referenceExpression == reference)
-          statement = ExpressionStatementNavigator.GetByExpression(referenceExpression);
-
-        if (statement == null) return null;
-      }
-
-      return statement.Semicolon;
     }
 
     public static bool CanTypeBecameExpression([CanBeNull] ICSharpExpression expression)

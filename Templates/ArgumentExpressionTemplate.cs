@@ -28,10 +28,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       if (context.IsAutoCompletion) return null;
 
-      // disable .arg
+      // disable .arg template if .arg hotspot is enabled now
+      var textControl = context.ExecutionContext.TextControl;
+      if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
 
       return new ArgumentItem(context.OuterExpression);
     }
+
+    [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion
+      = new Key(typeof(ArgumentExpressionTemplate).FullName);
 
     private class ArgumentItem : ExpressionPostfixLookupItem<IInvocationExpression>
     {
@@ -69,18 +74,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var settings = expression.GetSettingsStore();
         var invokeParameterInfo = settings.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
 
+        textControl.PutData(PostfixArgTemplateExpansion, string.Empty);
+
         session.Closed.Advise(Lifetime, _ =>
         {
-          var invocationDocumentRange = session.Hotspots[0].RangeMarker.Range;
-          if (!invocationDocumentRange.IsValid) return;
+          textControl.PutData(PostfixArgTemplateExpansion, null);
 
-          var endOffset = invocationDocumentRange.EndOffset + length;
+          var range = session.Hotspots[0].RangeMarker.Range;
+          if (!range.IsValid) return;
+
+          var endOffset = range.EndOffset + length;
           textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
           if (invokeParameterInfo)
           {
-            var parametersRange = TextRange.FromLength(
-              invocationDocumentRange.EndOffset, length + 1);
+            var parametersRange = TextRange.FromLength(range.EndOffset, length + 1);
             LookupUtil.ShowParameterInfo(
               solution, textControl, parametersRange, null, myLookupItemsOwner);
           }

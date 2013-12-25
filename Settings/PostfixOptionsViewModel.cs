@@ -12,15 +12,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
   public sealed class PostfixOptionsViewModel
   {
-    [NotNull] private readonly OptionsSettingsSmartContext myStore;
+    [NotNull] private readonly OptionsSettingsSmartContext mySettingsStore;
     [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
 
-    public PostfixOptionsViewModel(
-      [NotNull] Lifetime lifetime,
-      [NotNull] OptionsSettingsSmartContext store,
-      [NotNull] PostfixTemplatesManager templatesManager)
+    public PostfixOptionsViewModel([NotNull] Lifetime lifetime,
+                                   [NotNull] OptionsSettingsSmartContext settings,
+                                   [NotNull] PostfixTemplatesManager templatesManager)
     {
-      myStore = store;
+      mySettingsStore = settings;
       myTemplatesManager = templatesManager;
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
       ShowPostfixTemplatesInCodeCompletion = new Property<bool>(lifetime, "ShowPostfixTemplatesInCodeCompletion");
@@ -29,11 +28,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       UseBracesForEmbeddedStatements = new Property<bool>(lifetime, "UseBracesForEmbeddedStatements");
       Reset = new DelegateCommand(ResetExecute);
 
-      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowPostfixItems, ShowPostfixTemplatesInCodeCompletion);
-      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethods, ShowStaticMembersInCodeCompletion);
-      store.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpers, ShowEnumHelpersInCodeCompletion);
-      store.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForEmbeddedStatements);
-      store.SetBinding(lifetime, PostfixSettingsAccessor.InvokeParameterInfo, InvokeParameterInfoFromTemplates);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowPostfixItems, ShowPostfixTemplatesInCodeCompletion);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethods, ShowStaticMembersInCodeCompletion);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpers, ShowEnumHelpersInCodeCompletion);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForEmbeddedStatements);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.InvokeParameterInfo, InvokeParameterInfoFromTemplates);
 
       FillTemplates();
     }
@@ -48,7 +47,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
     private void FillTemplates()
     {
-      var settings = myStore.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
+      var settings = mySettingsStore.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
       PropertyChangedEventHandler handler = (sender, args) =>
@@ -56,14 +55,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
         if (args.PropertyName == "IsChecked")
         {
           var viewModel = (PostfixTemplateViewModel) sender;
-          myStore.SetIndexedValue(
+          mySettingsStore.SetIndexedValue(
             PostfixSettingsAccessor.DisabledProviders,
             viewModel.SettingsKey, viewModel.IsChecked);
         }
       };
 
-      foreach (var providerInfo in myTemplatesManager.TemplateProvidersInfos
-        .OrderBy(providerInfo => providerInfo.Metadata.TemplateName))
+      var infos = myTemplatesManager.TemplateProvidersInfos;
+      foreach (var providerInfo in infos.OrderBy(providerInfo => providerInfo.Metadata.TemplateName))
       {
         var metadata = providerInfo.Metadata;
         bool isEnabled = (!settings.DisabledProviders.TryGet(providerInfo.SettingsKey, out isEnabled)
@@ -81,11 +80,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
     private void ResetExecute()
     {
-      var settings = myStore.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
+      var settings = mySettingsStore.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
       foreach (var provider in settings.DisabledProviders.EnumIndexedValues())
-        myStore.RemoveIndexedValue(PostfixSettingsAccessor.DisabledProviders, provider.Key);
+      {
+        mySettingsStore.RemoveIndexedValue(PostfixSettingsAccessor.DisabledProviders, provider.Key);
+      }
 
       Templates.Clear();
       FillTemplates();

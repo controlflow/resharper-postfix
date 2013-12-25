@@ -64,8 +64,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
             var statement = razorStatement.ReplaceBy(newStatement);
 
             // force Razor's bracing style
-            var codeFormatter = statement.Language.LanguageServiceNotNull().CodeFormatter.NotNull();
-            codeFormatter.Format(statement, CodeFormatProfile.SOFT, NullProgressIndicator.Instance);
+            var formatter = statement.Language.LanguageServiceNotNull().CodeFormatter.NotNull();
+            formatter.Format(statement, CodeFormatProfile.SOFT, NullProgressIndicator.Instance);
 
             return statement;
           });
@@ -86,8 +86,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       });
     }
 
-    [NotNull] protected abstract TStatement CreateStatement(
-      [NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
+    [NotNull]
+    protected abstract TStatement CreateStatement([NotNull] CSharpElementFactory factory,
+                                                  [NotNull] ICSharpExpression expression);
 
     [ContractAnnotation("null => null"), CanBeNull]
     private static ICSharpStatement UnwrapFromBraces(ITreeNode statement)

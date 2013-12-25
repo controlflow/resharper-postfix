@@ -7,9 +7,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
   {
     private bool myIsChecked;
 
-    public PostfixTemplateViewModel([NotNull] string name,
-      [NotNull] string description, [NotNull] string example,
-      [NotNull] string settingsKey, bool isChecked)
+    public PostfixTemplateViewModel([NotNull] string name, [NotNull] string description,
+                                    [NotNull] string example, [NotNull] string settingsKey,
+                                    bool isChecked)
     {
       Name = "." + name.ToLowerInvariant();
       Description = description;

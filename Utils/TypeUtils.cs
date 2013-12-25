@@ -9,8 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public static class TypeUtils
   {
-    public static TypeInstantiability IsInstantiable(
-      [NotNull] IType type, [NotNull] ITreeNode expression)
+    public static TypeInstantiability IsInstantiable([NotNull] IType type, [NotNull] ITreeNode expression)
     {
       var declaredType = type as IDeclaredType;
       if (declaredType != null)
@@ -25,8 +24,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return TypeInstantiability.NotInstantiable;
     }
 
-    public static TypeInstantiability IsInstantiable(
-      [NotNull] ITypeElement typeElement, [NotNull] ITreeNode expression)
+    public static TypeInstantiability IsInstantiable([NotNull] ITypeElement typeElement,
+                                                     [NotNull] ITreeNode expression)
     {
       if (typeElement is IStruct || typeElement is IEnum || typeElement is IClass)
       {
@@ -58,7 +57,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
   }
 
-  [Flags] public enum TypeInstantiability
+  [Flags]
+  public enum TypeInstantiability
   {
     NotInstantiable,
     DefaultCtor,

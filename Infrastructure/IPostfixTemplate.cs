@@ -15,19 +15,21 @@ namespace JetBrains.ReSharper.PostfixTemplates
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public sealed class PostfixTemplateAttribute : ShellComponentAttribute
   {
-    [NotNull] public string TemplateName { get; private set; }
-    [NotNull] public string Description { get; private set; }
-    [NotNull] public string Example { get; private set; }
-
-    public bool WorksOnTypes { get; set; }
-    public bool DisabledByDefault { get; set; }
-
-    public PostfixTemplateAttribute(
-      [NotNull] string templateName, [NotNull] string description, string example = null)
+    public PostfixTemplateAttribute([NotNull] string templateName,
+      [NotNull] string description,
+      [CanBeNull] string example = null)
     {
       TemplateName = templateName;
       Description = description;
       Example = example ?? string.Empty;
     }
+
+    [NotNull] public string TemplateName { get; private set; }
+    [NotNull] public string Description { get; private set; }
+    [NotNull] public string Example { get; private set; }
+
+    public bool WorksOnTypes { get; set; }
+
+    public bool DisabledByDefault { get; set; }
   }
 }

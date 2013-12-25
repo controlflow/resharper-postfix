@@ -7,8 +7,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public sealed class PrefixExpressionContext
   {
-    public PrefixExpressionContext(
-      [NotNull] PostfixTemplateContext postfixContext, [NotNull] ICSharpExpression expression)
+    public PrefixExpressionContext([NotNull] PostfixTemplateContext postfixContext,
+                                   [NotNull] ICSharpExpression expression)
     {
       PostfixContext = postfixContext;
       Expression = expression;
@@ -42,8 +42,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
     }
 
-    [CanBeNull]
-    public ICSharpStatement GetContainingStatement()
+    [CanBeNull] public ICSharpStatement GetContainingStatement()
     {
       var expression = PostfixContext.GetOuterExpression(Expression);
 

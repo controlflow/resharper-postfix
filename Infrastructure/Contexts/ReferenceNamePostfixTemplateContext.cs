@@ -5,9 +5,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public class ReferenceNamePostfixTemplateContext : PostfixTemplateContext
   {
-    public ReferenceNamePostfixTemplateContext(
-      [NotNull] IReferenceName reference, [NotNull] ICSharpExpression expression,
-      [NotNull] PostfixExecutionContext executionContext)
+    public ReferenceNamePostfixTemplateContext([NotNull] IReferenceName reference,
+                                               [NotNull] ICSharpExpression expression,
+                                               [NotNull] PostfixExecutionContext executionContext)
       : base(reference, expression, executionContext) { }
 
     private static readonly string FixCommandName =

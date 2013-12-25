@@ -3,24 +3,24 @@ using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   public class PostfixTemplateContext
   {
-    [NotNull] private readonly ITreeNode myReference;
-    [NotNull] private readonly PostfixExecutionContext myExecutionContext;
     [NotNull] private readonly ICSharpExpression myInnerExpression;
     [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
 
-    protected PostfixTemplateContext(
-      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression,
-      [NotNull] PostfixExecutionContext executionContext)
+    protected PostfixTemplateContext([NotNull] ITreeNode reference,
+                                     [NotNull] ICSharpExpression expression,
+                                     [NotNull] PostfixExecutionContext executionContext)
     {
-      myReference = reference;
       myInnerExpression = expression;
-      myExecutionContext = executionContext;
+      Reference = reference;
+      PsiModule = reference.GetPsiModule();
+      ExecutionContext = executionContext;
     }
 
     [NotNull] private IList<PrefixExpressionContext> BuildExpression()
@@ -37,7 +37,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
         if (node is ICSharpStatement) break;
 
         var expression = node as ICSharpExpression;
-        if (expression == null || expression == reference) continue;
+        if (expression == null || expression == reference)
+          continue;
 
         var expressionRange = ExecutionContext.GetDocumentRange(expression);
         if (!expressionRange.IsValid())
@@ -50,13 +51,15 @@ namespace JetBrains.ReSharper.PostfixTemplates
         prevStartOffset = expressionRange.TextRange.StartOffset;
 
         // skip relational expressions like this: 'List<int.{here}>'
-        if (CommonUtils.IsRelationalExpressionWithTypeOperand(expression)) continue;
+        if (CommonUtils.IsRelationalExpressionWithTypeOperand(expression))
+          continue;
 
         var expressionContext = new PrefixExpressionContext(this, expression);
         if (expressionContext.ReferencedElement is ITypeElement)
         {
           // skip types that are parts of 'List<T.>'-like expressions
-          if (!CommonUtils.CanTypeBecameExpression(myInnerExpression)) continue;
+          if (!CommonUtils.CanTypeBecameExpression(myInnerExpression))
+            continue;
         }
 
         contexts.Add(expressionContext);
@@ -84,15 +87,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
       get { return Expressions[Expressions.Count - 1]; }
     }
 
-    [NotNull] public PostfixExecutionContext ExecutionContext
-    {
-      get { return myExecutionContext; }
-    }
+    [NotNull] public ITreeNode Reference { get; private set; }
 
-    [NotNull] public ITreeNode Reference
-    {
-      get { return myReference; }
-    }
+    [NotNull] public PostfixExecutionContext ExecutionContext { get; private set; }
+    [NotNull] public IPsiModule PsiModule { get; private set; }
 
     public bool IsAutoCompletion
     {
@@ -109,11 +107,13 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return ExecutionContext.GetDocumentRange(node);
     }
 
+    [NotNull]
     public virtual PrefixExpressionContext FixExpression([NotNull] PrefixExpressionContext context)
     {
       return context;
     }
 
+    [NotNull]
     public virtual ICSharpExpression GetOuterExpression([NotNull] ICSharpExpression expression)
     {
       return expression;

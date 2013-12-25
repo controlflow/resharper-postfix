@@ -24,14 +24,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
       TextControl = textControl;
       LookupItemsOwner = lookupItemsOwner;
       ReparseString = reparseString;
-      IsForceMode = !isAutoCompletion;
       IsAutoCompletion = isAutoCompletion;
       LiveTemplatesManager = solution.GetComponent<LiveTemplatesManager>();
     }
 
-    // todo: rename to IsAutoCompletion
-    [Obsolete("FUUU")]
-    public bool IsForceMode { get; private set; }
     public bool IsAutoCompletion { get; internal set; }
 
     [NotNull] public Lifetime Lifetime { get; private set; }

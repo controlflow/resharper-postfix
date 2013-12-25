@@ -35,7 +35,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     {
       var viewModel = ((FrameworkElement) sender).DataContext as PostfixTemplateViewModel;
       if (viewModel != null)
+      {
         viewModel.IsChecked = !viewModel.IsChecked;
+      }
     }
 
     private void SpacebarCheck(object sender, KeyEventArgs e)
@@ -44,7 +46,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
       var viewModel = ((FrameworkElement)sender).DataContext as PostfixTemplateViewModel;
       if (viewModel != null)
+      {
         viewModel.IsChecked = !viewModel.IsChecked;
+      }
     }
   }
 }
