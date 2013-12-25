@@ -24,7 +24,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     {
       Assertion.Assert(context.CanBeStatement, "context.CanBeStatement");
 
-      var settingsStore = context.Parent.Reference.GetSettingsStore();
+      var settingsStore = context.PostfixContext.Reference.GetSettingsStore();
       myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
     }
 
@@ -43,7 +43,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     protected override TStatement ExpandPostfix(PrefixExpressionContext context)
     {
-      var psiModule = context.Parent.ExecutionContext.PsiModule;
+      var psiModule = context.PostfixContext.ExecutionContext.PsiModule;
       var factory = CSharpElementFactory.GetInstance(psiModule);
       var psiServices = psiModule.GetPsiServices();
 

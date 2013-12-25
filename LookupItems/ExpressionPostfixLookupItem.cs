@@ -15,7 +15,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     protected override TExpression ExpandPostfix(PrefixExpressionContext context)
     {
-      var psiModule = context.Parent.ExecutionContext.PsiModule;
+      var psiModule = context.PostfixContext.ExecutionContext.PsiModule;
       var expression = psiModule.GetPsiServices().DoTransaction(ExpandCommandName, () =>
       {
         var factory = CSharpElementFactory.GetInstance(psiModule);

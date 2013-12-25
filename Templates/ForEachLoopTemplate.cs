@@ -67,7 +67,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       public ForEachItem([NotNull] PrefixExpressionContext context) : base("forEach", context)
       {
-        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
+        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override IForeachStatement CreateStatement(

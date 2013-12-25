@@ -72,7 +72,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         [CanBeNull] string lengthPropertyName) : base(shortcut, context)
       {
         LengthPropertyName = lengthPropertyName;
-        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
+        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
       [CanBeNull] protected string LengthPropertyName { get; private set; }

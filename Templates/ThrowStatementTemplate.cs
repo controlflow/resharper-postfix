@@ -72,7 +72,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public ThrowByTypeItem([NotNull] PrefixExpressionContext context, bool hasCtorWithParams)
         : base("throw", context)
       {
-        myLookupItemsOwner = context.Parent.ExecutionContext.LookupItemsOwner;
+        myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
         myHasCtorWithParams = hasCtorWithParams;
       }
 

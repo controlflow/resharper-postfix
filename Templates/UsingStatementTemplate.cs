@@ -90,7 +90,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       public UsingItem([NotNull] PrefixExpressionContext context) : base("using", context)
       {
-        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
+        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override IUsingStatement CreateStatement(

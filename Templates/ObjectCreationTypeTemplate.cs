@@ -44,7 +44,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         : base("new", context)
       {
         myHasCtorWithParams = hasCtorWithParams;
-        myLookupItemsOwner = context.Parent.ExecutionContext.LookupItemsOwner;
+        myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
       }
 
       protected override IObjectCreationExpression CreateExpression(

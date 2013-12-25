@@ -31,8 +31,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       myShortcut = shortcut.ToLowerInvariant();
       myExpressionType = context.Expression.GetType();
       myExpressionRange = context.ExpressionRange;
-      myContextIndex = context.Parent.Expressions.IndexOf(context);
-      myReparseString = context.Parent.ExecutionContext.ReparseString;
+      myContextIndex = context.PostfixContext.Expressions.IndexOf(context);
+      myReparseString = context.PostfixContext.ExecutionContext.ReparseString;
     }
 
     public MatchingResult Match(string prefix, ITextControl textControl)

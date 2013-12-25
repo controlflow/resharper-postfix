@@ -35,7 +35,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         myLookupItemsOwner = lookupItemsOwner;
         myIsTryParse = isTryParse;
-        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
+        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override IInvocationExpression CreateExpression(

@@ -43,7 +43,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       public CastItem([NotNull] PrefixExpressionContext context) : base("cast", context)
       {
-        myTemplatesManager = context.Parent.ExecutionContext.LiveTemplatesManager;
+        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override ICastExpression CreateExpression(

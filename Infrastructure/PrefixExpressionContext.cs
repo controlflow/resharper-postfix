@@ -8,9 +8,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
   public sealed class PrefixExpressionContext
   {
     public PrefixExpressionContext(
-      [NotNull] PostfixTemplateContext parent, [NotNull] ICSharpExpression expression)
+      [NotNull] PostfixTemplateContext postfixContext, [NotNull] ICSharpExpression expression)
     {
-      Parent = parent;
+      PostfixContext = postfixContext;
       Expression = expression;
       Type = expression.Type();
       CanBeStatement = GetContainingStatement() != null;
@@ -45,7 +45,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     [CanBeNull]
     public ICSharpStatement GetContainingStatement()
     {
-      var expression = Parent.GetOuterExpression(Expression);
+      var expression = PostfixContext.GetOuterExpression(Expression);
 
       ICSharpStatement statement = ExpressionStatementNavigator.GetByExpression(expression);
       if (statement != null) return statement;
@@ -56,7 +56,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return null;
     }
 
-    [NotNull] public PostfixTemplateContext Parent { get; private set; }
+    [NotNull] public PostfixTemplateContext PostfixContext { get; private set; }
 
     // "lines.Any()" : Boolean
     [NotNull] public ICSharpExpression Expression { get; private set; }
@@ -69,7 +69,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     public DocumentRange ExpressionRange
     {
-      get { return Parent.ToDocumentRange(Expression); }
+      get { return PostfixContext.ToDocumentRange(Expression); }
     }
   }
 }

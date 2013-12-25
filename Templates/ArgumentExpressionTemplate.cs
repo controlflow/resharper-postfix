@@ -13,7 +13,6 @@ using JetBrains.Util;
 
 // todo: disable inside .arg hotspot somehow...
 // todo: disable here: 'foo.arg()'
-// todo: disable over namespaces
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -27,6 +26,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       if (context.IsForceMode)
       {
+
+
         return new ArgumentItem(context.OuterExpression);
       }
 
@@ -40,7 +41,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       public ArgumentItem([NotNull] PrefixExpressionContext context) : base("arg", context)
       {
-        var executionContext = context.Parent.ExecutionContext;
+        var executionContext = context.PostfixContext.ExecutionContext;
         myLookupItemsOwner = executionContext.LookupItemsOwner;
         myTemplatesManager = executionContext.LiveTemplatesManager;
       }
@@ -77,8 +78,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
             invocation.EndOffset + length, CaretVisualPlacement.DontScrollIfVisible);
 
           var range = TextRange.FromLength(invocation.EndOffset, length + 1);
-          LookupUtil.ShowParameterInfo(
-            solution, textControl, range, null, myLookupItemsOwner);
+          LookupUtil.ShowParameterInfo(solution, textControl, range, null, myLookupItemsOwner);
         });
 
         session.Execute();
