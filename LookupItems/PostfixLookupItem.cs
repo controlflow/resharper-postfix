@@ -62,7 +62,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       textControl.Document.InsertText(
         nameRange.EndOffset, myReparseString, TextModificationSide.RightSide);
 
-      solution.GetPsiServices().Files.CommitAllDocuments();
+      solution.GetPsiServices().CommitAllDocuments();
 
       var itemsOwnerFactory = solution.GetComponent<LookupItemsOwnerFactory>();
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();

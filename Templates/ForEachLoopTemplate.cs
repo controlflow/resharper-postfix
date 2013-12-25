@@ -35,8 +35,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         if (!expressionContext.Type.IsResolved) return null;
 
         var predefined = expressionContext.Expression.GetPredefinedType();
-        var rule = expressionContext.Expression.GetTypeConversionRule();
-        if (rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IEnumerable))
+        var conversionRule = expressionContext.Expression.GetTypeConversionRule();
+        if (conversionRule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IEnumerable))
         {
           typeIsEnumerable = true;
         }
@@ -56,6 +56,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
 
       if (!typeIsEnumerable) return null;
+
       return new ForEachItem(expressionContext);
     }
 
@@ -79,35 +80,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         base.AfterComplete(textControl, statement);
 
-        var iterator = statement.IteratorDeclaration;
-        var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
-        var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
+        var variableDeclaration = statement.IteratorDeclaration;
 
-        var typeSpot = new HotspotInfo(
-          new TemplateField("type", typeExpression, 0),
-          iterator.VarKeyword.GetDocumentRange().GetHotspotRange());
+        var suggestTypeName = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
+        var typeNameInfo = new HotspotInfo(
+          new TemplateField("type", suggestTypeName, 0),
+          variableDeclaration.VarKeyword.GetDocumentRange());
 
-        var nameSpot = new HotspotInfo(
-          new TemplateField("name", nameExpression, 0),
-          iterator.NameIdentifier.GetDocumentRange().GetHotspotRange());
+        var suggestVariableName = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
+        var variableNameInfo = new HotspotInfo(
+          new TemplateField("name", suggestVariableName, 0),
+          variableDeclaration.NameIdentifier.GetDocumentRange());
 
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {typeSpot, nameSpot});
-
-        // special case: handle [.] suffix
-        //if (suffix.HasPresentation && suffix.Presentation == '.')
-        //{
-        //  session.AdviceFinished((_, terminationType) =>
-        //  {
-        //    if (terminationType == TerminationType.Finished)
-        //    {
-        //      var nameValue = session.Hotspots[1].CurrentValue;
-        //      textControl.Document.InsertText(textControl.Caret.Offset(), nameValue);
-        //      suffix.Playback(textControl);
-        //    }
-        //  });
-        //}
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, typeNameInfo, variableNameInfo);
 
         session.Execute();
       }

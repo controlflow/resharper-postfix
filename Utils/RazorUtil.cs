@@ -31,8 +31,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
         var sourceFile = argument.GetSourceFile();
         if (sourceFile == null) return null;
 
-        var razorService = services.TryGetService<IRazorPsiServices>(sourceFile.LanguageType);
-        if (razorService != null && razorService.IsSpecialMethodInvocation(invocation, RazorMethodType.Write))
+        var service = services.TryGetService<IRazorPsiServices>(sourceFile.LanguageType);
+        if (service != null && service.IsSpecialMethodInvocation(invocation, RazorMethodType.Write))
         {
           return ExpressionStatementNavigator.GetByExpression(invocation);
         }
@@ -42,15 +42,15 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [CanBeNull]
-    public static ICSharpStatement FixExpressionToStatement(
-      DocumentRange expressionRange, [NotNull] IPsiServices psiServices)
+    public static ICSharpStatement FixExpressionToStatement(DocumentRange expressionRange,
+                                                            [NotNull] IPsiServices psiServices)
     {
       var solution = psiServices.Solution;
-      var expressionOffset = expressionRange.TextRange.StartOffset;
+      var offset = expressionRange.TextRange.StartOffset;
       var document = expressionRange.Document;
 
-      foreach (var razorExpression in
-        TextControlToPsi.GetElements<IRazorImplicitExpression>(solution, document, expressionOffset))
+      var expressions = TextControlToPsi.GetElements<IRazorImplicitExpression>(solution, document, offset);
+      foreach (var razorExpression in expressions)
       {
         var razorRange = razorExpression.GetDocumentRange();
 
@@ -63,8 +63,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         solution.GetPsiServices().CommitAllDocuments();
 
-        foreach (var razorStatement in
-          TextControlToPsi.GetElements<IUsingStatement>(solution, document, expressionOffset))
+        var statements = TextControlToPsi.GetElements<IUsingStatement>(solution, document, offset);
+        foreach (var razorStatement in statements)
         {
           return razorStatement;
         }

@@ -1,16 +1,11 @@
 ﻿using System;
 using JetBrains.Annotations;
-using JetBrains.DataFlow;
-using JetBrains.DocumentModel;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
-  // todo: drop 7.0 files
-
   public static class PortabilityExtensions
   {
     public static PredefinedType GetPredefinedType([NotNull] this ITreeNode node)
@@ -39,25 +34,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return value;
     }
 
-    // todo: inline
-    public static DocumentRange GetHotspotRange(this DocumentRange documentRange)
-    {
-      return documentRange;
-    }
-
     public static bool IsForeachEnumeratorPatternType([NotNull] this ITypeElement typeElement)
     {
       return CSharpDeclaredElementUtil.IsForeachEnumeratorPatternType(typeElement);
-    }
-
-    // todo: remove
-    public static void AdviceFinished(
-      [NotNull] this HotspotSession session, [NotNull] Action<HotspotSession, TerminationType> action)
-    {
-      session.Closed.Advise(EternalLifetime.Instance, args =>
-      {
-        action(session, args.TerminationType);
-      });
     }
   }
 }

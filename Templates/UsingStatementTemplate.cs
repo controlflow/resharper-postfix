@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
@@ -105,15 +106,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         var typeSpot = new HotspotInfo(
           new TemplateField("type", typeExpression, 0),
-          declaration.TypeUsage.GetDocumentRange().GetHotspotRange());
+          declaration.TypeUsage.GetDocumentRange());
 
         var nameSpot = new HotspotInfo(
           new TemplateField("name", nameExpression, 0),
-          declaration.NameIdentifier.GetDocumentRange().GetHotspotRange());
+          declaration.NameIdentifier.GetDocumentRange());
 
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {typeSpot, nameSpot});
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, typeSpot, nameSpot);
 
         session.Execute();
       }

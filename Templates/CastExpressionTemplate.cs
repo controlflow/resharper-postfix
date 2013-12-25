@@ -54,15 +54,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, ICastExpression expression)
       {
-        var typeExpression = new MacroCallExpressionNew(new GuessExpectedTypeMacroDef());
+        var expectedTypeMacro = new MacroCallExpressionNew(new GuessExpectedTypeMacroDef());
         var hotspotInfo = new HotspotInfo(
-          new TemplateField("T", typeExpression, 0),
-          expression.TargetType.GetDocumentRange().GetHotspotRange());
+          new TemplateField("T", expectedTypeMacro, 0),
+          expression.TargetType.GetDocumentRange());
 
-        var endSelectionRange = expression.GetDocumentRange().EndOffsetRange().TextRange;
+        var endRange = expression.GetDocumentRange().EndOffsetRange().TextRange;
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          expression.GetSolution(), endSelectionRange, textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {hotspotInfo});
+          expression.GetSolution(), endRange, textControl,
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
         session.Execute();
       }

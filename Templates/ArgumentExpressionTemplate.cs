@@ -54,19 +54,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected override void AfterComplete(ITextControl textControl, IInvocationExpression expression)
       {
         var invocationRange = expression.InvokedExpression.GetDocumentRange();
-        var hotspotInfo = new HotspotInfo(
-          new TemplateField("Method", 0), invocationRange.GetHotspotRange());
+        var hotspotInfo = new HotspotInfo(new TemplateField("Method", 0), invocationRange);
 
-        var argument = expression.Arguments[0];
-        var argumentRange = argument.Value.GetDocumentRange();
-
+        var argumentRange = expression.Arguments[0].Value.GetDocumentRange();
         var solution = expression.GetSolution();
+
         var marker = argumentRange.EndOffsetRange().CreateRangeMarker();
         var length = (marker.Range.EndOffset - invocationRange.TextRange.EndOffset);
 
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), TextRange.InvalidRange, textControl,
-          LiveTemplatesManager.EscapeAction.RestoreToOriginalText, new[] {hotspotInfo});
+          LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
 
         var settings = expression.GetSettingsStore();
         var invokeParameterInfo = settings.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
@@ -81,8 +79,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
           if (invokeParameterInfo)
           {
-            var paramsRange = TextRange.FromLength(invocationDocumentRange.EndOffset, length + 1);
-            LookupUtil.ShowParameterInfo(solution, textControl, paramsRange, null, myLookupItemsOwner);
+            var parametersRange = TextRange.FromLength(
+              invocationDocumentRange.EndOffset, length + 1);
+            LookupUtil.ShowParameterInfo(
+              solution, textControl, parametersRange, null, myLookupItemsOwner);
           }
         });
 

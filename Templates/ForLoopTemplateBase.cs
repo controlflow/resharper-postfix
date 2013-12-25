@@ -87,17 +87,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var variable = (ILocalVariableDeclaration) statement.Initializer.Declaration.Declarators[0];
         var iterator = (IPostfixOperatorExpression) statement.Iterators.Expressions[0];
 
-        var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
+        var suggestVariableName = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
+        var variableNameInfo = new HotspotInfo(
+          new TemplateField("name", suggestVariableName, 0),
+          variable.NameIdentifier.GetDocumentRange(),
+          condition.LeftOperand.GetDocumentRange(),
+          iterator.Operand.GetDocumentRange());
 
-        var nameSpot = new HotspotInfo(
-          new TemplateField("name", nameExpression, 0),
-          variable.NameIdentifier.GetDocumentRange().GetHotspotRange(),
-          condition.LeftOperand.GetDocumentRange().GetHotspotRange(),
-          iterator.Operand.GetDocumentRange().GetHotspotRange());
-
+        var endRange = new TextRange(textControl.Caret.Offset());
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          statement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {nameSpot});
+          statement.GetSolution(), endRange, textControl,
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, variableNameInfo);
 
         session.Execute();
       }

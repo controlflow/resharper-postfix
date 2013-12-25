@@ -118,17 +118,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         var assignment = (IAssignmentExpression) statement.Expression;
         var memberIdentifier = ((IReferenceExpression) assignment.Dest).NameIdentifier;
-        var suggestionsExpression = new NameSuggestionsExpression(myMemberNames);
 
         var hotspotInfo = new HotspotInfo(
-          new TemplateField("memberName", suggestionsExpression, 0),
-          memberIdentifier.GetDocumentRange().GetHotspotRange(),
-          memberDeclaration.GetNameDocumentRange().GetHotspotRange());
+          new TemplateField("memberName", new NameSuggestionsExpression(myMemberNames), 0),
+          memberIdentifier.GetDocumentRange(), memberDeclaration.GetNameDocumentRange());
 
-        var endSelectionRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
+        var endRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          statement.GetSolution(), endSelectionRange, textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {hotspotInfo});
+          statement.GetSolution(), endRange, textControl,
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
         session.Execute();
       }

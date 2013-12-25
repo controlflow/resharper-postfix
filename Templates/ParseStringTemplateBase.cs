@@ -60,27 +60,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         var hotspotInfo = new HotspotInfo(
           new TemplateField("type", templateExpression, 0),
-          typeQualifier.GetDocumentRange().GetHotspotRange());
+          typeQualifier.GetDocumentRange());
 
         var argumentsRange = expression.ArgumentList.GetDocumentRange();
-        var endSelectionRange = argumentsRange.EndOffsetRange().TextRange;
 
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          solution, endSelectionRange, textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, new[] {hotspotInfo});
+          solution, argumentsRange.EndOffsetRange().TextRange, textControl,
+          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
         // paranthesis marker for parameter info
         var marker = expression.LPar.GetDocumentRange()
           .SetEndTo(expression.RPar.GetDocumentRange().TextRange.EndOffset)
           .CreateRangeMarker();
 
-        session.AdviceFinished((_, terminationType) =>
+        session.Closed.Advise(Lifetime, args =>
         {
           if (myIsTryParse)
           {
-            solution
-              .GetComponent<IShellLocks>()
-              .QueueReadLock("Smart completion for .tryparse", () =>
+            solution.GetComponent<IShellLocks>().QueueReadLock("Smart completion for .tryparse", () =>
             {
               var manager = solution.GetComponent<IntellisenseManager>();
               manager.ExecuteManualCompletion(
