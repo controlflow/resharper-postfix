@@ -1,8 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.ControlFlow;
-using JetBrains.ReSharper.Psi.ControlFlow.CSharp;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
@@ -10,56 +8,57 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class CheckForNullTemplateBase
   {
-    protected static CSharpControlFlowNullReferenceState CheckNullabilityState(
-      [NotNull] PrefixExpressionContext expressionContext)
-    {
-      var declaredElement = expressionContext.ReferencedElement;
-      var function = expressionContext.Expression.GetContainingNode<ICSharpFunctionDeclaration>();
-      if (function == null || declaredElement == null || !function.IsPhysical())
-      {
-        return CSharpControlFlowNullReferenceState.UNKNOWN;
-      }
-
-      var graph = CSharpControlFlowBuilder.Build(function);
-      if (graph != null)
-      {
-        var result = graph.Inspect(ValueAnalysisMode.OPTIMISTIC);
-        if (!result.HasComplexityOverflow)
-        {
-          var referenceExpression = expressionContext.Expression;
-
-          foreach (var element in graph.AllElements)
-            if (element.SourceElement == referenceExpression)
-              return result.GetVariableStateAt(element, declaredElement);
-        }
-      }
-
-      return CSharpControlFlowNullReferenceState.UNKNOWN;
-    }
-
     protected static bool IsNullableType([NotNull] IType type)
     {
-      if (type.IsNullable()) return true;
+      switch (type.Classify)
+      {
+        case null:
+        case TypeClassification.REFERENCE_TYPE:
+          return true;
 
-      var classification = type.Classify;
-      return classification == null || classification == TypeClassification.REFERENCE_TYPE;
+        case TypeClassification.VALUE_TYPE:
+          return type.IsNullable();
+
+        default:
+          return false;
+      }
     }
 
-    protected sealed class CheckForNullItem : StatementPostfixLookupItem<IIfStatement>
+    protected class CheckForNullStatementItem : StatementPostfixLookupItem<IIfStatement>
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullItem([NotNull] string shortcut,
-                              [NotNull] PrefixExpressionContext context,
-                              [NotNull] string template)
+      public CheckForNullStatementItem([NotNull] string shortcut,
+                                       [NotNull] PrefixExpressionContext context,
+                                       [NotNull] string template) : base(shortcut, context)
+      {
+        myTemplate = template;
+      }
+
+      protected override IIfStatement CreateStatement(CSharpElementFactory factory,
+                                                      ICSharpExpression expression)
+      {
+        var template = myTemplate + EmbeddedStatementBracesTemplate;
+        return (IIfStatement) factory.CreateStatement(template, expression);
+      }
+    }
+
+    protected class CheckForNullExpressionItem : ExpressionPostfixLookupItem<IEqualityExpression>
+    {
+      [NotNull] private readonly string myTemplate;
+
+      public CheckForNullExpressionItem([NotNull] string shortcut,
+                                        [NotNull] PrefixExpressionContext context,
+                                        [NotNull] string template)
         : base(shortcut, context)
       {
         myTemplate = template;
       }
 
-      protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IEqualityExpression CreateExpression(CSharpElementFactory factory,
+                                                              ICSharpExpression expression)
       {
-        return (IIfStatement) factory.CreateStatement(myTemplate + EmbeddedStatementBracesTemplate, expression);
+        return (IEqualityExpression) factory.CreateExpression(myTemplate, expression);
       }
     }
   }

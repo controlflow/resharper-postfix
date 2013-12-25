@@ -43,24 +43,30 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems))
         return false;
 
+      // todo: plz prettify me somehow!
       PostfixExecutionContext executionContext;
-      IList<ILookupItem> items;
+      PostfixTemplateContext postfixContext;
       ITreeNode position;
 
       {
         executionContext = ReparsedPostfixExecutionContext.Create(context, context.UnterminatedContext, "__");
         position = context.UnterminatedContext.TreeNode;
-        items = myTemplatesManager.GetAvailableItems(position, executionContext);
+        postfixContext = myTemplatesManager.IsAvailable(position, executionContext);
+
+        if (postfixContext == null) // try unterminated context if terminated sucks
+        {
+          executionContext = ReparsedPostfixExecutionContext.Create(context, context.TerminatedContext, "__;");
+          position = context.TerminatedContext.TreeNode;
+          postfixContext = myTemplatesManager.IsAvailable(position, executionContext);
+        }
       }
 
-      if (items.Count == 0) // try terminated context if unterminated sucks :(
-      {
-        executionContext = ReparsedPostfixExecutionContext.Create(context, context.TerminatedContext, "__;");
-        position = context.TerminatedContext.TreeNode;
-        items = myTemplatesManager.GetAvailableItems(position, executionContext);
-      }
+      if (postfixContext == null || postfixContext.Expressions.Count == 0) return false;
 
-      ICollection<string> idsToRemove = EmptyList<string>.InstanceList;
+      var items = myTemplatesManager.GetAvailableItems(postfixContext);
+      if (items.Count == 0) return false;
+
+      ICollection<string> toRemove = EmptyList<string>.InstanceList;
 
       // double completion support
       var parameters = context.BasicContext.Parameters;
@@ -72,18 +78,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         // run postfix templates like non-force mode enabled
         var nonForceExecutionContext = executionContext.WithForceMode(false);
 
-        var automaticPostfixItems = myTemplatesManager.GetAvailableItems(position, nonForceExecutionContext);
-        if (automaticPostfixItems.Count > 0)
+        var forcedContext = myTemplatesManager.IsAvailable(position, nonForceExecutionContext);
+        if (forcedContext != null)
         {
-          idsToRemove = new JetHashSet<string>(StringComparer.Ordinal);
-          foreach (var lookupItem in automaticPostfixItems)
-            idsToRemove.Add(lookupItem.Identity);
+          var automaticPostfixItems = myTemplatesManager.GetAvailableItems(forcedContext);
+          if (automaticPostfixItems.Count > 0)
+          {
+            toRemove = new JetHashSet<string>(StringComparer.Ordinal);
+            foreach (var lookupItem in automaticPostfixItems)
+            {
+              toRemove.Add(lookupItem.Identity);
+            }
+          }
         }
       }
 
       foreach (var lookupItem in items)
       {
-        if (idsToRemove.Contains(lookupItem.Identity)) continue;
+        if (toRemove.Contains(lookupItem.Identity)) continue;
 
         collector.AddAtDefaultPlace(lookupItem);
       }

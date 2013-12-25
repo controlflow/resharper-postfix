@@ -1,5 +1,4 @@
 ﻿using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Psi.ControlFlow.CSharp;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -11,27 +10,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var expressionContext = context.OuterExpression;
-      if (!expressionContext.CanBeStatement) return null;
-
-      if (!context.IsForceMode)
+      var outerExpression = context.OuterExpression;
+      if (outerExpression.CanBeStatement)
       {
-        if (expressionContext.Type.IsUnknown) return null;
-        if (!IsNullableType(expressionContext.Type)) return null;
-      }
-
-      var state = CSharpControlFlowNullReferenceState.UNKNOWN;
-      if (!context.IsForceMode)
-      {
-        state = CheckNullabilityState(expressionContext);
-      }
-
-      switch (state)
-      {
-        case CSharpControlFlowNullReferenceState.MAY_BE_NULL:
-        case CSharpControlFlowNullReferenceState.UNKNOWN:
+        if (IsNullableType(outerExpression.Type))
         {
-          return new CheckForNullItem("notNull", expressionContext, "if($0!=null)");
+          return new CheckForNullStatementItem("notNull", outerExpression, "if($0!=null)");
+        }
+      }
+      else if (context.IsForceMode)
+      {
+        var innerExpression = context.InnerExpression;
+        if (IsNullableType(innerExpression.Type))
+        {
+          return new CheckForNullExpressionItem("notNull", innerExpression, "$0!=null");
         }
       }
 

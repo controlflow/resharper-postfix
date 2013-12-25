@@ -22,6 +22,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context)
     {
+      Assertion.Assert(context.CanBeStatement, "context.CanBeStatement");
+
       var settingsStore = context.Parent.Reference.GetSettingsStore();
       myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
     }
