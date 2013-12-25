@@ -16,8 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var expressionType = expressionContext.Type;
         if (expressionType.IsResolved && expressionType.IsString())
         {
-          var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-          return new ParseItem("parse", expressionContext, lookupItemsOwner, isTryParse: false);
+          return new ParseItem("parse", expressionContext, isTryParse: false);
         }
       }
 

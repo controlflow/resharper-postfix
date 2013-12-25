@@ -195,7 +195,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var invocation = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
         if (invocation == null) return;
 
-        var factory = CSharpElementFactory.GetInstance(referenceExpression.GetPsiModule());
+        var factory = CSharpElementFactory.GetInstance(referenceExpression);
         var template = myIsFlags ? "($0 & $1) != 0" : "$0 == $1";
         var enumMemberCheck = factory.CreateExpression(
           template, referenceExpression.QualifierExpression, enumMember);

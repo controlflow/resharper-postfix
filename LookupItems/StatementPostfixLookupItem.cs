@@ -43,7 +43,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     protected override TStatement ExpandPostfix(PrefixExpressionContext context)
     {
-      var psiModule = context.PostfixContext.Reference.GetPsiModule();
+      var psiModule = context.PostfixContext.PsiModule;
       var psiServices = psiModule.GetPsiServices();
       var factory = CSharpElementFactory.GetInstance(psiModule);
 

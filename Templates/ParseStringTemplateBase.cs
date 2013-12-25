@@ -24,29 +24,30 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     protected sealed class ParseItem : ExpressionPostfixLookupItem<IInvocationExpression>
     {
-      private readonly bool myIsTryParse;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      private readonly bool myIsTryParse;
 
-      public ParseItem(
-        [NotNull] string shortcut, [NotNull] PrefixExpressionContext context,
-        [NotNull] ILookupItemsOwner lookupItemsOwner, bool isTryParse)
+      public ParseItem([NotNull] string shortcut,
+                       [NotNull] PrefixExpressionContext context,
+                       bool isTryParse)
         : base(shortcut, context)
       {
-        myLookupItemsOwner = lookupItemsOwner;
         myIsTryParse = isTryParse;
-        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
+
+        var executionContext = context.PostfixContext.ExecutionContext;
+        myTemplatesManager = executionContext.LiveTemplatesManager;
+        myLookupItemsOwner = executionContext.LookupItemsOwner;
       }
 
-      protected override IInvocationExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IInvocationExpression CreateExpression(CSharpElementFactory factory,
+                                                                ICSharpExpression expression)
       {
         var template = myIsTryParse ? "int.TryParse($0, )" : "int.Parse($0)";
         return (IInvocationExpression) factory.CreateExpression(template, expression);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, IInvocationExpression expression)
+      protected override void AfterComplete(ITextControl textControl, IInvocationExpression expression)
       {
         var parseReference = (IReferenceExpression) expression.InvokedExpression;
         var typeQualifier = parseReference.QualifierExpression.NotNull();
@@ -104,7 +105,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       var symbolCache = context.GetPsiServices().Symbols;
       var symbolScope = symbolCache.GetSymbolScope(
-        context.GetPsiModule(), context.GetResolveContext(), true, true);
+        context.GetPsiModule(), context.GetResolveContext(),
+        withReferences: true, caseSensitive: true);
 
       var list = new LocalList<IType>();
       foreach (var type in TypesWithParsers)
