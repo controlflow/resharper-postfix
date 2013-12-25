@@ -57,18 +57,13 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [NotNull] public IList<ILookupItem> GetAvailableItems(
-      [CanBeNull] ITreeNode position, [NotNull] PostfixExecutionContext context,
-      [CanBeNull] string templateName = null)
+      [NotNull] PostfixTemplateContext context, [CanBeNull] string templateName = null)
     {
-      var postfixContext = IsAvailable(position, context);
-      if (postfixContext == null || postfixContext.Expressions.Count == 0 || position == null)
-        return EmptyList<ILookupItem>.InstanceList;
-
-      var store = position.GetSettingsStore();
+      var store = context.Reference.GetSettingsStore();
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var referencedElement = postfixContext.InnerExpression.ReferencedElement;
+      var referencedElement = context.InnerExpression.ReferencedElement;
       if (referencedElement is INamespace) return EmptyList<ILookupItem>.InstanceList;
 
       var isTypeExpression = referencedElement is ITypeElement;
@@ -93,7 +88,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
 
-        var lookupItem = info.Provider.CreateItem(postfixContext);
+        var lookupItem = info.Provider.CreateItem(context);
         if (lookupItem != null) items.Add(lookupItem);
       }
 

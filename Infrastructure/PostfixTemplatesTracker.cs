@@ -1,4 +1,5 @@
-﻿using JetBrains.ActionManagement;
+﻿using System.Collections.Generic;
+using JetBrains.ActionManagement;
 using JetBrains.Annotations;
 using JetBrains.Application.CommandProcessing;
 using JetBrains.Application.DataContext;
@@ -120,11 +121,13 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         if (!TemplateWithNameExists(prefix)) return null;
 
-        return TryReparseWith(textControl, solution, prefix, "__")
-            ?? TryReparseWith(textControl, solution, prefix, "__;");
+        var postfixItems = TryReparseWith(textControl, solution, prefix, "__")
+                        ?? TryReparseWith(textControl, solution, prefix, "__;");
+
+        return (postfixItems != null && postfixItems.Count == 1) ? postfixItems[0] : null;
       }
 
-      [CanBeNull] private ILookupItem TryReparseWith(
+      [CanBeNull] private IList<ILookupItem> TryReparseWith(
         [NotNull] ITextControl textControl, [NotNull] ISolution solution,
         [NotNull] string prefix, [NotNull] string reparseString)
       {
@@ -135,17 +138,17 @@ namespace JetBrains.ReSharper.PostfixTemplates
         {
           document.InsertText(offset, reparseString);
           solution.GetPsiServices().CommitAllDocuments();
-          ILookupItemsOwner itemsOwner = null;
 
-          foreach (var position in
-            TextControlToPsi.GetElements<ITokenNode>(solution, document, offset))
+          ILookupItemsOwner itemsOwner = null;
+          foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, document, offset))
           {
             itemsOwner = itemsOwner ?? myItemsOwnerFactory.CreateLookupItemsOwner(textControl);
-            var context = new PostfixExecutionContext(
-              true, position.GetPsiModule(), itemsOwner, reparseString);
+            var context = new PostfixExecutionContext(true, position.GetPsiModule(), itemsOwner, reparseString);
 
-            var postfixItems = myTemplatesManager.GetAvailableItems(position, context, prefix);
-            if (postfixItems.Count == 1) return postfixItems[0];
+            var templateContext = myTemplatesManager.IsAvailable(position, context);
+            if (templateContext == null) continue;
+
+            return myTemplatesManager.GetAvailableItems(templateContext, templateName: prefix);
           }
 
           return null;
