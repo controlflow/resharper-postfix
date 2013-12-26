@@ -12,8 +12,6 @@ foreach
 if
 lock
 not
-notnull
-null
 par
 return
 throw
@@ -28,6 +26,4 @@ CompareTo
 Equals
 GetHashCode
 GetTypeCode
-notnull
-null
 var

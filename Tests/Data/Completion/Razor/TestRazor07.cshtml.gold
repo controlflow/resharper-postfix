@@ -10,7 +10,7 @@
 </head>
 <body>
   <div>
-    @((object) Model.Value{caret})
+    @((object) Model.Value){caret}
   </div>
 </body>
 </html>

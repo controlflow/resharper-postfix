@@ -38,9 +38,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private static bool IsBooleanExpression([NotNull] PrefixExpressionContext context)
     {
-      var expression = context.Expression;
-
       if (context.Type.IsBool()) return true;
+
+      var expression = context.Expression;
 
       var binaryExpression = expression as IBinaryExpression;
       if (binaryExpression != null)

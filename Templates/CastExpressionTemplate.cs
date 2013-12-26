@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   [PostfixTemplate(
     templateName: "cast",
     description: "Surrounds expression with cast",
-    example: "(SomeType) expr")]
+    example: "((SomeType) expr)")]
   public class CastExpressionTemplate : IPostfixTemplate
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
@@ -37,7 +37,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return new CastItem(bestContext ?? context.OuterExpression);
     }
 
-    private sealed class CastItem : ExpressionPostfixLookupItem<ICastExpression>
+    private sealed class CastItem : ExpressionPostfixLookupItem<IParenthesizedExpression>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
@@ -46,18 +46,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
-      protected override ICastExpression CreateExpression(CSharpElementFactory factory,
-                                                          ICSharpExpression expression)
+      protected override IParenthesizedExpression CreateExpression(CSharpElementFactory factory,
+                                                                   ICSharpExpression expression)
       {
-        return (ICastExpression) factory.CreateExpression("(T) $0", expression);
+        return (IParenthesizedExpression) factory.CreateExpression("((T) $0)", expression);
       }
 
-      protected override void AfterComplete(ITextControl textControl, ICastExpression expression)
+      protected override void AfterComplete(ITextControl textControl, IParenthesizedExpression expression)
       {
+        var castExpression = (ICastExpression) expression.Expression;
+
         var expectedTypeMacro = new MacroCallExpressionNew(new GuessExpectedTypeMacroDef());
         var hotspotInfo = new HotspotInfo(
           new TemplateField("T", expectedTypeMacro, 0),
-          expression.TargetType.GetDocumentRange());
+          castExpression.TargetType.GetDocumentRange());
 
         var endRange = expression.GetDocumentRange().EndOffsetRange().TextRange;
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(

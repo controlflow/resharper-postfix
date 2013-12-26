@@ -13,7 +13,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var expression = expressionContext.Expression;
       if (expression is IThisExpression) return false;
       if (expression is IBaseExpression) return false;
+      if (expression is ICSharpLiteralExpression) return false;
       if (expression is IObjectCreationExpression) return false;
+      if (expression is IUnaryOperatorExpression) return false;
+      if (expression is INullCoalescingExpression) return true;
+      if (expression is IBinaryExpression) return false;
+      if (expression is IAnonymousMethodExpression) return false;
+      if (expression is IAnonymousObjectCreationExpression) return false;
+      if (expression is IArrayCreationExpression) return false;
+      if (expression is IDefaultExpression) return false;
+      if (expression is ITypeofExpression) return false;
 
       switch (expressionContext.Type.Classify)
       {
