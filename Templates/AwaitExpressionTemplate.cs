@@ -5,6 +5,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
+using JetBrains.Util.Special;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -24,21 +25,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         if (!containingFunction.IsAsync) return null;
 
-        var expressionType = expressionContext.Type;
-        if (!expressionType.IsUnknown)
-        {
-          if (!(expressionType.IsTask() ||
-                expressionType.IsGenericTask())) return null;
-        }
+        var type = expressionContext.Type;
+        if (type.IsUnknown || type.IsTask() || type.IsGenericTask()) { }
+        else return null;
       }
 
-      // check expression is not already awaited
-      var referenceExpression = context.Reference as IReferenceExpression;
-      var expression = referenceExpression.GetContainingParenthesizedExpression();
-      var task = AwaitExpressionNavigator.GetByTask(expression as IUnaryExpression);
-      if (task != null) return null;
+      if (IsAlreadyAwaited(expressionContext)) return null;
 
       return new AwaitItem(expressionContext);
+    }
+
+    private static bool IsAlreadyAwaited([NotNull] PrefixExpressionContext context)
+    {
+      var outerExpression = context.PostfixContext.GetOuterExpression(context.Expression);
+      var expression = outerExpression.GetContainingParenthesizedExpression();
+
+      var task = AwaitExpressionNavigator.GetByTask(expression as IUnaryExpression);
+      return task != null;
     }
 
     private sealed class AwaitItem : ExpressionPostfixLookupItem<IAwaitExpression>

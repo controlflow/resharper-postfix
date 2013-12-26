@@ -13,9 +13,6 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
-// todo: disable inside .arg hotspot somehow...
-// todo: disable here: 'foo.arg()'
-
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
@@ -35,8 +32,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return new ArgumentItem(context.OuterExpression);
     }
 
-    [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion
-      = new Key(typeof(ArgumentExpressionTemplate).FullName);
+    [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =
+      new Key(typeof(ArgumentExpressionTemplate).FullName);
 
     private class ArgumentItem : ExpressionPostfixLookupItem<IInvocationExpression>
     {
