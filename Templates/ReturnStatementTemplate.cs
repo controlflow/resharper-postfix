@@ -8,8 +8,6 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // TODO: null.return do not works?
-
   [PostfixTemplate(
     templateName: "return",
     description: "Returns expression/yields value from iterator",
@@ -21,51 +19,56 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var expressionContext = context.OuterExpression;
       if (!expressionContext.CanBeStatement) return null;
 
-      var declaration = context.ContainingFunction;
-      if (declaration == null) return null;
-
-      var function = declaration.DeclaredElement;
-      if (function == null) return null;
-
-      if (!context.IsAutoCompletion)
+      if (context.IsAutoCompletion)
       {
-        return new ReturnLookupItem(expressionContext);
+        var declaration = context.ContainingFunction;
+        if (declaration == null) return null;
+
+        var function = declaration.DeclaredElement;
+        if (function == null) return null;
+
+        var returnType = GetMethodReturnValueType(function, declaration);
+        if (returnType == null) return null;
+
+        var conversionRule = expressionContext.Expression.GetTypeConversionRule();
+        if (!expressionContext.ExpressionType.IsImplicitlyConvertibleTo(returnType, conversionRule))
+          return null;
       }
 
+      return new ReturnLookupItem(expressionContext);
+    }
+
+    [CanBeNull]
+    private static IType GetMethodReturnValueType([NotNull] IParametersOwner function,
+                                                  [NotNull] ICSharpFunctionDeclaration declaration)
+    {
       var returnType = function.ReturnType;
       if (returnType.IsVoid()) return null;
 
-      if (!declaration.IsIterator)
-      {
-        if (declaration.IsAsync)
-        {
-          if (returnType.IsTask()) return null; // no return value
+      if (declaration.IsIterator) return null;
 
-          // unwrap return type from Task<T>
-          var genericTask = returnType as IDeclaredType;
-          if (genericTask != null && genericTask.IsGenericTask())
+      if (declaration.IsAsync)
+      {
+        if (returnType.IsTask()) return null;
+
+        // unwrap return type from Task<T>
+        var genericTask = returnType as IDeclaredType;
+        if (genericTask != null && genericTask.IsGenericTask())
+        {
+          var typeElement = genericTask.GetTypeElement();
+          if (typeElement != null)
           {
-            var typeElement = genericTask.GetTypeElement();
-            if (typeElement != null)
+            var typeParameters = typeElement.TypeParameters;
+            if (typeParameters.Count == 1)
             {
-              var typeParameters = typeElement.TypeParameters;
-              if (typeParameters.Count == 1)
-              {
-                var typeParameter = typeParameters[0];
-                returnType = genericTask.GetSubstitution()[typeParameter];
-              }
+              var typeParameter = typeParameters[0];
+              return genericTask.GetSubstitution()[typeParameter];
             }
           }
         }
-
-        var rule = expressionContext.Expression.GetTypeConversionRule();
-        if (rule.IsImplicitlyConvertibleTo(expressionContext.Type, returnType))
-        {
-          return new ReturnLookupItem(expressionContext);
-        }
       }
 
-      return null;
+      return returnType;
     }
 
     private sealed class ReturnLookupItem : StatementPostfixLookupItem<IReturnStatement>

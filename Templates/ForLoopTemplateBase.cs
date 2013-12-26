@@ -18,10 +18,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class ForLoopTemplateBase
   {
-    protected bool CreateItems([NotNull] PostfixTemplateContext context,
-                               [CanBeNull] out string lengthPropertyName)
+    protected bool CreateForItem([NotNull] PostfixTemplateContext context,
+                                 [CanBeNull] out string lengthName)
     {
-      lengthPropertyName = null;
+      lengthName = null;
 
       var expressionContext = context.InnerExpression;
       if (!expressionContext.CanBeStatement) return false;
@@ -31,7 +31,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       if (expressionContext.Type is IArrayType)
       {
-        lengthPropertyName = "Length";
+        lengthName = "Length";
       }
       else
       {
@@ -44,13 +44,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           myPropertyFilter, OverriddenFilter.INSTANCE,
           new AccessRightsFilter(new ElementAccessContext(expression)));
 
-        var result = publicProperties.GetResolveResult("Count");
+        const string countPropertyName = "Count";
+        var result = publicProperties.GetResolveResult(countPropertyName);
         var resolveResult = result.DeclaredElement as IProperty;
         if (resolveResult != null)
         {
           if (resolveResult.IsStatic) return false;
           if (!resolveResult.Type.IsInt()) return false;
-          lengthPropertyName = "Count";
+
+          lengthName = countPropertyName;
         }
         else
         {
@@ -66,18 +68,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     protected abstract class ForLookupItemBase : StatementPostfixLookupItem<IForStatement>
     {
+      [CanBeNull] private readonly string myLengthName;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
       protected ForLookupItemBase([NotNull] string shortcut,
                                   [NotNull] PrefixExpressionContext context,
-                                  [CanBeNull] string lengthPropertyName)
+                                  [CanBeNull] string lengthName)
         : base(shortcut, context)
       {
-        LengthPropertyName = lengthPropertyName;
-        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
+        var executionContext = context.PostfixContext.ExecutionContext;
+        myTemplatesManager = executionContext.LiveTemplatesManager;
+        myLengthName = lengthName;
       }
 
-      [CanBeNull] protected string LengthPropertyName { get; private set; }
+      [CanBeNull] protected string LengthName { get { return myLengthName; } }
 
       protected override void AfterComplete(ITextControl textControl, IForStatement statement)
       {

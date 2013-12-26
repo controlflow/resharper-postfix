@@ -39,8 +39,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         var predefinedType = expression.GetPredefinedType();
         var conversionRule = expression.GetTypeConversionRule();
-        if (!conversionRule.IsImplicitlyConvertibleTo(
-          expressionContext.Type, predefinedType.IDisposable)) return null;
+        if (!expressionContext.ExpressionType
+          .IsImplicitlyConvertibleTo(predefinedType.IDisposable, conversionRule))
+          return null;
       }
 
       // check expression is local variable reference

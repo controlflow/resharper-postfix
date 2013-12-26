@@ -13,17 +13,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "_field = expr;")]
   public class IntroduceFieldTemplate : IntroduceMemberTemplateBase
   {
-    protected override IntroduceMemberLookupItem CreateItem(
-      PrefixExpressionContext expression, IType expressionType, bool isStatic)
+    protected override IntroduceMemberLookupItem CreateItem(PrefixExpressionContext expression,
+                                                            IType expressionType, bool isStatic)
     {
       return new IntroduceFieldLookupItem(expression, expressionType, isStatic);
     }
 
     private sealed class IntroduceFieldLookupItem : IntroduceMemberLookupItem
     {
-      public IntroduceFieldLookupItem(
-        [NotNull] PrefixExpressionContext context,
-        [NotNull] IType expressionType, bool isStatic)
+      public IntroduceFieldLookupItem([NotNull] PrefixExpressionContext context,
+                                      [NotNull] IType expressionType, bool isStatic)
         : base("field", context, expressionType, isStatic) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)

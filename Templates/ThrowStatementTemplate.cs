@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -42,9 +41,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         else
         {
           // 'new Exception().throw' case
-          if (!expressionContext.Type.IsResolved)
-            return null;
-          if (!conversionRule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.Exception))
+          var expressionType = expressionContext.ExpressionType;
+          if (!expressionType.IsImplicitlyConvertibleTo(predefined.Exception, conversionRule))
             return null;
         }
       }
@@ -55,9 +53,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
 
       var instantiable = TypeUtils.IsInstantiable(referencedType, expression);
-      var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+      var hasParameters = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
 
-      return new ThrowByTypeItem(expressionContext, hasCtorWithParams);
+      return new ThrowByTypeItem(expressionContext, hasParameters);
     }
 
     private sealed class ThrowValueItem : StatementPostfixLookupItem<IThrowStatement>
@@ -79,7 +77,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public ThrowByTypeItem([NotNull] PrefixExpressionContext context, bool hasParameters)
         : base("throw", context)
       {
-        myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
+        var executionContext = context.PostfixContext.ExecutionContext;
+        myLookupItemsOwner = executionContext.LookupItemsOwner;
         myHasParameters = hasParameters;
       }
 

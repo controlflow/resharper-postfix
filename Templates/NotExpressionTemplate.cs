@@ -26,8 +26,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       public NotItem([NotNull] PrefixExpressionContext context) : base("not", context) { }
 
-      protected override ICSharpExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
+                                                            ICSharpExpression expression)
       {
         return CSharpExpressionUtil.CreateLogicallyNegatedExpression(expression) ?? expression;
       }
@@ -41,14 +41,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           var unary2 = UnaryOperatorExpressionNavigator.GetByOperand(unary);
           if (unary2 != null && unary2.UnaryOperatorType == UnaryOperatorType.EXCL)
           {
-            expression = expression.GetPsiServices().DoTransaction(ExpandCommandName,
-              () =>
+            var psiServices = expression.GetPsiServices();
+            expression = psiServices.DoTransaction(ExpandCommandName, () =>
+            {
+              using (WriteLockCookie.Create())
               {
-                using (WriteLockCookie.Create())
-                {
-                  return unary2.ReplaceBy(unary.Operand);
-                }
-              });
+                return unary2.ReplaceBy(unary.Operand);
+              }
+            });
           }
         }
 

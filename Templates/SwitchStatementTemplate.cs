@@ -39,8 +39,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public SwitchItem([NotNull] PrefixExpressionContext context) : base("switch", context) { }
 
       // switch statement can't be without braces
-      protected override ISwitchStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ISwitchStatement CreateStatement(CSharpElementFactory factory,
+                                                          ICSharpExpression expression)
       {
         var template = "switch($0)" + RequiredBracesTemplate;
         return (ISwitchStatement) factory.CreateStatement(template, expression);

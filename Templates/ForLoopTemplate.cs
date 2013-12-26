@@ -14,10 +14,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      string lengthPropertyName;
-      if (CreateItems(context, out lengthPropertyName))
+      string lengthName;
+      if (CreateForItem(context, out lengthName))
       {
-        return new ForLookupItem(context.InnerExpression, lengthPropertyName);
+        return new ForLookupItem(context.InnerExpression, lengthName);
       }
 
       return null;
@@ -25,24 +25,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class ForLookupItem : ForLookupItemBase
     {
-      public ForLookupItem(
-        [NotNull] PrefixExpressionContext context, [CanBeNull] string lengthPropertyName)
-        : base("for", context, lengthPropertyName) { }
+      public ForLookupItem([NotNull] PrefixExpressionContext context,
+                           [CanBeNull] string lengthName)
+        : base("for", context, lengthName) { }
 
-      protected override IForStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IForStatement CreateStatement(CSharpElementFactory factory,
+                                                       ICSharpExpression expression)
       {
         var template = "for(var x=0;x<$0;x++)" + EmbeddedStatementBracesTemplate;
         var forStatement = (IForStatement) factory.CreateStatement(template, expression);
 
         var condition = (IRelationalExpression) forStatement.Condition;
-        if (LengthPropertyName == null)
+        if (LengthName == null)
         {
           condition.RightOperand.ReplaceBy(expression);
         }
         else
         {
-          var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthPropertyName);
+          var lengthAccess = factory.CreateReferenceExpression("expr.$0", LengthName);
           lengthAccess = condition.RightOperand.ReplaceBy(lengthAccess);
           lengthAccess.QualifierExpression.NotNull().ReplaceBy(expression);
         }

@@ -7,7 +7,6 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // todo: foo as Bar.par - available in auto
   // todo: (Bar) foo.par - available in auto?
 
   [PostfixTemplate(

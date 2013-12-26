@@ -81,6 +81,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
 
     [Test] public void TestReturn01() { DoNamedTest(); }
     [Test] public void TestReturn02() { DoNamedTest(); }
+    [Test] public void TestReturn03() { DoNamedTest(); }
+    [Test] public void TestReturn04() { DoNamedTest(); }
 
     [Test] public void TestThrow01() { DoNamedTest(); }
     [Test] public void TestThrow02() { DoNamedTest(); }

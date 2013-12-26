@@ -29,35 +29,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (expressionContext == null) return null;
       if (!expressionContext.CanBeStatement) return null;
 
-      var typeIsEnumerable = !context.IsAutoCompletion;
-      if (!typeIsEnumerable)
-      {
-        if (!expressionContext.Type.IsResolved) return null;
-
-        var predefined = expressionContext.Expression.GetPredefinedType();
-        var conversionRule = expressionContext.Expression.GetTypeConversionRule();
-        if (conversionRule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.IEnumerable))
-        {
-          typeIsEnumerable = true;
-        }
-      }
-
-      if (!typeIsEnumerable)
-      {
-        var declaredType = expressionContext.Type as IDeclaredType;
-        if (declaredType != null && !declaredType.IsUnknown)
-        {
-          var typeElement = declaredType.GetTypeElement();
-          if (typeElement != null && typeElement.IsForeachEnumeratorPatternType())
-          {
-            typeIsEnumerable = true;
-          }
-        }
-      }
-
-      if (!typeIsEnumerable) return null;
+      if (context.IsAutoCompletion && !IsEnumerable(expressionContext)) return null;
 
       return new ForEachItem(expressionContext);
+    }
+
+    private static bool IsEnumerable([NotNull] PrefixExpressionContext context)
+    {
+      if (!context.Type.IsResolved) return false;
+
+      var predefined = context.Expression.GetPredefinedType();
+      var conversionRule = context.Expression.GetTypeConversionRule();
+      if (conversionRule.IsImplicitlyConvertibleTo(context.Type, predefined.IEnumerable))
+        return true;
+
+      var declaredType = context.Type as IDeclaredType;
+      if (declaredType != null && !declaredType.IsUnknown)
+      {
+        var typeElement = declaredType.GetTypeElement();
+        if (typeElement != null && typeElement.IsForeachEnumeratorPatternType())
+          return true;
+      }
+
+      return false;
     }
 
     private sealed class ForEachItem : StatementPostfixLookupItem<IForeachStatement>

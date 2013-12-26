@@ -1,0 +1,9 @@
+﻿// ${COMPLETE_ITEM:return}
+
+class A
+{
+  static string Foo()
+  {
+    return null;{caret}
+  }
+}

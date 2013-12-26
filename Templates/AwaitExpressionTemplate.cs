@@ -5,7 +5,6 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
-using JetBrains.Util.Special;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {

@@ -5,6 +5,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -19,56 +20,31 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var expressionContext = context.OuterExpression;
       if (!expressionContext.CanBeStatement) return null;
 
-      var declaration = context.ContainingFunction;
-      if (declaration == null) return null;
-
-      var function = declaration.DeclaredElement;
-      if (function == null) return null;
-
-      if (!context.IsAutoCompletion)
+      if (context.IsAutoCompletion)
       {
-        return new YieldItem(expressionContext);
+        var declaration = context.ContainingFunction;
+        if (declaration == null) return null;
+
+        var function = declaration.DeclaredElement;
+        if (function == null) return null;
+
+        var returnType = function.ReturnType;
+        if (returnType.IsVoid()) return null;
+
+        if (!IsOrCanBecameIterator(declaration, returnType)) return null;
+
+        var elementType = GetIteratorElementType(returnType, declaration);
+
+        var conversionRule = expressionContext.Expression.GetTypeConversionRule();
+        if (!expressionContext.ExpressionType.IsImplicitlyConvertibleTo(elementType, conversionRule))
+          return null;
       }
 
-      var returnType = function.ReturnType;
-      if (returnType.IsVoid()) return null;
-
-      if (IsOrCanBecameIterator(declaration, returnType))
-      {
-        if (returnType.IsIEnumerable())
-        {
-          returnType = declaration.GetPredefinedType().Object;
-        }
-        else
-        {
-          // unwrap return type from IEnumerable<T>
-          var enumerable = returnType as IDeclaredType;
-          if (enumerable != null && enumerable.IsGenericIEnumerable())
-          {
-            var element = enumerable.GetTypeElement();
-            if (element != null)
-            {
-              var typeParameters = element.TypeParameters;
-              if (typeParameters.Count == 1)
-              {
-                returnType = enumerable.GetSubstitution()[typeParameters[0]];
-              }
-            }
-          }
-        }
-
-        var rule = expressionContext.Expression.GetTypeConversionRule();
-        if (rule.IsImplicitlyConvertibleTo(expressionContext.Type, returnType))
-        {
-          return new YieldItem(expressionContext);
-        }
-      }
-
-      return null;
+      return new YieldItem(expressionContext);
     }
 
-    private static bool IsOrCanBecameIterator(
-      [NotNull] ICSharpFunctionDeclaration declaration, [NotNull] IType returnType)
+    private static bool IsOrCanBecameIterator([NotNull] ICSharpFunctionDeclaration declaration,
+                                              [NotNull] IType returnType)
     {
       if (declaration.IsIterator) return true;
       if (declaration.IsAsync) return false;
@@ -83,12 +59,38 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return false;
     }
 
+    [NotNull]
+    private static IType GetIteratorElementType([NotNull] IType returnType, [NotNull] ITreeNode context)
+    {
+      if (returnType.IsIEnumerable())
+      {
+        return context.GetPredefinedType().Object;
+      }
+
+      // unwrap return type from IEnumerable<T>
+      var enumerable = returnType as IDeclaredType;
+      if (enumerable != null && enumerable.IsGenericIEnumerable())
+      {
+        var typeElement = enumerable.GetTypeElement();
+        if (typeElement != null)
+        {
+          var typeParameters = typeElement.TypeParameters;
+          if (typeParameters.Count == 1)
+          {
+            return enumerable.GetSubstitution()[typeParameters[0]];
+          }
+        }
+      }
+
+      return returnType;
+    }
+
     private sealed class YieldItem : StatementPostfixLookupItem<IYieldStatement>
     {
       public YieldItem([NotNull] PrefixExpressionContext context) : base("yield", context) { }
 
-      protected override IYieldStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IYieldStatement CreateStatement(CSharpElementFactory factory,
+                                                         ICSharpExpression expression)
       {
         return (IYieldStatement) factory.CreateStatement("yield return $0;", expression);
       }

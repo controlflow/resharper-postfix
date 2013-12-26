@@ -68,8 +68,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         IsStatic = isStatic;
         ExpressionType = expressionType;
+
+        var executionContext = context.PostfixContext.ExecutionContext;
+        myTemplatesManager = executionContext.LiveTemplatesManager;
         myMemberNames = EmptyList<string>.InstanceList;
-        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
       protected override IExpressionStatement CreateStatement(CSharpElementFactory factory,
