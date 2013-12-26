@@ -5,11 +5,13 @@ using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.DataContext;
 using JetBrains.Application.Progress;
+using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -166,6 +168,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           var rparRange = creationExpression.RPar.GetDocumentRange();
           var rangeMarker = lparRange.SetEndTo(rparRange.TextRange.EndOffset).CreateRangeMarker();
 
+          var settingsStore = creationExpression.GetSettingsStore();
+          var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+
           ExecuteRefactoring(textControl, statement.Expression, (control, solution, _) =>
           {
             if (rangeMarker.IsValid)
@@ -174,8 +179,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
               var offset = range.StartOffset + range.Length/2;
               control.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
 
-              LookupUtil.ShowParameterInfo(
-                solution, control, range, null, myLookupItemsOwner);
+              if (invokeParameterInfo)
+              {
+                LookupUtil.ShowParameterInfo(
+                  solution, control, range, null, myLookupItemsOwner);
+              }
             }
           });
         }

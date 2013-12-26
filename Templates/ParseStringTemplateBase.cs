@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
@@ -11,6 +12,7 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -74,22 +76,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           .SetEndTo(expression.RPar.GetDocumentRange().TextRange.EndOffset)
           .CreateRangeMarker();
 
+        var settingsStore = expression.GetSettingsStore();
+        var invokeParameterName = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+
         session.Closed.Advise(Lifetime, args =>
         {
           if (myIsTryParse)
           {
             solution.GetComponent<IShellLocks>().QueueReadLock("Smart completion for .tryparse", () =>
             {
-              var manager = solution.GetComponent<IntellisenseManager>();
-              manager.ExecuteManualCompletion(
-                CodeCompletionType.SmartCompletion,
-                textControl, solution, EmptyAction.Instance,
-                manager.GetPrimaryEvaluationMode(CodeCompletionType.SmartCompletion),
+              var intellisenseManager = solution.GetComponent<IntellisenseManager>();
+              intellisenseManager.ExecuteManualCompletion(
+                CodeCompletionType.SmartCompletion, textControl, solution, EmptyAction.Instance,
+                intellisenseManager.GetPrimaryEvaluationMode(CodeCompletionType.SmartCompletion),
                 AutocompletionBehaviour.DoNotAutocomplete);
             });
           }
 
-          if (marker.IsValid)
+          if (marker.IsValid && invokeParameterName)
           {
             LookupUtil.ShowParameterInfo(
               solution, textControl, marker.Range, null, myLookupItemsOwner);

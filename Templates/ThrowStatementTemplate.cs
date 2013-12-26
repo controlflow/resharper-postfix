@@ -1,6 +1,9 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.Application.Settings;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -25,20 +28,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       if (context.IsAutoCompletion)
       {
-        var rule = expression.GetTypeConversionRule();
+        var conversionRule = expression.GetTypeConversionRule();
         var predefined = expression.GetPredefinedType();
 
         // 'Exception.throw' case
         if (referencedType != null)
         {
-          if (!rule.IsImplicitlyConvertibleTo(referencedType, predefined.Exception)) return null;
-          if (TypeUtils.IsInstantiable(referencedType, expression) == 0) return null;
+          if (!conversionRule.IsImplicitlyConvertibleTo(referencedType, predefined.Exception))
+            return null;
+          if (TypeUtils.IsInstantiable(referencedType, expression) == 0)
+            return null;
         }
         else
         {
           // 'new Exception().throw' case
-          if (!expressionContext.Type.IsResolved) return null;
-          if (!rule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.Exception)) return null;
+          if (!expressionContext.Type.IsResolved)
+            return null;
+          if (!conversionRule.IsImplicitlyConvertibleTo(expressionContext.Type, predefined.Exception))
+            return null;
         }
       }
 
@@ -95,8 +102,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var parenthesisRange = exception.LPar.GetDocumentRange().SetEndTo(
           exception.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
 
-        var solution = statement.GetSolution();
-        LookupUtil.ShowParameterInfo(solution, textControl, parenthesisRange, null, myLookupItemsOwner);
+        var settingsStore = statement.GetSettingsStore();
+        if (settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
+        {
+          LookupUtil.ShowParameterInfo(
+            statement.GetSolution(), textControl, parenthesisRange, null, myLookupItemsOwner);
+        }
       }
     }
   }

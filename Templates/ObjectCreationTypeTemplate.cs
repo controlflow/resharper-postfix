@@ -1,6 +1,9 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.Application.Settings;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -37,39 +40,41 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class NewItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
     {
+      private readonly bool myHasParameters;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
-      private readonly bool myHasCtorWithParams;
 
-      public NewItem([NotNull] PrefixExpressionContext context, bool hasCtorWithParams)
+      public NewItem([NotNull] PrefixExpressionContext context, bool hasParameters)
         : base("new", context)
       {
-        myHasCtorWithParams = hasCtorWithParams;
+        myHasParameters = hasParameters;
         myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
       }
 
-      protected override IObjectCreationExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory,
+                                                                    ICSharpExpression expression)
       {
         var template = string.Format("new {0}()", expression.GetText());
         return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
       }
 
-      protected override void AfterComplete(
-        ITextControl textControl, IObjectCreationExpression expression)
+      protected override void AfterComplete(ITextControl textControl, IObjectCreationExpression expression)
       {
-        var caretNode = (myHasCtorWithParams ? expression.LPar : (ITreeNode) expression);
+        var caretNode = (myHasParameters ? expression.LPar : (ITreeNode) expression);
         var endOffset = caretNode.GetDocumentRange().TextRange.EndOffset;
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
-        if (!myHasCtorWithParams) return;
+        if (!myHasParameters) return;
 
         var parenthesisRange =
           expression.LPar.GetDocumentRange().TextRange.SetEndTo(
             expression.RPar.GetDocumentRange().TextRange.EndOffset);
 
-        var solution = expression.GetSolution();
-        LookupUtil.ShowParameterInfo(
-          solution, textControl, parenthesisRange, null, myLookupItemsOwner);
+        var settingsStore = expression.GetSettingsStore();
+        if (settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
+        {
+          LookupUtil.ShowParameterInfo(
+            expression.GetSolution(), textControl, parenthesisRange, null, myLookupItemsOwner);
+        }
       }
     }
   }

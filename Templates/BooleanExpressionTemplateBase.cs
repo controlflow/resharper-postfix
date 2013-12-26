@@ -36,7 +36,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private static bool IsBooleanExpression([NotNull] PrefixExpressionContext context)
     {
-      if (context.Type.IsBool()) return false;
+      if (context.Type.IsBool()) return true;
 
       var expression = context.Expression;
       return expression is IRelationalExpression

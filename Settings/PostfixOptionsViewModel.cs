@@ -26,6 +26,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       ShowStaticMembersInCodeCompletion = new Property<bool>(lifetime, "ShowStaticMethodsInCodeCompletion");
       ShowEnumHelpersInCodeCompletion = new Property<bool>(lifetime, "ShowEnumHelpersInCodeCompletion");
       UseBracesForEmbeddedStatements = new Property<bool>(lifetime, "UseBracesForEmbeddedStatements");
+      InvokeParameterInfoFromTemplates = new Property<bool>(lifetime, "InvokeParameterInfoFromTemplates");
       Reset = new DelegateCommand(ResetExecute);
 
       settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowPostfixItems, ShowPostfixTemplatesInCodeCompletion);

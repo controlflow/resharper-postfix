@@ -1,0 +1,93 @@
+﻿+ Clone
+Compare
+CompareOrdinal
++ CompareTo
+Concat
++ Contains
+Copy
++ CopyTo
++ EndsWith
++ Equals
+Equals
+Format
++ GetEnumerator
++ GetHashCode
++ GetType
++ GetTypeCode
++ IndexOf
++ IndexOfAny
++ Insert
+Intern
+IsInterned
++ IsNormalized
+IsNullOrEmpty
+IsNullOrWhiteSpace
+Join
++ LastIndexOf
++ LastIndexOfAny
++ Length
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
++ Split
++ StartsWith
++ Substring
++ ToCharArray
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
++ []
+# AUTOMATIC #
++ Clone
+Compare
+CompareOrdinal
++ CompareTo
+Concat
++ Contains
+Copy
++ CopyTo
++ EndsWith
++ Equals
+Equals
+Format
++ GetEnumerator
++ GetHashCode
++ GetType
++ GetTypeCode
++ IndexOf
++ IndexOfAny
++ Insert
+Intern
+IsInterned
++ IsNormalized
+IsNullOrEmpty
+IsNullOrWhiteSpace
+Join
++ LastIndexOf
++ LastIndexOfAny
++ Length
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
++ Split
++ StartsWith
++ Substring
++ ToCharArray
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
++ []

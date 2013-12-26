@@ -110,6 +110,21 @@ namespace JetBrains.ReSharper.PostfixTemplates
         var expression = referenceExpression.QualifierExpression;
         if (expression != null)
         {
+          // protect from 'o.M(.var)'
+          var invocation = expression as IInvocationExpression;
+          if (invocation != null && invocation.LPar != null && invocation.RPar == null)
+          {
+            var argument = invocation.Arguments.LastOrDefault();
+            if (argument != null && argument.Expression == null) return null;
+          }
+
+          // protect from 'doubleDot..var'
+          var qualifierReference = expression as IReferenceExpression;
+          if (qualifierReference != null && qualifierReference.NameIdentifier == null)
+          {
+            return null;
+          }
+
           return new ReferenceExpressionPostfixTemplateContext(referenceExpression, expression, context);
         }
       }
