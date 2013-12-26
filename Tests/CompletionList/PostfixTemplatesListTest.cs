@@ -23,6 +23,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CompletionList
     [Test] public void TestType02() { DoNamedTest(); }
     [Test] public void TestType03() { DoNamedTest(); }
     [Test] public void TestType04() { DoNamedTest(); }
+    [Test] public void TestType05() { DoNamedTest(); }
 
     [Test] public void TestVar01() { DoNamedTest(); }
 

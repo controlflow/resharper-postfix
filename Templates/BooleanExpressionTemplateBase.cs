@@ -3,8 +3,6 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
-// todo: disable in cases like typeReference.Name == NotNullAttribute.if
-
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class BooleanExpressionTemplateBase
@@ -13,19 +11,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       foreach (var expressionContext in context.Expressions)
       {
-        if (IsBooleanExpression(expressionContext))
-        {
-          var lookupItem = CreateBooleanItem(expressionContext);
-          if (lookupItem != null) return lookupItem;
-        }
+        if (!IsBooleanExpression(expressionContext)) continue;
+
+        var lookupItem = CreateBooleanItem(expressionContext);
+        if (lookupItem == null) continue;
+
+        return lookupItem;
       }
 
-      if (context.IsAutoCompletion) return null;
-
-      foreach (var expressionContext in context.Expressions)
+      if (!context.IsAutoCompletion)
       {
-        var lookupItem = CreateBooleanItem(expressionContext);
-        if (lookupItem != null) return lookupItem;
+        foreach (var expressionContext in context.Expressions)
+        {
+          var lookupItem = CreateBooleanItem(expressionContext);
+          if (lookupItem == null) continue;
+
+          return lookupItem;
+        }
       }
 
       return null;
@@ -36,15 +38,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private static bool IsBooleanExpression([NotNull] PrefixExpressionContext context)
     {
+      var expression = context.Expression;
+
       if (context.Type.IsBool()) return true;
 
-      var expression = context.Expression;
-      return expression is IRelationalExpression
-          || expression is IEqualityExpression
-          || expression is IConditionalAndExpression
-          || expression is IConditionalOrExpression
-          || expression is IUnaryOperatorExpression // TODO: check with +expr and other non-boolean unary
-          || expression is IIsExpression;
+      var binaryExpression = expression as IBinaryExpression;
+      if (binaryExpression != null)
+      {
+        return binaryExpression is IRelationalExpression
+            || binaryExpression is IEqualityExpression
+            || binaryExpression is IConditionalAndExpression
+            || binaryExpression is IConditionalOrExpression;
+      }
+
+      var unaryExpression = expression as IUnaryOperatorExpression;
+      if (unaryExpression != null)
+      {
+        return (unaryExpression.UnaryOperatorType == UnaryOperatorType.EXCL);
+      }
+
+      return (expression is IIsExpression);
     }
   }
 }

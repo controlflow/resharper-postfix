@@ -25,7 +25,7 @@ using JetBrains.Util.EventBus;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // allow over variables in force mode
+  using AfterAction = Action<ITextControl, ISolution, RefactoringDetailsArgs>;
 
   [PostfixTemplate(
     templateName: "var",
@@ -36,58 +36,60 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var contexts = new List<PrefixExpressionContext>();
-      foreach (var exprContext in context.Expressions)
+      foreach (var expressionContext in context.Expressions)
       {
-        if (exprContext.Expression is IReferenceExpression)
+        if (expressionContext.Expression is IReferenceExpression)
         {
-          // filter out too simple local references
-          var target = exprContext.ReferencedElement;
-          if (target is IParameter || target is ILocalVariable) continue;
-
-          // filter out namespaces
-          if (target is INamespace) continue;
+          // filter out 'too simple' local variable expressions
+          var target = expressionContext.ReferencedElement;
+          if (target is IParameter || target is ILocalVariable)
+          {
+            if (context.IsAutoCompletion) continue;
+          }
         }
 
-        if (exprContext.Type.IsVoid()) continue;
+        if (expressionContext.Type.IsVoid()) continue;
 
-        var referencedType = exprContext.ReferencedType;
+        var referencedType = expressionContext.ReferencedType;
         if (referencedType != null)
         {
-          if (!exprContext.CanBeStatement) continue; // can be relaxed?
-          if (TypeUtils.IsInstantiable(referencedType, exprContext.Expression) == 0)
-            continue;
+          if (!context.IsAutoCompletion ||
+            TypeUtils.IsInstantiable(referencedType, expressionContext.Expression) != 0)
+          {
+            contexts.Add(expressionContext);
+          }
+
+          break; // prevent from 'expr == T.var' => 'var t = expr == T;'
         }
 
-        contexts.Add(exprContext);
+        contexts.Add(expressionContext);
       }
-
-      if (contexts.Count == 0) return null;
 
       var bestContext = contexts.FirstOrDefault(ctx => ctx.CanBeStatement) ??
-                        contexts.FirstOrDefault();
+                        contexts.LastOrDefault(); // most outer expression
       if (bestContext == null) return null;
 
-      if (bestContext.CanBeStatement)
+      if (bestContext.CanBeStatement || !context.IsAutoCompletion)
       {
         var referencedType = bestContext.ReferencedType;
-        if (referencedType == null)
-          return new IntroduceVarStatementItem(bestContext);
+        if (referencedType != null)
+          return new VarByTypeItem(bestContext, referencedType);
 
-        var lookupItemsOwner = context.ExecutionContext.LookupItemsOwner;
-        return new IntroduceVarByTypeItem(bestContext, referencedType, lookupItemsOwner);
+        if (bestContext.CanBeStatement)
+          return new VarStatementItem(bestContext);
+
+        return new VarExpressionItem(bestContext);
       }
 
-      if (context.IsAutoCompletion) return null;
-
-      return new IntroduceVarExpressionItem(bestContext);
+      return null;
     }
 
-    private sealed class IntroduceVarExpressionItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    private sealed class VarExpressionItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public IntroduceVarExpressionItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
+      public VarExpressionItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
 
-      protected override ICSharpExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
+                                                            ICSharpExpression expression)
       {
         return expression;
       }
@@ -120,12 +122,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
     }
 
-    private sealed class IntroduceVarStatementItem : StatementPostfixLookupItem<IExpressionStatement>
+    private sealed class VarStatementItem : StatementPostfixLookupItem<IExpressionStatement>
     {
-      public IntroduceVarStatementItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
+      public VarStatementItem([NotNull] PrefixExpressionContext context) : base("var", context) { }
 
-      protected override IExpressionStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory,
+                                                              ICSharpExpression expression)
       {
         return (IExpressionStatement) factory.CreateStatement("$0;", expression);
       }
@@ -136,67 +138,62 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
     }
 
-    private sealed class IntroduceVarByTypeItem : StatementPostfixLookupItem<IExpressionStatement>
+    private sealed class VarByTypeItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
     {
       [NotNull] private readonly IDeclaredType myReferencedType;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
-      private readonly bool myHasCtorWithParams;
+      private readonly bool myHasParameters;
 
-      public IntroduceVarByTypeItem(
-        [NotNull] PrefixExpressionContext context, [NotNull] IDeclaredType referencedType,
-        [NotNull] ILookupItemsOwner lookupItemsOwner) : base("var", context)
+      public VarByTypeItem([NotNull] PrefixExpressionContext context,
+                           [NotNull] IDeclaredType referencedType)
+        : base("var", context)
       {
         myReferencedType = referencedType;
-        myLookupItemsOwner = lookupItemsOwner;
+        myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
 
         var instantiable = TypeUtils.IsInstantiable(referencedType, context.Expression);
-        myHasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+        myHasParameters = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
       }
 
-      protected override IExpressionStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory,
+                                                                    ICSharpExpression expression)
       {
-        return (IExpressionStatement) factory.CreateStatement("new $0();", myReferencedType);
+        return (IObjectCreationExpression) factory.CreateExpression("new $0();", myReferencedType);
       }
 
-      protected override void AfterComplete(ITextControl textControl, IExpressionStatement statement)
+      protected override void AfterComplete(ITextControl textControl, IObjectCreationExpression expression)
       {
-        if (myHasCtorWithParams)
+        if (myHasParameters)
         {
-          var creationExpression = (IObjectCreationExpression) statement.Expression;
-          var lparRange = creationExpression.LPar.GetDocumentRange();
-          var rparRange = creationExpression.RPar.GetDocumentRange();
+          var lparRange = expression.LPar.GetDocumentRange();
+          var rparRange = expression.RPar.GetDocumentRange();
           var rangeMarker = lparRange.SetEndTo(rparRange.TextRange.EndOffset).CreateRangeMarker();
 
-          var settingsStore = creationExpression.GetSettingsStore();
+          var settingsStore = expression.GetSettingsStore();
           var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
 
-          ExecuteRefactoring(textControl, statement.Expression, (control, solution, _) =>
+          ExecuteRefactoring(textControl, expression, (control, solution, _) =>
           {
-            if (rangeMarker.IsValid)
-            {
-              var range = rangeMarker.Range;
-              var offset = range.StartOffset + range.Length/2;
-              control.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+            if (!rangeMarker.IsValid) return;
 
-              if (invokeParameterInfo)
-              {
-                LookupUtil.ShowParameterInfo(
-                  solution, control, range, null, myLookupItemsOwner);
-              }
-            }
+            var range = rangeMarker.Range;
+            var offset = range.StartOffset + range.Length / 2;
+            control.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+
+            if (!invokeParameterInfo) return;
+            LookupUtil.ShowParameterInfo(solution, control, range, null, myLookupItemsOwner);
           });
         }
         else
         {
-          ExecuteRefactoring(textControl, statement.Expression);
+          ExecuteRefactoring(textControl, expression);
         }
       }
     }
 
-    private static void ExecuteRefactoring(
-      [NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression,
-      [CanBeNull] Action<ITextControl, ISolution, RefactoringDetailsArgs> executeAfter = null)
+    private static void ExecuteRefactoring([NotNull] ITextControl textControl,
+                                           [NotNull] ICSharpExpression expression,
+                                           [CanBeNull] AfterAction executeAfter = null)
     {
       const string name = "IntroVariableAction";
       var solution = expression.GetSolution();

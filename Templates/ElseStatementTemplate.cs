@@ -11,7 +11,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   [PostfixTemplate(
     templateName: "else",
     description: "Checks boolean expression to be 'false'",
-    example: "if (!expr)", WorksOnTypes = true)]
+    example: "if (!expr)")]
   public class ElseStatementTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
     protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
