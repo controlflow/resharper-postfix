@@ -1,0 +1,9 @@
+﻿// ${COMPLETE_ITEM:return}
+
+class A
+{
+  System.Action Foo()
+  {
+    return (() => { });{caret}
+  }
+}

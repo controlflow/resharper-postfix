@@ -42,6 +42,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           // 'new Exception().throw' case
           var expressionType = expressionContext.ExpressionType;
+          if (!expressionType.IsResolved) return null;
+
           if (!expressionType.IsImplicitlyConvertibleTo(predefined.Exception, conversionRule))
             return null;
         }
@@ -90,16 +92,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, IThrowStatement statement)
       {
-        var exception = (IObjectCreationExpression) statement.Exception;
+        var expression = (IObjectCreationExpression) statement.Exception;
         var endOffset = myHasParameters
-          ? exception.LPar.GetDocumentRange().TextRange.EndOffset
+          ? expression.LPar.GetDocumentRange().TextRange.EndOffset
           : statement.GetDocumentRange().TextRange.EndOffset;
 
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
         if (!myHasParameters) return;
 
-        var parenthesisRange = exception.LPar.GetDocumentRange().SetEndTo(
-          exception.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
+        var parenthesisRange = expression.LPar.GetDocumentRange().SetEndTo(
+          expression.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
 
         var settingsStore = statement.GetSettingsStore();
         if (settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
