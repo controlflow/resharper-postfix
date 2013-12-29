@@ -61,8 +61,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     // "lines.Any()" : Boolean
     [NotNull] public ICSharpExpression Expression { get; private set; }
     [NotNull] public IExpressionType ExpressionType { get; private set; }
-
-    [NotNull] public IType Type { get; private set; } // todo: review usages?
+    [NotNull] public IType Type { get; private set; }
 
     [CanBeNull] public IDeclaredElement ReferencedElement { get; private set; }
     [CanBeNull] public IDeclaredType ReferencedType { get; private set; }

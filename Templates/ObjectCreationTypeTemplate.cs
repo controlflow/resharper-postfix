@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;

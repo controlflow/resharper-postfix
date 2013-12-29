@@ -9,8 +9,6 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // todo: if (!boo.not) { }
-
   [PostfixTemplate(
     templateName: "not",
     description: "Negates boolean expression",
