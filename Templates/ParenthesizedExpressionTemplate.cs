@@ -7,8 +7,6 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // todo: (Bar) foo.par - available in auto?
-
   [PostfixTemplate(
     templateName: "par",
     description: "Parenthesizes current expression",
@@ -17,8 +15,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      if (context.IsAutoCompletion) return null;
-
       PrefixExpressionContext bestContext = null;
       foreach (var expressionContext in context.Expressions.Reverse())
       {
@@ -29,7 +25,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         }
       }
 
-      return new ParenthesesItem(bestContext ?? context.OuterExpression);
+      // available in auto over cast expressions
+      var targetContext = bestContext ?? context.OuterExpression;
+      var insideCastExpression = CastExpressionNavigator.GetByOp(targetContext.Expression) != null;
+
+      if (!insideCastExpression && context.IsAutoCompletion) return null;
+
+      return new ParenthesesItem(targetContext);
     }
 
     private sealed class ParenthesesItem : ExpressionPostfixLookupItem<ICSharpExpression>
