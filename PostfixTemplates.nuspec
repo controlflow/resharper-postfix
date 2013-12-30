@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>1.7-beta</version>
+    <version>1.8</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>Postfix Templates plugin</title>
     <authors>Alexander Shvedov</authors>
@@ -14,12 +14,12 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      ReSharper v8.1 RTM beta support. Core rewritten to match IntelliJ IDEA version. Various small fixes (mostly Razor issues). Plugin rename.
+      ReSharper 8.1 support. Core rewritten to match ideas from IntelliJ version. Ability to turn off code completion integration (only expand templates by [Tab]), option to turn off parameter info. Much better work over broken code. Various fixes, null.return now works, .arg template moved away from auto completion (too invasive), all templates disabled over namespaces, some Razor and availability fixes. Plugin rename.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
     </dependencies>
-    <tags>postfix completion cats surround templates</tags>
+    <tags>postfix templates completion cats surround</tags>
   </metadata>
   <files>
     <file src="bin.R80\$Configuration$\" target="ReSharper\v8.0\plugins\" />
