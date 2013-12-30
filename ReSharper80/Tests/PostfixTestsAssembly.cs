@@ -10,7 +10,7 @@ using JetBrains.Threading;
 using JetBrains.Util;
 using NUnit.Framework;
 
-[assembly: TestDataPathBase(@".\Data\Completion")]
+[assembly: TestDataPathBase(@"..\Data\Completion")]
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
@@ -45,16 +45,16 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
   }
 
-  //[PsiComponent]
-  //internal class JavaScriptDependentFilesCacheHack : JavaScriptDependentFilesCache
-  //{
-  //  public JavaScriptDependentFilesCacheHack(
-  //    Lifetime lifetime, IViewable<ILibraryFiles> libraryFiles,
-  //    JavaScriptDependentFilesModuleFactory dependentFilesModuleFactory,
-  //    JavaScriptDependentFilesBuilder builder, IShellLocks locks,
-  //    IPsiConfiguration configuration, IPersistentIndexManager persistentIndexManager)
-  //    : base(lifetime, new ListEvents<ILibraryFiles>(lifetime, "booo"),
-  //      dependentFilesModuleFactory, builder,
-  //      locks, configuration, persistentIndexManager) { }
-  //}
+  [PsiComponent]
+  internal class JavaScriptDependentFilesCacheHack : JavaScriptDependentFilesCache
+  {
+    public JavaScriptDependentFilesCacheHack(
+      Lifetime lifetime, IViewable<ILibraryFiles> libraryFiles,
+      JavaScriptDependentFilesModuleFactory dependentFilesModuleFactory,
+      JavaScriptDependentFilesBuilder builder, IShellLocks locks,
+      IPsiConfiguration configuration, IPersistentIndexManager persistentIndexManager)
+      : base(lifetime, new ListEvents<ILibraryFiles>(lifetime, "booo"),
+        dependentFilesModuleFactory, builder,
+        locks, configuration, persistentIndexManager) { }
+  }
 }
