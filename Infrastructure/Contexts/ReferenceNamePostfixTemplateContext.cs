@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExtensionsAPI;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
@@ -15,13 +16,17 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
     {
-      var referenceName = (IReferenceName)Reference;
-
       var expression = context.Expression;
-      if (expression.Contains(referenceName)) // x is T.bar => x is T
+      if (expression.Contains(Reference)) // x is T.bar => x is T
       {
-        expression.GetPsiServices().DoTransaction(FixCommandName,
-          () => referenceName.ReplaceBy(referenceName.Qualifier));
+        expression.GetPsiServices().DoTransaction(FixCommandName, () => {
+          var referenceName = (IReferenceName) Reference;
+          var qualifier = referenceName.Qualifier;
+
+          LowLevelModificationUtil.DeleteChild(qualifier); // remove first
+
+          return referenceName.ReplaceBy(qualifier);
+        });
       }
 
       return context;

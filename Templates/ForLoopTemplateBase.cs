@@ -85,11 +85,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, IForStatement statement)
       {
-        base.AfterComplete(textControl, statement);
+        var newStatement = PutStatementCaret(textControl, statement);
+        if (newStatement == null) return;
 
-        var condition = (IRelationalExpression) statement.Condition;
-        var variable = (ILocalVariableDeclaration) statement.Initializer.Declaration.Declarators[0];
-        var iterator = (IPostfixOperatorExpression) statement.Iterators.Expressions[0];
+        var condition = (IRelationalExpression) newStatement.Condition;
+        var variable = (ILocalVariableDeclaration) newStatement.Initializer.Declaration.Declarators[0];
+        var iterator = (IPostfixOperatorExpression) newStatement.Iterators.Expressions[0];
 
         var suggestVariableName = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
         var variableNameInfo = new HotspotInfo(
@@ -100,7 +101,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         var endRange = new TextRange(textControl.Caret.Offset());
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          statement.GetSolution(), endRange, textControl,
+          newStatement.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, variableNameInfo);
 
         session.Execute();

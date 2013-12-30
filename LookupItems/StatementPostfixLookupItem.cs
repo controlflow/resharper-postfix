@@ -1,11 +1,14 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
+using JetBrains.DocumentModel;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Pointers;
+using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
@@ -104,6 +107,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     protected override void AfterComplete(ITextControl textControl, TStatement statement)
     {
+      PutStatementCaret(textControl, statement);
+    }
+
+    [CanBeNull]
+    protected TStatement PutStatementCaret(
+      [NotNull] ITextControl textControl, [NotNull] TStatement statement)
+    {
       foreach (var child in statement.Children())
       {
         var returnStatement = UnwrapFromBraces(child) as IReturnStatement;
@@ -117,10 +127,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
         if (checkedExpression.Operand is ILiteralExpression)
         {
+          var pointer = statement.CreateTreeElementPointer();
+          var rangeMarker = statement.GetDocumentRange().CreateRangeMarker();
+
+          var psiServices = checkedExpression.GetPsiServices();
           var caretRange = returnStatement.GetDocumentRange().TextRange;
+
+          // drop caret marker expression and commit PSI
           textControl.Caret.MoveTo(caretRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
           textControl.Document.DeleteText(caretRange);
-          return;
+
+          psiServices.CommitAllDocuments();
+
+          var fixedStatement = pointer.GetTreeNode();
+          if (fixedStatement != null) return fixedStatement;
+
+          var textRange = rangeMarker.DocumentRange.TextRange;
+          if (textRange.IsValid)
+          {
+            return TextControlToPsi.GetElement<TStatement>(
+              psiServices.Solution, textControl.Document, textRange.StartOffset);
+          }
+
+          return null;
         }
       }
 
@@ -128,6 +157,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       {
         var endOffset = statement.GetDocumentRange().TextRange.EndOffset;
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+        return statement;
       }
     }
   }

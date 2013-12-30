@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
@@ -99,9 +98,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, IUsingStatement statement)
       {
-        base.AfterComplete(textControl, statement);
+        var newStatement = PutStatementCaret(textControl, statement);
+        if (newStatement == null) return;
 
-        var declaration = (ILocalVariableDeclaration) statement.Declaration.Declarators[0];
+        var declaration = (ILocalVariableDeclaration) newStatement.Declaration.Declarators[0];
         var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
         var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
 
@@ -114,7 +114,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           declaration.NameIdentifier.GetDocumentRange());
 
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          statement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
+          newStatement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, typeSpot, nameSpot);
 
         session.Execute();

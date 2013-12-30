@@ -89,9 +89,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var assignment = (IAssignmentExpression) statement.Expression;
         assignment.SetSource(expression);
 
-        var suggestionManager = statement.GetPsiServices().Naming.Suggestion;
+        var suggestionManager = expression.GetPsiServices().Naming.Suggestion;
         var collection = suggestionManager.CreateEmptyCollection(
-          PluralityKinds.Unknown, classDeclaration.Language, true, statement);
+          PluralityKinds.Unknown, classDeclaration.Language, true, expression);
 
         collection.Add(assignment.Source, new EntryOptions());
         collection.Prepare(newMember.DeclaredElement,
