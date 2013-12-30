@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.20827.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R8", "PostfixTemplates.R8.csproj", "{50365433-AAE1-4755-9562-B777F23B7C23}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R81", "PostfixTemplates.R81.csproj", "{50365433-AAE1-4755-9562-B777F23B7C23}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.Tests", "Tests\PostfixTemplates.Tests.csproj", "{6DC588F6-B12C-447E-92D7-9C21A003179C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R81", "ReSharper81\PostfixTemplates.R81.csproj", "{837AD254-C0A4-4DB6-97AC-A99E26A149E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R80", "ReSharper80\PostfixTemplates.R80.csproj", "{837AD254-C0A4-4DB6-97AC-A99E26A149E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
