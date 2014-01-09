@@ -38,13 +38,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     protected override bool AddLookupItems(CSharpCodeCompletionContext context,
                                            GroupedItemsCollector collector)
     {
-      var unterminated = context.UnterminatedContext;
-      if (unterminated == null) return false;
+      var referenceExpression = CommonUtils.FindReferenceExpression(context.UnterminatedContext) ??
+                                CommonUtils.FindReferenceExpression(context.TerminatedContext);
+      if (referenceExpression == null) return false;
 
-      var reference = unterminated.Reference as IReferenceExpressionReference;
-      if (reference == null) return false;
-
-      var referenceExpression = (IReferenceExpression) reference.GetTreeNode();
       var qualifier = referenceExpression.QualifierExpression;
       if (qualifier == null) return false;
 
@@ -63,9 +60,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       qualifierType.Accept(typesCollector);
 
       // collect all declared types
+      var psiModule = context.PsiModule;
       var allTypesTable = typesCollector.Types
-        .Aggregate(EmptySymbolTable.INSTANCE, (table, type) =>
-          table.Merge(type.GetSymbolTable(context.PsiModule)))
+        .Aggregate(EmptySymbolTable.INSTANCE, (table, type) => table.Merge(type.GetSymbolTable(psiModule)))
         .Distinct();
 
       var symbolTable = allTypesTable.Filter(
@@ -93,10 +90,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     private static void SubscribeAfterComplete([NotNull] DeclaredElementLookupItem lookupItem,
                                                [NotNull] ILookupItemsOwner itemsOwner)
     {
+      // ugly as fuck :(
       lookupItem.AfterComplete += (
-        ITextControl textControl, ref TextRange range,
-        ref TextRange decoration, TailType tailType,
-        ref Suffix suffix, ref IRangeMarker marker) =>
+        ITextControl textControl, ref TextRange range, ref TextRange decoration,
+        TailType tailType, ref Suffix suffix, ref IRangeMarker marker) =>
       {
         var solution = lookupItem.Solution;
         var psiServices = solution.GetPsiServices();
@@ -260,8 +257,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       public override bool Accepts(IDeclaredElement declaredElement, ISubstitution substitution)
       {
         var method = declaredElement as IMethod;
-        if (method == null) return false;
-        if (!method.IsStatic) return false;
+        if (method == null || !method.IsStatic) return false;
         if (method.IsExtensionMethod) return false;
         if (method.Parameters.Count <= 0) return false;
 
@@ -272,6 +268,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         if (firstParameter.Kind != ParameterKind.VALUE) return false;
 
         var parameterType = firstParameter.Type;
+
         if (firstParameter.IsParameterArray)
         {
           var arrayType = parameterType as IArrayType;

@@ -45,8 +45,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     protected override bool AddLookupItems(CSharpCodeCompletionContext context,
                                            GroupedItemsCollector collector)
     {
-      var referenceExpression = FindReferenceExpression(context.UnterminatedContext) ??
-                                FindReferenceExpression(context.TerminatedContext);
+      var referenceExpression = CommonUtils.FindReferenceExpression(context.UnterminatedContext) ??
+                                CommonUtils.FindReferenceExpression(context.TerminatedContext);
       if (referenceExpression == null) return false;
 
       var qualifier = referenceExpression.QualifierExpression;
@@ -96,17 +96,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       return AddEnumerationMembers(
         context, collector, qualifierType, referenceExpression);
-    }
-
-    [CanBeNull]
-    private IReferenceExpression FindReferenceExpression([CanBeNull] ReparsedCodeCompletionContext context)
-    {
-      if (context == null) return null;
-
-      var reference = context.Reference as IReferenceExpressionReference;
-      if (reference == null) return null;
-
-      return reference.GetTreeNode() as IReferenceExpression;
     }
 
     [NotNull] private static readonly IClrTypeName FlagsAttributeClrName =

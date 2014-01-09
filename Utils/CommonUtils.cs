@@ -148,5 +148,16 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       return true;
     }
+
+    [CanBeNull]
+    public static IReferenceExpression FindReferenceExpression([CanBeNull] ReparsedCodeCompletionContext context)
+    {
+      if (context == null) return null;
+
+      var reference = context.Reference as IReferenceExpressionReference;
+      if (reference == null) return null;
+
+      return reference.GetTreeNode() as IReferenceExpression;
+    }
   }
 }
