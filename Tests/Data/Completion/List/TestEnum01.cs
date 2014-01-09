@@ -2,18 +2,18 @@
 
 using System;
 
-public enum CoolFlags
+[Flags] public enum CoolFlags
 {
   None, Foo, Bar, Boo
 }
 
 class Foo
 {
-  CoolFlags? myFoo;
+  CoolFlags? CoolFlags;
 
   void Bar()
   {
-    myFoo.{caret}
+    CoolFlags.{caret}
     Bar();
   }
 }

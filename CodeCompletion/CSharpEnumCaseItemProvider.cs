@@ -10,7 +10,6 @@ using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
-using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.I18n.Services.Refactoring;
@@ -53,6 +52,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       var qualifier = referenceExpression.QualifierExpression;
       if (qualifier == null) return false;
 
+      var settingsStore = qualifier.GetSettingsStore();
+      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowEnumHelpers))
+        return false;
+
       // only on qualifiers of enumeration types
       var qualifierType = qualifier.Type() as IDeclaredType;
       if (qualifierType == null || !qualifierType.IsResolved) return false;
@@ -71,11 +74,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       {
         var field = sourceReference.Reference.Resolve().DeclaredElement as IField;
         if (field != null && (field.IsConstant || field.IsEnumMember)) return false;
-      }
 
-      var settingsStore = qualifier.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowEnumHelpers))
-        return false;
+        // value member can clash with enum type name
+        if (sourceReference.QualifierExpression == null &&
+            sourceReference.NameIdentifier.Name == qualifierType.GetClrName().ShortName)
+        {
+          foreach (var lookupItem in collector.Items)
+          {
+            var elementLookupItem = lookupItem as DeclaredElementLookupItem;
+            if (elementLookupItem == null) continue;
+
+            var elementInstance = elementLookupItem.PreferredDeclaredElement;
+            if (elementInstance == null) continue;
+
+            var enumMember = elementInstance.Element as IField;
+            if (enumMember != null && enumMember.IsEnumMember)
+              return false;
+          }
+        }
+      }
 
       return AddEnumerationMembers(
         context, collector, qualifierType, referenceExpression);

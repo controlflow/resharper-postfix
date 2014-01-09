@@ -22,8 +22,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         if (!expressionContext.CanBeStatement) continue;
 
+        if (!expressionContext.Expression.ConstantValue.IsBadValue())
+        {
+          continue;
+        }
+
         var type = expressionContext.Type;
         if (!type.IsResolved) continue;
+
+        // todo: nullable type?
 
         if (type.IsPredefinedIntegral() || type.IsEnumType())
         {
