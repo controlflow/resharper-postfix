@@ -7,8 +7,12 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Resolve;
+using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
@@ -56,6 +60,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected override void AfterComplete(ITextControl textControl, IInvocationExpression expression)
       {
         var invocationRange = expression.InvokedExpression.GetDocumentRange();
+        var languageType = expression.Language;
         var hotspotInfo = new HotspotInfo(new TemplateField("Method", 0), invocationRange);
 
         var argumentRange = expression.Arguments[0].Value.GetDocumentRange();
@@ -79,6 +84,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
           var range = session.Hotspots[0].RangeMarker.Range;
           if (!range.IsValid) return;
+
+          foreach (var tokenNode in TextControlToPsi
+            .GetElements<ITokenNode>(solution, textControl.Document, range.EndOffset))
+          {
+            if (!tokenNode.Language.IsLanguage(languageType)) continue;
+            if (tokenNode.GetTokenType() != CSharpTokenType.LPARENTH) continue;
+
+            var invocationExpression = tokenNode.Parent as IInvocationExpression;
+            if (invocationExpression == null || invocationExpression.RPar == null) continue;
+
+            var reference = invocationExpression.InvocationExpressionReference;
+            if (reference != null && reference.Resolve().ResolveErrorType == ResolveErrorType.OK)
+            {
+              var offset = invocationExpression.RPar.GetDocumentRange().TextRange.EndOffset;
+              textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+              return;
+            }
+          }
 
           var endOffset = range.EndOffset + length;
           textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
