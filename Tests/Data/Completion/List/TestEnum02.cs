@@ -9,7 +9,7 @@ using System;
 
 class Foo
 {
-  CoolFlags CoolFlags;
+  CoolFlags? CoolFlags;
 
   void Bar()
   {

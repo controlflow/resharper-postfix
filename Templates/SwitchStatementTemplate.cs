@@ -8,8 +8,6 @@ using JetBrains.ReSharper.Psi.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // TODO: make it work over everything in force mode (do not check type)
-
   [PostfixTemplate(
     templateName: "switch",
     description: "Produces switch over integral/string type",
@@ -18,24 +16,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
+      var isAutoCompletion = context.ExecutionContext.IsAutoCompletion;
       foreach (var expressionContext in context.Expressions)
       {
         if (!expressionContext.CanBeStatement) continue;
 
-        if (!expressionContext.Expression.ConstantValue.IsBadValue())
+        if (isAutoCompletion)
         {
-          continue;
+          // disable for constant expressions
+          if (!expressionContext.Expression.ConstantValue.IsBadValue()) continue;
+
+          var expressionType = expressionContext.Type;
+          if (!expressionType.IsResolved) continue;
+          if (expressionType.IsNullable())
+          {
+            expressionType = expressionType.GetNullableUnderlyingType();
+            if (expressionType == null || !expressionType.IsResolved) continue;
+          }
+
+          if (!expressionType.IsPredefinedIntegral() &&
+              !expressionType.IsEnumType()) continue;
         }
 
-        var type = expressionContext.Type;
-        if (!type.IsResolved) continue;
-
-        // todo: nullable type?
-
-        if (type.IsPredefinedIntegral() || type.IsEnumType())
-        {
-          return new SwitchItem(expressionContext);
-        }
+        return new SwitchItem(expressionContext);
       }
 
       return null;

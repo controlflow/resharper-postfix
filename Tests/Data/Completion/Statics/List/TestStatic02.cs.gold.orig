@@ -1,42 +1,38 @@
-﻿+ Bar
-+ Boo
-+ CompareTo
+﻿BaseMethod
 + Equals
-+ Foo
+FooArgOverloaded
 + GetHashCode
 + GetType
-+ GetTypeCode
-+ HasFlag
-+ None
+SingleFooArg
 + ToString
-+ TryParse
+TwoFooArg
 + arg
 + await
 + cast
 + else
++ field
 + foreach
 + if
++ lock
 + not
++ notnull
++ null
 + par
++ prop
 + return
-+ switch
 + throw
 + using
 + var
 + while
 + yield
 # AUTOMATIC #
-+ Bar
-+ Boo
-+ CompareTo
+BaseMethod
 + Equals
-+ Foo
+FooArgOverloaded
 + GetHashCode
 + GetType
-+ GetTypeCode
-+ HasFlag
-+ None
+SingleFooArg
 + ToString
-+ TryParse
-+ switch
-+ var
+TwoFooArg
++ notnull
++ null
