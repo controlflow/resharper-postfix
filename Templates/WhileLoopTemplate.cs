@@ -9,7 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   [PostfixTemplate(
     templateName: "while",
     description: "Iterating while boolean statement is 'true'",
-    example: "while (expr)", WorksOnTypes = true)]
+    example: "while (expr)")]
   public sealed class WhileLoopTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
     protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)

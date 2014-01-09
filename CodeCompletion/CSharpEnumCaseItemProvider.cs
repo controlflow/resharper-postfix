@@ -9,6 +9,8 @@ using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
+using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.I18n.Services.Refactoring;
@@ -44,20 +46,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     protected override bool AddLookupItems(CSharpCodeCompletionContext context,
                                            GroupedItemsCollector collector)
     {
-      var unterminated = context.UnterminatedContext;
-      if (unterminated == null) return false;
+      var referenceExpression = FindReferenceExpression(context.UnterminatedContext) ??
+                                FindReferenceExpression(context.TerminatedContext);
+      if (referenceExpression == null) return false;
 
-      var reference = unterminated.Reference as IReferenceExpressionReference;
-      if (reference == null) return false;
-
-      var referenceExpression = (IReferenceExpression) reference.GetTreeNode();
       var qualifier = referenceExpression.QualifierExpression;
       if (qualifier == null) return false;
 
       // only on qualifiers of enumeration types
       var qualifierType = qualifier.Type() as IDeclaredType;
-      if (qualifierType == null) return false;
-      if (!qualifierType.IsResolved) return false;
+      if (qualifierType == null || !qualifierType.IsResolved) return false;
+
+      if (qualifierType.IsNullable()) // unwrap from nullable type
+      {
+        qualifierType = qualifierType.GetNullableUnderlyingType() as IDeclaredType;
+        if (qualifierType == null || !qualifierType.IsResolved) return false;
+      }
+
       if (!qualifierType.IsEnumType()) return false;
 
       // disable helpers on constants and enumeration members itself
@@ -76,8 +81,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         context, collector, qualifierType, referenceExpression);
     }
 
-    [NotNull] private static readonly IClrTypeName 
-      FlagsAttributeClrName = new ClrTypeName(typeof(FlagsAttribute).FullName);
+    [CanBeNull]
+    private IReferenceExpression FindReferenceExpression([CanBeNull] ReparsedCodeCompletionContext context)
+    {
+      if (context == null) return null;
+
+      var reference = context.Reference as IReferenceExpressionReference;
+      if (reference == null) return null;
+
+      return reference.GetTreeNode() as IReferenceExpression;
+    }
+
+    [NotNull] private static readonly IClrTypeName FlagsAttributeClrName =
+      new ClrTypeName(typeof(FlagsAttribute).FullName);
 
     private static bool AddEnumerationMembers([NotNull] CSharpCodeCompletionContext context,
                                               [NotNull] GroupedItemsCollector collector,
