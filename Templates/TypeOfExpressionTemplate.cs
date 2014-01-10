@@ -15,10 +15,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var expressionContext = context.ExpressionsOrTypes[0];
-      if (expressionContext != null && expressionContext.ReferencedElement is ITypeElement)
+      var typeExpression = context.TypeExpression;
+      if (typeExpression != null && typeExpression.ReferencedElement is ITypeElement)
       {
-        return new TypeOfItem(expressionContext);
+        return new TypeOfItem(typeExpression);
       }
 
       return null;

@@ -61,7 +61,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       }
 
       if (postfixContext == null) return false;
-      if (postfixContext.ExpressionsOrTypes.Count == 0) return false;
+
+      // nothing to check :(
+      if (postfixContext.Expressions.Count == 0 &&
+          postfixContext.TypeExpression == null) return false;
 
       var lookupItems = myTemplatesManager.CollectItems(postfixContext);
       if (lookupItems.Count == 0) return false;

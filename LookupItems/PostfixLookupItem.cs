@@ -109,15 +109,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     private PrefixExpressionContext FindOriginalContext([NotNull] PostfixTemplateContext context)
     {
       var startOffset = myExpressionRange.TextRange.StartOffset;
-      foreach (var expressionContext in context.Expressions)
+      foreach (var expressionContext in context.ExpressionsOrTypes)
       {
         if (expressionContext.Expression.GetType() == myExpressionType &&
             expressionContext.ExpressionRange.TextRange.StartOffset == startOffset)
+        {
           return expressionContext;
+        }
       }
 
       if (context.Expressions.Count < myContextIndex)
+      {
         return context.Expressions[myContextIndex];
+      }
 
       return null;
     }

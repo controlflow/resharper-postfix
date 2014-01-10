@@ -19,9 +19,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var expressionsOrTypes = context.ExpressionsOrTypes;
-      var expressionContext = expressionsOrTypes[expressionsOrTypes.Count - 1];
-      if (!expressionContext.CanBeStatement) return null;
+      var expressionContext = context.TypeExpression ?? context.OuterExpression;
+      if (expressionContext == null || !expressionContext.CanBeStatement) return null;
 
       var referencedType = expressionContext.ReferencedType;
       var expression = expressionContext.Expression;

@@ -2,6 +2,6 @@
 
 class C {
   void M(object c) {
-    Method{caret}(c as C)
+    Method(c as C{caret})
   }
 }

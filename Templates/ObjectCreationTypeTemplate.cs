@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -23,16 +22,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var expressionContext = context.ExpressionsOrTypes[0];
+      var typeExpression = context.TypeExpression;
+      if (typeExpression == null) return null;
 
-      var typeElement = expressionContext.ReferencedElement as ITypeElement;
+      var typeElement = typeExpression.ReferencedElement as ITypeElement;
       if (typeElement == null) return null;
 
-      var instantiable = TypeUtils.IsInstantiable(typeElement, expressionContext.Expression);
+      var instantiable = TypeUtils.IsInstantiable(typeElement, typeExpression.Expression);
       if (instantiable != TypeInstantiability.NotInstantiable)
       {
         var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
-        return new NewItem(expressionContext, hasCtorWithParams);
+        return new NewItem(typeExpression, hasCtorWithParams);
       }
 
       return null;

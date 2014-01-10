@@ -65,8 +65,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var referencedElement = context.ExpressionsOrTypes[0].ReferencedElement;
-      if (referencedElement is INamespace)
+      var innerExpression = context.InnerExpression; // shit happens
+      if (innerExpression != null && innerExpression.ReferencedElement is INamespace)
       {
         return EmptyList<ILookupItem>.InstanceList;
       }

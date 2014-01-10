@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   public class PostfixTemplateContext
   {
     [NotNull] private readonly ICSharpExpression myInnerExpression;
-    [CanBeNull] private IList<PrefixExpressionContext> myAllExpressions, myExpressions;
+    [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
+    [CanBeNull] private PrefixExpressionContext myTypeExpression;
 
     protected PostfixTemplateContext([NotNull] ITreeNode reference,
                                      [NotNull] ICSharpExpression expression,
@@ -59,8 +60,11 @@ namespace JetBrains.ReSharper.PostfixTemplates
         if (expressionContext.ReferencedElement is ITypeElement)
         {
           // skip types that are parts of 'List<T.>'-like expressions
-          if (!CommonUtils.CanTypeBecameExpression(myInnerExpression))
-            continue;
+          if (!CommonUtils.CanTypeBecameExpression(myInnerExpression)) continue;
+          if (myTypeExpression != null) break; // should never happens
+
+          myTypeExpression = expressionContext;
+          return EmptyList<PrefixExpressionContext>.InstanceList; // yeah, time to stop
         }
 
         contexts.Add(expressionContext);
@@ -73,21 +77,18 @@ namespace JetBrains.ReSharper.PostfixTemplates
     // Expressions: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
     [NotNull] public IList<PrefixExpressionContext> Expressions
     {
-      get
-      {
-        if (myExpressions != null) return myExpressions;
-
-        var contexts = new List<PrefixExpressionContext>();
-        foreach (var context in ExpressionsOrTypes)
-          if (context.ReferencedType == null) contexts.Add(context);
-
-        return myExpressions = contexts;
-      }
+      get { return myExpressions ?? (myExpressions = BuildExpressions()); }
     }
 
-    [NotNull] public IList<PrefixExpressionContext> ExpressionsOrTypes
+    [NotNull] public IEnumerable<PrefixExpressionContext> ExpressionsOrTypes
     {
-      get { return myAllExpressions ?? (myAllExpressions = BuildExpressions()); }
+      get
+      {
+        var expressions = Expressions; // force build
+        if (myTypeExpression == null) return expressions;
+
+        return expressions.Prepend(myTypeExpression);
+      }
     }
 
     // Most inner expression: '0.var'
@@ -108,6 +109,11 @@ namespace JetBrains.ReSharper.PostfixTemplates
         var contexts = Expressions;
         return (contexts.Count == 0) ? null : contexts[contexts.Count - 1];
       }
+    }
+
+    [CanBeNull] public PrefixExpressionContext TypeExpression
+    {
+      get { return myTypeExpression; }
     }
 
     [NotNull] public ITreeNode Reference { get; private set; }
