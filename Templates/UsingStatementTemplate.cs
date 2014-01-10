@@ -15,8 +15,6 @@ using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
-// todo: do not create var if expr type is IDisposable itself?
-
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
@@ -31,23 +29,35 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;
 
       var expression = expressionContext.Expression;
+      var shouldCreateVariable = true;
+
+      var disposableType = expression.GetPredefinedType().IDisposable;
+      if (!disposableType.IsResolved) return null;
+
+      var conversionRule = expression.GetTypeConversionRule();
+      var expressionType = expressionContext.ExpressionType;
 
       if (context.IsAutoCompletion)
       {
-        if (!expressionContext.Type.IsResolved) return null;
-
-        var predefinedType = expression.GetPredefinedType();
-        var conversionRule = expression.GetTypeConversionRule();
-        if (!expressionContext.ExpressionType
-          .IsImplicitlyConvertibleTo(predefinedType.IDisposable, conversionRule))
+        if (!expressionType.IsResolved)
+          return null;
+        if (!expressionType.IsImplicitlyConvertibleTo(disposableType, conversionRule))
           return null;
       }
 
-      // check expression is local variable reference
-      var resourceVariable = expressionContext.ReferencedElement as ILocalVariable;
+      if (expressionType.IsResolved && disposableType.Equals(expressionType.ToIType()))
+      {
+        shouldCreateVariable = false;
+      }
 
-      ITreeNode node = expression;
-      while (true)
+      // check expression is local variable reference
+      var resourceVariable = expressionContext.ReferencedElement as ITypeOwner;
+      if (resourceVariable is ILocalVariable || resourceVariable is IParameter)
+      {
+        shouldCreateVariable = false;
+      }
+
+      for (ITreeNode node = expression; context.IsAutoCompletion;)
       {
         // inspect containing using statements
         var usingStatement = node.GetContainingNode<IUsingStatement>();
@@ -55,45 +65,43 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         // check if expressions is variable declared with using statement
         var declaration = usingStatement.Declaration;
-        if (resourceVariable != null && declaration != null)
+        if (resourceVariable is ILocalVariable && declaration != null)
         {
           foreach (var member in declaration.DeclaratorsEnumerable)
-          {
-            if (Equals(member.DeclaredElement, resourceVariable))
-              return null;
-          }
+            if (Equals(member.DeclaredElement, resourceVariable)) return null;
         }
 
         // check expression is already in using statement expression
         if (declaration == null)
         {
-          foreach (var e in usingStatement.ExpressionsEnumerable)
-          {
-            if (MiscUtil.AreExpressionsEquivalent(e, expression))
-              return null;
-          }
+          foreach (var expr in usingStatement.ExpressionsEnumerable)
+            if (MiscUtil.AreExpressionsEquivalent(expr, expression)) return null;
         }
 
         node = usingStatement;
       }
 
-      return new UsingItem(expressionContext);
+      return new UsingItem(expressionContext, shouldCreateVariable);
     }
 
     private sealed class UsingItem : StatementPostfixLookupItem<IUsingStatement>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      private readonly bool myShouldCreateVariable;
 
-      public UsingItem([NotNull] PrefixExpressionContext context) : base("using", context)
+      public UsingItem([NotNull] PrefixExpressionContext context, bool shouldCreateVariable)
+        : base("using", context)
       {
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
+        myShouldCreateVariable = shouldCreateVariable;
       }
 
       protected override IUsingStatement CreateStatement(CSharpElementFactory factory,
                                                          ICSharpExpression expression)
       {
-        var template = "using (T x = $0)" + EmbeddedStatementBracesTemplate;
-        return (IUsingStatement) factory.CreateStatement(template, expression);
+        var template = (myShouldCreateVariable ? "using(T x=$0)" : "using($0)");
+        return (IUsingStatement) factory.CreateStatement(
+          template + EmbeddedStatementBracesTemplate, expression);
       }
 
       protected override void AfterComplete(ITextControl textControl, IUsingStatement statement)
@@ -101,7 +109,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var newStatement = PutStatementCaret(textControl, statement);
         if (newStatement == null) return;
 
-        var declaration = (ILocalVariableDeclaration) newStatement.Declaration.Declarators[0];
+        var resourceDeclaration = newStatement.Declaration;
+        if (resourceDeclaration == null) return;
+
+        var declaration = (ILocalVariableDeclaration) resourceDeclaration.Declarators[0];
         var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
         var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
 

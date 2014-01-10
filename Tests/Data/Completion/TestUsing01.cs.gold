@@ -1,0 +1,12 @@
+﻿// ${COMPLETE_ITEM:using}
+
+public class Foo : System.IDisposable
+{
+  public void Bar()
+  {
+    using (var foo = new Foo())
+    {
+      {caret}
+    }
+  }
+}
