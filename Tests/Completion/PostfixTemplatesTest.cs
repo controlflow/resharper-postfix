@@ -80,6 +80,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
     [Test] public void TestFor05() { DoNamedTest(); }
 
     [Test] public void TestForEach01() { DoNamedTest(); }
+    [Test] public void TestForEach02() { DoNamedTest(); }
+    [Test] public void TestForEach03() { DoNamedTest(); }
 
     [Test] public void TestReturn01() { DoNamedTest(); }
     [Test] public void TestReturn02() { DoNamedTest(); }

@@ -2,7 +2,7 @@
 
 public class Foo
 {
-  public void Bar(int[] xs, int[] coolValues)
+  public void Bar(int[] xs, IEnumerable coolValues)
   {
     foreach (var someName in xs)
     {
