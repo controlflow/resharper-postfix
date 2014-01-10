@@ -33,7 +33,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var textControl = context.ExecutionContext.TextControl;
       if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
 
-      return new ArgumentItem(context.OuterExpression);
+      var outerExpression = context.OuterExpression;
+      if (outerExpression == null) return null;
+
+      return new ArgumentItem(outerExpression);
     }
 
     [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =
@@ -84,6 +87,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
           var range = session.Hotspots[0].RangeMarker.Range;
           if (!range.IsValid) return;
+
+          solution.GetPsiServices().CommitAllDocuments();
 
           foreach (var tokenNode in TextControlToPsi
             .GetElements<ITokenNode>(solution, textControl.Document, range.EndOffset))

@@ -65,19 +65,22 @@ namespace JetBrains.ReSharper.PostfixTemplates
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var referencedElement = context.InnerExpression.ReferencedElement;
-      if (referencedElement is INamespace) return EmptyList<ILookupItem>.InstanceList;
+      var referencedElement = context.ExpressionsOrTypes[0].ReferencedElement;
+      if (referencedElement is INamespace)
+      {
+        return EmptyList<ILookupItem>.InstanceList;
+      }
 
-      var isTypeExpression = referencedElement is ITypeElement;
-      var items = new List<ILookupItem>();
-
+      var lookupItems = new List<ILookupItem>();
       foreach (var info in myTemplateProvidersInfos)
       {
         // check disabled providers
         {
           bool isEnabled;
           if (!settings.DisabledProviders.TryGet(info.SettingsKey, out isEnabled))
+          {
             isEnabled = !info.Metadata.DisabledByDefault;
+          }
 
           if (!isEnabled) continue;
         }
@@ -88,13 +91,14 @@ namespace JetBrains.ReSharper.PostfixTemplates
           if (!string.Equals(templateName, name, StringComparison.Ordinal)) continue;
         }
 
-        if (isTypeExpression && !info.Metadata.WorksOnTypes) continue;
-
         var lookupItem = info.Provider.CreateItem(context);
-        if (lookupItem != null) items.Add(lookupItem);
+        if (lookupItem != null)
+        {
+          lookupItems.Add(lookupItem);
+        }
       }
 
-      return items;
+      return lookupItems;
     }
 
     [CanBeNull]

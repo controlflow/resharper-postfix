@@ -34,7 +34,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         }
       }
 
-      return new CastItem(bestContext ?? context.OuterExpression);
+      bestContext = bestContext ?? context.OuterExpression;
+      if (bestContext == null) return null;
+
+      return new CastItem(bestContext);
     }
 
     private sealed class CastItem : ExpressionPostfixLookupItem<IParenthesizedExpression>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
@@ -11,7 +12,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
   public class PostfixTemplateContext
   {
     [NotNull] private readonly ICSharpExpression myInnerExpression;
-    [CanBeNull] private IList<PrefixExpressionContext> myExpressions;
+    [CanBeNull] private IList<PrefixExpressionContext> myAllExpressions, myExpressions;
 
     protected PostfixTemplateContext([NotNull] ITreeNode reference,
                                      [NotNull] ICSharpExpression expression,
@@ -23,7 +24,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       ExecutionContext = executionContext;
     }
 
-    [NotNull] private IList<PrefixExpressionContext> BuildExpression()
+    [NotNull] private IList<PrefixExpressionContext> BuildExpressions()
     {
       var reference = Reference;
 
@@ -72,19 +73,41 @@ namespace JetBrains.ReSharper.PostfixTemplates
     // Expressions: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
     [NotNull] public IList<PrefixExpressionContext> Expressions
     {
-      get { return myExpressions ?? (myExpressions = BuildExpression()); }
+      get
+      {
+        if (myExpressions != null) return myExpressions;
+
+        var contexts = new List<PrefixExpressionContext>();
+        foreach (var context in ExpressionsOrTypes)
+          if (context.ReferencedType == null) contexts.Add(context);
+
+        return myExpressions = contexts;
+      }
+    }
+
+    [NotNull] public IList<PrefixExpressionContext> ExpressionsOrTypes
+    {
+      get { return myAllExpressions ?? (myAllExpressions = BuildExpressions()); }
     }
 
     // Most inner expression: '0.var'
-    [NotNull] public PrefixExpressionContext InnerExpression
+    [CanBeNull] public PrefixExpressionContext InnerExpression
     {
-      get { return Expressions[0]; }
+      get
+      {
+        var contexts = Expressions;
+        return (contexts.Count == 0) ? null : contexts[0];
+      }
     }
 
     // Most outer expression: '(a + b.Length) > 0.var'
-    [NotNull] public PrefixExpressionContext OuterExpression
+    [CanBeNull] public PrefixExpressionContext OuterExpression
     {
-      get { return Expressions[Expressions.Count - 1]; }
+      get
+      {
+        var contexts = Expressions;
+        return (contexts.Count == 0) ? null : contexts[contexts.Count - 1];
+      }
     }
 
     [NotNull] public ITreeNode Reference { get; private set; }

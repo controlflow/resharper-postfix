@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq;
+using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -17,12 +18,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   [PostfixTemplate(
     templateName: "new",
     description: "Produces instantiation expression for type",
-    example: "new SomeType()", WorksOnTypes = true)]
+    example: "new SomeType()")]
   public class ObjectCreationTypeTemplate : IPostfixTemplate
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var expressionContext = context.InnerExpression;
+      var expressionContext = context.ExpressionsOrTypes[0];
 
       var typeElement = expressionContext.ReferencedElement as ITypeElement;
       if (typeElement == null) return null;

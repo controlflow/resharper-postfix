@@ -1,0 +1,7 @@
+﻿// ${COMPLETE_ITEM:arg}
+
+class C {
+  void M(object c) {
+    Method{caret}(c as C)
+  }
+}

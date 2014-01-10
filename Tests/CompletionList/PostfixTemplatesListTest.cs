@@ -33,6 +33,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CompletionList
     [Test] public void TestSwitch01() { DoNamedTest(); }
 
     [Test] public void TestThis01() { DoNamedTest(); }
+
     [Test] public void TestBase01() { DoNamedTest(); }
+
+    [Test] public void TestBoolean01() { DoNamedTest(); }
+    [Test] public void TestBoolean02() { DoNamedTest(); }
+    [Test] public void TestBoolean03() { DoNamedTest(); }
   }
 }

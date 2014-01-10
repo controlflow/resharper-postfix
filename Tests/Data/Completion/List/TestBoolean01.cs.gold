@@ -1,0 +1,40 @@
+﻿+ Equals
++ GetHashCode
++ GetType
+Main
++ MemberwiseClone
++ ToString
++ arg
++ await
++ cast
++ else
++ field
++ foreach
++ if
++ lock
++ not
++ notnull
++ null
++ par
++ prop
++ return
++ switch
++ throw
++ using
++ var
++ while
++ yield
+# AUTOMATIC #
++ Equals
++ GetHashCode
++ GetType
+Main
++ MemberwiseClone
++ ToString
++ else
++ if
++ not
++ notnull
++ null
++ return
++ while

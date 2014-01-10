@@ -10,13 +10,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   [PostfixTemplate(
     templateName: "typeof",
     description: "Wraps type usage with typeof() expression",
-    example: "typeof(TExpr)", WorksOnTypes = true)]
+    example: "typeof(TExpr)")]
   public class TypeOfExpressionTemplate : IPostfixTemplate
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var expressionContext = context.InnerExpression;
-      if (expressionContext.ReferencedElement is ITypeElement)
+      var expressionContext = context.ExpressionsOrTypes[0];
+      if (expressionContext != null && expressionContext.ReferencedElement is ITypeElement)
       {
         return new TypeOfItem(expressionContext);
       }
@@ -29,7 +29,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public TypeOfItem([NotNull] PrefixExpressionContext context) : base("typeOf", context) { }
 
       protected override ITypeofExpression CreateExpression(CSharpElementFactory factory,
-        ICSharpExpression expression)
+                                                            ICSharpExpression expression)
       {
         var template = "typeof(" + expression.GetText() + ")";
         return (ITypeofExpression) factory.CreateExpressionAsIs(template);

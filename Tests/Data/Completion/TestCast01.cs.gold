@@ -1,0 +1,7 @@
+﻿// ${COMPLETE_ITEM:cast}
+
+class C {
+  void M(object c) {
+    ((object) (c as C)){caret}
+  }
+}

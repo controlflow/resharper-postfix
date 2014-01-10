@@ -24,7 +24,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       lengthName = null;
 
       var expressionContext = context.InnerExpression;
-      if (!expressionContext.CanBeStatement) return false;
+      if (expressionContext == null || !expressionContext.CanBeStatement) return false;
 
       var expression = expressionContext.Expression;
       if (context.IsAutoCompletion && !expression.IsPure()) return false;

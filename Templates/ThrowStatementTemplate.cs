@@ -14,12 +14,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   [PostfixTemplate(
     templateName: "throw",
     description: "Throws expression of 'Exception' type",
-    example: "throw expr;", WorksOnTypes = true)]
+    example: "throw expr;")]
   public class ThrowStatementTemplate : IPostfixTemplate
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var expressionContext = context.OuterExpression;
+      var expressionsOrTypes = context.ExpressionsOrTypes;
+      var expressionContext = expressionsOrTypes[expressionsOrTypes.Count - 1];
       if (!expressionContext.CanBeStatement) return null;
 
       var referencedType = expressionContext.ReferencedType;

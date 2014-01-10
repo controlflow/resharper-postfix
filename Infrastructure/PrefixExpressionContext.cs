@@ -2,6 +2,7 @@
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
@@ -12,9 +13,11 @@ namespace JetBrains.ReSharper.PostfixTemplates
     {
       PostfixContext = postfixContext;
       Expression = expression;
-      ExpressionType = expression.GetExpressionType();
-      Type = expression.Type();
       CanBeStatement = GetContainingStatement() != null;
+
+      var brokenType = IsBrokenAsExpressionCase(expression, postfixContext.Reference);
+      ExpressionType = brokenType ?? expression.GetExpressionType();
+      Type = brokenType ?? expression.Type();
 
       var referenceExpression = expression as IReferenceExpression;
       if (referenceExpression != null)
@@ -71,6 +74,34 @@ namespace JetBrains.ReSharper.PostfixTemplates
     public DocumentRange ExpressionRange
     {
       get { return PostfixContext.ToDocumentRange(Expression); }
+    }
+
+    // A M(object o) { o as A.re| } - postfix reference breaks as-expression type
+    [CanBeNull]
+    private static IDeclaredType IsBrokenAsExpressionCase(
+      [NotNull] ICSharpExpression expression, [NotNull] ITreeNode reference)
+    {
+      var asExpression = expression as IAsExpression;
+      if (asExpression == null) return null;
+
+      var userTypeUsage = asExpression.TypeOperand as IUserTypeUsage;
+      if (userTypeUsage == null) return null;
+
+      var referenceName = userTypeUsage.ScalarTypeName;
+      if (referenceName != userTypeUsage.LastChild || referenceName != reference)
+        return null;
+
+      var qualifier = referenceName.Qualifier;
+      if (qualifier == null) return null;
+
+      var resolveResult = qualifier.Reference.Resolve().Result;
+      var typeElement = resolveResult.DeclaredElement as ITypeElement;
+      if (typeElement != null)
+      {
+        return TypeFactory.CreateType(typeElement, resolveResult.Substitution);
+      }
+
+      return null;
     }
   }
 }

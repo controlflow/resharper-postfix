@@ -27,8 +27,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       // available in auto over cast expressions
       var targetContext = bestContext ?? context.OuterExpression;
-      var insideCastExpression = CastExpressionNavigator.GetByOp(targetContext.Expression) != null;
+      if (targetContext == null) return null;
 
+      var insideCastExpression = (CastExpressionNavigator.GetByOp(targetContext.Expression) != null);
       if (!insideCastExpression && context.IsAutoCompletion) return null;
 
       return new ParenthesesItem(targetContext);

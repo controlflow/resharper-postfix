@@ -60,8 +60,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           context.TerminatedContext.TreeNode, executionContext);
       }
 
-      if (postfixContext == null || postfixContext.Expressions.Count == 0)
-        return false;
+      if (postfixContext == null) return false;
+      if (postfixContext.ExpressionsOrTypes.Count == 0) return false;
 
       var lookupItems = myTemplatesManager.CollectItems(postfixContext);
       if (lookupItems.Count == 0) return false;

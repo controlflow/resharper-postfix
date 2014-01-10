@@ -8,8 +8,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class CheckForNullTemplateBase
   {
-    protected static bool IsNullable([NotNull] PrefixExpressionContext expressionContext)
+    [ContractAnnotation("null => false")]
+    protected static bool IsNullable([CanBeNull] PrefixExpressionContext expressionContext)
     {
+      if (expressionContext == null) return false;
+
       var expression = expressionContext.Expression;
       if (expression is IThisExpression) return false;
       if (expression is IBaseExpression) return false;

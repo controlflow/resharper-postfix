@@ -11,7 +11,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var outerExpression = context.OuterExpression;
-      if (outerExpression.CanBeStatement)
+      if (outerExpression != null && outerExpression.CanBeStatement)
       {
         if (IsNullable(outerExpression))
         {

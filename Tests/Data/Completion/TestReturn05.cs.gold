@@ -1,0 +1,9 @@
+﻿// ${COMPLETE_ITEM:return}
+
+class A
+{
+  A Foo(object o)
+  {
+    return o as A;{caret}
+  }
+}

@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
@@ -9,14 +10,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      foreach (var expressionContext in context.Expressions)
+      var booleanType = context.Reference.GetPredefinedType().Bool;
+      if (booleanType.IsResolved)
       {
-        if (!IsBooleanExpression(expressionContext)) continue;
+        var conversionRule = context.Reference.GetTypeConversionRule();
 
-        var lookupItem = CreateBooleanItem(expressionContext);
-        if (lookupItem == null) continue;
+        foreach (var expressionContext in context.Expressions)
+        {
+          var expressionType = expressionContext.ExpressionType;
+          if (!expressionType.IsResolved) continue;
 
-        return lookupItem;
+          if (expressionType.IsImplicitlyConvertibleTo(booleanType, conversionRule) ||
+              IsBooleanExpressionEx(expressionContext.Expression))
+          {
+            var lookupItem = CreateBooleanItem(expressionContext);
+            if (lookupItem != null)
+            {
+              return lookupItem;
+            }
+          }
+        }
       }
 
       if (!context.IsAutoCompletion)
@@ -24,9 +37,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         foreach (var expressionContext in context.Expressions)
         {
           var lookupItem = CreateBooleanItem(expressionContext);
-          if (lookupItem == null) continue;
-
-          return lookupItem;
+          if (lookupItem != null)
+          {
+            return lookupItem;
+          }
         }
       }
 
@@ -36,12 +50,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     [CanBeNull]
     protected abstract ILookupItem CreateBooleanItem([NotNull] PrefixExpressionContext expression);
 
-    private static bool IsBooleanExpression([NotNull] PrefixExpressionContext context)
+    private static bool IsBooleanExpressionEx([NotNull] ICSharpExpression expression)
     {
-      if (context.Type.IsBool()) return true;
-
-      var expression = context.Expression;
-
       var binaryExpression = expression as IBinaryExpression;
       if (binaryExpression != null)
       {

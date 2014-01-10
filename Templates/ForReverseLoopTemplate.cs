@@ -17,7 +17,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       string lengthName;
       if (CreateForItem(context, out lengthName))
       {
-        return new ReverseForLookupItem(context.InnerExpression, lengthName);
+        var expressionContext = context.InnerExpression;
+        if (expressionContext != null)
+        {
+          return new ReverseForLookupItem(expressionContext, lengthName);
+        }
       }
 
       return null;
