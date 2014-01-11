@@ -35,7 +35,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
       else
       {
-        if (expressionContext.Type.IsUnknown) return false; // even in force mode
+        if (!expressionContext.Type.IsResolved) return false; // even in force mode
 
         var psiModule = expressionContext.PostfixContext.PsiModule;
         var symbolTable = expressionContext.Type.GetSymbolTable(psiModule);

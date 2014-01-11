@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -33,10 +34,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var textControl = context.ExecutionContext.TextControl;
       if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
 
-      var outerExpression = context.OuterExpression;
-      if (outerExpression == null) return null;
+      var expressionContext = context.OuterExpression;
+      if (expressionContext == null) return null;
 
-      return new ArgumentItem(outerExpression);
+      return new ArgumentItem(expressionContext);
     }
 
     [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =
@@ -90,23 +91,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
           solution.GetPsiServices().CommitAllDocuments();
 
-          foreach (var tokenNode in TextControlToPsi
-            .GetElements<ITokenNode>(solution, textControl.Document, range.EndOffset))
-          {
-            if (!tokenNode.Language.IsLanguage(languageType)) continue;
-            if (tokenNode.GetTokenType() != CSharpTokenType.LPARENTH) continue;
-
-            var invocationExpression = tokenNode.Parent as IInvocationExpression;
-            if (invocationExpression == null || invocationExpression.RPar == null) continue;
-
-            var reference = invocationExpression.InvocationExpressionReference;
-            if (reference != null && reference.Resolve().ResolveErrorType == ResolveErrorType.OK)
-            {
-              var offset = invocationExpression.RPar.GetDocumentRange().TextRange.EndOffset;
-              textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
-              return;
-            }
-          }
+          if (TryPlaceCaretAfterInvocation(solution, textControl, languageType, range))
+            return;
 
           var endOffset = range.EndOffset + length;
           textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
@@ -120,6 +106,32 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         });
 
         session.Execute();
+      }
+
+      private static bool TryPlaceCaretAfterInvocation([NotNull] ISolution solution,
+                                                       [NotNull] ITextControl textControl,
+                                                       [NotNull] PsiLanguageType languageType,
+                                                       TextRange range)
+      {
+        foreach (var tokenNode in TextControlToPsi
+          .GetElements<ITokenNode>(solution, textControl.Document, range.EndOffset))
+        {
+          if (!tokenNode.Language.IsLanguage(languageType)) continue;
+          if (tokenNode.GetTokenType() != CSharpTokenType.LPARENTH) continue;
+
+          var invocationExpression = tokenNode.Parent as IInvocationExpression;
+          if (invocationExpression == null || invocationExpression.RPar == null) continue;
+
+          var reference = invocationExpression.InvocationExpressionReference;
+          if (reference != null && reference.Resolve().ResolveErrorType == ResolveErrorType.OK)
+          {
+            var offset = invocationExpression.RPar.GetDocumentRange().TextRange.EndOffset;
+            textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+            return true;
+          }
+        }
+
+        return false;
       }
     }
   }

@@ -116,6 +116,9 @@
     <Compile Include="..\Templates\ArgumentExpressionTemplate.cs">
       <Link>Templates\ArgumentExpressionTemplate.cs</Link>
     </Compile>
+    <Compile Include="..\Templates\AssignmentExpressionTemplate.cs">
+      <Link>Templates\AssignmentExpressionTemplate.cs</Link>
+    </Compile>
     <Compile Include="..\Templates\AwaitExpressionTemplate.cs">
       <Link>Templates\AwaitExpressionTemplate.cs</Link>
     </Compile>

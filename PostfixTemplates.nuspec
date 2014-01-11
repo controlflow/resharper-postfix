@@ -14,7 +14,7 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      ReSharper 8.1 support. Core rewritten to match ideas from IntelliJ version. Ability to turn off code completion integration (only expand templates by [Tab]), option to turn off parameter info. Much better work over broken code. Various fixes, null.return now works, .arg template moved away from auto completion (too invasive), all templates disabled over namespaces, some Razor and availability fixes. Plugin rename.
+      ReSharper 8.1 support. New .to template for assingments (only in basic completion/tab). Core rewritten to match ideas from IntelliJ version. Ability to turn off code completion integration (only expand templates by [Tab]), option to turn off parameter info. Much better work over broken code. Various fixes: "null.return" and "x as T.return" now works, refined variable naming in .foreach, .if + convertible-to-boolean expressions fix, .using now generates variable only when needed, .arg template moved away from auto completion (too invasive), .arg now places caret after invocation when invocation resolves fine, all templates disabled over namespaces, some Razor and availability fixes. Plugin rename.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
