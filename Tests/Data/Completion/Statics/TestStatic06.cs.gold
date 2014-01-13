@@ -1,0 +1,14 @@
+﻿// ${COMPLETE_ITEM:Synchronized}
+
+using System.IO;
+
+class Foo {
+  public void M(System.Action f, System.IO.TextWriter writer, int[] xs) {
+    f(() => {
+      foreach (var x in xs) {
+        var smth = x + 1;
+        TextWriter.Synchronized(writer){caret}
+      }
+    });
+  }
+}

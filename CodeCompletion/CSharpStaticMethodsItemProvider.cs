@@ -144,6 +144,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           {
             var qualifier = (IReferenceExpression) newReference.QualifierExpression.NotNull();
             qualifier.Reference.BindTo(ownerType, preferredDeclaredElement.Substitution);
+
+            range = newReference.NameIdentifier.GetDocumentRange().TextRange;
+            decoration = TextRange.InvalidRange;
           }
 
           // show parameter info when needed
@@ -152,6 +155,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
             LookupUtil.ShowParameterInfo(
               solution, textControl, parenthesisMarker.Range, null, itemsOwner);
           }
+
 
           break;
         }
