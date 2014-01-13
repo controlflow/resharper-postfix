@@ -17,16 +17,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         foreach (var expressionContext in context.Expressions)
         {
           var expressionType = expressionContext.ExpressionType;
-          if (!expressionType.IsResolved) continue;
-
-          if (expressionType.IsImplicitlyConvertibleTo(booleanType, conversionRule) ||
-              IsBooleanExpressionEx(expressionContext.Expression))
+          if (expressionType.IsResolved)
           {
-            var lookupItem = CreateBooleanItem(expressionContext);
-            if (lookupItem != null)
-            {
-              return lookupItem;
-            }
+            if (!expressionType.IsImplicitlyConvertibleTo(booleanType, conversionRule) &&
+                !IsBooleanExpressionEx(expressionContext.Expression)) continue;
+          }
+          else
+          {
+            if (!IsBooleanExpressionEx(expressionContext.Expression)) continue;
+          }
+
+          var lookupItem = CreateBooleanItem(expressionContext);
+          if (lookupItem != null)
+          {
+            return lookupItem;
           }
         }
       }
