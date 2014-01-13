@@ -7,6 +7,7 @@ using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
@@ -100,6 +101,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
             var postfixItem = GetTemplateFromTextControl(solution, textControl);
             if (postfixItem != null)
             {
+              TipsManager.Instance.FeatureIsUsed(
+                "Plugin.ControlFlow.PostfixTemplates.<tab>", textControl.Document, solution);
+
               var nameLength = postfixItem.Identity.Length;
               var offset = textControl.Caret.Offset() - nameLength;
 

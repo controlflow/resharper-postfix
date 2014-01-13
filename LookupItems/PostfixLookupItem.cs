@@ -82,10 +82,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         if (postfixContext != null) break;
       }
 
-      // R# statisticts
       TipsManager.Instance.FeatureIsUsed(
-        "Plugin.ControlFlow.PostfixTemplates." + myShortcut,
-        textControl.Document, solution);
+        "Plugin.ControlFlow.PostfixTemplates." + myShortcut, textControl.Document, solution);
 
       Assertion.AssertNotNull(postfixContext, "postfixContext != null");
 

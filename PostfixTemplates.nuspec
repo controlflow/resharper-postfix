@@ -2,9 +2,9 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>1.8.2-beta</version>
+    <version>1.8.3</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
-    <title>Postfix Templates plugin</title>
+    <title>Postfix Templates</title>
     <authors>Alexander Shvedov</authors>
     <owners>controlflow</owners>
     <projectUrl>https://github.com/controlflow/resharper-postfix</projectUrl>

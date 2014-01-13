@@ -11,6 +11,7 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.I18n.Services.Refactoring;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -215,6 +216,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var referenceExpression = FindReferenceExpression(textControl, solution);
         var invocation = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
         if (invocation == null) return;
+
+        TipsManager.Instance.FeatureIsUsed(
+          "Plugin.ControlFlow.PostfixTemplates.<enum>", textControl.Document, solution);
 
         var factory = CSharpElementFactory.GetInstance(referenceExpression);
         var template = myIsFlags ? "($0 & $1) != 0" : "$0 == $1";

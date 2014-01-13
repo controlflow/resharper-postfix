@@ -7,6 +7,7 @@ using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -156,9 +157,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
               solution, textControl, parenthesisMarker.Range, null, itemsOwner);
           }
 
-
           break;
         }
+
+        TipsManager.Instance.FeatureIsUsed(
+          "Plugin.ControlFlow.PostfixTemplates.<static>", textControl.Document, solution);
       };
     }
 
