@@ -6,6 +6,7 @@ using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
@@ -80,6 +81,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         postfixContext = templatesManager.IsAvailable(position, executionContext);
         if (postfixContext != null) break;
       }
+
+      // R# statisticts
+      TipsManager.Instance.FeatureIsUsed(
+        "Plugin.ControlFlow.PostfixTemplates." + myShortcut,
+        textControl.Document, solution);
 
       Assertion.AssertNotNull(postfixContext, "postfixContext != null");
 
