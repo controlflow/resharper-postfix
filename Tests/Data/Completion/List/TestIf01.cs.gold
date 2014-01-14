@@ -20,9 +20,4 @@
 + while
 + yield
 # AUTOMATIC #
-+ else
-+ if
-+ not
-+ return
 + var
-+ while

@@ -1,4 +1,5 @@
 ﻿using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -15,6 +16,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         if (IsNullable(outerExpression))
         {
+          if (context.IsAutoCompletion && outerExpression.Expression is IAsExpression)
+            return null;
+
           return new CheckForNullStatementItem("notNull", outerExpression, "if($0!=null)");
         }
       }

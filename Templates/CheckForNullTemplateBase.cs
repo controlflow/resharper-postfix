@@ -30,6 +30,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       switch (expressionContext.Type.Classify)
       {
         case null:
+
         case TypeClassification.REFERENCE_TYPE:
           return true;
 

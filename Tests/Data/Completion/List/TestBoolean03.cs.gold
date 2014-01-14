@@ -23,8 +23,6 @@
 + else
 + if
 + not
-+ notnull
-+ null
 + return
 + var
 + while
