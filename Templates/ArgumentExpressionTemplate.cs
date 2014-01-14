@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq;
+using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
@@ -34,10 +35,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var textControl = context.ExecutionContext.TextControl;
       if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
 
-      var expressionContext = context.OuterExpression;
-      if (expressionContext == null) return null;
+      var contexts = context.Expressions.Reverse();
+      var bestContext = contexts.FirstOrDefault(x => CommonUtils.IsNiceExpression(x.Expression))
+                     ?? context.OuterExpression;
 
-      return new ArgumentItem(expressionContext);
+      if (bestContext == null) return null;
+
+      return new ArgumentItem(bestContext);
     }
 
     [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =

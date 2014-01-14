@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
@@ -24,17 +25,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       if (context.IsAutoCompletion) return null;
 
-      PrefixExpressionContext bestContext = null;
-      foreach (var expressionContext in context.Expressions.Reverse())
-      {
-        if (CommonUtils.IsNiceExpression(expressionContext.Expression))
-        {
-          bestContext = expressionContext;
-          break;
-        }
-      }
-
-      bestContext = bestContext ?? context.OuterExpression;
+      var contexts = context.Expressions.Reverse();
+      var bestContext = contexts.FirstOrDefault(x => CommonUtils.IsNiceExpression(x.Expression))
+                     ?? context.OuterExpression;
       if (bestContext == null) return null;
 
       return new CastItem(bestContext);

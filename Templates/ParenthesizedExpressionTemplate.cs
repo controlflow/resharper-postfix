@@ -15,24 +15,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      PrefixExpressionContext bestContext = null;
-      foreach (var expressionContext in context.Expressions.Reverse())
-      {
-        if (CommonUtils.IsNiceExpression(expressionContext.Expression))
-        {
-          bestContext = expressionContext;
-          break;
-        }
-      }
+      var contexts = context.Expressions.Reverse();
+      var bestContext = contexts.FirstOrDefault(x => CommonUtils.IsNiceExpression(x.Expression))
+                     ?? context.OuterExpression;
+      if (bestContext == null) return null;
 
       // available in auto over cast expressions
-      var targetContext = bestContext ?? context.OuterExpression;
-      if (targetContext == null) return null;
-
-      var insideCastExpression = (CastExpressionNavigator.GetByOp(targetContext.Expression) != null);
+      var castExpression = CastExpressionNavigator.GetByOp(bestContext.Expression);
+      var insideCastExpression = (castExpression != null);
       if (!insideCastExpression && context.IsAutoCompletion) return null;
 
-      return new ParenthesesItem(targetContext);
+      return new ParenthesesItem(bestContext);
     }
 
     private sealed class ParenthesesItem : ExpressionPostfixLookupItem<ICSharpExpression>
