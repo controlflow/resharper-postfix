@@ -17,6 +17,8 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // todo: naming do not works
+
   public abstract class IntroduceMemberTemplateBase : IPostfixTemplate
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)

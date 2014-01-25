@@ -8,6 +8,8 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // todo: should format expression if format on ; is enabled
+
   [PostfixTemplate(
     templateName: "return",
     description: "Returns expression/yields value from iterator",
