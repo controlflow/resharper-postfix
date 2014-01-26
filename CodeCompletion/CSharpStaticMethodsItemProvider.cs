@@ -24,6 +24,8 @@ using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
+// todo: int[] xs; xs.IndexOf => Array.IndexOf(xs, ...)!!
+
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
   [Language(typeof(CSharpLanguage))]
