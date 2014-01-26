@@ -6,6 +6,7 @@ Concat
 + Contains
 Copy
 + CopyTo
++ Count
 + EndsWith
 + Equals
 Equals
@@ -76,6 +77,7 @@ Concat
 + Contains
 Copy
 + CopyTo
++ Count
 + EndsWith
 + Equals
 Equals

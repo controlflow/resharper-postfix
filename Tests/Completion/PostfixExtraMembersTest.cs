@@ -23,5 +23,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
     [Test] public void TestEnum02() { DoNamedTest(); }
     [Test] public void TestEnum03() { DoNamedTest(); }
     [Test] public void TestEnum04() { DoNamedTest(); }
+
+    [Test] public void TestCount01() { DoNamedTest(); }
+    [Test] public void TestCount02() { DoNamedTest(); }
+    [Test] public void TestCount03() { DoNamedTest(); }
+    [Test] public void TestCount04() { DoNamedTest(); }
+    [Test] public void TestLength01() { DoNamedTest(); }
+    [Test] public void TestLength02() { DoNamedTest(); }
   }
 }

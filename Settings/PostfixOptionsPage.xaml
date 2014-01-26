@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:JetBrains.ReSharper.PostfixTemplates.Settings"
              xmlns:tgv="clr-namespace:JetBrains.UI.TreeGrid;assembly=JetBrains.Platform.ReSharper.UI"
-             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="400"
+             mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="500"
              d:DataContext="{d:DesignInstance vm:PostfixOptionsViewModel}">
   <UserControl.Resources>
     <Thickness x:Key="LabelMargin">2,4,2,4</Thickness>
@@ -14,7 +14,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="3*" />
-      <RowDefinition Height="1*" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
     <TextBlock Text="Postfix templates:" FontWeight="SemiBold"
@@ -74,7 +74,7 @@
     <Grid Grid.Row="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="Auto" />
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
@@ -82,26 +82,33 @@
       </Grid.RowDefinitions>
       <Grid.Resources>
         <Style TargetType="CheckBox">
-          <Setter Property="Margin" Value="10,2" />
+          <Setter Property="Margin" Value="10,4" />
         </Style>
       </Grid.Resources>
 
       <TextBlock Grid.Row="0" Grid.Column="0" Text="Code completion:"
                  FontWeight="SemiBold" Margin="2,4" />
       <StackPanel Grid.Row="1" Grid.Column="0">
-        <CheckBox IsChecked="{Binding ShowPostfixTemplatesInCodeCompletion.Value, Mode=TwoWay}"
+        <CheckBox IsChecked="{Binding ShowPostfixTemplates.Value, Mode=TwoWay}"
                   Content="Show postfix templates" />
-        <CheckBox IsChecked="{Binding ShowStaticMembersInCodeCompletion.Value, Mode=TwoWay}"
+        <CheckBox IsChecked="{Binding ShowStaticMembers.Value, Mode=TwoWay}"
                   Content="Show static methods as instance"/>
-        <CheckBox IsChecked="{Binding ShowEnumHelpersInCodeCompletion.Value, Mode=TwoWay}"
+        <CheckBox IsChecked="{Binding ShowEnumHelpers.Value, Mode=TwoWay}"
                   Content="Show enumeration members"/>
+        <CheckBox IsChecked="{Binding ShowLengthCountItems.Value, Mode=TwoWay}">
+          <TextBlock>
+            Alias <Run FontWeight="SemiBold" Text=".Length" /> property on arrays/strings<LineBreak/>
+            with collection's <Run FontWeight="SemiBold" Text=".Count" /> and vice versa
+          </TextBlock>
+        </CheckBox>
       </StackPanel>
 
-      <TextBlock Grid.Row="0" Grid.Column="1" Text="Other options:" FontWeight="SemiBold" />
+      <TextBlock Grid.Row="0" Grid.Column="1" Margin="2,4"
+                 Text="Other options:" FontWeight="SemiBold" />
       <StackPanel Grid.Row="1" Grid.Column="1">
-        <CheckBox IsChecked="{Binding UseBracesForEmbeddedStatements.Value, Mode=TwoWay}"
-                  Content="Insert curly braces after statement templates"/>
-        <CheckBox IsChecked="{Binding InvokeParameterInfoFromTemplates.Value, Mode=TwoWay}"
+        <CheckBox IsChecked="{Binding UseBracesForStatements.Value, Mode=TwoWay}"
+                  Content="Put braces after statement templates"/>
+        <CheckBox IsChecked="{Binding InvokeParameterInfo.Value, Mode=TwoWay}"
                   Content="Invoke parameter info from templates" />
       </StackPanel>
     </Grid>

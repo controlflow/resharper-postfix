@@ -121,7 +121,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
     protected override bool ExecuteAction { get { return true; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
     protected override string RelativeTestDataPath { get { return string.Empty; } }
-    
 
     protected override void DoTest(IProject testProject)
     {

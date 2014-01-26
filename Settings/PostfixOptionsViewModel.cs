@@ -22,28 +22,31 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       mySettingsStore = settings;
       myTemplatesManager = templatesManager;
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
-      ShowPostfixTemplatesInCodeCompletion = new Property<bool>(lifetime, "ShowPostfixTemplatesInCodeCompletion");
-      ShowStaticMembersInCodeCompletion = new Property<bool>(lifetime, "ShowStaticMethodsInCodeCompletion");
-      ShowEnumHelpersInCodeCompletion = new Property<bool>(lifetime, "ShowEnumHelpersInCodeCompletion");
-      UseBracesForEmbeddedStatements = new Property<bool>(lifetime, "UseBracesForEmbeddedStatements");
-      InvokeParameterInfoFromTemplates = new Property<bool>(lifetime, "InvokeParameterInfoFromTemplates");
+      ShowPostfixTemplates = new Property<bool>(lifetime, "ShowPostfixTemplates");
+      ShowStaticMembers = new Property<bool>(lifetime, "ShowStaticMembers");
+      ShowEnumHelpers = new Property<bool>(lifetime, "ShowEnumHelpers");
+      ShowLengthCountItems = new Property<bool>(lifetime, "ShowLengthCountItems");
+      UseBracesForStatements = new Property<bool>(lifetime, "UseBracesForStatements");
+      InvokeParameterInfo = new Property<bool>(lifetime, "InvokeParameterInfo");
       Reset = new DelegateCommand(ResetExecute);
 
-      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowPostfixItems, ShowPostfixTemplatesInCodeCompletion);
-      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethods, ShowStaticMembersInCodeCompletion);
-      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpers, ShowEnumHelpersInCodeCompletion);
-      settings.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForEmbeddedStatements);
-      settings.SetBinding(lifetime, PostfixSettingsAccessor.InvokeParameterInfo, InvokeParameterInfoFromTemplates);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowPostfixItems, ShowPostfixTemplates);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethods, ShowStaticMembers);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpers, ShowEnumHelpers);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForStatements);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.InvokeParameterInfo, InvokeParameterInfo);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowLengthCountItems, ShowLengthCountItems);
 
       FillTemplates();
     }
 
     [NotNull] public ObservableCollection<PostfixTemplateViewModel> Templates { get; private set; }
-    [NotNull] public IProperty<bool> ShowPostfixTemplatesInCodeCompletion { get; private set; }
-    [NotNull] public IProperty<bool> ShowStaticMembersInCodeCompletion { get; private set; }
-    [NotNull] public IProperty<bool> ShowEnumHelpersInCodeCompletion { get; private set; }
-    [NotNull] public IProperty<bool> UseBracesForEmbeddedStatements { get; private set; }
-    [NotNull] public IProperty<bool> InvokeParameterInfoFromTemplates { get; private set; }
+    [NotNull] public IProperty<bool> ShowPostfixTemplates { get; private set; }
+    [NotNull] public IProperty<bool> ShowStaticMembers { get; private set; }
+    [NotNull] public IProperty<bool> ShowEnumHelpers { get; private set; }
+    [NotNull] public IProperty<bool> ShowLengthCountItems { get; private set; }
+    [NotNull] public IProperty<bool> UseBracesForStatements { get; private set; }
+    [NotNull] public IProperty<bool> InvokeParameterInfo { get; private set; }
     [NotNull] public ICommand Reset { get; private set; }
 
     private void FillTemplates()

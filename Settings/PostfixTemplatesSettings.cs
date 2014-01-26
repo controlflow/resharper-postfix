@@ -21,6 +21,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     [SettingsEntry(true, "Show enumeration types helpers in code completion")]
     public bool ShowEnumHelpersInCodeCompletion;
 
+    [SettingsEntry(true, "Alias .Count property as .Length in code completion and vice versa")]
+    public bool ShowLengthCountItemsInCodeCompletion;
+
     [SettingsEntry(true, "Insert braces for embedded statements")]
     public bool UseBracesForEmbeddedStatements;
 
@@ -36,6 +39,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       ShowPostfixItems = x => x.ShowPostfixItemsInCodeCompletion,
       ShowStaticMethods = x => x.ShowStaticMethodsInCodeCompletion,
       ShowEnumHelpers = x => x.ShowEnumHelpersInCodeCompletion,
+      ShowLengthCountItems = x => x.ShowLengthCountItemsInCodeCompletion,
       BracesForStatements = x => x.UseBracesForEmbeddedStatements,
       InvokeParameterInfo = x => x.InvokeParameterInfoFromTemplates;
   }
