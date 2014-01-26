@@ -136,7 +136,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
     public RichText DisplayName { get { return myShortcut; } }
-    public RichText DisplayTypeName { get { return null; } }
+    public virtual RichText DisplayTypeName { get { return null; } }
     public string OrderingString { get { return myShortcut; } }
     public string Identity { get { return myShortcut; } }
   }

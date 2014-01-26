@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
-using JetBrains.ReSharper.Daemon.CSharp.Errors;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -26,6 +25,9 @@ using JetBrains.TextControl;
 using JetBrains.Util;
 
 // todo: int[] xs; xs.IndexOf => Array.IndexOf(xs, ...)!!
+// todo: array.resize?
+// todo: SomeEnum.Parse => Enum.Parse(typeof(SomeEnum), ..)
+// todo: caret placement for void methods? after ;? formatting?
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
@@ -57,21 +59,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         return false;
 
       // prepare symbol table of suitable static methods
-      var rule = referenceExpression.GetTypeConversionRule();
       var accessContext = new ElementAccessContext(qualifier);
-
-      var typesCollector = new DeclaredTypesCollector();
-      qualifierType.Accept(typesCollector);
+      var declaredTypes = DeclaredTypesCollector.Accept(qualifierType);
 
       // collect all declared types
       var psiModule = context.PsiModule;
-      var allTypesTable = typesCollector.Types
-        .Aggregate(EmptySymbolTable.INSTANCE, (table, type) => table.Merge(type.GetSymbolTable(psiModule)))
-        .Distinct();
-
-      var symbolTable = allTypesTable.Filter(
-        new CapatibleStaticMethodFilter(qualifierType, rule),
-        OverriddenFilter.INSTANCE, new AccessRightsFilter(accessContext));
+      var symbolTable = declaredTypes
+        .Aggregate(
+          seed: EmptySymbolTable.INSTANCE,
+          func: (table, type) => table.Merge(type.GetSymbolTable(psiModule)))
+        .Filter(
+          new SuitableStaticMethodsFilter(qualifierType, qualifier),
+          OverriddenFilter.INSTANCE, new AccessRightsFilter(accessContext));
 
       var innerCollector = new GroupedItemsCollector();
       GetLookupItemsFromSymbolTable(symbolTable, innerCollector, context, false);
@@ -95,25 +94,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
                                                [NotNull] ILookupItemsOwner itemsOwner)
     {
       // ugly as fuck :(
-      lookupItem.AfterComplete += (
-        ITextControl textControl, ref TextRange range, ref TextRange decoration,
-        TailType tailType, ref Suffix suffix, ref IRangeMarker marker) =>
+      lookupItem.AfterComplete += (ITextControl textControl, ref TextRange range,
+                                   ref TextRange decoration, TailType tailType,
+                                   ref Suffix suffix, ref IRangeMarker marker) =>
       {
         var solution = lookupItem.Solution;
         var psiServices = solution.GetPsiServices();
         psiServices.CommitAllDocuments();
 
-        var preferredDeclaredElement = lookupItem.PreferredDeclaredElement;
-        if (preferredDeclaredElement == null) return;
+        var methods = GetAllMethods(lookupItem);
+        if (methods.Count == 0) return;
 
-        var method = (IMethod) preferredDeclaredElement.Element;
-        var ownerType = method.GetContainingType().NotNull();
-        var hasMultipleParams = HasMultipleParameters(lookupItem, method);
+        var ownerType = methods[0].GetContainingType().NotNull();
 
+        var hasMultipleParams = HasMultipleParameters(methods);
         if (!hasMultipleParams) // put caret 'foo(arg){here};'
         {
           var documentRange = new DocumentRange(textControl.Document, decoration);
           marker = documentRange.EndOffsetRange().CreateRangeMarker();
+          // todo: review
         }
 
         foreach (var referenceExpression in TextControlToPsi
@@ -126,8 +125,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           var parenthesisRange = decoration.SetStartTo(range.EndOffset);
           var parenthesisMarker = parenthesisRange.CreateRangeMarker(textControl.Document);
 
-          // append ', ' if all overloads with >1 arguments
-          if (HasOnlyMultipleParameters(lookupItem, method)) qualifierText += ", ";
+          // append ', ' if all overloads with >1 arguments/'ref ' if byref argument
+          if (HasOnlyMultipleParameters(methods)) qualifierText += ", ";
+          if (FirstArgumentAlwaysByRef(methods)) qualifierText = "ref " + qualifierText;
 
           // insert qualifier as first argument
           var argumentPosition = TextRange.FromLength(
@@ -147,7 +147,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           if (keyword == null) // bind user type
           {
             var qualifier = (IReferenceExpression) newReference.QualifierExpression.NotNull();
-            qualifier.Reference.BindTo(ownerType, preferredDeclaredElement.Substitution);
+            var instance = lookupItem.PreferredDeclaredElement.NotNull();
+            qualifier.Reference.BindTo(ownerType, instance.Substitution);
 
             range = newReference.NameIdentifier.GetDocumentRange().TextRange;
             decoration = TextRange.InvalidRange;
@@ -168,13 +169,47 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       };
     }
 
+    [NotNull]
+    private static IList<IMethod> GetAllMethods([NotNull] IDeclaredElementLookupItem lookupItem)
+    {
+      var results = new LocalList<IMethod>();
+
+      var methodsItem = lookupItem as MethodsLookupItem;
+      if (methodsItem != null)
+      {
+        foreach (var instance in methodsItem.Methods)
+          results.Add(instance.Element);
+      }
+      else
+      {
+        var instance = lookupItem.PreferredDeclaredElement;
+        if (instance != null)
+        {
+          var method = instance.Element as IMethod;
+          if (method != null)
+            results.Add(method);
+        }
+      }
+
+      return results.ResultingList();
+    }
+
     private sealed class DeclaredTypesCollector : TypeVisitor
     {
-      [NotNull] public readonly List<IDeclaredType> Types = new List<IDeclaredType>();
+      private DeclaredTypesCollector() { }
+      [NotNull] readonly HashSet<IDeclaredType> myTypes = new HashSet<IDeclaredType>();
+
+      [NotNull] public static IEnumerable<IDeclaredType> Accept([NotNull] IType type)
+      {
+        var collector = new DeclaredTypesCollector();
+        type.Accept(collector);
+
+        return collector.myTypes;
+      }
 
       public override void VisitDeclaredType(IDeclaredType declaredType)
       {
-        Types.Add(declaredType);
+        if (!myTypes.Add(declaredType)) return;
 
         var typeElement = declaredType.GetTypeElement();
         if (typeElement == null) return;
@@ -191,7 +226,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public override void VisitArrayType(IArrayType arrayType)
       {
-        arrayType.ElementType.Accept(this);
+        var elementType = arrayType.ElementType;
+        elementType.Accept(this);
+
+        var resolveContext = elementType.GetResolveContext();
+        if (resolveContext == null) return;
+
+        var predefined = elementType.Module.GetPredefinedType(resolveContext);
+        if (predefined.Array.IsResolved) predefined.Array.Accept(this);
       }
 
       public override void VisitPointerType(IPointerType pointerType)
@@ -205,58 +247,59 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       public override void VisitAnonymousType(IAnonymousType anonymousType) {}
     }
 
-    private static bool HasMultipleParameters([NotNull] IDeclaredElementLookupItem lookupItem,
-                                              [NotNull] IMethod method)
+    private static bool HasMultipleParameters([NotNull] IList<IMethod> methods)
     {
-      var methodsItem = lookupItem as MethodsLookupItem;
-      if (methodsItem == null)
+      foreach (var method in methods)
       {
-        return HasMultipleParameters(method);
-      }
-
-      foreach (var instance in methodsItem.Methods)
-      {
-        if (HasMultipleParameters(instance.Element)) return true;
+        var parameters = method.Parameters;
+        if (parameters.Count > 1) return true;
+        if (parameters.Count == 1 && parameters[0].IsParameterArray) return true;
       }
 
       return false;
     }
 
-    private static bool HasMultipleParameters([NotNull] IParametersOwner method)
+    private static bool HasOnlyMultipleParameters([NotNull] IList<IMethod> methods)
     {
-      var parameters = method.Parameters;
-      if (parameters.Count > 1) return true;
-
-      return parameters.Count == 1 && parameters[0].IsParameterArray;
-    }
-
-    private static bool HasOnlyMultipleParameters(
-      [NotNull] IDeclaredElementLookupItem item, [NotNull] IMethod method)
-    {
-      var methodsItem = item as MethodsLookupItem;
-      if (methodsItem == null)
+      foreach (var method in methods)
       {
-        return method.Parameters.Count > 1;
-      }
-
-      foreach (var instance in methodsItem.Methods)
-      {
-        if (instance.Element.Parameters.Count <= 1) return false;
+        if (method.Parameters.Count <= 1) return false;
       }
 
       return true;
     }
 
-    private sealed class CapatibleStaticMethodFilter : SimpleSymbolFilter
+    private static bool FirstArgumentAlwaysByRef([NotNull] IList<IMethod> methods)
+    {
+      foreach (var method in methods)
+      {
+        var parameters = method.Parameters;
+        if (parameters.Count > 0 && parameters[0].Kind == ParameterKind.REFERENCE) continue;
+
+        return false;
+      }
+
+      return true;
+    }
+
+    private sealed class SuitableStaticMethodsFilter : SimpleSymbolFilter
     {
       [NotNull] private readonly IExpressionType myExpressionType;
       [NotNull] private readonly ICSharpTypeConversionRule myConversionRule;
+      private readonly bool myAllowRefParameters;
 
-      public CapatibleStaticMethodFilter([NotNull] IExpressionType expressionType,
-                                         [NotNull] ICSharpTypeConversionRule conversionRule)
+      public SuitableStaticMethodsFilter([NotNull] IExpressionType expressionType,
+                                         [NotNull] ICSharpExpression expression)
       {
         myExpressionType = expressionType;
-        myConversionRule = conversionRule;
+        myConversionRule = expression.GetTypeConversionRule();
+
+        var reference = expression as IReferenceExpression;
+        if (reference != null && reference.QualifierExpression == null)
+        {
+          var element = reference.Reference.Resolve().DeclaredElement;
+          myAllowRefParameters = (element is ILocalVariable || element is IParameter);
+        }
       }
 
       public override ResolveErrorType ErrorType
@@ -268,29 +311,72 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       {
         var method = declaredElement as IMethod;
         if (method == null || !method.IsStatic) return false;
-        if (method.IsExtensionMethod) return false;
-        if (method.Parameters.Count <= 0) return false;
 
-        // filter out static methods from Object.*
-        if (method.GetContainingType().IsObjectClass()) return false;
+        if (method.IsExtensionMethod) return false;
+        if (method.Parameters.Count == 0) return false;
+
+        switch (method.ShortName) // filter out static methods from Object.*
+        {
+          case "Equals":
+          case "ReferenceEquals":
+          {
+            var containingType = method.GetContainingType();
+            if (containingType.IsObjectClass()) return false;
+            break;
+          }
+        }
 
         var firstParameter = method.Parameters[0];
-        if (firstParameter.Kind != ParameterKind.VALUE) return false;
+        if (firstParameter.Kind != ParameterKind.VALUE)
+        {
+          if (!myAllowRefParameters) return false;
+          if (firstParameter.Kind != ParameterKind.REFERENCE) return false;
+        }
 
         var parameterType = firstParameter.Type;
-
         if (firstParameter.IsParameterArray)
         {
           var arrayType = parameterType as IArrayType;
           if (arrayType != null)
           {
             var elementType = arrayType.ElementType;
-            if (myExpressionType.IsImplicitlyConvertibleTo(elementType, myConversionRule))
+            if (IsConvertibleTo(myExpressionType, elementType))
               return true;
           }
         }
 
-        return myExpressionType.IsImplicitlyConvertibleTo(parameterType, myConversionRule);
+        return IsConvertibleTo(myExpressionType, parameterType);
+      }
+
+      private bool IsConvertibleTo([NotNull] IExpressionType expressionType, [NotNull] IType parameterType)
+      {
+        if (expressionType.IsImplicitlyConvertibleTo(parameterType, myConversionRule))
+          return true;
+
+        var declaredType = parameterType as IDeclaredType;
+        if (declaredType != null)
+        {
+          var typeParameter = declaredType.GetTypeElement() as ITypeParameter;
+          if (typeParameter != null)
+          {
+            var effectiveType = typeParameter.EffectiveBaseClass();
+            if (effectiveType != null && expressionType.IsImplicitlyConvertibleTo(effectiveType, myConversionRule))
+              return true;
+          }
+        }
+
+        var parameterArrayType = parameterType as IArrayType;
+        if (parameterArrayType != null)
+        {
+          var expressionArrayType = expressionType as IArrayType;
+          if (expressionArrayType != null && expressionArrayType.Rank == parameterArrayType.Rank)
+          {
+            if (IsConvertibleTo(expressionArrayType.ElementType, parameterArrayType.ElementType))
+              return true;
+          }
+        }
+
+        return false;
       }
     }
   }

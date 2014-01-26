@@ -1,0 +1,9 @@
+﻿// ${COMPLETE_ITEM:Resize}
+
+using System;
+
+class Foo {
+  static void Main(string[] args) {
+    Array.Resize(ref args, {caret});
+  }
+}

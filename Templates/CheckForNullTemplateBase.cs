@@ -6,6 +6,8 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // todo: check (new C()).notnull is not available
+
   public abstract class CheckForNullTemplateBase
   {
     [ContractAnnotation("null => false")]
