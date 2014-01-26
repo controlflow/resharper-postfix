@@ -85,6 +85,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, IForStatement statement)
       {
+        // todo: generate variable names
+
         var newStatement = PutStatementCaret(textControl, statement);
         if (newStatement == null) return;
 

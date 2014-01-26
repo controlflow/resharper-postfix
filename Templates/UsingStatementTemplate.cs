@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
@@ -9,6 +10,8 @@ using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Naming.Extentions;
+using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.ReSharper.Psi.Xaml.Impl;
@@ -106,6 +109,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, IUsingStatement statement)
       {
+        var variableNames = SuggestResourceVariableNames(statement);
+
         var newStatement = PutStatementCaret(textControl, statement);
         if (newStatement == null) return;
 
@@ -114,7 +119,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         var declaration = (ILocalVariableDeclaration) resourceDeclaration.Declarators[0];
         var typeExpression = new MacroCallExpressionNew(new SuggestVariableTypeMacroDef());
-        var nameExpression = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
+        var nameExpression = new NameSuggestionsExpression(variableNames);
 
         var typeSpot = new HotspotInfo(
           new TemplateField("type", typeExpression, 0),
@@ -129,6 +134,47 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, typeSpot, nameSpot);
 
         session.Execute();
+      }
+
+      [NotNull]
+      private static IList<string> SuggestResourceVariableNames([NotNull] IUsingStatement statement)
+      {
+        var variableDeclaration = statement.Declaration;
+        if (variableDeclaration == null) return EmptyList<string>.InstanceList;
+
+        var localVariable = statement.Declaration.Declarators[0] as ILocalVariableDeclaration;
+        if (localVariable == null) return EmptyList<string>.InstanceList;
+
+        var namingManager = statement.GetPsiServices().Naming;
+
+        var policyProvider = namingManager.Policy.GetPolicyProvider(
+          variableDeclaration.Language, variableDeclaration.GetSourceFile());
+
+        var collection = namingManager.Suggestion.CreateEmptyCollection(
+          PluralityKinds.Single, variableDeclaration.Language, true, policyProvider);
+
+        var initializer = localVariable.Initial as IExpressionInitializer;
+        if (initializer != null)
+        {
+          collection.Add(initializer.Value, new EntryOptions {
+            PluralityKind = PluralityKinds.Plural,
+            SubrootPolicy = SubrootPolicy.Decompose
+          });
+
+          var variableType = initializer.Value.Type();
+          if (variableType.IsResolved)
+          {
+            collection.Add(variableType, new EntryOptions {
+              PluralityKind = PluralityKinds.Single,
+              SubrootPolicy = SubrootPolicy.Decompose
+            });
+          }
+        }
+
+        collection.Prepare(localVariable.DeclaredElement,
+          new SuggestionOptions {UniqueNameContext = statement});
+
+        return collection.AllNames();
       }
     }
   }

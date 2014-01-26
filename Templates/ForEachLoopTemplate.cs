@@ -75,6 +75,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, IForeachStatement statement)
       {
+        var namesCollection = SuggestIteratorVariableNames(statement);
+
         var newStatement = PutStatementCaret(textControl, statement);
         if (newStatement == null) return;
 
@@ -85,7 +87,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           new TemplateField("type", suggestTypeName, 0),
           variableDeclaration.VarKeyword.GetDocumentRange());
 
-        var namesCollection = SuggestIteratorVariableNames(newStatement);
         var variableNameInfo = new HotspotInfo(
           new TemplateField("name", new NameSuggestionsExpression(namesCollection), 0),
           variableDeclaration.NameIdentifier.GetDocumentRange());

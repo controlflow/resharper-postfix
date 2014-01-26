@@ -1,10 +1,12 @@
-﻿using JetBrains.Application.Settings;
+﻿using JetBrains.Application;
+using JetBrains.Application.Settings;
 using JetBrains.Application.Settings.Store.Implementation;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.DataContext;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
 using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
@@ -15,18 +17,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
   {
     protected override bool ExecuteAction { get { return true; } }
     protected override bool CheckAutomaticCompletionDefault() { return true; }
-    protected override string RelativeTestDataPath { get { return ""; } }
+    protected override string RelativeTestDataPath { get { return string.Empty; } }
 
     protected override void DoTest(IProject testProject)
     {
-      var settingsStore1 = Application.Shell.Instance.GetComponent<SettingsStore>();
-
       Lifetimes.Using(lifetime =>
       {
         ChangeSettingsTemporarily(lifetime);
-        var settingsStore = settingsStore1.BindToContextTransient(ContextRange.Smart(testProject.ToDataContext()));
-        settingsStore.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
-        settingsStore.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
+
+        var settingsStore = Application.Shell.Instance.GetComponent<SettingsStore>();
+        var settings = settingsStore.BindToContextTransient(ContextRange.Smart(testProject.ToDataContext()));
+
+        settings.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
+        settings.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
+
         base.DoTest(testProject);
       });
     }
@@ -115,5 +119,34 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
     [Test] public void TestPar01() { DoNamedTest(); }
 
     [Test] public void TestTypeof01() { DoNamedTest(); }
+  }
+
+  [TestNetFramework4]
+  public class PostfixTemplatesBracelessTest : CodeCompletionTestBase
+  {
+    protected override bool ExecuteAction { get { return true; } }
+    protected override bool CheckAutomaticCompletionDefault() { return true; }
+    protected override string RelativeTestDataPath { get { return string.Empty; } }
+
+    protected override void DoTest(IProject testProject)
+    {
+      Lifetimes.Using(lifetime =>
+      {
+        ChangeSettingsTemporarily(lifetime);
+
+        var settingsStore = Application.Shell.Instance.GetComponent<SettingsStore>();
+        var settings = settingsStore.BindToContextTransient(ContextRange.Smart(testProject.ToDataContext()));
+
+        settings.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
+        settings.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
+        settings.SetValue((PostfixTemplatesSettings s) => s.UseBracesForEmbeddedStatements, false);
+
+        base.DoTest(testProject);
+      });
+    }
+
+    [Test] public void TestForEach04() { DoNamedTest(); }
+
+    [Test] public void TestUsing05() { DoNamedTest(); }
   }
 }
