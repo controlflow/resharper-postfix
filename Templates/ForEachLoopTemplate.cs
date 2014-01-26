@@ -115,7 +115,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           collection.Add(expression, new EntryOptions {
             PluralityKind = PluralityKinds.Plural,
-            SubrootPolicy = SubrootPolicy.Decompose
+            SubrootPolicy = SubrootPolicy.Decompose,
+            PredefinedPrefixPolicy = PredefinedPrefixPolicy.Remove
           });
         }
 

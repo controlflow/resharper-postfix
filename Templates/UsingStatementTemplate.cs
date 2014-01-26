@@ -157,22 +157,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         if (initializer != null)
         {
           collection.Add(initializer.Value, new EntryOptions {
-            PluralityKind = PluralityKinds.Plural,
-            SubrootPolicy = SubrootPolicy.Decompose
+            SubrootPolicy = SubrootPolicy.Decompose,
+            PredefinedPrefixPolicy = PredefinedPrefixPolicy.Remove
           });
 
           var variableType = initializer.Value.Type();
           if (variableType.IsResolved)
           {
             collection.Add(variableType, new EntryOptions {
-              PluralityKind = PluralityKinds.Single,
               SubrootPolicy = SubrootPolicy.Decompose
             });
           }
         }
 
-        collection.Prepare(localVariable.DeclaredElement,
-          new SuggestionOptions {UniqueNameContext = statement});
+        var suggestionOptions = new SuggestionOptions {UniqueNameContext = statement};
+        collection.Prepare(localVariable.DeclaredElement, suggestionOptions);
 
         return collection.AllNames();
       }
