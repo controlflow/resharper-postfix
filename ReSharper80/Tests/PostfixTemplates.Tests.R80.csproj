@@ -62,17 +62,17 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Tests\CompletionList\PostfixStaticMembersListTest.cs">
-      <Link>CompletionList\PostfixStaticMembersListTest.cs</Link>
+    <Compile Include="..\..\Tests\CompletionList\PostfixExtraMembersListTest.cs">
+      <Link>CompletionList\PostfixExtraMembersListTest.cs</Link>
     </Compile>
     <Compile Include="..\..\Tests\CompletionList\PostfixTemplatesListTest.cs">
       <Link>CompletionList\PostfixTemplatesListTest.cs</Link>
     </Compile>
+    <Compile Include="..\..\Tests\Completion\PostfixExtraMembersTest.cs">
+      <Link>Completion\PostfixExtraMembersTest.cs</Link>
+    </Compile>
     <Compile Include="..\..\Tests\Completion\PostfixRazorTest.cs">
       <Link>Completion\PostfixRazorTest.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Tests\Completion\PostfixStaticMembersTest.cs">
-      <Link>Completion\PostfixStaticMembersTest.cs</Link>
     </Compile>
     <Compile Include="..\..\Tests\Completion\PostfixTemplatesTest.cs">
       <Link>Completion\PostfixTemplatesTest.cs</Link>

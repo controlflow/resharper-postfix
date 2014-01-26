@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeCompletion\CSharpEnumCaseItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpLengthCountItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharpPostfixItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharpStaticMethodsItemProvider.cs" />
     <Compile Include="Infrastructure\Contexts\ReparsedPostfixExecutionContext.cs" />

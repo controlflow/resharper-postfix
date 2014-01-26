@@ -50,6 +50,9 @@
     <Compile Include="..\CodeCompletion\CSharpEnumCaseItemProvider.cs">
       <Link>CodeCompletion\CSharpEnumCaseItemProvider.cs</Link>
     </Compile>
+    <Compile Include="..\CodeCompletion\CSharpLengthCountItemProvider.cs">
+      <Link>CodeCompletion\CSharpLengthCountItemProvider.cs</Link>
+    </Compile>
     <Compile Include="..\CodeCompletion\CSharpPostfixItemProvider.cs">
       <Link>CodeCompletion\CSharpPostfixItemProvider.cs</Link>
     </Compile>

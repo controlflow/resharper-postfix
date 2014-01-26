@@ -4,6 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
+using JetBrains.ReSharper.Daemon.CSharp.Errors;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -34,8 +35,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
       var completionType = context.BasicContext.CodeCompletionType;
-      return completionType == CodeCompletionType.AutomaticCompletion ||
-             completionType == CodeCompletionType.BasicCompletion;
+      return completionType == CodeCompletionType.AutomaticCompletion
+          || completionType == CodeCompletionType.BasicCompletion;
     }
 
     protected override bool AddLookupItems(CSharpCodeCompletionContext context,
