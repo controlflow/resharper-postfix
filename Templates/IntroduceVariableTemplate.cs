@@ -23,6 +23,8 @@ using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
 using JetBrains.Util.EventBus;
 
+// todo: unwrap from parenthesis?
+
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   using AfterAction = Action<ITextControl, ISolution, RefactoringDetailsArgs>;
