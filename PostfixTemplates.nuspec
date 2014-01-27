@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ReSharper.Postfix</id>
-    <version>1.8.3</version>
+    <version>1.8.4</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>Postfix Templates</title>
     <authors>Alexander Shvedov</authors>
@@ -14,7 +14,7 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      ReSharper 8.1 support. New .to template for assingments (only in basic completion/tab). Core rewritten to match ideas from IntelliJ version. Ability to turn off code completion integration (only expand templates by [Tab]), option to turn off parameter info. Much better work over broken code. Various fixes: "null.return" and "x as T.return" now works, refined variable naming in .foreach, .if + convertible-to-boolean expressions fix, .using now generates variable only when needed, .arg template moved away from auto completion (too invasive), .arg now places caret after invocation when invocation resolves fine, all templates disabled over namespaces, some Razor and availability fixes. Plugin rename.
+      Minor bugfix release. New feature: code completion helper to prevent mistyping 'Length' property as 'Count' or vice versa. New feature: static methods from System.Array available over arrays ("xs.Resize" => "Array.Resize(xs, |)"). New feature: static methods from System.Enum available over enumeration types ("SomeEnum.gv" => "Enum.GetValues(typeof(SomeEnum))"). Fix naming suggestions for .foreach/.using when braces insertion is turned off and there is foreach/using statement over the same collection/resource in the same block. Templates .notnull/.null disabled over as-expressions (producing 'expr as T != null' is stupid). Fix .arg template inside assignments.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
