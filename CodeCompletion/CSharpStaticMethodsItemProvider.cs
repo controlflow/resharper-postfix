@@ -126,21 +126,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var qualifierText = qualifierExpression.GetText();
         var referencePointer = referenceExpression.CreateTreeElementPointer();
 
-        // wrap type reference with typeof() expression for enum static methods
-        if (IsEnumTypeReference(qualifierExpression) != null) qualifierText = "typeof(" + qualifierText + ")";
+        if (IsEnumTypeReference(qualifierExpression) != null)
+        {
+          qualifierText = "typeof(" + qualifierText + ")";
+        }
 
-        // append ref argument modifier if all overloads are with first byref parameter
         if (FirstArgumentAlwaysByRef(methods)) qualifierText = "ref " + qualifierText;
-
-        // append ', ' if all overloads with >1 arguments
         if (HasOnlyMultipleParameters(methods)) qualifierText += ", ";
 
         var parenthesisRange = decoration.SetStartTo(range.EndOffset);
         var parenthesisMarker = parenthesisRange.CreateRangeMarker(textControl.Document);
 
         // insert qualifier as first argument
-        var argumentPosition = TextRange.FromLength(decoration.EndOffset - (parenthesisRange.Length/2), 0);
-        textControl.Document.ReplaceText(argumentPosition, qualifierText);
+        var argPosition = TextRange.FromLength(decoration.EndOffset - (parenthesisRange.Length/2), 0);
+        textControl.Document.ReplaceText(argPosition, qualifierText);
 
         // replace qualifier with type (predefined/user type)
         var keyword = CSharpTypeFactory.GetTypeKeyword(ownerType.GetClrName());
