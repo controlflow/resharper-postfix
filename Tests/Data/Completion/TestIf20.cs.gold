@@ -1,0 +1,12 @@
+﻿// ${COMPLETE_ITEM:if}
+
+class Program {
+  void F(int[] xs)
+  {
+    if (xs.Length > 0)
+    {
+      {caret}
+    }
+    (xs != null ? xs : xs)[42] = 42;
+  }
+}

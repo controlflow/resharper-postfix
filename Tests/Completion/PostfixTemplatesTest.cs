@@ -53,10 +53,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
     [Test] public void TestIf17() { DoNamedTest(); }
     [Test] public void TestIf18() { DoNamedTest(); }
     [Test] public void TestIf19() { DoNamedTest(); }
+    [Test] public void TestIf20() { DoNamedTest(); }
 
     [Test] public void TestNew01() { DoNamedTest(); }
     [Test] public void TestNew02() { DoNamedTest(); }
     [Test] public void TestNew03() { DoNamedTest(); }
+    [Test] public void TestNew04() { DoNamedTest(); }
+    [Test] public void TestNew05() { DoNamedTest(); }
+    [Test] public void TestNew06() { DoNamedTest(); }
 
     [Test] public void TestVar01() { DoNamedTest(); }
     [Test] public void TestVar02() { DoNamedTest(); }
@@ -70,6 +74,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
 
     [Test] public void TestNot01() { DoNamedTest(); }
     [Test] public void TestNot02() { DoNamedTest(); }
+    [Test] public void TestNot03() { DoNamedTest(); }
 
     [Test] public void TestNotNull01() { DoNamedTest(); }
 

@@ -13,6 +13,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   // todo: array creation (too hard to impl for now)
   // todo: nullable types creation? (what for?)
+  // todo: Booboo.new[tab] do not works
 
   [PostfixTemplate(
     templateName: "new",
@@ -23,7 +24,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
-      if (typeExpression == null) return null;
+      if (typeExpression == null)
+      {
+        
+
+        return null;
+      }
 
       var typeElement = typeExpression.ReferencedElement as ITypeElement;
       if (typeElement == null) return null;

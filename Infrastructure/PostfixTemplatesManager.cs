@@ -6,6 +6,7 @@ using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
@@ -122,12 +123,22 @@ namespace JetBrains.ReSharper.PostfixTemplates
             if (argument != null && argument.Expression == null) return null;
           }
 
+          // protect from 'smth.var\n(someCode).InBraces()'
+          invocation = referenceExpression.Parent as IInvocationExpression;
+          if (invocation != null)
+          {
+            for (ITokenNode lpar = invocation.LPar,
+                           token = invocation.InvokedExpression.NextSibling as ITokenNode;
+                 token != null && token != lpar && token.IsFiltered();
+                 token = token.NextSibling as ITokenNode)
+            {
+              if (token.GetTokenType() == CSharpTokenType.NEW_LINE) return null;
+            }
+          }
+
           // protect from 'doubleDot..var'
           var qualifierReference = expression as IReferenceExpression;
-          if (qualifierReference != null && qualifierReference.NameIdentifier == null)
-          {
-            return null;
-          }
+          if (qualifierReference != null && qualifierReference.NameIdentifier == null) return null;
 
           return new ReferenceExpressionPostfixTemplateContext(referenceExpression, expression, context);
         }
