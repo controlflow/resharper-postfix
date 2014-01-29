@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -17,9 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var contexts = context.Expressions.Reverse();
-      var bestContext = contexts.FirstOrDefault(x => CommonUtils.IsNiceExpression(x.Expression))
-                     ?? context.OuterExpression;
+      var bestContext = CommonUtils.FindBestExpressionContext(context);
       if (bestContext == null) return null;
 
       // available in auto over cast expressions

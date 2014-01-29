@@ -62,13 +62,12 @@ namespace JetBrains.ReSharper.PostfixTemplates
       else
       {
         var originalGeneratedTreeRange = context.ToOriginalTreeRange(reparsedTreeRange);
-        var sandBox = treeNode.GetContainingNode<ISandBox>().NotNull();
-        var contextNode = sandBox.ContextNode.NotNull();
+        var sandBox = treeNode.GetContainingNode<ISandBox>().NotNull("sandBox != null");
 
-        var containingFile = contextNode.GetContainingFile().NotNull();
+        var contextNode = sandBox.ContextNode.NotNull("sandBox.ContextNode != null");
+        var containingFile = contextNode.GetContainingFile().NotNull("containingFile != null");
 
         var translator = containingFile.GetRangeTranslator();
-
         var originalTreeRange = translator.GeneratedToOriginal(originalGeneratedTreeRange);
         var originalDocRange = translator.OriginalFile.GetDocumentRange(originalTreeRange);
 
@@ -140,13 +139,43 @@ namespace JetBrains.ReSharper.PostfixTemplates
       if (expression is IPrefixOperatorExpression) return false;
       if (expression is IPostfixOperatorExpression) return false;
 
+      return IsValidExpression(expression);
+    }
+
+    public static bool IsValidExpression([NotNull] ICSharpExpression expression)
+    {
       if (expression is IInvocationExpression)
       {
         var expressionType = expression.GetExpressionType();
         if (expressionType.ToIType().IsVoid()) return false;
       }
 
+      var literalExpression = expression as ILiteralExpression;
+      if (literalExpression != null)
+      {
+        var literal = literalExpression.Literal;
+        if (literal != null && literal.GetTokenType() == CSharpTokenType.NULL_KEYWORD)
+          return false;
+      }
+
+      if (expression is IAnonymousFunctionExpression) return false;
+
       return true;
+    }
+
+    [CanBeNull]
+    public static PrefixExpressionContext FindBestExpressionContext([NotNull] PostfixTemplateContext context)
+    {
+      PrefixExpressionContext niceExpression = null, validExpression = null;
+      foreach (var expressionContext in context.Expressions)
+      {
+        if (IsNiceExpression(expressionContext.Expression))
+          niceExpression = expressionContext;
+        if (IsValidExpression(expressionContext.Expression))
+          validExpression = expressionContext;
+      }
+
+      return niceExpression ?? validExpression;
     }
 
     [CanBeNull]

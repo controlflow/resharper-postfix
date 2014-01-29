@@ -31,11 +31,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var typeElement = typeExpression.ReferencedElement as ITypeElement;
       if (typeElement == null) return null;
 
+      if (context.IsAutoCompletion)
+      {
+        if (typeElement is IEnum) return null;
+        if (typeExpression.ReferencedType.IsSimplePredefined()) return null;
+      }
+
       var instantiable = TypeUtils.IsInstantiable(typeElement, typeExpression.Expression);
       if (instantiable != TypeInstantiability.NotInstantiable)
       {
-        var hasCtorWithParams = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
-        return new NewTypeItem(typeExpression, hasCtorWithParams);
+        var hasParameters = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+        return new NewTypeItem(typeExpression, hasParameters);
       }
 
       return null;
@@ -59,8 +65,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
           if (context.IsAutoCompletion)
           {
-            if (element is ITypeElement)
-              return new NewExpressionItem(expressionContext);
+            var typeElement = element as ITypeElement;
+            if (typeElement != null)
+            {
+              if (typeElement is IEnum) return null;
+              if (TypeFactory.CreateType(typeElement).IsSimplePredefined()) return null;
+
+              var instantiable = TypeUtils.IsInstantiable(typeElement, reference);
+              if (instantiable != TypeInstantiability.NotInstantiable)
+                return new NewExpressionItem(expressionContext);
+            }
           }
           else if (element == null || element is ITypeElement)
           {
@@ -72,7 +86,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       else // UnresolvedType.new
       {
         var reference = expression as IReferenceExpression;
-        if (reference != null && IsReferenceExpressionsChain(reference))
+        if (reference != null && !context.IsAutoCompletion && IsReferenceExpressionsChain(reference))
         {
           return new NewTypeItem(expressionContext, hasParameters: true);
         }
