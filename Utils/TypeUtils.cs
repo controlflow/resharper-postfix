@@ -55,6 +55,17 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       return TypeInstantiability.NotInstantiable;
     }
+
+    public static bool IsUsefulToCreateWithNew([CanBeNull] ITypeElement typeElement)
+    {
+      if (typeElement == null) return false;
+      if (typeElement is IEnum) return false;
+
+      var type = TypeFactory.CreateType(typeElement);
+      if (type.IsSimplePredefined()) return false;
+
+      return true;
+    }
   }
 
   [Flags]

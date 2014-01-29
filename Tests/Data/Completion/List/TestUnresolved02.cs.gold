@@ -5,6 +5,7 @@
 + foreach
 + if
 + lock
++ new
 + not
 + notnull
 + null

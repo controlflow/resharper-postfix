@@ -24,17 +24,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       var typeExpression = context.TypeExpression;
       if (typeExpression == null)
-      {
         return CreateExpressionItem(context);
-      }
 
       var typeElement = typeExpression.ReferencedElement as ITypeElement;
       if (typeElement == null) return null;
 
       if (context.IsAutoCompletion)
       {
-        if (typeElement is IEnum) return null;
-        if (typeExpression.ReferencedType.IsSimplePredefined()) return null;
+        if (!TypeUtils.IsUsefulToCreateWithNew(typeElement)) return null;
       }
 
       var instantiable = TypeUtils.IsInstantiable(typeElement, typeExpression.Expression);
@@ -68,8 +65,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
             var typeElement = element as ITypeElement;
             if (typeElement != null)
             {
-              if (typeElement is IEnum) return null;
-              if (TypeFactory.CreateType(typeElement).IsSimplePredefined()) return null;
+              if (!TypeUtils.IsUsefulToCreateWithNew(typeElement)) return null;
 
               var instantiable = TypeUtils.IsInstantiable(typeElement, reference);
               if (instantiable != TypeInstantiability.NotInstantiable)
@@ -88,6 +84,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var reference = expression as IReferenceExpression;
         if (reference != null && !context.IsAutoCompletion && IsReferenceExpressionsChain(reference))
         {
+          var element = reference.Reference.Resolve().DeclaredElement;
+          if (element != null && !(element is ITypeElement)) return null;
+
           return new NewTypeItem(expressionContext, hasParameters: true);
         }
       }

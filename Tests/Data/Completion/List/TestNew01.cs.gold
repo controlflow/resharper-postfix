@@ -1,0 +1,26 @@
+﻿+ A
+Format
+GetName
+GetNames
+GetUnderlyingType
+GetValues
+IsDefined
+Parse
+ToObject
++ TryParse
++ new
++ throw
++ typeof
++ var
+# AUTOMATIC #
++ A
+Format
+GetName
+GetNames
+GetUnderlyingType
+GetValues
+IsDefined
+Parse
+ToObject
++ TryParse
++ typeof

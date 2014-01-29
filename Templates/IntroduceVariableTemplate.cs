@@ -23,7 +23,7 @@ using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
 using JetBrains.Util.EventBus;
 
-// todo: unwrap from parenthesis?
+// todo: unwrap expression from parenthesis?
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -55,12 +55,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var referencedType = expressionContext.ReferencedType;
         if (referencedType != null)
         {
-          if (!context.IsAutoCompletion ||
-            TypeUtils.IsInstantiable(referencedType, expressionContext.Expression) != 0)
+          if (context.IsAutoCompletion)
           {
-            contexts.Add(expressionContext);
+            if (TypeUtils.IsInstantiable(referencedType, expressionContext.Expression) == 0) break;
+            if (!TypeUtils.IsUsefulToCreateWithNew(referencedType.GetTypeElement())) break;
           }
 
+          contexts.Add(expressionContext);
           break; // prevent from 'expr == T.var' => 'var t = expr == T;'
         }
 

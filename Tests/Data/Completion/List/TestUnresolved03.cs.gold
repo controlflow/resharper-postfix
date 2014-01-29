@@ -1,6 +1,7 @@
 ﻿+ arg
 + await
 + cast
++ new
 + not
 + notnull
 + null
