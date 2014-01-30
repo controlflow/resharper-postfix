@@ -92,6 +92,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, IThrowStatement statement)
       {
+        FormatStatementOnSemicolon(statement);
+
         var expression = (IObjectCreationExpression) statement.Exception;
         var endOffset = myHasParameters
           ? expression.LPar.GetDocumentRange().TextRange.EndOffset

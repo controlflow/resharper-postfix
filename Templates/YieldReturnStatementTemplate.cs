@@ -6,6 +6,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -93,6 +94,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
                                                          ICSharpExpression expression)
       {
         return (IYieldStatement) factory.CreateStatement("yield return $0;", expression);
+      }
+
+      protected override void AfterComplete(ITextControl textControl, IYieldStatement statement)
+      {
+        FormatStatementOnSemicolon(statement);
+        base.AfterComplete(textControl, statement);
       }
     }
   }

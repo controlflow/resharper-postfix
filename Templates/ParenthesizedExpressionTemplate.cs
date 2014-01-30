@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // todo: return foo.Bar as T.par do not works
+  // todo: return foo.Bar as T.par do not works (R# bug)
 
   [PostfixTemplate(
     templateName: "par",

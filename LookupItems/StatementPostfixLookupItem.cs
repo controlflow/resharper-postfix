@@ -2,6 +2,7 @@
 using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
+using JetBrains.ReSharper.Feature.Services.Options;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
@@ -9,6 +10,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Services;
+using JetBrains.ReSharper.Psi.Transactions;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
@@ -111,8 +113,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
     [CanBeNull]
-    protected TStatement PutStatementCaret(
-      [NotNull] ITextControl textControl, [NotNull] TStatement statement)
+    protected TStatement PutStatementCaret([NotNull] ITextControl textControl,
+                                           [NotNull] TStatement statement)
     {
       foreach (var child in statement.Children())
       {
@@ -163,6 +165,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         var endOffset = statement.GetDocumentRange().TextRange.EndOffset;
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
         return statement;
+      }
+    }
+
+    protected void FormatStatementOnSemicolon([NotNull] TStatement statement)
+    {
+      var settingsStore = statement.GetSettingsStore();
+      if (settingsStore.GetValue(TypingAssistOptions.FormatStatementOnSemicolonExpression))
+      {
+        var psiServices = statement.GetPsiServices();
+        using (PsiTransactionCookie.CreateAutoCommitCookieWithCachesUpdate(psiServices, "Format code"))
+        {
+          var languageService = statement.Language.LanguageService().NotNull();
+          var codeFormatter = languageService.CodeFormatter.NotNull();
+
+          codeFormatter.Format(statement, CodeFormatProfile.SOFT);
+        }
+
+        Assertion.Assert(statement.IsValid(), "statement.IsValid()");
+        Assertion.Assert(statement.IsPhysical(), "statement.IsPhysical()");
       }
     }
   }
