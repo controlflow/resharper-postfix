@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.Application;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
@@ -86,46 +87,48 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           textControl.PutData(PostfixArgTemplateExpansion, null);
 
-          var range = session.Hotspots[0].RangeMarker.Range;
-          if (!range.IsValid) return;
+          TextRange hotspotRange;
+          using (ReadLockCookie.Create())
+          {
+            hotspotRange = session.Hotspots[0].RangeMarker.Range;
+            if (!hotspotRange.IsValid) return;
 
-          solution.GetPsiServices().CommitAllDocuments();
+            solution.GetPsiServices().CommitAllDocuments();
 
-          if (TryPlaceCaretAfterInvocation(solution, textControl, languageType, range))
-            return;
+            if (TryPlaceCaretSmart(solution, textControl, languageType, hotspotRange))
+              return;
 
-          var endOffset = range.EndOffset + length;
-          textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+            var endOffset = hotspotRange.EndOffset + length;
+            textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+          }
 
           if (invokeParameterInfo)
           {
-            var parametersRange = TextRange.FromLength(range.EndOffset, length + 1);
+            var argumentsRange = TextRange.FromLength(hotspotRange.EndOffset, length + 1);
             LookupUtil.ShowParameterInfo(
-              solution, textControl, parametersRange, null, myLookupItemsOwner);
+              solution, textControl, argumentsRange, null, myLookupItemsOwner);
           }
         });
 
         session.Execute();
       }
 
-      private static bool TryPlaceCaretAfterInvocation([NotNull] ISolution solution,
-                                                       [NotNull] ITextControl textControl,
-                                                       [NotNull] PsiLanguageType languageType,
-                                                       TextRange range)
+      private static bool TryPlaceCaretSmart([NotNull] ISolution solution, [NotNull] ITextControl textControl,
+                                             [NotNull] PsiLanguageType language, TextRange range)
       {
-        foreach (var tokenNode in TextControlToPsi
-          .GetElements<ITokenNode>(solution, textControl.Document, range.EndOffset))
+        foreach (var tokenNode in
+          TextControlToPsi.GetElements<ITokenNode>(solution, textControl.Document, range.EndOffset))
         {
-          if (!tokenNode.Language.IsLanguage(languageType)) continue;
+          if (!tokenNode.Language.IsLanguage(language)) continue;
           if (tokenNode.GetTokenType() != CSharpTokenType.LPARENTH) continue;
 
-          var invocationExpression = tokenNode.Parent as IInvocationExpression;
-          if (invocationExpression == null || invocationExpression.RPar == null) continue;
+          var invocation = tokenNode.Parent as IInvocationExpression;
+          if (invocation == null || invocation.RPar == null) continue;
 
-          var reference = invocationExpression.InvocationExpressionReference;
+          var reference = invocation.InvocationExpressionReference;
           if (reference != null && reference.Resolve().ResolveErrorType == ResolveErrorType.OK)
           {
-            var offset = invocationExpression.RPar.GetDocumentRange().TextRange.EndOffset;
+            var offset = invocation.RPar.GetDocumentRange().TextRange.EndOffset;
             textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
             return true;
           }
