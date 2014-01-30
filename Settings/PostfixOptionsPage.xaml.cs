@@ -32,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     public bool OnOk() { return true; }
     public bool ValidatePage() { return true; }
 
-    private void DoubleClickCheck(object sender, MouseButtonEventArgs e)
+    private void DoubleClickCheck(object sender, RoutedEventArgs e)
     {
       var viewModel = ((FrameworkElement) sender).DataContext as PostfixTemplateViewModel;
       if (viewModel != null)

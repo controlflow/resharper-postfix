@@ -35,6 +35,7 @@
         <tgv:TreeGridView.CellStyle>
           <Style TargetType="tgv:TreeGridCell">
             <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
           </Style>
         </tgv:TreeGridView.CellStyle>
         <tgv:TreeGridView.ColumnDefinitions>
@@ -42,10 +43,12 @@
           <tgv:TreeGridColumnDefinition Header="Shortcut">
             <tgv:TreeGridColumnDefinition.CellTemplate>
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
-                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                          Margin="4,2" FontWeight="SemiBold">
-                  <TextBlock Text="{Binding Path=Name, Mode=OneTime}" />
-                </CheckBox>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                            Margin="4,1,0,1" Focusable="False" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding Path=Name, Mode=OneTime}"
+                             FontWeight="SemiBold" Margin="4,1" />
+                </StackPanel>
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
           </tgv:TreeGridColumnDefinition>
@@ -53,8 +56,7 @@
           <tgv:TreeGridColumnDefinition Header="Description">
             <tgv:TreeGridColumnDefinition.CellTemplate>
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
-                <TextBlock Text="{Binding Description, Mode=OneTime}"
-                           Margin="4,2" />
+                <TextBlock Text="{Binding Description, Mode=OneTime}" Margin="4,1" />
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
           </tgv:TreeGridColumnDefinition>
@@ -63,7 +65,7 @@
             <tgv:TreeGridColumnDefinition.CellTemplate>
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
                 <TextBlock Text="{Binding Example, Mode=OneTime}"
-                           FontFamily="Consolas" Margin="4,2" />
+                           FontFamily="Consolas" Margin="4,1" />
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
           </tgv:TreeGridColumnDefinition>

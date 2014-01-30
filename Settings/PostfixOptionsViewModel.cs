@@ -66,9 +66,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
         if (args.PropertyName == "IsChecked")
         {
           var viewModel = (PostfixTemplateViewModel) sender;
-          mySettingsStore.SetIndexedValue(
-            PostfixSettingsAccessor.DisabledProviders,
-            viewModel.SettingsKey, viewModel.IsChecked);
+          if (viewModel.IsChecked == viewModel.DefaultValue)
+            mySettingsStore.RemoveIndexedValue(
+              PostfixSettingsAccessor.DisabledProviders, viewModel.SettingsKey);
+          else
+            mySettingsStore.SetIndexedValue(
+              PostfixSettingsAccessor.DisabledProviders, viewModel.SettingsKey, viewModel.IsChecked);
         }
       };
 
@@ -76,13 +79,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       foreach (var providerInfo in infos.OrderBy(providerInfo => providerInfo.Metadata.TemplateName))
       {
         var metadata = providerInfo.Metadata;
+        // ReSharper disable once SuggestUseVarKeywordEverywhere
         bool isEnabled = (!settings.DisabledProviders.TryGet(providerInfo.SettingsKey, out isEnabled)
-                          && !metadata.DisabledByDefault) || isEnabled;
+                       && !metadata.DisabledByDefault) || isEnabled;
 
         var itemViewModel = new PostfixTemplateViewModel(
-          name: metadata.TemplateName, description: metadata.Description,
-          example: metadata.Example, settingsKey: providerInfo.SettingsKey,
-          isChecked: isEnabled);
+          metadata: metadata, settingsKey: providerInfo.SettingsKey, isChecked: isEnabled);
 
         itemViewModel.PropertyChanged += handler;
         Templates.Add(itemViewModel);
