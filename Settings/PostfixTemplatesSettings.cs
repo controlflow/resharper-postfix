@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.Application.Settings.Store;
-using JetBrains.ReSharper.Refactorings.WorkflowNew;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {

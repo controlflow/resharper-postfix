@@ -109,7 +109,7 @@
         <CheckBox IsChecked="{Binding UseBracesForStatements.Value, Mode=TwoWay}"
                   Content="Put braces after statement templates"/>
         <CheckBox IsChecked="{Binding SearchVarOccurrences.Value, Mode=TwoWay}">
-          <TextBlock>Search occurences in <Run FontWeight="SemiBold" Text=".var" /> template</TextBlock>
+          <TextBlock>Search for occurrences in <Run FontWeight="SemiBold" Text=".var" /> template</TextBlock>
         </CheckBox>
         <CheckBox IsChecked="{Binding InvokeParameterInfo.Value, Mode=TwoWay}"
                   Content="Invoke parameter info from templates" />

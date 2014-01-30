@@ -29,7 +29,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
                                    [NotNull] LookupItemsOwnerFactory lookupItemsFactory,
                                    [NotNull] TextControlChangeUnitFactory changeUnitFactory)
     {
-      // override livetemplates expand action
+      // override live templates expand action
       var expandAction = manager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
       if (expandAction != null)
       {

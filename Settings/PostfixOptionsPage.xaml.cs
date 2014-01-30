@@ -15,6 +15,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     ParentId = PluginsPage.Pid)]
   public sealed partial class PostfixOptionsPage : IOptionsPage
   {
+    // ReSharper disable once InconsistentNaming
     private const string PID = "PostfixTemplates";
 
     public PostfixOptionsPage([NotNull] Lifetime lifetime,
