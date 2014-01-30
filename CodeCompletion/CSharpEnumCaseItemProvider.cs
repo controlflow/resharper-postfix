@@ -127,7 +127,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         {
           var convertible = member.ConstantValue.Value as IConvertible;
           var memberValue = (convertible != null)
-            ? GetBinaryRepresenation(convertible) : string.Empty;
+            ? GetBinaryRepresentation(convertible) : string.Empty;
           memberValues.Add(Pair.Of(member, memberValue));
         }
       }
@@ -157,7 +157,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     }
 
     [NotNull]
-    private static string GetBinaryRepresenation([NotNull] IConvertible convertible)
+    private static string GetBinaryRepresentation([NotNull] IConvertible convertible)
     {
       switch (convertible.GetTypeCode())
       {

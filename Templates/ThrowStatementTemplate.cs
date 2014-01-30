@@ -35,7 +35,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           if (!conversionRule.IsImplicitlyConvertibleTo(referencedType, predefined.Exception))
             return null;
-          if (TypeUtils.IsInstantiable(referencedType, expression) == 0)
+          if (TypeUtils.CanInstantiateType(referencedType, expression) == 0)
             return null;
         }
         else
@@ -54,8 +54,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         return new ThrowValueItem(expressionContext);
       }
 
-      var instantiable = TypeUtils.IsInstantiable(referencedType, expression);
-      var hasParameters = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+      var canInstantiate = TypeUtils.CanInstantiateType(referencedType, expression);
+      var hasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
 
       return new ThrowByTypeItem(expressionContext, hasParameters);
     }

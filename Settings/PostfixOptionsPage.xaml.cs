@@ -40,7 +40,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       }
     }
 
-    private void SpacebarCheck(object sender, KeyEventArgs e)
+    private void SpaceBarCheck(object sender, KeyEventArgs e)
     {
       if (e.Key != Key.Space) return;
 

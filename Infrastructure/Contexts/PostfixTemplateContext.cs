@@ -32,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       // build expression contexts
       var contexts = new List<PrefixExpressionContext>();
       var endOffset = ToDocumentRange(reference).TextRange.EndOffset;
-      var prevStartOffset = -1;
+      var previousStartOffset = -1;
 
       for (ITreeNode node = myInnerExpression; node != null; node = node.Parent)
       {
@@ -47,10 +47,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
           break; // stop when out of generated
         if (expressionRange.TextRange.EndOffset > endOffset)
           break; // stop when 'a.var + b'
-        if (expressionRange.TextRange.StartOffset == prevStartOffset)
+        if (expressionRange.TextRange.StartOffset == previousStartOffset)
           break; // track start offset is changes when we are going up
 
-        prevStartOffset = expressionRange.TextRange.StartOffset;
+        previousStartOffset = expressionRange.TextRange.StartOffset;
 
         // skip relational expressions like this: 'List<int.{here}>'
         if (CommonUtils.IsRelationalExpressionWithTypeOperand(expression))

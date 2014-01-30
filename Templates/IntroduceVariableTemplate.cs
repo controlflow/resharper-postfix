@@ -53,7 +53,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           if (context.IsAutoCompletion)
           {
-            if (TypeUtils.IsInstantiable(referencedType, expressionContext.Expression) == 0) break;
+            if (TypeUtils.CanInstantiateType(referencedType, expressionContext.Expression) == 0) break;
             if (!TypeUtils.IsUsefulToCreateWithNew(referencedType.GetTypeElement())) break;
           }
 
@@ -64,7 +64,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         contexts.Add(expressionContext);
       }
 
-      var bestContext = contexts.FirstOrDefault(ctx => ctx.CanBeStatement) ??
+      var bestContext = contexts.FirstOrDefault(c => c.CanBeStatement) ??
                         contexts.LastOrDefault(); // most outer expression
       if (bestContext == null) return null;
 
@@ -145,8 +145,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myReferencedType = referencedType;
         myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
 
-        var instantiable = TypeUtils.IsInstantiable(referencedType, context.Expression);
-        myHasParameters = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+        var canInstantiate = TypeUtils.CanInstantiateType(referencedType, context.Expression);
+        myHasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
       }
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory,
@@ -209,7 +209,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         .AddRule(actionId, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl);
 
       var settingsStore = expression.GetSettingsStore();
-      var multipleOccurences = settingsStore.GetValue(PostfixSettingsAccessor.SearchVarOccurences);
+      var multipleOccurrences = settingsStore.GetValue(PostfixSettingsAccessor.SearchVarOccurrences);
 
       var definition = Lifetimes.Define(EternalLifetime.Instance, actionId);
       try // note: uber ugly code down here
@@ -218,7 +218,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var dataContext = dataContexts.CreateWithDataRules(definition.Lifetime, rules);
 
         #pragma warning disable 618
-        if (multipleOccurences && !Shell.Instance.IsTestShell)
+        if (multipleOccurrences && !Shell.Instance.IsTestShell)
         #pragma warning restore 618
         {
           var introduceAction = new IntroVariableAction();

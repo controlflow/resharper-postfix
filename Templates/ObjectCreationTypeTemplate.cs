@@ -33,10 +33,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         if (!TypeUtils.IsUsefulToCreateWithNew(typeElement)) return null;
       }
 
-      var instantiable = TypeUtils.IsInstantiable(typeElement, typeExpression.Expression);
-      if (instantiable != TypeInstantiability.NotInstantiable)
+      var canInstantiate = TypeUtils.CanInstantiateType(typeElement, typeExpression.Expression);
+      if (canInstantiate != CanInstantiate.No)
       {
-        var hasParameters = (instantiable & TypeInstantiability.CtorWithParameters) != 0;
+        var hasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
         return new NewTypeItem(typeExpression, hasParameters);
       }
 
@@ -64,8 +64,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
             var typeElement = declaredElement as ITypeElement;
             if (typeElement != null && TypeUtils.IsUsefulToCreateWithNew(typeElement))
             {
-              var instantiable = TypeUtils.IsInstantiable(typeElement, reference);
-              if (instantiable != TypeInstantiability.NotInstantiable)
+              var canInstantiate = TypeUtils.CanInstantiateType(typeElement, reference);
+              if (canInstantiate != CanInstantiate.No)
                 return new NewExpressionItem(expressionContext);
             }
           }

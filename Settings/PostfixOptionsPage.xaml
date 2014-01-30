@@ -29,7 +29,7 @@
         <tgv:TreeGridView.RowStyle>
           <Style TargetType="tgv:TreeGridRow">
             <EventSetter Event="MouseDoubleClick" Handler="DoubleClickCheck" />
-            <EventSetter Event="PreviewKeyDown" Handler="SpacebarCheck" />
+            <EventSetter Event="PreviewKeyDown" Handler="SpaceBarCheck" />
           </Style>
         </tgv:TreeGridView.RowStyle>
         <tgv:TreeGridView.CellStyle>
@@ -108,7 +108,7 @@
       <StackPanel Grid.Row="1" Grid.Column="1">
         <CheckBox IsChecked="{Binding UseBracesForStatements.Value, Mode=TwoWay}"
                   Content="Put braces after statement templates"/>
-        <CheckBox IsChecked="{Binding SearchVarOccurences.Value, Mode=TwoWay}">
+        <CheckBox IsChecked="{Binding SearchVarOccurrences.Value, Mode=TwoWay}">
           <TextBlock>Search occurences in <Run FontWeight="SemiBold" Text=".var" /> template</TextBlock>
         </CheckBox>
         <CheckBox IsChecked="{Binding InvokeParameterInfo.Value, Mode=TwoWay}"

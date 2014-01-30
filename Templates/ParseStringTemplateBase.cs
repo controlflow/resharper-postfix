@@ -71,7 +71,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           solution, argumentsRange.EndOffsetRange().TextRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
-        // paranthesis marker for parameter info
+        // parentheses marker for parameter info
         var marker = expression.LPar.GetDocumentRange()
           .SetEndTo(expression.RPar.GetDocumentRange().TextRange.EndOffset)
           .CreateRangeMarker();

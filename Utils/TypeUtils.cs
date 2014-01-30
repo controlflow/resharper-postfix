@@ -9,7 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public static class TypeUtils
   {
-    public static TypeInstantiability IsInstantiable([NotNull] IType type, [NotNull] ITreeNode expression)
+    public static CanInstantiate CanInstantiateType([NotNull] IType type, [NotNull] ITreeNode expression)
     {
       var declaredType = type as IDeclaredType;
       if (declaredType != null)
@@ -17,43 +17,43 @@ namespace JetBrains.ReSharper.PostfixTemplates
         var typeElement = declaredType.GetTypeElement();
         if (typeElement != null)
         {
-          return IsInstantiable(typeElement, expression);
+          return CanInstantiateType(typeElement, expression);
         }
       }
 
-      return TypeInstantiability.NotInstantiable;
+      return CanInstantiate.No;
     }
 
-    public static TypeInstantiability IsInstantiable([NotNull] ITypeElement typeElement,
-                                                     [NotNull] ITreeNode expression)
+    public static CanInstantiate CanInstantiateType([NotNull] ITypeElement typeElement,
+                                                    [NotNull] ITreeNode expression)
     {
       if (typeElement is IStruct || typeElement is IEnum || typeElement is IClass)
       {
         // filter out abstract classes
         var classType = typeElement as IClass;
         if (classType != null && classType.IsAbstract)
-          return TypeInstantiability.NotInstantiable;
+          return CanInstantiate.No;
 
-        // check type has any constructor accessable
+        // check type has any constructor accessible
         var accessContext = new ElementAccessContext(expression);
+        var canInstantiate = CanInstantiate.No;
 
-        var instantiability = TypeInstantiability.NotInstantiable;
         foreach (var constructor in typeElement.Constructors)
         {
           if (constructor.IsStatic) continue;
           if (AccessUtil.IsSymbolAccessible(constructor, accessContext))
           {
             var parametersCount = constructor.Parameters.Count;
-            instantiability |= (parametersCount == 0)
-              ? TypeInstantiability.DefaultCtor
-              : TypeInstantiability.CtorWithParameters;
+            canInstantiate |= (parametersCount == 0)
+              ? CanInstantiate.DefaultConstructor
+              : CanInstantiate.ConstructorWithParameters;
           }
         }
 
-        return instantiability;
+        return canInstantiate;
       }
 
-      return TypeInstantiability.NotInstantiable;
+      return CanInstantiate.No;
     }
 
     public static bool IsUsefulToCreateWithNew([CanBeNull] ITypeElement typeElement)
@@ -69,10 +69,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
   }
 
   [Flags]
-  public enum TypeInstantiability
+  public enum CanInstantiate
   {
-    NotInstantiable,
-    DefaultCtor,
-    CtorWithParameters
+    No,
+    DefaultConstructor,
+    ConstructorWithParameters
   }
 }

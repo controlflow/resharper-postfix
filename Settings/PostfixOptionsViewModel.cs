@@ -29,7 +29,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       ShowLengthCountItems = new Property<bool>(lifetime, "ShowLengthCountItems");
       UseBracesForStatements = new Property<bool>(lifetime, "UseBracesForStatements");
       InvokeParameterInfo = new Property<bool>(lifetime, "InvokeParameterInfo");
-      SearchVarOccurences = new Property<bool>(lifetime, "SearchVarOccurences");
+      SearchVarOccurrences = new Property<bool>(lifetime, "SearchVarOccurrences");
 
       Reset = new DelegateCommand(ResetExecute);
 
@@ -39,7 +39,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       settings.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForStatements);
       settings.SetBinding(lifetime, PostfixSettingsAccessor.InvokeParameterInfo, InvokeParameterInfo);
       settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowLengthCountItems, ShowLengthCountItems);
-      settings.SetBinding(lifetime, PostfixSettingsAccessor.SearchVarOccurences, SearchVarOccurences);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.SearchVarOccurrences, SearchVarOccurrences);
 
       FillTemplates();
     }
@@ -52,7 +52,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     [NotNull] public IProperty<bool> ShowLengthCountItems { get; private set; }
     [NotNull] public IProperty<bool> UseBracesForStatements { get; private set; }
     [NotNull] public IProperty<bool> InvokeParameterInfo { get; private set; }
-    [NotNull] public IProperty<bool> SearchVarOccurences { get; private set; }
+    [NotNull] public IProperty<bool> SearchVarOccurrences { get; private set; }
 
     [NotNull] public ICommand Reset { get; private set; }
 

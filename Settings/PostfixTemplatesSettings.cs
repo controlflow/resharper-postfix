@@ -31,8 +31,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     [SettingsEntry(true, "Invoke parameter info from templates")]
     public bool InvokeParameterInfoFromTemplates;
 
-    [SettingsEntry(true, "Search for occurences in .var template")]
-    public bool SearchOccurencesFromIntroduceVarTemplates;
+    [SettingsEntry(true, "Search for occurrences in .var template")]
+    public bool SearchOccurrencesFromIntroduceVarTemplates;
   }
 
   public static class PostfixSettingsAccessor
@@ -46,6 +46,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       ShowLengthCountItems = x => x.ShowLengthCountItemsInCodeCompletion,
       BracesForStatements = x => x.UseBracesForEmbeddedStatements,
       InvokeParameterInfo = x => x.InvokeParameterInfoFromTemplates,
-      SearchVarOccurences = x => x.SearchOccurencesFromIntroduceVarTemplates;
+      SearchVarOccurrences = x => x.SearchOccurrencesFromIntroduceVarTemplates;
   }
 }
