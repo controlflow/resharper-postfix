@@ -103,11 +103,14 @@
         </CheckBox>
       </StackPanel>
 
-      <TextBlock Grid.Row="0" Grid.Column="1" Margin="2,4"
-                 Text="Other options:" FontWeight="SemiBold" />
+      <TextBlock Grid.Row="0" Grid.Column="1" Margin="2,4" Text="Other options:" FontWeight="SemiBold" />
+
       <StackPanel Grid.Row="1" Grid.Column="1">
         <CheckBox IsChecked="{Binding UseBracesForStatements.Value, Mode=TwoWay}"
                   Content="Put braces after statement templates"/>
+        <CheckBox IsChecked="{Binding SearchVarOccurences.Value, Mode=TwoWay}">
+          <TextBlock>Search occurences in <Run FontWeight="SemiBold" Text=".var" /> template</TextBlock>
+        </CheckBox>
         <CheckBox IsChecked="{Binding InvokeParameterInfo.Value, Mode=TwoWay}"
                   Content="Invoke parameter info from templates" />
       </StackPanel>

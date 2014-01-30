@@ -22,12 +22,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       mySettingsStore = settings;
       myTemplatesManager = templatesManager;
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
+
       ShowPostfixTemplates = new Property<bool>(lifetime, "ShowPostfixTemplates");
       ShowStaticMembers = new Property<bool>(lifetime, "ShowStaticMembers");
       ShowEnumHelpers = new Property<bool>(lifetime, "ShowEnumHelpers");
       ShowLengthCountItems = new Property<bool>(lifetime, "ShowLengthCountItems");
       UseBracesForStatements = new Property<bool>(lifetime, "UseBracesForStatements");
       InvokeParameterInfo = new Property<bool>(lifetime, "InvokeParameterInfo");
+      SearchVarOccurences = new Property<bool>(lifetime, "SearchVarOccurences");
+
       Reset = new DelegateCommand(ResetExecute);
 
       settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowPostfixItems, ShowPostfixTemplates);
@@ -36,17 +39,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       settings.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForStatements);
       settings.SetBinding(lifetime, PostfixSettingsAccessor.InvokeParameterInfo, InvokeParameterInfo);
       settings.SetBinding(lifetime, PostfixSettingsAccessor.ShowLengthCountItems, ShowLengthCountItems);
+      settings.SetBinding(lifetime, PostfixSettingsAccessor.SearchVarOccurences, SearchVarOccurences);
 
       FillTemplates();
     }
 
     [NotNull] public ObservableCollection<PostfixTemplateViewModel> Templates { get; private set; }
+
     [NotNull] public IProperty<bool> ShowPostfixTemplates { get; private set; }
     [NotNull] public IProperty<bool> ShowStaticMembers { get; private set; }
     [NotNull] public IProperty<bool> ShowEnumHelpers { get; private set; }
     [NotNull] public IProperty<bool> ShowLengthCountItems { get; private set; }
     [NotNull] public IProperty<bool> UseBracesForStatements { get; private set; }
     [NotNull] public IProperty<bool> InvokeParameterInfo { get; private set; }
+    [NotNull] public IProperty<bool> SearchVarOccurences { get; private set; }
+
     [NotNull] public ICommand Reset { get; private set; }
 
     private void FillTemplates()

@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.Application.Settings.Store;
+using JetBrains.ReSharper.Refactorings.WorkflowNew;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
@@ -29,6 +30,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
     [SettingsEntry(true, "Invoke parameter info from templates")]
     public bool InvokeParameterInfoFromTemplates;
+
+    [SettingsEntry(true, "Search for occurences in .var template")]
+    public bool SearchOccurencesFromIntroduceVarTemplates;
   }
 
   public static class PostfixSettingsAccessor
@@ -41,6 +45,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       ShowEnumHelpers = x => x.ShowEnumHelpersInCodeCompletion,
       ShowLengthCountItems = x => x.ShowLengthCountItemsInCodeCompletion,
       BracesForStatements = x => x.UseBracesForEmbeddedStatements,
-      InvokeParameterInfo = x => x.InvokeParameterInfoFromTemplates;
+      InvokeParameterInfo = x => x.InvokeParameterInfoFromTemplates,
+      SearchVarOccurences = x => x.SearchOccurencesFromIntroduceVarTemplates;
   }
 }

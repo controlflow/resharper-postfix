@@ -11,9 +11,6 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // todo: array creation (too hard to impl for now)
-  // todo: nullable types creation? (what for?)
-
   [PostfixTemplate(
     templateName: "new",
     description: "Produces instantiation expression for type",
@@ -24,7 +21,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       var typeExpression = context.TypeExpression;
       if (typeExpression == null)
+      {
         return CreateExpressionItem(context);
+      }
 
       var typeElement = typeExpression.ReferencedElement as ITypeElement;
       if (typeElement == null) return null;
@@ -58,21 +57,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var reference = invocationExpression.InvokedExpression as IReferenceExpression;
         if (reference != null)
         {
-          var element = reference.Reference.Resolve().DeclaredElement;
+          var declaredElement = reference.Reference.Resolve().DeclaredElement;
 
           if (context.IsAutoCompletion)
           {
-            var typeElement = element as ITypeElement;
-            if (typeElement != null)
+            var typeElement = declaredElement as ITypeElement;
+            if (typeElement != null && TypeUtils.IsUsefulToCreateWithNew(typeElement))
             {
-              if (!TypeUtils.IsUsefulToCreateWithNew(typeElement)) return null;
-
               var instantiable = TypeUtils.IsInstantiable(typeElement, reference);
               if (instantiable != TypeInstantiability.NotInstantiable)
                 return new NewExpressionItem(expressionContext);
             }
           }
-          else if (element == null || element is ITypeElement)
+          else if (declaredElement == null || declaredElement is ITypeElement)
           {
             if (IsReferenceExpressionsChain(reference))
               return new NewExpressionItem(expressionContext);
@@ -84,10 +81,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var reference = expression as IReferenceExpression;
         if (reference != null && !context.IsAutoCompletion && IsReferenceExpressionsChain(reference))
         {
-          var element = reference.Reference.Resolve().DeclaredElement;
-          if (element != null && !(element is ITypeElement)) return null;
-
-          return new NewTypeItem(expressionContext, hasParameters: true);
+          var declaredElement = reference.Reference.Resolve().DeclaredElement;
+          if (declaredElement == null || declaredElement is ITypeElement)
+            return new NewTypeItem(expressionContext, hasParameters: true);
         }
       }
 

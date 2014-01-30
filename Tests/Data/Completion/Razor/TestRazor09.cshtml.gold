@@ -12,9 +12,9 @@
   <div>
     
     @{
-      var model = Model;{caret}
+      var model = Model;
     }
-    @model.Value
+    @model{caret}.Value
   </div>
 </body>
 </html>

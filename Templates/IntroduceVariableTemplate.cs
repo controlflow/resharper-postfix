@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.ActionManagement;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.DataContext;
-using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
@@ -15,20 +15,16 @@ using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Resolve;
-using JetBrains.ReSharper.Psi.Search;
+using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
+using JetBrains.ReSharper.Refactorings.IntroduceVariable.Impl;
 using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
 using JetBrains.Util.EventBus;
 
-// todo: unwrap expression from parenthesis?
-
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  using AfterAction = Action<ITextControl, ISolution, RefactoringDetailsArgs>;
-
   [PostfixTemplate(
     templateName: "var",
     description: "Introduces variable for expression",
@@ -99,29 +95,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)
       {
-        ExecuteRefactoring(textControl, expression,
-          (control, solution, args) =>
+        var expressionRange = expression.GetDocumentRange();
+        var expressionMarker = expressionRange.CreateRangeMarker();
+        var solution = expression.GetSolution();
+
+        ExecuteRefactoring(textControl, expression, () =>
+        {
+          var referenceRange = expressionMarker.Range;
+          if (!referenceRange.IsValid) return;
+
+          var reference = TextControlToPsi.GetElement<IReferenceExpression>(
+            solution, textControl.Document, referenceRange.EndOffset);
+
+          if (reference != null && reference.QualifierExpression == null)
           {
-            var localVariable = args.Properties["result"] as ILocalVariable;
-            if (localVariable == null) return;
-
-            var declaration = localVariable.GetDeclarations().FirstOrDefault();
-            if (declaration == null) return;
-
-            var scope = declaration.GetContainingNode<IBlock>();
-            if (scope == null) return;
-
-            var factory = solution.GetComponent<SearchDomainFactory>();
-            var searchDomain = factory.CreateSearchDomain(scope);
-            var references = solution.GetPsiServices().Finder.FindReferences(
-              localVariable, searchDomain, NullProgressIndicator.Instance);
-
-            if (references.Length == 1)
-            {
-              var endOffset = references[0].GetDocumentRange().TextRange.EndOffset;
-              textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
-            }
-          });
+            var endOffset = reference.GetDocumentRange().TextRange.EndOffset;
+            textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+          }
+        });
       }
     }
 
@@ -170,21 +161,27 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           var lparRange = expression.LPar.GetDocumentRange();
           var rparRange = expression.RPar.GetDocumentRange();
-          var rangeMarker = lparRange.SetEndTo(rparRange.TextRange.EndOffset).CreateRangeMarker();
+
+          var documentRange = lparRange.SetEndTo(rparRange.TextRange.EndOffset);
+          var argumentsMarker = documentRange.CreateRangeMarker();
 
           var settingsStore = expression.GetSettingsStore();
           var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+          var solution = expression.GetSolution();
 
-          ExecuteRefactoring(textControl, expression, (control, solution, _) =>
+          ExecuteRefactoring(textControl, expression, () =>
           {
-            if (!rangeMarker.IsValid) return;
+            var argumentsRange = argumentsMarker.Range;
+            if (!argumentsRange.IsValid) return;
 
-            var range = rangeMarker.Range;
-            var offset = range.StartOffset + range.Length / 2;
-            control.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+            var offset = argumentsRange.StartOffset + argumentsRange.Length / 2;
+            textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
 
-            if (!invokeParameterInfo) return;
-            LookupUtil.ShowParameterInfo(solution, control, range, null, myLookupItemsOwner);
+            if (invokeParameterInfo)
+            {
+              LookupUtil.ShowParameterInfo(
+                solution, textControl, argumentsRange, null, myLookupItemsOwner);
+            }
           });
         }
         else
@@ -196,54 +193,72 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private static void ExecuteRefactoring([NotNull] ITextControl textControl,
                                            [NotNull] ICSharpExpression expression,
-                                           [CanBeNull] AfterAction executeAfter = null)
+                                           [CanBeNull] Action executeAfter = null)
     {
-      const string name = "IntroVariableAction";
+      const string actionId = IntroVariableAction.ACTION_ID;
+
       var solution = expression.GetSolution();
+      var document = textControl.Document;
+
+      var expressionRange = expression.GetDocumentRange().TextRange;
+      textControl.Selection.SetRange(expressionRange);
+
       var rules = DataRules
-        .AddRule(name, ProjectModel.DataContext.DataConstants.SOLUTION, solution)
-        .AddRule(name, DocumentModel.DataContext.DataConstants.DOCUMENT, textControl.Document)
-        .AddRule(name, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl)
-        .AddRule(name, Psi.Services.DataConstants.SELECTED_EXPRESSION, expression);
+        .AddRule(actionId, ProjectModel.DataContext.DataConstants.SOLUTION, solution)
+        .AddRule(actionId, DocumentModel.DataContext.DataConstants.DOCUMENT, document)
+        .AddRule(actionId, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl);
 
-      Lifetimes.Using(lifetime =>
+      var settingsStore = expression.GetSettingsStore();
+      var multipleOccurences = settingsStore.GetValue(PostfixSettingsAccessor.SearchVarOccurences);
+
+      var definition = Lifetimes.Define(EternalLifetime.Instance, actionId);
+      try // note: uber ugly code down here
       {
-        var workflow = new IntroduceVariableWorkflow(solution, null);
+        var dataContexts = solution.GetComponent<DataContexts>();
+        var dataContext = dataContexts.CreateWithDataRules(definition.Lifetime, rules);
 
-        // OMFG so ugly way to execute something after 'introduce variable' hotspots :(((
-        if (executeAfter != null)
+        #pragma warning disable 618
+        if (multipleOccurences && !Shell.Instance.IsTestShell)
+        #pragma warning restore 618
         {
-          var refactoringId = RefactoringId.FromWorkflow(workflow);
-          var definition = Lifetimes.Define(EternalLifetime.Instance, name);
-
-          workflow.EventBus = workflow.EventBus ?? Shell.Instance.GetComponent<IEventBus>();
-
-          RefactoringDetailsArgs details = null;
-
-          // todo: drop diz!
-          workflow.EventBus
-            .Event(RefactoringEvents.RefactoringDetails)
-            .Subscribe(definition.Lifetime, args => details = args);
-
-          workflow.EventBus
-            .Event(RefactoringEvents.RefactoringFinished)
-            .Subscribe(definition.Lifetime, id =>
-            {
-              try
-              {
-                if (id.Equals(refactoringId))
-                  executeAfter(textControl, solution, details);
-              }
-              finally
-              {
-                definition.Terminate();
-              }
-            });
+          var introduceAction = new IntroVariableAction();
+          if (introduceAction.Update(dataContext, new ActionPresentation(), () => false))
+          {
+            introduceAction.Execute(dataContext, delegate { });
+          }
+        }
+        else
+        {
+          var workflow = new IntroduceVariableWorkflow(solution, actionId);
+          WorkflowExecuter.ExecuteBatch(dataContext, workflow);
         }
 
-        var dataContexts = solution.GetComponent<DataContexts>();
-        WorkflowExecuter.ExecuteBatch(
-          dataContexts.CreateWithDataRules(lifetime, rules), workflow);
+        if (executeAfter != null) SubscribeAfterExecute(executeAfter);
+      }
+      finally
+      {
+        definition.Terminate();
+      }
+    }
+
+    private static void SubscribeAfterExecute([NotNull] Action action)
+    {
+      // the only way to listen refactoring finish event is IEventBus
+      var eventBus = Shell.Instance.GetComponent<IEventBus>();
+      var finished = eventBus.Event(RefactoringEvents.RefactoringFinished);
+      var definition = Lifetimes.Define(EternalLifetime.Instance, IntroVariableAction.ACTION_ID);
+
+      finished.Subscribe(definition.Lifetime, id =>
+      {
+        try
+        {
+          if (id.Title == "Introduce Variable") // :((
+            action();
+        }
+        finally
+        {
+          definition.Terminate();
+        }
       });
     }
   }

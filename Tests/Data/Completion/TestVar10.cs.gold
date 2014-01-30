@@ -1,0 +1,14 @@
+﻿// ${COMPLETE_ITEM:var}
+
+using System;
+using System.Linq;
+
+class Program
+{
+  static void Main(string[] args)
+  {
+    var ts = from x in args
+      let x1{caret} = x
+      select x1 + 1;
+  }
+}
