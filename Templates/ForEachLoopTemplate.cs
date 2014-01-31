@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
@@ -64,6 +65,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public ForEachItem([NotNull] PrefixExpressionContext context) : base("forEach", context)
       {
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
+      }
+
+      public override MatchingResult Match(string prefix, ITextControl textControl)
+      {
+        if (string.Equals(prefix, "for", StringComparison.OrdinalIgnoreCase))
+          prefix = "forEach";
+
+        return base.Match(prefix, textControl);
       }
 
       protected override IForeachStatement CreateStatement(CSharpElementFactory factory,

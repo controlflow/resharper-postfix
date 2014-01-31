@@ -41,7 +41,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       myLifetime = postfixContext.ExecutionContext.Lifetime;
     }
 
-    public MatchingResult Match(string prefix, ITextControl textControl)
+    public virtual MatchingResult Match(string prefix, ITextControl textControl)
     {
       return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
     }
