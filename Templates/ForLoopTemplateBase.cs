@@ -1,13 +1,14 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
+using JetBrains.ReSharper.Psi.Naming.Extentions;
+using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
@@ -56,7 +57,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         }
         else
         {
-          if (!expressionContext.Type.IsInt()) return false;
+          if (!expressionContext.Type.IsPredefinedIntegralNumeric()) return false;
         }
       }
 
@@ -85,7 +86,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override void AfterComplete(ITextControl textControl, IForStatement statement)
       {
-        // todo: generate variable names
+        var variableNames = SuggestIteratorVariableNames(statement);
 
         var newStatement = PutStatementCaret(textControl, statement);
         if (newStatement == null) return;
@@ -94,9 +95,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var variable = (ILocalVariableDeclaration) newStatement.Initializer.Declaration.Declarators[0];
         var iterator = (IPostfixOperatorExpression) newStatement.Iterators.Expressions[0];
 
-        var suggestVariableName = new MacroCallExpressionNew(new SuggestVariableNameMacroDef());
         var variableNameInfo = new HotspotInfo(
-          new TemplateField("name", suggestVariableName, 0),
+          new TemplateField("name", new NameSuggestionsExpression(variableNames), 0),
           variable.NameIdentifier.GetDocumentRange(),
           condition.LeftOperand.GetDocumentRange(),
           iterator.Operand.GetDocumentRange());
@@ -107,6 +107,34 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, variableNameInfo);
 
         session.Execute();
+      }
+
+      [NotNull]
+      private static IList<string> SuggestIteratorVariableNames([NotNull] IForStatement statement)
+      {
+        var declarationMember = statement.Initializer.Declaration.Declarators[0];
+        var iteratorDeclaration = (ILocalVariableDeclaration) declarationMember;
+        var namingManager = statement.GetPsiServices().Naming;
+
+        var policyProvider = namingManager.Policy.GetPolicyProvider(
+          iteratorDeclaration.Language, iteratorDeclaration.GetSourceFile());
+
+        var collection = namingManager.Suggestion.CreateEmptyCollection(
+          PluralityKinds.Single, iteratorDeclaration.Language, true, policyProvider);
+
+        var variableType = iteratorDeclaration.DeclaredElement.Type;
+        if (variableType.IsResolved)
+        {
+          collection.Add(variableType, new EntryOptions {
+            PluralityKind = PluralityKinds.Single,
+            SubrootPolicy = SubrootPolicy.Decompose
+          });
+        }
+
+        collection.Prepare(iteratorDeclaration.DeclaredElement,
+          new SuggestionOptions { UniqueNameContext = statement, DefaultName = "i" });
+
+        return collection.AllNames();
       }
     }
   }

@@ -36,16 +36,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected override IForStatement CreateStatement(CSharpElementFactory factory,
                                                        ICSharpExpression expression)
       {
-        var template = "for(var x=$0;x>=0;x--)" + EmbeddedStatementBracesTemplate;
-        var forStatement = (IForStatement) factory.CreateStatement(template, expression);
+        var hasLength = (LengthName != null);
+        var template = hasLength ? "for(var x=$0;x>=0;x--)" : "for(var x=$0;x>0;x--)";
+        var forStatement = (IForStatement) factory.CreateStatement(
+          template + EmbeddedStatementBracesTemplate, expression);
 
         var variable = (ILocalVariableDeclaration) forStatement.Initializer.Declaration.Declarators[0];
         var initializer = (IExpressionInitializer) variable.Initial;
 
-        if (LengthName == null)
+        if (!hasLength)
         {
           var value = initializer.Value.ReplaceBy(expression);
-          value.ReplaceBy(factory.CreateExpression("$0 - 1", value));
+          value.ReplaceBy(value);
         }
         else
         {

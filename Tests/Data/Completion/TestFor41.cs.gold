@@ -1,0 +1,8 @@
+﻿// ${COMPLETE_ITEM:forr}
+public class Foo {
+  public void Bar(short x)
+  {
+    for (var i = x; i > 0; i--) {caret}
+    for (var i = x; i > x; i--)
+  }
+}
