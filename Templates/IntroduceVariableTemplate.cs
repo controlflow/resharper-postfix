@@ -64,11 +64,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         contexts.Add(expressionContext);
       }
 
-      var bestContext = contexts.FirstOrDefault(c => c.CanBeStatement) ??
-                        contexts.LastOrDefault(); // most outer expression
+      var bestContext = contexts.FirstOrDefault(Matters) ?? contexts.LastOrDefault();
       if (bestContext == null) return null;
 
-      if (bestContext.CanBeStatement || !context.IsAutoCompletion)
+      if (Matters(bestContext) || !context.IsAutoCompletion)
       {
         var referencedType = bestContext.ReferencedType;
         if (referencedType != null)
@@ -81,6 +80,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
 
       return null;
+    }
+
+    private static bool Matters([NotNull] PrefixExpressionContext context)
+    {
+      if (context.CanBeStatement) return true;
+
+      // return SomeLong().var.Expression;
+      var parentReference = ReferenceExpressionNavigator.GetByQualifierExpression(context.Expression);
+      if (parentReference == context.PostfixContext.Reference)
+      {
+        var outerReference = ReferenceExpressionNavigator.GetByQualifierExpression(parentReference);
+        if (outerReference != null) return true;
+      }
+
+      // what about F(arg.var)?
+
+      return false;
     }
 
     private sealed class VarExpressionItem : ExpressionPostfixLookupItem<ICSharpExpression>

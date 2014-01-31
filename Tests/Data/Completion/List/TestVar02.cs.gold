@@ -1,0 +1,44 @@
+﻿+ ToString
+Append
+AppendFormat
+AppendLine
+Capacity
+Clear
+CopyTo
+Count
+EnsureCapacity
+Equals
+GetHashCode
+GetType
+Insert
+Length
+MaxCapacity
+Remove
+Replace
+[]
+arg
+await
+cast
+not
+par
+var
+# AUTOMATIC #
++ ToString
+Append
+AppendFormat
+AppendLine
+Capacity
+Clear
+CopyTo
+Count
+EnsureCapacity
+Equals
+GetHashCode
+GetType
+Insert
+Length
+MaxCapacity
+Remove
+Replace
+[]
+var
