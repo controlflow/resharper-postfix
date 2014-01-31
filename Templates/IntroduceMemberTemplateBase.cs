@@ -17,8 +17,6 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // todo: naming do not works
-
   public abstract class IntroduceMemberTemplateBase : IPostfixTemplate
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
@@ -80,29 +78,37 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
                                                               ICSharpExpression expression)
       {
         var statement = (IExpressionStatement) factory.CreateStatement("__ = expression;");
-
-        var classDeclaration = expression.GetContainingNode<IClassDeclaration>().NotNull();
-        var anchor = GetAnchorMember(classDeclaration.MemberDeclarations.ToList());
-
         var newDeclaration = CreateMemberDeclaration(factory);
-        var newMember = classDeclaration.AddClassMemberDeclarationAfter(
-          newDeclaration, (IClassMemberDeclaration) anchor);
-
         var assignment = (IAssignmentExpression) statement.Expression;
         assignment.SetSource(expression);
 
         var suggestionManager = expression.GetPsiServices().Naming.Suggestion;
-        var collection = suggestionManager.CreateEmptyCollection(
-          PluralityKinds.Unknown, classDeclaration.Language, true, expression);
+        var classDeclaration = expression.GetContainingNode<IClassDeclaration>().NotNull();
 
-        collection.Add(assignment.Source, new EntryOptions());
-        collection.Prepare(newMember.DeclaredElement,
-          new SuggestionOptions { UniqueNameContext = classDeclaration.Body });
+        var suggestion = suggestionManager.CreateEmptyCollection(
+          PluralityKinds.Unknown, expression.Language, true, expression);
 
-        newMember.SetName(collection.FirstName());
-        myMemberNames = collection.AllNames();
+        suggestion.Add(expression, new EntryOptions {
+          SubrootPolicy = SubrootPolicy.Decompose,
+          PredefinedPrefixPolicy = PredefinedPrefixPolicy.Remove
+        });
+
+        suggestion.Add(ExpressionType, new EntryOptions {
+          SubrootPolicy = SubrootPolicy.Decompose,
+          PluralityKind = PluralityKinds.Unknown
+        });
+
+        suggestion.Prepare(newDeclaration.DeclaredElement,
+          new SuggestionOptions { UniqueNameContext = classDeclaration });
+
+        newDeclaration.SetName(suggestion.FirstName());
+        myMemberNames = suggestion.AllNames();
+
+        var memberAnchor = GetAnchorMember(classDeclaration.MemberDeclarations.ToList());
+        var newMember = classDeclaration.AddClassMemberDeclarationAfter(
+          newDeclaration, (IClassMemberDeclaration) memberAnchor);
+
         myMemberPointer = newMember.CreatePointer();
-
         return statement;
       }
 

@@ -3,11 +3,11 @@
 class Person
 {
   private string myName;
-  private string myName1;
+  private string myName;
 
   public Person(string name)
   {
     myName = name;
-    myName1 = name;{caret}
+    myName = name;{caret}
   }
 }
