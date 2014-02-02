@@ -78,6 +78,7 @@
     </Reference>
     <Reference Include="JetBrains.ReSharper.Feature.Services.Navigation">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Feature.Services.Navigation.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Features.Intellisense">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Features.Intellisense.dll</HintPath>
@@ -85,6 +86,7 @@
     </Reference>
     <Reference Include="JetBrains.ReSharper.NewRefactorings">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.NewRefactorings.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Psi">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Psi.dll</HintPath>
@@ -96,12 +98,15 @@
     </Reference>
     <Reference Include="JetBrains.ReSharper.Psi.Html">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Psi.Html.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Psi.Razor">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Psi.Razor.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Psi.Web">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Psi.Web.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Resources">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Resources.dll</HintPath>
