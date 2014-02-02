@@ -19,9 +19,13 @@ using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable.Impl;
-using JetBrains.ReSharper.Refactorings.WorkflowNew;
 using JetBrains.TextControl;
 using JetBrains.Util.EventBus;
+#if RESHARPER8
+using JetBrains.ReSharper.Refactorings.WorkflowNew;
+#elif RESHARPER9
+using JetBrains.ReSharper.Feature.Services.Refactorings;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {

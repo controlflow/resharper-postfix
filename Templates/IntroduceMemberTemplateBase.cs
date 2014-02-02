@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.I18n.Services.Refactoring;
 using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
@@ -82,7 +81,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var assignment = (IAssignmentExpression) statement.Expression;
         assignment.SetSource(expression);
 
-        var suggestionManager = expression.GetPsiServices().Naming.Suggestion;
+        var psiServices = expression.GetPsiServices();
+        var suggestionManager = psiServices.Naming.Suggestion;
         var classDeclaration = expression.GetContainingNode<IClassDeclaration>().NotNull();
 
         var suggestion = suggestionManager.CreateEmptyCollection(

@@ -188,5 +188,12 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       return reference.GetTreeNode() as IReferenceExpression;
     }
+
+    [NotNull]
+    public static ITreeNodePointer<T> CreatePointer<T>([NotNull] this T treeNode)
+      where T : class, ITreeNode
+    {
+      return treeNode.GetPsiServices().Pointers.CreateTreeElementPointer(treeNode);
+    }
   }
 }

@@ -9,12 +9,12 @@ using JetBrains.ReSharper.LiveTemplates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Naming.Extentions;
 using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
-using JetBrains.ReSharper.Psi.Xaml.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
