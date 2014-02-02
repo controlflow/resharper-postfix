@@ -87,10 +87,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           textControl.PutData(PostfixArgTemplateExpansion, null);
 
-          TextRange hotspotRange;
           using (ReadLockCookie.Create())
           {
-            hotspotRange = session.Hotspots[0].RangeMarker.Range;
+            var hotspotRange = session.Hotspots[0].RangeMarker.Range;
             if (!hotspotRange.IsValid) return;
 
             solution.GetPsiServices().CommitAllDocuments();
@@ -100,13 +99,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
             var endOffset = hotspotRange.EndOffset + length;
             textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
-          }
 
-          if (invokeParameterInfo)
-          {
-            var argumentsRange = TextRange.FromLength(hotspotRange.EndOffset, length + 1);
-            LookupUtil.ShowParameterInfo(
-              solution, textControl, argumentsRange, null, myLookupItemsOwner);
+            if (invokeParameterInfo)
+            {
+              var argumentsRange = TextRange.FromLength(hotspotRange.EndOffset, length + 1);
+              LookupUtil.ShowParameterInfo(
+                solution, textControl, argumentsRange, null, myLookupItemsOwner);
+            }
           }
         });
 

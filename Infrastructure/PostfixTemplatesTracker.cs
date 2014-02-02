@@ -15,6 +15,11 @@ using JetBrains.TextControl;
 using JetBrains.TextControl.Actions;
 using JetBrains.TextControl.Util;
 using JetBrains.Util;
+#if RESHARPER8
+using IExecutableAction = JetBrains.ActionManagement.IActionHandler;
+#elif RESHARPER9
+using IExecutableAction = JetBrains.UI.ActionsRevised.IExecutableAction;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
@@ -30,18 +35,26 @@ namespace JetBrains.ReSharper.PostfixTemplates
                                    [NotNull] TextControlChangeUnitFactory changeUnitFactory)
     {
       // override live templates expand action
+#if RESHARPER8
       var expandAction = manager.TryGetAction(TextControlActions.TAB_ACTION_ID) as IUpdatableAction;
+#elif RESHARPER9
+      var expandAction = manager.Defs.TryGetActionDefById(TextControlActions.TAB_ACTION_ID);
+#endif
       if (expandAction != null)
       {
         var postfixHandler = new ExpandPostfixTemplateHandler(
           lifetime, commandProcessor, lookupWindowManager,
           templatesManager, lookupItemsFactory, changeUnitFactory);
 
+#if RESHARPER8
         expandAction.AddHandler(lifetime, postfixHandler);
+#elif RESHARPER9
+        manager.Handlers.AddHandler(expandAction, postfixHandler);
+#endif
       }
     }
 
-    private sealed class ExpandPostfixTemplateHandler : IActionHandler
+    private sealed class ExpandPostfixTemplateHandler : IExecutableAction
     {
       [NotNull] private readonly Lifetime myLifetime;
       [NotNull] private readonly ICommandProcessor myCommandProcessor;
