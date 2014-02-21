@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.CommonControls;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
@@ -13,6 +15,7 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Text;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
+using JetBrains.UI.PopupMenu;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
 #if RESHARPER9
@@ -29,22 +32,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   {
     [NotNull] private readonly Lifetime myLifetime;
     [NotNull] private readonly string myShortcut, myIdentifier, myReparseString;
-    [NotNull] private readonly Type myExpressionType;
-    private readonly DocumentRange myExpressionRange;
-    private readonly int myContextIndex;
+    [NotNull] private readonly ExpressionContextImage[] myImages;
 
     protected PostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
+      : this(shortcut, new[] { context }) { }
+
+    protected PostfixLookupItem(
+      [NotNull] string shortcut, [NotNull] PrefixExpressionContext[] contexts)
     {
-      var postfixContext = context.PostfixContext;
+      Assertion.Assert(contexts.Length > 0, "contexts.Length > 0");
 
       myIdentifier = shortcut;
       myShortcut = shortcut.ToLowerInvariant();
-      myExpressionType = context.Expression.GetType();
-      myExpressionRange = context.ExpressionRange;
-      myContextIndex = postfixContext.Expressions.IndexOf(context);
-      myReparseString = postfixContext.ExecutionContext.ReparseString;
-      myLifetime = postfixContext.ExecutionContext.Lifetime;
+      myImages = Array.ConvertAll(contexts, x => new ExpressionContextImage(x));
+
+      var executionContext = contexts[0].PostfixContext.ExecutionContext;
+      myReparseString = executionContext.ReparseString;
+      myLifetime = executionContext.Lifetime;
     }
 
     public virtual MatchingResult Match(string prefix, ITextControl textControl)
@@ -93,47 +98,100 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       Assertion.AssertNotNull(postfixContext, "postfixContext != null");
 
-      var expressionContext = FindOriginalContext(postfixContext);
-      Assertion.AssertNotNull(expressionContext, "expressionContext != null");
+      var expressionContexts = FindOriginalContexts(postfixContext);
+      Assertion.AssertNotNull(expressionContexts.Count > 0, "expressionContexts.Count > 0");
 
-      TNode newNode;
-      using (WriteLockCookie.Create())
+      ChooseExpression(expressionContexts, expressionContext =>
       {
-        var fixedContext = postfixContext.FixExpression(expressionContext);
+        TNode newNode;
+        using (WriteLockCookie.Create())
+        {
+          var fixedContext = postfixContext.FixExpression(expressionContext);
 
-        var expression = fixedContext.Expression;
-        Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
+          var expression = fixedContext.Expression;
+          Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
 
-        newNode = ExpandPostfix(fixedContext);
-        Assertion.AssertNotNull(newNode, "newNode != null");
-        Assertion.Assert(newNode.IsPhysical(), "newNode.IsPhysical()");
-      }
+          newNode = ExpandPostfix(fixedContext);
+          Assertion.AssertNotNull(newNode, "newNode != null");
+          Assertion.Assert(newNode.IsPhysical(), "newNode.IsPhysical()");
+        }
 
-      AfterComplete(textControl, newNode);
+        AfterComplete(textControl, newNode);
+      });
     }
 
     protected abstract TNode ExpandPostfix([NotNull] PrefixExpressionContext context);
     protected virtual void AfterComplete([NotNull] ITextControl textControl, [NotNull] TNode node) { }
 
-    [CanBeNull]
-    private PrefixExpressionContext FindOriginalContext([NotNull] PostfixTemplateContext context)
+    [NotNull]
+    private IList<PrefixExpressionContext> FindOriginalContexts([NotNull] PostfixTemplateContext context)
     {
-      var startOffset = myExpressionRange.TextRange.StartOffset;
+      var results = new LocalList<PrefixExpressionContext>();
+      var images = myImages;
+
       foreach (var expressionContext in context.ExpressionsOrTypes)
       {
-        if (expressionContext.Expression.GetType() == myExpressionType &&
-            expressionContext.ExpressionRange.TextRange.StartOffset == startOffset)
+        for (var index = 0; index < images.Length; index++)
         {
-          return expressionContext;
+          var image = images[index];
+          if (image != null && image.MatchesByRangeAndType(expressionContext))
+          {
+            results.Add(expressionContext);
+            images[index] = null;
+          }
         }
       }
 
-      if (context.Expressions.Count < myContextIndex)
+      if (results.Count <= 0)
       {
-        return context.Expressions[myContextIndex];
+        var expressions = context.Expressions;
+        foreach (var image in myImages)
+        {
+          if (image.ContextIndex < expressions.Count)
+          {
+            results.Add(expressions[image.ContextIndex]);
+          }
+        }
       }
 
-      return null;
+      return results.ResultingList();
+    }
+
+    private static void ChooseExpression(
+      [NotNull] IList<PrefixExpressionContext> expressions,
+      [NotNull] Action<PrefixExpressionContext> continuation)
+    {
+      if (expressions.Count > 0)
+      {
+        var menu = Shell.Instance.GetComponent<JetPopupMenus>().Create();
+        //Shell.Instance.GetComponent<>()
+
+        menu.Caption.Value = WindowlessControl.Create("Select target expression");
+
+        var items = new LocalList<SimpleMenuItem>(expressions.Count);
+        foreach (var context in expressions)
+        {
+          var text = context.Expression.GetText();
+          text = text.ReplaceNewLines(string.Empty);
+
+          var context1 = context;
+          var menuItem = new SimpleMenuItem(
+            text: text,
+            icon: BulbThemedIcons.YellowBulb.Id,
+            FOnExecute: () => continuation(context1));
+
+          items.Add(menuItem);
+        }
+
+        menu.SetItems(items.ToArray());
+        menu.ShowModal(JetPopupMenu.ShowWhen.AutoExecuteIfSingleItem);
+
+        Console.WriteLine("LOL");
+      }
+      else
+      {
+        continuation(expressions[0]);
+      }
     }
 
     public IconId Image
@@ -149,6 +207,32 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     {
       get { return myShortcut; }
       set { }
+    }
+
+    private sealed class ExpressionContextImage
+    {
+      [NotNull] private readonly Type myExpressionType;
+      private readonly DocumentRange myExpressionRange;
+      private readonly int myContextIndex;
+
+      public ExpressionContextImage([NotNull] PrefixExpressionContext context)
+      {
+        myExpressionType = context.Expression.GetType();
+        myExpressionRange = context.ExpressionRange;
+        myContextIndex = context.PostfixContext.Expressions.IndexOf(context);
+      }
+
+      public int ContextIndex
+      {
+        get { return myContextIndex; }
+      }
+
+      public bool MatchesByRangeAndType([NotNull] PrefixExpressionContext context)
+      {
+        var startOffset = myExpressionRange.TextRange.StartOffset;
+        return context.Expression.GetType() == myExpressionType
+            && context.ExpressionRange.TextRange.StartOffset == startOffset;
+      }
     }
   }
 }
