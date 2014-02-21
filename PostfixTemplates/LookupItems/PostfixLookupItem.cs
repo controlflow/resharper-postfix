@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.ActionManagement;
 using JetBrains.Annotations;
 using JetBrains.Application;
-using JetBrains.CommonControls;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
-using JetBrains.IDE;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Feature.Services.Tips;
@@ -17,10 +13,7 @@ using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Text;
 using JetBrains.TextControl;
-using JetBrains.TextControl.DocumentMarkup;
-using JetBrains.Threading;
 using JetBrains.UI.Icons;
-using JetBrains.UI.PopupMenu;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
 #if RESHARPER9
@@ -38,7 +31,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     [NotNull] private readonly Lifetime myLifetime;
     [NotNull] private readonly string myShortcut, myIdentifier, myReparseString;
     [NotNull] private readonly ExpressionContextImage[] myImages;
-    private int mySelectedExprIndex = -1;
+    private int myExpressionIndex = -1;
 
     protected PostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
@@ -52,7 +45,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       myIdentifier = shortcut;
       myShortcut = shortcut.ToLowerInvariant();
       myImages = Array.ConvertAll(contexts, x => new ExpressionContextImage(x));
-      mySelectedExprIndex = (contexts.Length > 1 ? -1 : 0);
+      myExpressionIndex = (contexts.Length > 1 ? -1 : 0);
 
       var executionContext = contexts[0].PostfixContext.ExecutionContext;
       myReparseString = executionContext.ReparseString;
@@ -106,17 +99,41 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       Assertion.AssertNotNull(postfixContext, "postfixContext != null");
 
       var expressions = FindOriginalContexts(postfixContext);
-      Assertion.AssertNotNull(expressions.Count > 0, "expressions.Count > 0");
+      Assertion.Assert(expressions.Count > 0, "expressions.Count > 0");
 
-      if (expressions.Count > 1 && mySelectedExprIndex == -1)
+      if (expressions.Count > 1 && myExpressionIndex == -1)
       {
-        ShowExpressionChooser(expressions, textControl, solution, suffix, nameRange, insertType, keepCaretStill);
+        // rollback document changes to hide reparse string from user
+        var chooser = solution.GetComponent<ExpressionChooser>();
+
+        var postfixRange = GetPostfixRange(textControl, nameRange);
+        var postfixText = textControl.Document.GetText(postfixRange);
+        textControl.Document.ReplaceText(postfixRange, string.Empty);
+
+        chooser.Execute(myLifetime, textControl, expressions, postfixText, index =>
+        {
+          myExpressionIndex = index;
+
+          // yep, run accept recursively, now with selected item index
+          var locks = solution.GetComponent<IShellLocks>();
+          locks.ReentrancyGuard.Queue("PostfixTemplates.Accept", () =>
+          {
+            // ReSharper disable once ConvertToLambdaExpression
+            locks.ExecuteWithReadLock(() =>
+            {
+              textControl.Document.InsertText(
+                postfixRange.StartOffset, postfixText, TextModificationSide.RightSide);
+
+              Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
+            });
+          });
+        });
         return;
       }
 
-      Assertion.Assert(mySelectedExprIndex >= 0, "mySelectedExprIndex >= 0");
-      Assertion.Assert(mySelectedExprIndex < expressions.Count, "mySelectedExprIndex < expressions.Count");
-      var expressionContext = expressions[mySelectedExprIndex];
+      Assertion.Assert(myExpressionIndex >= 0, "myExpressionIndex >= 0");
+      Assertion.Assert(myExpressionIndex < expressions.Count, "myExpressionIndex < expressions.Count");
+      var expressionContext = expressions[myExpressionIndex];
 
       TNode newNode;
       using (WriteLockCookie.Create())
@@ -134,7 +151,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       AfterComplete(textControl, newNode);
     }
 
+    private TextRange GetPostfixRange([NotNull] ITextControl textControl, TextRange nameRange)
+    {
+      var length = nameRange.Length + myReparseString.Length;
+      var textRange = TextRange.FromLength(nameRange.StartOffset, length);
+
+      // find dot before postfix template name
+      var buffer = textControl.Document.Buffer;
+      for (var index = nameRange.StartOffset - 1; index > 0; index--)
+      {
+        if (buffer[index] == '.') return textRange.SetStartTo(index);
+      }
+
+      return textRange;
+    }
+
     protected abstract TNode ExpandPostfix([NotNull] PrefixExpressionContext context);
+
     protected virtual void AfterComplete([NotNull] ITextControl textControl, [NotNull] TNode node) { }
 
     [NotNull]
@@ -167,104 +200,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       }
 
       return results.ResultingList();
-    }
-
-    private void ShowExpressionChooser([NotNull] IList<PrefixExpressionContext> expressions,
-                                       [NotNull] ITextControl textControl, [NotNull] ISolution solution,
-                                       [NotNull] Suffix suffix, TextRange nameRange,
-                                       LookupItemInsertType insertType, bool keepCaretStill)
-    {
-      var menu = Shell.Instance.GetComponent<JetPopupMenus>().Create();
-      menu.Caption.Value = WindowlessControl.Create("Select expression");
-
-
-      menu.PopupWindowContext = new TextControlPopupWindowContext(
-        myLifetime, textControl, // todo: caret pos?
-        Shell.Instance.GetComponent<IShellLocks>(),
-        Shell.Instance.GetComponent<IActionManager>());
-
-      // todo: restore selection
-      // todo: handle escape action
-
-      var key = new Key("aa");
-
-      menu.SelectedItemKey.Change.Advise(myLifetime, x =>
-      {
-        var simpleMenuItem = x.New as SimpleMenuItem;
-        if (simpleMenuItem != null)
-        {
-          var range = (TextRange) simpleMenuItem.Tag;
-          Shell.Instance.GetComponent<IThreading>().ExecuteOrQueue("aa" , () =>
-          {
-            using (ReadLockCookie.Create())
-            {
-              var manager = Shell.Instance.GetComponent<IDocumentMarkupManager>();
-              var documentMarkup = manager.GetMarkupModel(textControl.Document);
-
-              foreach (var highlighter in documentMarkup.GetHighlightersEnumerable(key))
-              {
-                documentMarkup.RemoveHighlighter(highlighter);
-                break;
-              }
-
-              documentMarkup.AddHighlighter(key, range, AreaType.EXACT_RANGE, 0,
-                HotspotSessionUi.CURRENT_HOTSPOT_HIGHLIGHTER, ErrorStripeAttributes.Empty, null, null);
-            }
-
-
-          });
-        }
-      });
-
-      // rollback changes :(
-      textControl.Document.ReplaceText(
-        TextRange.FromLength(nameRange.EndOffset, myReparseString.Length), string.Empty);
-
-      var items = new LocalList<SimpleMenuItem>(expressions.Count);
-      int index = 0;
-
-      foreach (var context in expressions)
-      {
-        var text = context.Expression.GetText();
-
-        if (context.Expression.Contains(context.PostfixContext.Reference))
-        {
-          var postfix = myShortcut + myReparseString;
-          if (text.EndsWith(postfix, StringComparison.OrdinalIgnoreCase))
-          {
-            text = text.Substring(0, text.Length - postfix.Length).TrimEnd();
-          }
-
-          if (text.EndsWith(".", StringComparison.Ordinal))
-          {
-            text = text.Substring(0, text.Length - 1).TrimEnd();
-          }
-        }
-
-        text = text.ReplaceNewLines(string.Empty).TrimStart();
-
-        // todo: overflow
-
-        int index1 = index;
-        var menuItem = new SimpleMenuItem(
-          text: text,
-          icon: BulbThemedIcons.ContextAction.Id,
-          FOnExecute: () =>
-          {
-            mySelectedExprIndex = index1;
-
-            Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
-
-          });
-
-        menuItem.Tag = context.ExpressionRange.TextRange;
-
-        items.Add(menuItem);
-        index++;
-      }
-
-      menu.SetItems(items.ToArray());
-      menu.Show(JetPopupMenu.ShowWhen.AutoExecuteIfSingleItem);
     }
 
     public IconId Image

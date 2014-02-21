@@ -32,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       var contexts = context.Expressions
         .Where(x => CommonUtils.IsValidExpressionWithValue(x.Expression))
-        .ToArray();
+        .Reverse().ToArray();
 
       return new ParenthesesItem(contexts);
     }

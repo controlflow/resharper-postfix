@@ -183,6 +183,7 @@
     <Compile Include="Templates\YieldReturnStatementTemplate.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Utils\Compatibility.R90.cs" />
+    <Compile Include="LookupItems\ExpressionChooser.cs" />
     <Compile Include="Utils\RazorUtil.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
   </ItemGroup>
