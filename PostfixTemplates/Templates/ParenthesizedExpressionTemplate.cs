@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -21,12 +22,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       if (bestContext == null) return null;
 
-      // available in auto over cast expressions
-      var castExpression = CastExpressionNavigator.GetByOp(bestContext.Expression);
-      var insideCastExpression = (castExpression != null);
-      if (!insideCastExpression && context.IsAutoCompletion) return null;
+      if (context.IsAutoCompletion)
+      {
+        var castExpression = CastExpressionNavigator.GetByOp(bestContext.Expression);
+        if (castExpression == null) return null; // available in auto over cast expressions
 
-      return new ParenthesesItem(bestContext);
+        return new ParenthesesItem(bestContext);
+      }
+
+      var contexts = context.Expressions
+        .Where(x => CommonUtils.IsValidExpressionWithValue(x.Expression))
+        .ToArray();
+
+      return new ParenthesesItem(contexts);
     }
 
     private static bool IsUnlikelyNeedsParenthesizes([NotNull] ICSharpExpression expression)
@@ -45,7 +53,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class ParenthesesItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public ParenthesesItem([NotNull] PrefixExpressionContext context) : base("par", context) { }
+      public ParenthesesItem([NotNull] PrefixExpressionContext context)
+        : base("par", context) { }
+
+      public ParenthesesItem([NotNull] params PrefixExpressionContext[] contexts)
+        : base("par", contexts) { }
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
                                                             ICSharpExpression expression)

@@ -13,6 +13,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
                                           [NotNull] PrefixExpressionContext context)
       : base(shortcut, context) { }
 
+    protected ExpressionPostfixLookupItem([NotNull] string shortcut,
+                                          [NotNull] PrefixExpressionContext[] contexts)
+      : base(shortcut, contexts) { }
+
     protected override TExpression ExpandPostfix(PrefixExpressionContext context)
     {
       var psiModule = context.PostfixContext.PsiModule;
