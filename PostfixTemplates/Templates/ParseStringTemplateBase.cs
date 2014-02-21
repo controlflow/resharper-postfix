@@ -85,7 +85,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           {
             solution.GetComponent<IShellLocks>().QueueReadLock("Smart completion for .tryparse", () =>
             {
+#if RESHARPER8
               var intellisenseManager = solution.GetComponent<IntellisenseManager>();
+#elif RESHARPER9
+              var intellisenseManager = solution.GetComponent<ICodeCompletionSessionManager>();
+#endif
               intellisenseManager.ExecuteManualCompletion(
                 CodeCompletionType.SmartCompletion, textControl, solution, EmptyAction.Instance,
                 intellisenseManager.GetPrimaryEvaluationMode(CodeCompletionType.SmartCompletion),

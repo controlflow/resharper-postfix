@@ -14,6 +14,12 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
+#if RESHARPER9
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
@@ -73,7 +79,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       }
     }
 
-    private sealed class FakeLookupElement : ILookupItem
+    private sealed class FakeLookupElement :
+      // ReSharper disable RedundantNameQualifier
+      JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem
+      // ReSharper enable RedundantNameQualifier
     {
       [NotNull] private readonly string myFakeText;
       [NotNull] private readonly DeclaredElementLookupItem myRealItem;
@@ -117,7 +126,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public RichText DisplayName { get { return myFakeText; } }
       public RichText DisplayTypeName { get { return myRealItem.DisplayTypeName; } }
-      public string OrderingString { get { return myFakeText; } }
       public bool IsDynamic { get { return myRealItem.IsDynamic; } }
       public string Identity { get { return myFakeText; } }
       public bool CanShrink { get { return myRealItem.CanShrink; } }
@@ -128,6 +136,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       {
         get { return myRealItem.Multiplier; }
         set { myRealItem.Multiplier = value; }
+      }
+
+      public string OrderingString
+      {
+        get { return myFakeText; }
+        set { }
       }
 
       public bool IgnoreSoftOnSpace

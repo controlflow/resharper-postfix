@@ -5,12 +5,17 @@ using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
-using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
+#if RESHARPER8
+using JetBrains.ReSharper.Feature.Services.Lookup;
+#elif RESHARPER9
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {

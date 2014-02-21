@@ -1,6 +1,10 @@
-﻿using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.TextControl;
+﻿using JetBrains.TextControl;
 using JetBrains.Util;
+#if RESHARPER8
+using JetBrains.ReSharper.Feature.Services.Lookup;
+#elif RESHARPER9
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {

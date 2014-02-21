@@ -24,6 +24,11 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
+#if RESHARPER9
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
+#endif
 
 // todo: caret placement for void methods? after ;? formatting?
 
@@ -196,11 +201,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     {
       var results = new LocalList<IMethod>();
 
-      var methodsItem = lookupItem as MethodsLookupItem;
+      var methodsItem = lookupItem as DeclaredElementLookupItem;
       if (methodsItem != null)
       {
-        foreach (var instance in methodsItem.Methods)
-          results.Add(instance.Element);
+        foreach (var instance in methodsItem.GetAllDeclaredElements())
+        {
+          var method = instance.Element as IMethod;
+          if (method != null) results.Add(method);
+        }
       }
       else
       {
@@ -208,8 +216,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         if (instance != null)
         {
           var method = instance.Element as IMethod;
-          if (method != null)
-            results.Add(method);
+          if (method != null) results.Add(method);
         }
       }
 

@@ -15,10 +15,16 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
+#if RESHARPER9
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
-  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
+  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase,
+    // ReSharper disable RedundantNameQualifier
+    JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem
+    // ReSharper enable RedundantNameQualifier
     where TNode : class, ITreeNode
   {
     [NotNull] private readonly Lifetime myLifetime;
@@ -137,7 +143,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     public RichText DisplayName { get { return myShortcut; } }
     public virtual RichText DisplayTypeName { get { return null; } }
-    public string OrderingString { get { return myShortcut; } }
     public string Identity { get { return myShortcut; } }
+
+    public string OrderingString
+    {
+      get { return myShortcut; }
+      set { }
+    }
   }
 }

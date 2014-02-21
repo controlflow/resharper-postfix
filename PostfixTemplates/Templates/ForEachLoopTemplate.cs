@@ -18,6 +18,9 @@ using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
+#if RESHARPER9
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {

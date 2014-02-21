@@ -28,6 +28,12 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
+#if RESHARPER9
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
@@ -173,7 +179,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       return string.Empty;
     }
 
-    private sealed class EnumMemberLookupItem : PostfixLookupItemBase, ILookupItem
+    private sealed class EnumMemberLookupItem : PostfixLookupItemBase,
+      // ReSharper disable RedundantNameQualifier
+      JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem
+      // ReSharper enable RedundantNameQualifier
     {
       [NotNull] private readonly IRangeMarker myDotRangeMarker;
       [NotNull] private readonly IElementInstancePointer<IField> myPointer;
@@ -276,7 +285,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       public RichText DisplayName { get; private set; }
       public RichText DisplayTypeName { get; private set; }
 
-      public string OrderingString { get { return Identity; } }
+      public string OrderingString
+      {
+        get { return Identity; }
+        set { }
+      }
+
       public string Identity { get; private set; }
     }
   }
