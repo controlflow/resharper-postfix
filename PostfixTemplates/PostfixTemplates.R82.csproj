@@ -57,6 +57,7 @@
     <Compile Include="Infrastructure\Contexts\ReferenceExpressionPostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\ReferenceNamePostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\IPostfixTemplate.cs" />
+    <Compile Include="LookupItems\ExpressionChooser.cs" />
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItemBase.cs" />

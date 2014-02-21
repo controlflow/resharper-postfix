@@ -35,8 +35,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       myPopupMenus = popupMenus;
       myShellLocks = shellLocks;
       myActionManager = actionManager;
-      myThreading = threading;
       myMarkupManager = markupManager;
+      myThreading = threading;
     }
 
     public void Execute([NotNull] Lifetime lifetime, [NotNull] ITextControl textControl,
@@ -113,7 +113,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       text = text.ReplaceNewLines().TrimStart();
 
-      if (text.Length > 30) text = text.Substring(0, 30) + "…";
+      while (true) // "aa\n         && bb" => "aa && bb"
+      {
+        var reduced = text.Replace("  ", " ");
+        if (reduced.Length < text.Length) text = reduced;
+        else break;
+      }
+
+      const int textLength = 30;
+      if (text.Length > textLength)
+      {
+        text = text.Substring(0, textLength) + "…";
+      }
 
       return text;
     }

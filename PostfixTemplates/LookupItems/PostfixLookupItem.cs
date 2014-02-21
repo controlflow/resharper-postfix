@@ -118,10 +118,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
           var locks = solution.GetComponent<IShellLocks>();
           locks.ReentrancyGuard.Queue("PostfixTemplates.Accept", () =>
           {
-            // ReSharper disable once ConvertToLambdaExpression
             locks.ExecuteWithReadLock(() =>
             {
-              textControl.Document.InsertText(
+              textControl.Document.InsertText( // bring back ".name__"
                 postfixRange.StartOffset, postfixText, TextModificationSide.RightSide);
 
               Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
@@ -153,6 +152,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     private TextRange GetPostfixRange([NotNull] ITextControl textControl, TextRange nameRange)
     {
+      Assertion.Assert(nameRange.IsValid, "nameRange.IsValid");
+
       var length = nameRange.Length + myReparseString.Length;
       var textRange = TextRange.FromLength(nameRange.StartOffset, length);
 
@@ -174,15 +175,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     private IList<PrefixExpressionContext> FindOriginalContexts([NotNull] PostfixTemplateContext context)
     {
       var results = new LocalList<PrefixExpressionContext>();
-      var images = new HashSet<ExpressionContextImage>(myImages);
+      var images = new List<ExpressionContextImage>(myImages);
 
-      foreach (var expressionContext in context.ExpressionsOrTypes)
+      for (var index = 0; index < images.Count; index++) // order is important
       {
-        foreach (var contextImage in images)
+        foreach (var expressionContext in context.ExpressionsOrTypes)
         {
-          if (contextImage.MatchesByRangeAndType(expressionContext))
+          if (images[index].MatchesByRangeAndType(expressionContext))
           {
-            images.Remove(contextImage);
+            images[index] = null;
             results.Add(expressionContext);
             break;
           }
@@ -194,8 +195,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         var expressions = context.Expressions;
         foreach (var image in myImages)
         {
-          if (image.ContextIndex < expressions.Count)
+          if (image != null && image.ContextIndex < expressions.Count)
+          {
             results.Add(expressions[image.ContextIndex]);
+          }
         }
       }
 
