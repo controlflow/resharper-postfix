@@ -40,13 +40,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           if (unary2 != null && unary2.UnaryOperatorType == UnaryOperatorType.EXCL)
           {
             var psiServices = expression.GetPsiServices();
-            expression = psiServices.DoTransaction(ExpandCommandName, () =>
-            {
-              using (WriteLockCookie.Create())
-              {
-                return unary2.ReplaceBy(unary.Operand);
-              }
-            });
+            expression = psiServices.DoTransaction(
+              ExpandCommandName, () => unary2.ReplaceBy(unary.Operand));
           }
         }
 

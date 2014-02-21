@@ -91,14 +91,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (context.CanBeStatement) return true;
 
       // return SomeLong().var.Expression;
-      var parentReference = ReferenceExpressionNavigator.GetByQualifierExpression(context.Expression);
-      if (parentReference == context.PostfixContext.Reference)
+      var withReference = context.ExpressionWithReference;
+      if (withReference != null)
       {
-        var outerReference = ReferenceExpressionNavigator.GetByQualifierExpression(parentReference);
+        var outerReference = ReferenceExpressionNavigator.GetByQualifierExpression(withReference);
         if (outerReference != null) return true;
       }
 
-      // what about F(arg.var)?
+      // note: what about F(arg.var)?
 
       return false;
     }

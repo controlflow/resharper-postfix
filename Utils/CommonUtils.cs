@@ -67,6 +67,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
         var contextNode = sandBox.ContextNode.NotNull("sandBox.ContextNode != null");
         var containingFile = contextNode.GetContainingFile().NotNull("containingFile != null");
 
+        // todo: check for IFileImpl
+
         var translator = containingFile.GetRangeTranslator();
         var originalTreeRange = translator.GeneratedToOriginal(originalGeneratedTreeRange);
         var originalDocRange = translator.OriginalFile.GetDocumentRange(originalTreeRange);
@@ -133,17 +135,19 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return false;
     }
 
-    public static bool IsNiceExpression([NotNull] ICSharpExpression expression)
+    public static bool IsNiceExpressionWithValue([NotNull] ICSharpExpression expression)
     {
       if (expression is IAssignmentExpression) return false;
       if (expression is IPrefixOperatorExpression) return false;
       if (expression is IPostfixOperatorExpression) return false;
 
-      return IsValidExpression(expression);
+      return IsValidExpressionWithValue(expression);
     }
 
-    public static bool IsValidExpression([NotNull] ICSharpExpression expression)
+    public static bool IsValidExpressionWithValue([NotNull] ICSharpExpression expression)
     {
+      if (expression is IAnonymousFunctionExpression) return false;
+
       if (expression is IInvocationExpression)
       {
         var expressionType = expression.GetExpressionType();
@@ -153,25 +157,30 @@ namespace JetBrains.ReSharper.PostfixTemplates
       var literalExpression = expression as ILiteralExpression;
       if (literalExpression != null)
       {
-        var literal = literalExpression.Literal;
-        if (literal != null && literal.GetTokenType() == CSharpTokenType.NULL_KEYWORD)
-          return false;
+        var literalToken = literalExpression.Literal;
+        if (literalToken != null)
+        {
+          if (literalToken.GetTokenType() == CSharpTokenType.NULL_KEYWORD) return false;
+        }
       }
-
-      if (expression is IAnonymousFunctionExpression) return false;
 
       return true;
     }
 
     [CanBeNull]
-    public static PrefixExpressionContext FindBestExpressionContext([NotNull] PostfixTemplateContext context)
+    public static PrefixExpressionContext FindBestExpressionContext(
+      [NotNull] PostfixTemplateContext context, [CanBeNull] Func<ICSharpExpression, bool> isNiceExpression = null)
     {
       PrefixExpressionContext niceExpression = null, validExpression = null;
+      var expressionSelector = isNiceExpression ?? IsNiceExpressionWithValue;
+
       foreach (var expressionContext in context.Expressions)
       {
-        if (IsNiceExpression(expressionContext.Expression))
+        var expression = expressionContext.Expression;
+        if (expressionSelector(expression))
           niceExpression = expressionContext;
-        if (IsValidExpression(expressionContext.Expression))
+
+        if (IsValidExpressionWithValue(expression))
           validExpression = expressionContext;
       }
 

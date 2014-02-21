@@ -71,6 +71,15 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     public bool CanBeStatement { get; private set; }
 
+    [CanBeNull] public IReferenceExpression ExpressionWithReference
+    {
+      get
+      {
+        var reference = ReferenceExpressionNavigator.GetByQualifierExpression(Expression);
+        return (reference == PostfixContext.Reference) ? reference : null;
+      }
+    }
+
     public DocumentRange ExpressionRange
     {
       get { return PostfixContext.ToDocumentRange(Expression); }

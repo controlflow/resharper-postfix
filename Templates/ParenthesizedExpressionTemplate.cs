@@ -16,7 +16,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var bestContext = CommonUtils.FindBestExpressionContext(context);
+      var bestContext = CommonUtils.FindBestExpressionContext(context, expression =>
+        CommonUtils.IsNiceExpressionWithValue(expression) && !IsUnlikelyNeedsParenthesizes(expression));
+
       if (bestContext == null) return null;
 
       // available in auto over cast expressions
@@ -25,6 +27,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (!insideCastExpression && context.IsAutoCompletion) return null;
 
       return new ParenthesesItem(bestContext);
+    }
+
+    private static bool IsUnlikelyNeedsParenthesizes([NotNull] ICSharpExpression expression)
+    {
+      return (expression is IParenthesizedExpression)
+        || CastExpressionNavigator.GetByOp(expression) != null
+        || IfStatementNavigator.GetByCondition(expression) != null
+        || WhileStatementNavigator.GetByCondition(expression) != null
+        || DoStatementNavigator.GetByCondition(expression) != null
+        || UsingStatementNavigator.GetByExpression(expression) != null
+        || LockStatementNavigator.GetByMonitor(expression) != null
+        || CheckedExpressionNavigator.GetByOperand(expression) != null
+        || UncheckedExpressionNavigator.GetByOperand(expression) != null
+        || ParenthesizedExpressionNavigator.GetByExpression(expression) != null;
     }
 
     private sealed class ParenthesesItem : ExpressionPostfixLookupItem<ICSharpExpression>
