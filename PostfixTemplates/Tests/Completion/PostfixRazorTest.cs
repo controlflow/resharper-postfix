@@ -1,5 +1,4 @@
 ﻿using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
@@ -7,10 +6,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
 {
   [TestNetFramework4]
   [TestFileExtension(RazorCSharpProjectFileType.RazorCSharpExtension)]
-  public class PostfixRazorTest : CodeCompletionTestBase
+  public class PostfixRazorTest : PostfixCodeCompletionTestBase
   {
-    protected override bool ExecuteAction { get { return true; } }
-    protected override bool CheckAutomaticCompletionDefault() { return true; }
     protected override string RelativeTestDataPath { get { return @"Razor"; } }
 
     [Test] public void TestRazor01() { DoNamedTest("Model.cs"); }

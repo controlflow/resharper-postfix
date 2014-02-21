@@ -3,7 +3,6 @@ using JetBrains.Application.Settings.Store.Implementation;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
-using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
@@ -11,10 +10,8 @@ using NUnit.Framework;
 namespace JetBrains.ReSharper.PostfixTemplates.Completion
 {
   [TestNetFramework4]
-  public class PostfixTemplatesTest : CodeCompletionTestBase
+  public class PostfixTemplatesTest : PostfixCodeCompletionTestBase
   {
-    protected override bool ExecuteAction { get { return true; } }
-    protected override bool CheckAutomaticCompletionDefault() { return true; }
     protected override string RelativeTestDataPath { get { return string.Empty; } }
 
     protected override void DoTest(IProject testProject)
@@ -126,10 +123,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
   }
 
   [TestNetFramework4]
-  public class PostfixTemplatesBracelessTest : CodeCompletionTestBase
+  public class PostfixTemplatesBracelessTest : PostfixCodeCompletionTestBase
   {
-    protected override bool ExecuteAction { get { return true; } }
-    protected override bool CheckAutomaticCompletionDefault() { return true; }
     protected override string RelativeTestDataPath { get { return string.Empty; } }
 
     protected override void DoTest(IProject testProject)

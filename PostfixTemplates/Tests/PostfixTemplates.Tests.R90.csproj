@@ -1,11 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\JetBrains.ReSharper.SDK.Tests.8.2.921-EAP\build\JetBrains.ReSharper.SDK.Tests.Props" Condition="Exists('..\..\packages\JetBrains.ReSharper.SDK.Tests.8.2.921-EAP\build\JetBrains.ReSharper.SDK.Tests.Props')" />
-  <Import Project="..\..\packages\JetBrains.ReSharper.SDK.8.2.921-EAP\build\JetBrains.ReSharper.SDK.Props" Condition="Exists('..\..\packages\JetBrains.ReSharper.SDK.8.2.921-EAP\build\JetBrains.ReSharper.SDK.Props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1278D396-5565-4262-B758-B5599CB4A82A}</ProjectGuid>
+    <ProjectGuid>{03FAC09B-5DDE-4631-B165-82761D37A6FE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JetBrains.ReSharper.PostfixTemplates</RootNamespace>
@@ -38,14 +36,14 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <BaseIntermediateOutputPath>obj.R82\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj.R90\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;JET_MODE_ASSERT;RESHARPER8</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;JET_MODE_ASSERT;RESHARPER9</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -53,11 +51,59 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;RESHARPER8</DefineConstants>
+    <DefineConstants>TRACE;RESHARPER9</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JetBrains.Platform.ReSharper.ComponentModel, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.ComponentModel.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.Platform.ReSharper.ProjectModel, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.ProjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.Platform.ReSharper.Shell, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.Platform.ReSharper.TestFramework, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\Obj\Test.Framework\Debug\JetBrains.Platform.ReSharper.TestFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.Platform.ReSharper.Util, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.ReSharper.Feature.Services, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\JetBrains.ReSharper.Feature.Services.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.ReSharper.FeaturesTestFramework, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\Obj\Test.Framework.Features\Debug\JetBrains.ReSharper.FeaturesTestFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.ReSharper.Psi, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\JetBrains.ReSharper.Psi.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.ReSharper.Resources, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\JetBrains.ReSharper.Resources.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.ReSharper.TestFramework, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\Obj\Test.Framework.Services\Debug\JetBrains.ReSharper.TestFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.ReSharper.TestResources, Version=8.1.23.523, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\JetBrains.ReSharper.TestResources.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ReSharper\bin\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="WindowsBase" />
@@ -99,11 +145,10 @@
     <None Include="PostfixTemplates.Tests.R82.packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PostfixTemplates.R82.csproj">
-      <Project>{92a32691-9ff3-481e-a15d-52c3bbc4f98c}</Project>
-      <Name>PostfixTemplates.R82</Name>
+    <ProjectReference Include="..\PostfixTemplates.R90.csproj">
+      <Project>{4dd44801-150f-4922-8835-cea0fb1dc2de}</Project>
+      <Name>PostfixTemplates.R90</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\packages\JetBrains.ReSharper.SDK.8.2.921-EAP\build\JetBrains.ReSharper.SDK.Targets" Condition="Exists('..\..\packages\JetBrains.ReSharper.SDK.8.2.921-EAP\build\JetBrains.ReSharper.SDK.Targets')" />
 </Project>

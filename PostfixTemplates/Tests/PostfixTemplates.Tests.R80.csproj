@@ -38,6 +38,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <BaseIntermediateOutputPath>obj.R80\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -67,6 +68,7 @@
     <Compile Include="CompletionList\PostfixExtraMembersListTest.cs" />
     <Compile Include="Completion\PostfixExtraMembersTest.cs" />
     <Compile Include="Completion\PostfixTemplatesTest.cs" />
+    <Compile Include="PostfixTestBase.cs" />
     <Compile Include="PostfixTestsAssembly.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

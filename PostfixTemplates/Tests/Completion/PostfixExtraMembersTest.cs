@@ -1,14 +1,11 @@
-﻿using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
-using JetBrains.ReSharper.TestFramework;
+﻿using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Completion
 {
   [TestNetFramework4]
-  public class PostfixExtraMembersTest : CodeCompletionTestBase
+  public class PostfixExtraMembersTest : PostfixCodeCompletionTestBase
   {
-    protected override bool ExecuteAction { get { return true; } }
-    protected override bool CheckAutomaticCompletionDefault() { return true; }
     protected override string RelativeTestDataPath { get { return @"Extra"; } }
 
     [Test] public void TestStatic01() { DoNamedTest(); }
