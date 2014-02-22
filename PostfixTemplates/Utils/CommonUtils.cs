@@ -12,6 +12,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public static class CommonUtils
   {
     public static PredefinedType GetPredefinedType([NotNull] this ITreeNode node)

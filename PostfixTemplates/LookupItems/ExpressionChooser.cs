@@ -87,6 +87,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         var expressionText = PresentExpression(expressionContext, postfixText, out range);
 
         var itemIndex = index++;
+        // ReSharper disable once UseObjectOrCollectionInitializer
         var menuItem = new SimpleMenuItem(
           expressionText, BulbThemedIcons.YellowBulb.Id, () => continuation(itemIndex));
 

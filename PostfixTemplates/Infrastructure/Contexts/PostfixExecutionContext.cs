@@ -9,6 +9,7 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public class PostfixExecutionContext
   {
     public PostfixExecutionContext([NotNull] Lifetime lifetime,
