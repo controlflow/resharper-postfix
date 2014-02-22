@@ -1,4 +1,5 @@
-﻿#if RESHARPER8
+﻿using JetBrains.Application.Components;
+#if RESHARPER8
 using JetBrains.ReSharper.Feature.Services.Tests.CSharp.FeatureServices.CodeCompletion;
 #elif RESHARPER9
 using JetBrains.ReSharper.FeaturesTestFramework.Completion;

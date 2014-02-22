@@ -68,6 +68,7 @@
     <Compile Include="CompletionList\PostfixExtraMembersListTest.cs" />
     <Compile Include="Completion\PostfixExtraMembersTest.cs" />
     <Compile Include="Completion\PostfixTemplatesTest.cs" />
+    <Compile Include="Components\TestExpressionChooser.cs" />
     <Compile Include="PostfixTestBase.cs" />
     <Compile Include="PostfixTestsAssembly.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

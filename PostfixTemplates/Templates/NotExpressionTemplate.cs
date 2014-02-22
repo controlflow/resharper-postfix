@@ -20,7 +20,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       throw new InvalidOperationException("Should not be called");
     }
 
-    protected override ILookupItem CreateBooleanItems(PrefixExpressionContext[] expressions)
+    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext[] expressions)
     {
       return new NotItem(expressions);
     }

@@ -35,10 +35,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var textControl = context.ExecutionContext.TextControl;
       if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
 
-      var expressions = CommonUtils.FindExpressionWithValuesContexts(context);
+      var expressions = CommonUtils.FindExpressionWithValuesContexts(context, IsNiceArgument);
       if (expressions.Length == 0) return null;
 
       return new ArgumentItem(expressions, context);
+    }
+
+    private static bool IsNiceArgument([NotNull] ICSharpExpression expression)
+    {
+      if (expression is IAssignmentExpression) return false;
+
+      return true;
     }
 
     [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =

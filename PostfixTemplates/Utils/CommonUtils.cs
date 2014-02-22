@@ -158,15 +158,20 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return true;
     }
 
-
     [NotNull]
-    public static PrefixExpressionContext[] FindExpressionWithValuesContexts([NotNull] PostfixTemplateContext context)
+    public static PrefixExpressionContext[] FindExpressionWithValuesContexts(
+      [NotNull] PostfixTemplateContext context, [CanBeNull] Predicate<ICSharpExpression> predicate = null)
     {
       var results = new LocalList<PrefixExpressionContext>();
 
       foreach (var expressionContext in context.Expressions.Reverse())
+      {
         if (IsValidExpressionWithValue(expressionContext.Expression))
+        if (predicate == null || predicate(expressionContext.Expression))
+        {
           results.Add(expressionContext);
+        }
+      }
 
       return results.ToArray();
     }

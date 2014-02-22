@@ -71,6 +71,7 @@
     <Compile Include="PostfixTestBase.cs" />
     <Compile Include="PostfixTestsAssembly.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Components\TestExpressionChooser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PostfixTemplates.R81.csproj">

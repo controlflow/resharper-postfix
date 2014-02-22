@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var booleanExpressions = new LocalList<PrefixExpressionContext>();
 
       var booleanType = context.Reference.GetPredefinedType().Bool;
-      if (booleanType.IsResolved && context.IsAutoCompletion)
+      if (booleanType.IsResolved)
       {
         var conversionRule = context.Reference.GetTypeConversionRule();
 
@@ -33,22 +33,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           booleanExpressions.Add(expressionContext);
         }
       }
-      else
+
+      if (!context.IsAutoCompletion && booleanExpressions.Count == 0)
       {
-        foreach (var expressionContext in context.Expressions)
-        {
-          booleanExpressions.Add(expressionContext);
-        }
+        booleanExpressions.AddRange(context.Expressions);
       }
 
-      return CreateBooleanItems(booleanExpressions.ToArray());
+      if (booleanExpressions.Count > 0)
+      {
+        return CreateBooleanItem(booleanExpressions.ToArray());
+      }
+
+      return null;
     }
 
     [CanBeNull]
     protected abstract ILookupItem CreateBooleanItem([NotNull] PrefixExpressionContext expression);
 
     [CanBeNull]
-    protected virtual ILookupItem CreateBooleanItems([NotNull] PrefixExpressionContext[] expressions)
+    protected virtual ILookupItem CreateBooleanItem([NotNull] PrefixExpressionContext[] expressions)
     {
       foreach (var expressionContext in expressions)
       {

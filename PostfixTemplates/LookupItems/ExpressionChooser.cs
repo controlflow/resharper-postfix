@@ -21,7 +21,7 @@ using JetBrains.ReSharper.Feature.Services.Resources;
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
   [ShellComponent]
-  public sealed class ExpressionChooser
+  public class ExpressionChooser
   {
     [NotNull] private readonly JetPopupMenus myPopupMenus;
     [NotNull] private readonly ShellLocks myShellLocks;
@@ -43,9 +43,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       myThreading = threading;
     }
 
-    public void Execute([NotNull] Lifetime lifetime, [NotNull] ITextControl textControl,
-                        [NotNull] IList<PrefixExpressionContext> expressions, [NotNull] string postfixText,
-                        [NotNull] string chooserTitle, [NotNull] Action<int> continuation)
+    public virtual void Execute([NotNull] Lifetime lifetime, [NotNull] ITextControl textControl,
+                                [NotNull] IList<PrefixExpressionContext> expressions,
+                                [NotNull] string postfixText, [NotNull] string chooserTitle,
+                                [NotNull] Action<int> continuation)
     {
       var popupMenu = myPopupMenus.CreateWithLifetime(lifetime);
 
