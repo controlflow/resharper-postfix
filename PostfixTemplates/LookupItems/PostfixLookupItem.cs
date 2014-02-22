@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.Application.CommandProcessing;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
@@ -121,15 +122,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
           // yep, run accept recursively, now with selected item index
           var locks = solution.GetComponent<IShellLocks>();
-          locks.ReentrancyGuard.ExecuteOrQueue("PostfixTemplates.Accept", () =>
+          const string commandName = "PostfixTemplates.Accept";
+
+          locks.ReentrancyGuard.ExecuteOrQueue(commandName, () =>
           {
             locks.ExecuteWithReadLock(() =>
             {
-              var text = postfixText.Substring(0, postfixText.Length - myReparseString.Length);
-              textControl.Document.InsertText( // bring back ".name__"
-                postfixRange.StartOffset, text, TextModificationSide.RightSide);
+              var processor = solution.GetComponent<ICommandProcessor>();
+              using (processor.UsingCommand(commandName))
+              {
+                var text = postfixText.Substring(0, postfixText.Length - myReparseString.Length);
+                textControl.Document.InsertText( // bring back ".name__"
+                  postfixRange.StartOffset, text, TextModificationSide.RightSide);
 
-              Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
+                Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
+              }
             });
           });
         });

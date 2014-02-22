@@ -174,6 +174,7 @@
     <Compile Include="Templates\ParseStringTemplate.cs" />
     <Compile Include="Templates\ParseStringTemplateBase.cs" />
     <Compile Include="Templates\ReturnStatementTemplate.cs" />
+    <Compile Include="Templates\SelectExpressionTemplate.cs" />
     <Compile Include="Templates\SwitchStatementTemplate.cs" />
     <Compile Include="Templates\ThrowStatementTemplate.cs" />
     <Compile Include="Templates\TryParseStringTemplate.cs" />

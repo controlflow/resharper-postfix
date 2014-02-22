@@ -127,7 +127,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         else break;
       }
 
-      const int textLength = 30;
+      const int textLength = 50;
       if (text.Length > textLength)
       {
         text = text.Substring(0, textLength) + "…";
