@@ -135,15 +135,6 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return false;
     }
 
-    public static bool IsNiceExpressionWithValue([NotNull] ICSharpExpression expression)
-    {
-      if (expression is IAssignmentExpression) return false;
-      if (expression is IPrefixOperatorExpression) return false;
-      if (expression is IPostfixOperatorExpression) return false;
-
-      return IsValidExpressionWithValue(expression);
-    }
-
     public static bool IsValidExpressionWithValue([NotNull] ICSharpExpression expression)
     {
       if (expression is IAnonymousFunctionExpression) return false;
@@ -167,24 +158,17 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return true;
     }
 
-    [CanBeNull]
-    public static PrefixExpressionContext FindBestExpressionContext(
-      [NotNull] PostfixTemplateContext context, [CanBeNull] Func<ICSharpExpression, bool> isNiceExpression = null)
+
+    [NotNull]
+    public static PrefixExpressionContext[] FindExpressionWithValuesContexts([NotNull] PostfixTemplateContext context)
     {
-      PrefixExpressionContext niceExpression = null, validExpression = null;
-      var expressionSelector = isNiceExpression ?? IsNiceExpressionWithValue;
+      var results = new LocalList<PrefixExpressionContext>();
 
-      foreach (var expressionContext in context.Expressions)
-      {
-        var expression = expressionContext.Expression;
-        if (expressionSelector(expression))
-          niceExpression = expressionContext;
+      foreach (var expressionContext in context.Expressions.Reverse())
+        if (IsValidExpressionWithValue(expressionContext.Expression))
+          results.Add(expressionContext);
 
-        if (IsValidExpressionWithValue(expression))
-          validExpression = expressionContext;
-      }
-
-      return niceExpression ?? validExpression;
+      return results.ToArray();
     }
 
     [CanBeNull]

@@ -7,12 +7,16 @@ using JetBrains.CommonControls;
 using JetBrains.DataFlow;
 using JetBrains.IDE;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
-using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.TextControl;
 using JetBrains.TextControl.DocumentMarkup;
 using JetBrains.Threading;
 using JetBrains.UI.PopupMenu;
 using JetBrains.Util;
+#if RESHARPER8
+using JetBrains.ReSharper.Daemon.Src.Bulbs.Resources;
+#elif RESHARPER9
+using JetBrains.ReSharper.Feature.Services.Resources;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
@@ -40,12 +44,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
     public void Execute([NotNull] Lifetime lifetime, [NotNull] ITextControl textControl,
-                        [NotNull] IList<PrefixExpressionContext> expressions,
-                        [NotNull] string postfixText, [NotNull] Action<int> continuation)
+                        [NotNull] IList<PrefixExpressionContext> expressions, [NotNull] string postfixText,
+                        [NotNull] string chooserTitle, [NotNull] Action<int> continuation)
     {
       var popupMenu = myPopupMenus.CreateWithLifetime(lifetime);
 
-      popupMenu.Caption.Value = WindowlessControl.Create("Select expression");
+      popupMenu.Caption.Value = WindowlessControl.Create(chooserTitle);
       popupMenu.PopupWindowContext = new TextControlPopupWindowContext(
         lifetime, textControl, myShellLocks, myActionManager);
 
@@ -87,7 +91,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       // handle menu close
       definition.Lifetime.AddAction(() =>
-        UpdateHighlighting(textControl, TextRange.InvalidRange));
+      {
+        UpdateHighlighting(textControl, TextRange.InvalidRange);
+      });
 
       popupMenu.Show(JetPopupMenu.ShowWhen.AutoExecuteIfSingleItem, definition);
     }
@@ -145,7 +151,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
           if (expressionRange.IsValid)
           {
             documentMarkup.AddHighlighter(
-              HighlightingKey, expressionRange, AreaType.EXACT_RANGE, 0,
+              HighlightingKey, expressionRange, AreaType.LINES_IN_RANGE, 0,
               HotspotSessionUi.CURRENT_HOTSPOT_HIGHLIGHTER,
               ErrorStripeAttributes.Empty, null);
           }

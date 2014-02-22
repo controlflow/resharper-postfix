@@ -23,19 +23,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       if (context.IsAutoCompletion) return null;
 
-      var bestContext = CommonUtils.FindBestExpressionContext(context);
-      if (bestContext == null) return null;
+      var expressions = CommonUtils.FindExpressionWithValuesContexts(context);
+      if (expressions.Length == 0) return null;
 
-      return new CastItem(bestContext);
+      return new CastItem(expressions, context);
     }
 
     private sealed class CastItem : ExpressionPostfixLookupItem<IParenthesizedExpression>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public CastItem([NotNull] PrefixExpressionContext context) : base("cast", context)
+      public CastItem([NotNull] PrefixExpressionContext[] contexts,
+                      [NotNull] PostfixTemplateContext postfixContext) : base("cast", contexts)
       {
-        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
+        myTemplatesManager = postfixContext.ExecutionContext.LiveTemplatesManager;
+      }
+
+      protected override string ExpressionSelectTitle
+      {
+        get { return "Select expression to cast"; }
       }
 
       protected override IParenthesizedExpression CreateExpression(CSharpElementFactory factory,

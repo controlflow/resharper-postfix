@@ -35,10 +35,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var textControl = context.ExecutionContext.TextControl;
       if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
 
-      var bestContext = CommonUtils.FindBestExpressionContext(context);
-      if (bestContext == null) return null;
+      var expressions = CommonUtils.FindExpressionWithValuesContexts(context);
+      if (expressions.Length == 0) return null;
 
-      return new ArgumentItem(bestContext);
+      return new ArgumentItem(expressions, context);
     }
 
     [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =
@@ -49,11 +49,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public ArgumentItem([NotNull] PrefixExpressionContext context) : base("arg", context)
+      public ArgumentItem([NotNull] PrefixExpressionContext[] contexts,
+                          [NotNull] PostfixTemplateContext postfixContext)
+        : base("arg", contexts)
       {
-        var executionContext = context.PostfixContext.ExecutionContext;
+        var executionContext = postfixContext.ExecutionContext;
         myLookupItemsOwner = executionContext.LookupItemsOwner;
         myTemplatesManager = executionContext.LiveTemplatesManager;
+      }
+
+      protected override string ExpressionSelectTitle
+      {
+        get { return "Select argument expression"; }
       }
 
       protected override IInvocationExpression CreateExpression(CSharpElementFactory factory,

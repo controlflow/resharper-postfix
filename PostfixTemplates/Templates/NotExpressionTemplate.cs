@@ -1,5 +1,5 @@
-﻿using JetBrains.Annotations;
-using JetBrains.Application;
+﻿using System;
+using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -17,12 +17,22 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
     {
-      return new NotItem(expression);
+      throw new InvalidOperationException("Should not be called");
+    }
+
+    protected override ILookupItem CreateBooleanItems(PrefixExpressionContext[] expressions)
+    {
+      return new NotItem(expressions);
     }
 
     private sealed class NotItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public NotItem([NotNull] PrefixExpressionContext context) : base("not", context) { }
+      public NotItem([NotNull] params PrefixExpressionContext[] contexts) : base("not", contexts) { }
+
+      protected override string ExpressionSelectTitle
+      {
+        get { return "Select expression to invert"; }
+      }
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
                                                             ICSharpExpression expression)

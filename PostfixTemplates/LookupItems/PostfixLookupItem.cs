@@ -62,6 +62,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return GetType().FullName + " expansion"; }
     }
 
+    protected virtual string ExpressionSelectTitle
+    {
+      get { return "Select expression"; }
+    }
+
     [NotNull] protected Lifetime Lifetime
     {
       get { return myLifetime; }
@@ -110,7 +115,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         var postfixText = textControl.Document.GetText(postfixRange);
         textControl.Document.ReplaceText(postfixRange, string.Empty);
 
-        chooser.Execute(myLifetime, textControl, expressions, postfixText, index =>
+        chooser.Execute(myLifetime, textControl, expressions, postfixText, ExpressionSelectTitle, index =>
         {
           myExpressionIndex = index;
 
