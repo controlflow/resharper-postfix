@@ -14,11 +14,14 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-#if RESHARPER9
+#if RESHARPER8
+using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
+#elif RESHARPER9
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
@@ -44,7 +47,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       var settingsStore = referenceExpression.GetSettingsStore();
       if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowLengthCountItems)) return;
 
-      var interestingItems = new LocalList<DeclaredElementLookupItem>();
+      var interestingItems = new LocalList<ILookupItem>();
 
       foreach (var item in collector.Items)
       {
@@ -55,18 +58,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           default: continue;
         }
 
-        var lookupItem = item as DeclaredElementLookupItem;
-        if (lookupItem == null) continue;
-
-        var instance = lookupItem.PreferredDeclaredElement;
+        var instance = item.GetDeclaredElement();
         if (instance == null) continue;
 
         var property = instance.Element as IProperty;
-        if (property != null
-          && property.Type.IsResolved
-          && property.Type.IsInt())
+        if (property != null && property.Type.IsResolved && property.Type.IsInt())
         {
-          interestingItems.Add(lookupItem);
+          interestingItems.Add(item);
         }
       }
 
@@ -79,15 +77,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       }
     }
 
-    private sealed class FakeLookupElement :
-      // ReSharper disable RedundantNameQualifier
-      JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem
-      // ReSharper enable RedundantNameQualifier
+    private sealed class FakeLookupElement : ILookupItem
     {
       [NotNull] private readonly string myFakeText;
-      [NotNull] private readonly DeclaredElementLookupItem myRealItem;
+      [NotNull] private readonly ILookupItem myRealItem;
 
-      public FakeLookupElement([NotNull] string fakeText, [NotNull] DeclaredElementLookupItem realItem)
+      public FakeLookupElement([NotNull] string fakeText, [NotNull] ILookupItem realItem)
       {
         myRealItem = realItem;
         myFakeText = fakeText;
@@ -141,6 +136,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       public string OrderingString
       {
         get { return myFakeText; }
+        // ReSharper disable once ValueParameterNotUsed
+        // ReSharper disable once UnusedMember.Local
         set { }
       }
 

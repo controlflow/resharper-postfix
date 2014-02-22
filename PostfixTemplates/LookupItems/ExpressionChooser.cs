@@ -48,6 +48,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
                                 [NotNull] string postfixText, [NotNull] string chooserTitle,
                                 [NotNull] Action<int> continuation)
     {
+      #pragma warning disable 618
+      if (Shell.Instance.IsTestShell)
+      #pragma warning restore 618
+      {
+        continuation(0);
+        return;
+      }
+
       var popupMenu = myPopupMenus.CreateWithLifetime(lifetime);
 
       popupMenu.Caption.Value = WindowlessControl.Create(chooserTitle);

@@ -4,6 +4,6 @@ class A
 {
   System.Action Foo()
   {
-    return (() => { });{caret}
+    return () => { };{caret}
   }
 }

@@ -31,7 +31,6 @@ using JetBrains.Util;
 #if RESHARPER9
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 #endif
 
@@ -86,10 +85,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         {
           foreach (var lookupItem in collector.Items)
           {
-            var elementLookupItem = lookupItem as DeclaredElementLookupItem;
-            if (elementLookupItem == null) continue;
-
-            var elementInstance = elementLookupItem.PreferredDeclaredElement;
+            var elementInstance = lookupItem.GetDeclaredElement();
             if (elementInstance == null) continue;
 
             var enumMember = elementInstance.Element as IField;
@@ -288,6 +284,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       public string OrderingString
       {
         get { return Identity; }
+        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once ValueParameterNotUsed
         set { }
       }
 

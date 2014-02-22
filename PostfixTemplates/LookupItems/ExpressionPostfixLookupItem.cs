@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 
@@ -20,16 +21,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     protected override TExpression ExpandPostfix(PrefixExpressionContext context)
     {
       var psiModule = context.PostfixContext.PsiModule;
-      var expression = psiModule.GetPsiServices().DoTransaction(ExpandCommandName, () =>
+      var expandedExpression = psiModule.GetPsiServices().DoTransaction(ExpandCommandName, () =>
       {
         var factory = CSharpElementFactory.GetInstance(psiModule);
-        var oldExpression = context.Expression;
-        var newExpression = CreateExpression(factory, oldExpression);
+        var expression = context.Expression;
 
-        return oldExpression.ReplaceBy(newExpression);
+        var newExpression = CreateExpression(
+          factory, expression.GetOperandThroughParenthesis() ?? expression);
+
+        return expression.ReplaceBy(newExpression);
       });
 
-      return expression;
+      return expandedExpression;
     }
 
     [NotNull]

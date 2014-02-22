@@ -24,10 +24,16 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER9
+#if RESHARPER8
+using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
+#elif RESHARPER9
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Presentations;
+using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 #endif
 
 // todo: caret placement for void methods? after ;? formatting?
@@ -84,28 +90,43 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       var innerCollector = new GroupedItemsCollector();
       GetLookupItemsFromSymbolTable(filteredSymbolTable, innerCollector, context, false);
 
+      var solution = context.BasicContext.Solution;
+
       // decorate static lookup elements
       foreach (var item in innerCollector.Items)
       {
+#if RESHARPER8
+
         var lookupItem = item as DeclaredElementLookupItem;
         if (lookupItem == null) continue;
 
+        lookupItem.AfterComplete += SubscribeAfterComplete(lookupItem, solution);
         lookupItem.TextColor = SystemColors.GrayText;
-        SubscribeAfterComplete(lookupItem);
+
+#elif RESHARPER9
+
+        var lookupItem = item as LookupItemWrapper<DeclaredElementInfo>;
+        if (lookupItem == null) continue;
+
+        lookupItem.SubscribeAfterComplete(SubscribeAfterComplete(lookupItem, solution));
+
+        var presentation = lookupItem.Item.Presentation as DeclaredElementPresentation<DeclaredElementInfo>;
+        if (presentation != null) presentation.TextColor = SystemColors.GrayText;
+
+#endif
         collector.AddToBottom(lookupItem);
       }
 
       return true;
     }
 
-    private static void SubscribeAfterComplete([NotNull] DeclaredElementLookupItem lookupItem)
+    private static AfterCompletionHandler SubscribeAfterComplete([NotNull] ILookupItem lookupItem,
+                                                                 [NotNull] ISolution solution)
     {
       // sorry, ugly as fuck :(
-      lookupItem.AfterComplete += (ITextControl textControl, ref TextRange range,
-                                   ref TextRange decoration, TailType tailType,
-                                   ref Suffix suffix, ref IRangeMarker marker) =>
+      return (ITextControl textControl, ref TextRange range, ref TextRange decoration,
+              TailType tailType, ref Suffix suffix, ref IRangeMarker marker) =>
       {
-        var solution = lookupItem.Solution;
         var psiServices = solution.GetPsiServices();
         psiServices.CommitAllDocuments();
 
@@ -159,7 +180,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           if (keyword == null) // bind user type
           {
             var qualifier = (IReferenceExpression) newReference.QualifierExpression.NotNull();
-            var instance = lookupItem.PreferredDeclaredElement.NotNull();
+            var instance = lookupItem.GetDeclaredElement().NotNull();
             qualifier.Reference.BindTo(ownerType, instance.Substitution);
 
             range = newReference.NameIdentifier.GetDocumentRange().TextRange;
@@ -197,27 +218,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     }
 
     [NotNull]
-    private static IList<IMethod> GetAllMethods([NotNull] IDeclaredElementLookupItem lookupItem)
+    private static IList<IMethod> GetAllMethods([NotNull] ILookupItem lookupItem)
     {
       var results = new LocalList<IMethod>();
 
-      var methodsItem = lookupItem as DeclaredElementLookupItem;
-      if (methodsItem != null)
+      foreach (var instance in lookupItem.GetAllDeclaredElementInstances())
       {
-        foreach (var instance in methodsItem.GetAllDeclaredElements())
-        {
-          var method = instance.Element as IMethod;
-          if (method != null) results.Add(method);
-        }
-      }
-      else
-      {
-        var instance = lookupItem.PreferredDeclaredElement;
-        if (instance != null)
-        {
-          var method = instance.Element as IMethod;
-          if (method != null) results.Add(method);
-        }
+        var method = instance.Element as IMethod;
+        if (method != null) results.Add(method);
       }
 
       return results.ResultingList();

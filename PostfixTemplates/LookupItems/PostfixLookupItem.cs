@@ -116,7 +116,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         var postfixText = textControl.Document.GetText(postfixRange);
         textControl.Document.ReplaceText(postfixRange, string.Empty);
 
-        chooser.Execute(myLifetime, textControl, expressions, postfixText, ExpressionSelectTitle, index =>
+        chooser.Execute(myLifetime, textControl, expressions,
+                        postfixText, ExpressionSelectTitle, index =>
         {
           myExpressionIndex = index;
 
@@ -145,6 +146,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       Assertion.Assert(myExpressionIndex >= 0, "myExpressionIndex >= 0");
       Assertion.Assert(myExpressionIndex < expressions.Count, "myExpressionIndex < expressions.Count");
+
       var expressionContext = expressions[myExpressionIndex];
 
       TNode newNode;

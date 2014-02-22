@@ -21,6 +21,7 @@ await
 cast
 not
 par
+sel
 var
 # AUTOMATIC #
 + ToString

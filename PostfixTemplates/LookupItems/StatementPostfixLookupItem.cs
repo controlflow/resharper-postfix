@@ -9,6 +9,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Transactions;
@@ -59,8 +60,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       // Razor issue - hard to convert expression to statement
       if (!targetStatement.GetDocumentRange().IsValid())
       {
-        var newStatement = psiServices.DoTransaction(
-          ExpandCommandName, () => CreateStatement(factory, context.Expression));
+        var newStatement = psiServices.DoTransaction(ExpandCommandName, () =>
+        {
+          var expression = context.Expression.GetOperandThroughParenthesis() ?? context.Expression;
+          return CreateStatement(factory, expression);
+        });
 
         var razorStatement = RazorUtil.FixExpressionToStatement(expressionRange, psiServices);
         if (razorStatement != null)
@@ -70,7 +74,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
             var statement = razorStatement.ReplaceBy(newStatement);
 
             // force Razor's bracing style
-            var formatter = statement.Language.LanguageServiceNotNull().CodeFormatter.NotNull();
+            var languageService = statement.Language.LanguageService().NotNull();
+            var formatter = languageService.CodeFormatter.NotNull();
             formatter.Format(statement, CodeFormatProfile.SOFT, NullProgressIndicator.Instance);
 
             return statement;
@@ -83,7 +88,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       return psiServices.DoTransaction(ExpandCommandName, () =>
       {
-        var newStatement = CreateStatement(factory, context.Expression);
+        var expression = context.Expression.GetOperandThroughParenthesis() ?? context.Expression;
+        var newStatement = CreateStatement(factory, expression);
 
         Assertion.AssertNotNull(targetStatement, "targetStatement != null");
         Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");

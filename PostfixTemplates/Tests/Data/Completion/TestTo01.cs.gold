@@ -1,0 +1,9 @@
+﻿// ${COMPLETE_ITEM:to}
+
+class Foo
+{
+  void Bar()
+  {
+    target = new string('a', 42);{caret}
+  }
+}
