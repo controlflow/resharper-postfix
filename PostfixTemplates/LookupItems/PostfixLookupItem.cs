@@ -121,12 +121,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
           // yep, run accept recursively, now with selected item index
           var locks = solution.GetComponent<IShellLocks>();
-          locks.ReentrancyGuard.Queue("PostfixTemplates.Accept", () =>
+          locks.ReentrancyGuard.ExecuteOrQueue("PostfixTemplates.Accept", () =>
           {
             locks.ExecuteWithReadLock(() =>
             {
+              var text = postfixText.Substring(0, postfixText.Length - myReparseString.Length);
               textControl.Document.InsertText( // bring back ".name__"
-                postfixRange.StartOffset, postfixText, TextModificationSide.RightSide);
+                postfixRange.StartOffset, text, TextModificationSide.RightSide);
 
               Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
             });
