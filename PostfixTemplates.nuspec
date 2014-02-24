@@ -14,7 +14,25 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-      Major bugfix release. ReSharper 8.2 EAP support. New feature: expression chooser popup to resolve ambiguity in .not/.par/.cast/.arg templates. New experimental feature: `.sel` template to select expression in editor (only in double completion/expansion by `tab`); New feature: searching for occurrences in .var template. New feature: code completion helper to prevent mistyping 'Length' property as 'Count' or vice versa. New feature: static methods from System.Array available over arrays ("xs.Resize" => "Array.Resize(xs, |)"). New feature: static methods from System.Enum available over enumeration types ("SomeEnum.gv" => "Enum.GetValues(typeof(SomeEnum))"). New feature: formatting on semicolon. Fix naming suggestions for .foreach/.using when braces insertion is turned off and there is foreach/using statement over the same collection/resource in the same block. Templates .notnull/.null disabled over as-expressions (producing "expr as T != null" is stupid). Fix .arg template inside assignments. Template .new enabled over unresolved and expression like "StringBuilder().new". Fix .arg locking, tested with R# 8.1.1 EAP. Template .var enabled in auto completion "Inside.Complex.var.Expressions". Templates .for/.forr enabled over integral numerical types other than 'int'. Template .foreach now matches first when typing ".for" prefix. Fix .field/.prop naming issues. Unwraping of expressions from parentheses in all templates.
+Major bugfix release.
+&#8226; ReSharper 8.2 EAP support.
+&#8226; New feature: expression chooser popup to resolve ambiguity in .not/.par/.cast/.arg templates.
+&#8226; New experimental feature: `.sel` template to select expression in editor (only in double completion/expansion by `tab`);
+&#8226; New feature: searching for occurrences in .var template.
+&#8226; New feature: code completion helper to prevent mistyping 'Length' property as 'Count' or vice versa.
+&#8226; New feature: static methods from System.Array available over arrays ("xs.Resize" => "Array.Resize(xs, |)").
+&#8226; New feature: static methods from System.Enum available over enumeration types ("SomeEnum.gv" => "Enum.GetValues(typeof(SomeEnum))").
+&#8226; New feature: formatting on semicolon.
+&#8226; Fix naming suggestions for .foreach/.using when braces insertion is turned off and there is foreach/using statement over the same collection/resource in the same block.
+&#8226; Templates .notnull/.null disabled over as-expressions (producing "expr as T != null" is stupid).
+&#8226; Fix .arg template inside assignments.
+&#8226; Template .new enabled over unresolved and expression like "StringBuilder().new".
+&#8226; Fix .arg locking, tested with R# 8.1.1 EAP.
+&#8226; Template .var enabled in auto completion "Inside.Complex.var.Expressions".
+&#8226; Templates .for/.forr enabled over integral numerical types other than 'int'.
+&#8226; Template .foreach now matches first when typing ".for" prefix.
+&#8226; Fix .field/.prop naming issues.
+&#8226; Unwraping of expressions from parentheses in all templates.
     </releaseNotes>
     <dependencies>
       <dependency id="ReSharper" version="8.0" />
