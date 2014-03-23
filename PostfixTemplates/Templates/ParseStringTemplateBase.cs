@@ -99,8 +99,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
           if (marker.IsValid && invokeParameterName)
           {
-            LookupUtil.ShowParameterInfo(
-              solution, textControl, marker.Range, null, myLookupItemsOwner);
+            using (ReadLockCookie.Create())
+            {
+              LookupUtil.ShowParameterInfo(
+                solution, textControl, marker.Range, null, myLookupItemsOwner);
+            }
           }
         });
 

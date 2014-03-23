@@ -10,7 +10,7 @@ using JetBrains.Application.PluginSupport;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("1.9.3")]
+[assembly: AssemblyVersion("2.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 [assembly: PluginTitle("Postfix Templates")]

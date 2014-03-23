@@ -22,6 +22,8 @@ using JetBrains.Util;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 #endif
 
+// todo: allow 'F(xs.foreach)' => 'foreach (var x in xs) F(x);'
+
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
@@ -72,8 +74,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       public override MatchingResult Match(string prefix, ITextControl textControl)
       {
-        if (string.Equals(prefix, "for", StringComparison.OrdinalIgnoreCase))
-          prefix = "forEach";
+        if (prefix.Length <= 3 &&
+            prefix.Equals("for".Substring(0, prefix.Length), StringComparison.OrdinalIgnoreCase))
+        {
+          prefix += "Each";
+        }
 
         return base.Match(prefix, textControl);
       }
