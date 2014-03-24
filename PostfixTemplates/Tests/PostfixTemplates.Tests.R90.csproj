@@ -916,9 +916,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="PostfixTemplates.Tests.R82.packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\PostfixTemplates.R90.csproj">
       <Project>{4dd44801-150f-4922-8835-cea0fb1dc2de}</Project>
       <Name>PostfixTemplates.R90</Name>

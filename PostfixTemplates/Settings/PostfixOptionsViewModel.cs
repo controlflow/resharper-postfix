@@ -19,6 +19,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
                                    [NotNull] OptionsSettingsSmartContext settings,
                                    [NotNull] PostfixTemplatesManager templatesManager)
     {
+      TreeGr
+
       mySettingsStore = settings;
       myTemplatesManager = templatesManager;
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
