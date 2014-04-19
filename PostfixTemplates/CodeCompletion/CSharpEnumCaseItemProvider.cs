@@ -281,12 +281,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       public RichText DisplayName { get; private set; }
       public RichText DisplayTypeName { get; private set; }
 
+      // ReSharper disable once UnusedMember.Local
       public string OrderingString
       {
         get { return Identity; }
-        // ReSharper disable once UnusedMember.Local
-        // ReSharper disable once ValueParameterNotUsed
-        set { }
       }
 
       public string Identity { get; private set; }

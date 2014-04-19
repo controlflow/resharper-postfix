@@ -1,4 +1,5 @@
-﻿using JetBrains.TextControl;
+﻿using System;
+using JetBrains.TextControl;
 using JetBrains.Util;
 #if RESHARPER8
 using JetBrains.ReSharper.Feature.Services.Lookup;
@@ -27,5 +28,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     public int Multiplier { get; set; }
     public bool IsDynamic { get { return false; } }
     public bool IgnoreSoftOnSpace { get; set; }
+
+#if RESHARPER9
+    public ILookupItemPlacement Placement
+    {
+      get { return null; }
+      set { GC.KeepAlive(value); }
+    }
+#endif
   }
 }

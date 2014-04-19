@@ -1,3 +1,4 @@
+using System;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
@@ -133,12 +134,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         set { myRealItem.Multiplier = value; }
       }
 
+      // ReSharper disable once UnusedMember.Local
       public string OrderingString
       {
         get { return myFakeText; }
-        // ReSharper disable once ValueParameterNotUsed
-        // ReSharper disable once UnusedMember.Local
-        set { }
       }
 
       public bool IgnoreSoftOnSpace
@@ -146,6 +145,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         get { return myRealItem.IgnoreSoftOnSpace; }
         set { myRealItem.IgnoreSoftOnSpace = value; }
       }
+
+#if RESHARPER9
+      public ILookupItemPlacement Placement
+      {
+        get { return null; }
+        set { GC.KeepAlive(value); }
+      }
+#endif
     }
   }
 }

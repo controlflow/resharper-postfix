@@ -87,7 +87,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         new SuitableStaticMethodsFilter(filterType, qualifier),
         OverriddenFilter.INSTANCE, new AccessRightsFilter(accessContext));
 
+#if RESHARPER9
+      var innerCollector = context.BasicContext.CreateCollector();
+#else
       var innerCollector = new GroupedItemsCollector();
+#endif
       GetLookupItemsFromSymbolTable(filteredSymbolTable, innerCollector, context, false);
 
       var solution = context.BasicContext.Solution;
