@@ -7,6 +7,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   // todo: check (new C()).notnull is not available
+  // todo: public Ctor(string arg) { _arg = arg.notnull; } - disable
 
   public abstract class CheckForNullTemplateBase
   {
