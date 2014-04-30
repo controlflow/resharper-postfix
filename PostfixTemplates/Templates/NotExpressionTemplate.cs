@@ -22,7 +22,22 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     protected override ILookupItem CreateBooleanItem(PrefixExpressionContext[] expressions)
     {
+      if (expressions.Length > 1)
+      {
+        expressions = Array.FindAll(expressions, IsNotUnderUnaryNegation);
+      }
+
       return new NotItem(expressions);
+    }
+
+    private static bool IsNotUnderUnaryNegation([NotNull] PrefixExpressionContext context)
+    {
+      var unaryExpression = context.ExpressionWithReference as IUnaryExpression;
+
+      var operatorExpression = UnaryOperatorExpressionNavigator.GetByOperand(unaryExpression);
+      if (operatorExpression == null) return true;
+
+      return operatorExpression.UnaryOperatorType != UnaryOperatorType.EXCL;
     }
 
     private sealed class NotItem : ExpressionPostfixLookupItem<ICSharpExpression>

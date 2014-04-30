@@ -57,7 +57,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected override void AfterComplete(ITextControl textControl, IExpressionStatement statement)
       {
         var expression = (IAssignmentExpression) statement.Expression;
-        var hotspotInfo = new HotspotInfo(new TemplateField("target", 0), expression.Dest.GetDocumentRange());
+        var templateField = new TemplateField("target", 0);
+        var hotspotInfo = new HotspotInfo(templateField, expression.Dest.GetDocumentRange());
 
         var endRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
