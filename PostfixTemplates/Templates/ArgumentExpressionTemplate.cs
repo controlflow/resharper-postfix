@@ -129,21 +129,34 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       private static bool TryPlaceCaretSmart([NotNull] ISolution solution, [NotNull] ITextControl textControl,
                                              [NotNull] PsiLanguageType language, TextRange range)
       {
-        foreach (var tokenNode in
-          TextControlToPsi.GetElements<ITokenNode>(solution, textControl.Document, range.EndOffset))
+        foreach (var tokenNode in TextControlToPsi.GetElements<ITokenNode>(
+                                    solution, textControl.Document, range.EndOffset))
         {
           if (!tokenNode.Language.IsLanguage(language)) continue;
-          if (tokenNode.GetTokenType() != CSharpTokenType.LPARENTH) continue;
 
-          var invocation = tokenNode.Parent as IInvocationExpression;
-          if (invocation == null || invocation.RPar == null) continue;
-
-          var reference = invocation.InvocationExpressionReference;
-          if (reference != null && reference.Resolve().ResolveErrorType == ResolveErrorType.OK)
+          var tokenType = tokenNode.GetTokenType();
+          if (tokenType == CSharpTokenType.LT)
           {
-            var offset = invocation.RPar.GetDocumentRange().TextRange.EndOffset;
-            textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+            var typeArguments = tokenNode.Parent as ITypeArgumentList;
+            if (typeArguments == null) continue;
+
+            var endOffset = tokenNode.GetDocumentRange().TextRange.EndOffset;
+            textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
             return true;
+          }
+
+          if (tokenType == CSharpTokenType.LPARENTH)
+          {
+            var invocation = tokenNode.Parent as IInvocationExpression;
+            if (invocation == null || invocation.RPar == null) continue;
+
+            var reference = invocation.InvocationExpressionReference;
+            if (reference != null && reference.Resolve().ResolveErrorType == ResolveErrorType.OK)
+            {
+              var offset = invocation.RPar.GetDocumentRange().TextRange.EndOffset;
+              textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+              return true;
+            }
           }
         }
 
