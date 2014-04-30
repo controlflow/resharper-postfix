@@ -147,10 +147,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       }
 
 #if RESHARPER9
+      private ILookupItemPlacement myPlacement;
+
       public ILookupItemPlacement Placement
       {
-        get { return null; }
-        set { GC.KeepAlive(value); }
+        get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(myFakeText)); }
+        set { myPlacement = value; }
       }
 #endif
     }
