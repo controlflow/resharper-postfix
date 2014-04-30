@@ -37,6 +37,7 @@ using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastr
 #endif
 
 // todo: caret placement for void methods? after ;? formatting?
+// todo: caret placement after completing generic method<>
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
