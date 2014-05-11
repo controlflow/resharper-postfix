@@ -1,0 +1,13 @@
+﻿// ${COMPLETE_ITEM:field}
+
+class Person
+{
+  private Person mySomePerson;
+  private Person myPerson;
+
+  public Person(Person somePerson)
+  {
+    mySomePerson = somePerson;
+    myPerson = somePerson;{caret}
+  }
+}

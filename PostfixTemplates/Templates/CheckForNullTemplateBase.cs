@@ -3,11 +3,13 @@ using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.CSharp.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   // todo: check (new C()).notnull is not available
   // todo: public Ctor(string arg) { _arg = arg.notnull; } - disable
+  // todo: parentheses!
 
   public abstract class CheckForNullTemplateBase
   {
@@ -17,32 +19,38 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (expressionContext == null) return false;
 
       var expression = expressionContext.Expression;
-      if (expression is IThisExpression) return false;
-      if (expression is IBaseExpression) return false;
-      if (expression is ICSharpLiteralExpression) return false;
-      if (expression is IObjectCreationExpression) return false;
-      if (expression is IUnaryOperatorExpression) return false;
       if (expression is INullCoalescingExpression) return true;
-      if (expression is IBinaryExpression) return false;
-      if (expression is IAnonymousMethodExpression) return false;
-      if (expression is IAnonymousObjectCreationExpression) return false;
-      if (expression is IArrayCreationExpression) return false;
-      if (expression is IDefaultExpression) return false;
-      if (expression is ITypeofExpression) return false;
 
-      switch (expressionContext.Type.Classify)
+      if (expression is IThisExpression
+        || expression is IBaseExpression
+        || expression is ICSharpLiteralExpression
+        || expression is IObjectCreationExpression
+        || expression is IUnaryOperatorExpression
+        || expression is IBinaryExpression
+        || expression is IAnonymousMethodExpression
+        || expression is IAnonymousObjectCreationExpression
+        || expression is IArrayCreationExpression
+        || expression is IDefaultExpression
+        || expression is ITypeofExpression) return false;
+
+      var typeClassification = expressionContext.Type.Classify;
+      if (typeClassification == TypeClassification.VALUE_TYPE)
       {
-        case null:
-
-        case TypeClassification.REFERENCE_TYPE:
-          return true;
-
-        case TypeClassification.VALUE_TYPE:
-          return expressionContext.Type.IsNullable();
-
-        default:
-          return false;
+        return expressionContext.Type.IsNullable();
       }
+
+      return true; // unknown or ref-type
+    }
+
+    protected static bool MakeSenseToCheckInAuto(PrefixExpressionContext expressionContext)
+    {
+      var expression = expressionContext.Expression.GetOperandThroughParenthesis();
+      if (expression is IAssignmentExpression) return false;
+
+      // .notnull/.null over 'as T' expressions looks annoying
+      if (expression is IAsExpression) return false;
+
+      return true;
     }
 
     protected class CheckForNullStatementItem : StatementPostfixLookupItem<IIfStatement>
@@ -70,7 +78,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly string myTemplate;
 
       public CheckForNullExpressionItem([NotNull] string shortcut,
-                                        [NotNull] PrefixExpressionContext context,
+                                        [NotNull] PrefixExpressionContext[] context,
                                         [NotNull] string template)
         : base(shortcut, context)
       {

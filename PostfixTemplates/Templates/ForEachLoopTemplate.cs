@@ -28,6 +28,8 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // todo: hide from auto for string type?
+
   [PostfixTemplate(
     templateName: "forEach",
     description: "Iterates over enumerable collection",

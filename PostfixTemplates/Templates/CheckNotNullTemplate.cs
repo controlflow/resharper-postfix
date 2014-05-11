@@ -1,5 +1,5 @@
-﻿using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Psi.CSharp.Tree;
+﻿using System.Collections.Generic;
+using JetBrains.ReSharper.Feature.Services.Lookup;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -16,18 +16,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         if (IsNullable(outerExpression))
         {
-          if (context.IsAutoCompletion && outerExpression.Expression is IAsExpression)
-            return null;
+          if (context.IsAutoCompletion && !MakeSenseToCheckInAuto(outerExpression))
+            return null; // reduce noise
 
           return new CheckForNullStatementItem("notNull", outerExpression, "if($0!=null)");
         }
       }
       else if (!context.IsAutoCompletion)
       {
-        var innerExpression = context.InnerExpression;
-        if (IsNullable(innerExpression))
+        var nullableExpressions = new List<PrefixExpressionContext>();
+        foreach (var expressionContext in context.Expressions)
         {
-          return new CheckForNullExpressionItem("notNull", innerExpression, "$0!=null");
+          if (IsNullable(expressionContext))
+            nullableExpressions.Add(expressionContext);
+        }
+
+        if (nullableExpressions.Count > 0)
+        {
+          nullableExpressions.Reverse();
+          return new CheckForNullExpressionItem("notNull", nullableExpressions.ToArray(), "$0!=null");
         }
       }
 

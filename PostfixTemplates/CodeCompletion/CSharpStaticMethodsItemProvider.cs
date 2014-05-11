@@ -81,8 +81,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       // collect all declared types
       var psiModule = context.PsiModule;
       var commonSymbolTable = declaredTypes.Aggregate(
-        seed: EmptySymbolTable.INSTANCE,
-        func: (table, type) => table.Merge(type.GetSymbolTable(psiModule)));
+        EmptySymbolTable.INSTANCE, (table, type) => table.Merge(type.GetSymbolTable(psiModule)));
 
       var filteredSymbolTable = commonSymbolTable.Filter(
         new SuitableStaticMethodsFilter(filterType, qualifier),

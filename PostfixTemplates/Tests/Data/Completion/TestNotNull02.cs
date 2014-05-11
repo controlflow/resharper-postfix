@@ -1,0 +1,11 @@
+// ${COMPLETE_ITEM:notnull}
+
+class Person
+{
+  private string myName;
+
+  public Person(string name)
+  {
+    (myName = name.nn{caret});
+  }
+}

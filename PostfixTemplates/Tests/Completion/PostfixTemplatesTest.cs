@@ -75,8 +75,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
     [Test] public void TestNot03() { DoNamedTest(); }
 
     [Test] public void TestNotNull01() { DoNamedTest(); }
+    [Test] public void TestNotNull02() { DoNamedTest(); }
 
     [Test] public void TestField01() { DoNamedTest(); }
+    [Test] public void TestField02() { DoNamedTest(); }
 
     [Test] public void TestProp01() { DoNamedTest(); }
 
