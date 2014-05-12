@@ -97,12 +97,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
             });
           }
 
-          if (marker.IsValid && invokeParameterName)
+          if (invokeParameterName)
           {
             using (ReadLockCookie.Create())
             {
-              LookupUtil.ShowParameterInfo(
-                solution, textControl, marker.Range, null, myLookupItemsOwner);
+              if (marker.IsValid)
+              {
+                LookupUtil.ShowParameterInfo(
+                  solution, textControl, marker.Range, null, myLookupItemsOwner);
+              }
             }
           }
         });
