@@ -28,10 +28,13 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-#if RESHARPER9
+#if RESHARPER8
+using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
+#elif RESHARPER9
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
@@ -175,11 +178,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       return string.Empty;
     }
 
-    private sealed class EnumMemberLookupItem : PostfixLookupItemBase,
-      // ReSharper disable RedundantNameQualifier
-      JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem
-      // ReSharper enable RedundantNameQualifier
+    private sealed class EnumMemberLookupItem : PostfixLookupItemBase, ILookupItem
     {
+      [NotNull] private readonly string myIdentity;
       [NotNull] private readonly IRangeMarker myDotRangeMarker;
       [NotNull] private readonly IElementInstancePointer<IField> myPointer;
       [NotNull] private readonly string myShortName;
@@ -194,15 +195,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         myPointer = enumMember.CreateElementInstancePointer();
         myShortName = enumMember.Element.ShortName;
         myIsFlags = isFlags && normalizedValue.Any(x => x != '0'); // ugh :(
+        myIdentity = "   ENUM_MEMBER_" + normalizedValue;
 
         DisplayName = new RichText(myShortName, new TextStyle(FontStyle.Bold));
-        Identity = "   ENUM_MEMBER_" + normalizedValue;
 
         if (value.Length <= 32) // protect from too heavy values
         {
           DisplayTypeName = new RichText("= " + value,
             new TextStyle(FontStyle.Regular, SystemColors.GrayText));
         }
+      }
+
+      public override string Identity
+      {
+        get { return myIdentity; }
       }
 
       public void Accept(ITextControl textControl, TextRange nameRange,
@@ -280,14 +286,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public RichText DisplayName { get; private set; }
       public RichText DisplayTypeName { get; private set; }
-
-      // ReSharper disable once UnusedMember.Local
-      public string OrderingString
-      {
-        get { return Identity; }
-      }
-
-      public string Identity { get; private set; }
     }
   }
 }

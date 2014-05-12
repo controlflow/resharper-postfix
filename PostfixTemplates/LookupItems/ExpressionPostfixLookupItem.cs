@@ -4,6 +4,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
@@ -25,9 +26,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       {
         var factory = CSharpElementFactory.GetInstance(psiModule);
         var expression = context.Expression;
-
         var newExpression = CreateExpression(
-          factory, expression.GetOperandThroughParenthesis() ?? expression);
+          factory, expression.GetOperandThroughParenthesis().NotNull());
 
         return expression.ReplaceBy(newExpression);
       });

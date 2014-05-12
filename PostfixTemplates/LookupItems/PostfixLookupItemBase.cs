@@ -1,4 +1,4 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 using JetBrains.TextControl;
 using JetBrains.Util;
 #if RESHARPER8
@@ -25,16 +25,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       return false;
     }
 
+    [NotNull] public abstract string Identity { get; }
+
     public int Multiplier { get; set; }
     public bool IsDynamic { get { return false; } }
     public bool IgnoreSoftOnSpace { get; set; }
 
-#if RESHARPER9
+#if RESHARPER8
+
+    public string OrderingString
+    {
+      get { return Identity; }
+    }
+
+#elif RESHARPER9
+
+    private ILookupItemPlacement myPlacement;
+
     public ILookupItemPlacement Placement
     {
-      get { return null; }
-      set { GC.KeepAlive(value); }
+      get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(Identity)); }
+      set { myPlacement = value; }
     }
+
 #endif
   }
 }

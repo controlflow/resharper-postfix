@@ -1,4 +1,3 @@
-using System;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;

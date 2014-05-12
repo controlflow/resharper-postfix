@@ -61,7 +61,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       {
         var newStatement = psiServices.DoTransaction(ExpandCommandName, () =>
         {
-          var expression = context.Expression.GetOperandThroughParenthesis() ?? context.Expression;
+          var expression = context.Expression.GetOperandThroughParenthesis().NotNull();
           return CreateStatement(factory, expression);
         });
 
@@ -87,7 +87,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       return psiServices.DoTransaction(ExpandCommandName, () =>
       {
-        var expression = context.Expression.GetOperandThroughParenthesis() ?? context.Expression;
+        var expression = context.Expression.GetOperandThroughParenthesis().NotNull();
         var newStatement = CreateStatement(factory, expression);
 
         Assertion.AssertNotNull(targetStatement, "targetStatement != null");

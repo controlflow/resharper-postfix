@@ -19,14 +19,12 @@ using JetBrains.UI.RichText;
 using JetBrains.Util;
 #if RESHARPER9
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
-  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase,
-    // ReSharper disable RedundantNameQualifier
-    JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem
-    // ReSharper enable RedundantNameQualifier
+  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
     where TNode : class, ITreeNode
   {
     [NotNull] private readonly Lifetime myLifetime;
@@ -227,12 +225,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     public RichText DisplayName { get { return myShortcut; } }
     public virtual RichText DisplayTypeName { get { return null; } }
-    public string Identity { get { return myShortcut; } }
-
-    public string OrderingString
-    {
-      get { return myShortcut; }
-    }
+    public override string Identity { get { return myShortcut; } }
 
     private sealed class ExpressionContextImage
     {
