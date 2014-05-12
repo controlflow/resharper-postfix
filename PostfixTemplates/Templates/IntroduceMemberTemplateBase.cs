@@ -23,8 +23,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var functionDeclaration = context.ContainingFunction;
       if (functionDeclaration == null) return null;
 
-      var classDeclaration = functionDeclaration.GetContainingNode<IClassDeclaration>();
-      if (classDeclaration == null) return null;
+      var classLikeDeclaration = functionDeclaration.GetContainingNode<IClassLikeDeclaration>();
+      if (classLikeDeclaration == null || classLikeDeclaration is IInterfaceDeclaration) return null;
 
       if (!context.IsAutoCompletion || functionDeclaration.DeclaredElement is IConstructor)
       {
@@ -32,6 +32,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           if (expression.Type.IsUnknown) continue;
           if (!expression.CanBeStatement) continue;
+
+          // disable over assignments
+          if (expression.Expression is IAssignmentExpression) return null;
 
           var reference = expression.Expression as IReferenceExpression;
           if (reference != null && reference.QualifierExpression == null)

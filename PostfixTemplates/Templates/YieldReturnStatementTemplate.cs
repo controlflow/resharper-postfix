@@ -50,7 +50,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       if (declaration.IsIterator) return true;
       if (declaration.IsAsync) return false;
 
-      if (returnType.IsGenericIEnumerable() || returnType.IsIEnumerable())
+      if (returnType.IsGenericIEnumerable() || returnType.IsIEnumerable() ||
+          returnType.IsGenericIEnumerator() || returnType.IsIEnumerator())
       {
         var collector = new RecursiveElementCollector<IReturnStatement>();
         collector.ProcessElement(declaration);
