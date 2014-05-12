@@ -178,7 +178,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [CanBeNull]
-    public static IReferenceExpression FindReferenceExpression([CanBeNull] ReparsedCodeCompletionContext context)
+    public static IReferenceExpression ToReferenceExpression([CanBeNull] this ReparsedCodeCompletionContext context)
     {
       if (context == null) return null;
 

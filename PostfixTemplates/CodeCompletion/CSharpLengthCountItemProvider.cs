@@ -41,8 +41,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     protected override void TransformItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
-      var referenceExpression = CommonUtils.FindReferenceExpression(context.UnterminatedContext) ??
-                                CommonUtils.FindReferenceExpression(context.TerminatedContext);
+      var referenceExpression = context.UnterminatedContext.ToReferenceExpression() ??
+                                context.TerminatedContext.ToReferenceExpression();
       if (referenceExpression == null) return;
 
       var settingsStore = referenceExpression.GetSettingsStore();
@@ -102,7 +102,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         return new MatchingResult();
       }
 
-      public IconId Image { get { return ServicesThemedIcons.LiveTemplate.Id; } }
+      public IconId Image
+      {
+        get { return ServicesThemedIcons.LiveTemplate.Id; }
+      }
 
       public void Accept(ITextControl textControl, TextRange nameRange,
                          LookupItemInsertType insertType, Suffix suffix,
@@ -134,19 +137,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         set { myRealItem.Multiplier = value; }
       }
 
-      // ReSharper disable once UnusedMember.Local
-      public string OrderingString
-      {
-        get { return myFakeText; }
-      }
-
       public bool IgnoreSoftOnSpace
       {
         get { return myRealItem.IgnoreSoftOnSpace; }
         set { myRealItem.IgnoreSoftOnSpace = value; }
       }
 
-#if RESHARPER9
+#if RESHARPER8
+
+      public string OrderingString
+      {
+        get { return myFakeText; }
+      }
+
+#elif RESHARPER9
+
       private ILookupItemPlacement myPlacement;
 
       public ILookupItemPlacement Placement
@@ -154,6 +159,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(myFakeText)); }
         set { myPlacement = value; }
       }
+
 #endif
     }
   }

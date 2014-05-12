@@ -17,6 +17,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExpectedTypes;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
+using JetBrains.ReSharper.Psi.Modules;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Services;
@@ -55,38 +56,32 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     protected override bool AddLookupItems(CSharpCodeCompletionContext context,
                                            GroupedItemsCollector collector)
     {
-      var referenceExpression = CommonUtils.FindReferenceExpression(context.UnterminatedContext) ??
-                                CommonUtils.FindReferenceExpression(context.TerminatedContext);
+      var referenceExpression = context.UnterminatedContext.ToReferenceExpression() ??
+                                context.TerminatedContext.ToReferenceExpression();
       if (referenceExpression == null) return false;
 
       var qualifier = referenceExpression.QualifierExpression;
       if (qualifier == null) return false;
 
-      IType qualifierType = qualifier.Type(), filterType = qualifierType;
-      if (!qualifierType.IsResolved)
-      {
-        qualifierType = IsEnumTypeReference(qualifier);
-        if (qualifierType == null) return false;
-
-        filterType = qualifier.GetPredefinedType().Type;
-      }
-
       var settingsStore = qualifier.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowStaticMethods))
-        return false;
+      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowStaticMethods)) return false;
 
-      // prepare symbol table of suitable static methods
-      var accessContext = new ElementAccessContext(qualifier);
-      var declaredTypes = DeclaredTypesCollector.Accept(qualifierType);
+      IType filterType;
+      var qualifierType = QualifierType(qualifier, out filterType);
+      if (qualifierType == null) return false;
 
       // collect all declared types
-      var psiModule = context.PsiModule;
-      var commonSymbolTable = declaredTypes.Aggregate(
-        EmptySymbolTable.INSTANCE, (table, type) => table.Merge(type.GetSymbolTable(psiModule)));
+      var symbolTable = EmptySymbolTable.INSTANCE;
+      foreach (var type in DeclaredTypesCollector.Accept(qualifierType))
+      {
+        symbolTable = symbolTable.Merge(type.GetSymbolTable(context.PsiModule));
+      }
 
-      var filteredSymbolTable = commonSymbolTable.Filter(
+      // prepare symbol table of suitable static methods
+      var accessFilter = new AccessRightsFilter(new ElementAccessContext(qualifier));
+      var filteredSymbolTable = symbolTable.Filter(
         new SuitableStaticMethodsFilter(filterType, qualifier),
-        OverriddenFilter.INSTANCE, new AccessRightsFilter(accessContext));
+        OverriddenFilter.INSTANCE, accessFilter);
 
 #if RESHARPER9
       var innerCollector = context.BasicContext.CreateCollector();
@@ -113,7 +108,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var lookupItem = item as LookupItemWrapper<DeclaredElementInfo>;
         if (lookupItem == null) continue;
 
-        lookupItem.SubscribeAfterComplete(SubscribeAfterComplete(lookupItem, solution));
+        var afterComplete = SubscribeAfterComplete(lookupItem, solution);
+        lookupItem.SubscribeAfterComplete(afterComplete);
 
         var presentation = lookupItem.Item.Presentation as DeclaredElementPresentation<DeclaredElementInfo>;
         if (presentation != null) presentation.TextColor = SystemColors.GrayText;
@@ -211,6 +207,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     }
 
     [CanBeNull]
+    private static IType QualifierType([NotNull] ICSharpExpression qualifier, [NotNull] out IType filterType)
+    {
+      var qualifierType = filterType = qualifier.Type();
+      if (qualifierType.IsResolved) return qualifierType;
+
+      var enumType = IsEnumTypeReference(qualifier);
+      if (enumType == null) return null;
+
+      filterType = qualifier.GetPredefinedType().Type;
+      return enumType;
+    }
+
+    [CanBeNull]
     private static IDeclaredType IsEnumTypeReference([NotNull] ICSharpExpression expression)
     {
       var referenceExpression = expression as IReferenceExpression;
@@ -243,11 +252,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       private DeclaredTypesCollector() { }
       [NotNull] readonly HashSet<IDeclaredType> myTypes = new HashSet<IDeclaredType>();
 
-      [NotNull] public static IEnumerable<IDeclaredType> Accept([NotNull] IType type)
+      [NotNull] public static HashSet<IDeclaredType> Accept([NotNull] IType type)
       {
         var collector = new DeclaredTypesCollector();
         type.Accept(collector);
-
         return collector.myTypes;
       }
 
@@ -314,14 +322,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       foreach (var method in methods)
       {
         var parameters = method.Parameters;
-        if (parameters.Count > 0 && parameters[0].Kind == ParameterKind.REFERENCE) continue;
-
-        return false;
+        if (parameters.Count == 0 || parameters[0].Kind != ParameterKind.REFERENCE) return false;
       }
 
       return true;
     }
 
+    // todo: pass existing parameters count
     private sealed class SuitableStaticMethodsFilter : SimpleSymbolFilter
     {
       [NotNull] private readonly IExpressionType myExpressionType;

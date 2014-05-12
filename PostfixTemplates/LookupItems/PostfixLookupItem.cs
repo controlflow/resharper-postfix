@@ -232,8 +232,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     public string OrderingString
     {
       get { return myShortcut; }
-      // ReSharper disable once ValueParameterNotUsed
-      set { }
     }
 
     private sealed class ExpressionContextImage

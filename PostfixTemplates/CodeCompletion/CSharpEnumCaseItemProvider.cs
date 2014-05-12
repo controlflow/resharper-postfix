@@ -49,8 +49,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     protected override bool AddLookupItems(CSharpCodeCompletionContext context,
                                            GroupedItemsCollector collector)
     {
-      var referenceExpression = CommonUtils.FindReferenceExpression(context.UnterminatedContext) ??
-                                CommonUtils.FindReferenceExpression(context.TerminatedContext);
+      var referenceExpression = context.UnterminatedContext.ToReferenceExpression() ??
+                                context.TerminatedContext.ToReferenceExpression();
       if (referenceExpression == null) return false;
 
       var qualifier = referenceExpression.QualifierExpression;
