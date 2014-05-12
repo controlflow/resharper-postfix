@@ -22,7 +22,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return null;
     }
 
-
     private sealed class IfItem : StatementPostfixLookupItem<IIfStatement>
     {
       public IfItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
@@ -30,6 +29,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected override IIfStatement CreateStatement(CSharpElementFactory factory,
                                                       ICSharpExpression expression)
       {
+        // automatically fix 'as'-expression to became 'is'-expression
+        var asExpression = expression as IAsExpression;
+        if (asExpression != null && asExpression.TypeOperand != null && asExpression.Operand != null)
+        {
+          expression = factory.CreateExpression("$0 is $1", asExpression.Operand, asExpression.TypeOperand);
+        }
+
         var template = "if($0)" + EmbeddedStatementBracesTemplate;
         return (IIfStatement) factory.CreateStatement(template, expression);
       }

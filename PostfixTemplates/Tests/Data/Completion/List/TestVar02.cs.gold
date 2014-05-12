@@ -19,6 +19,7 @@ Replace
 arg
 await
 cast
+foreach
 not
 par
 sel

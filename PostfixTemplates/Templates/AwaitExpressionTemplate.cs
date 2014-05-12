@@ -8,6 +8,8 @@ using JetBrains.ReSharper.Psi.CSharp.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // todo: check with .ConfigureAwait()
+
   [PostfixTemplate(
     templateName: "await",
     description: "Awaits expressions of 'Task' type",

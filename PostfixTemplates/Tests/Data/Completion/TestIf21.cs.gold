@@ -1,0 +1,11 @@
+﻿// ${COMPLETE_ITEM:if}
+
+class Program {
+  void F(object operand)
+  {
+    if (operand is Program)
+    {
+      {caret}
+    }
+  }
+}
