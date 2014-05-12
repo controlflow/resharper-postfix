@@ -38,6 +38,7 @@ using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastr
 
 // todo: caret placement for void methods? after ;? formatting?
 // todo: caret placement after completing generic method<>
+// todo: better support existing arguments, fix HasMultiple and etc
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
@@ -166,9 +167,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
         var parenthesisRange = decoration.SetStartTo(range.EndOffset);
         var parenthesisMarker = parenthesisRange.CreateRangeMarker(textControl.Document);
+        var parenthesisIndex = textControl.Document.GetText(decoration).IndexOf('(');
 
         // insert qualifier as first argument
-        var argPosition = TextRange.FromLength(decoration.EndOffset - (parenthesisRange.Length/2), 0);
+        var shift = (parenthesisIndex >= 0) ? parenthesisIndex : 0;
+        var argPosition = TextRange.FromLength(decoration.StartOffset + shift + 1, 0);
         textControl.Document.ReplaceText(argPosition, qualifierText);
 
         // replace qualifier with type (predefined/user type)
