@@ -78,7 +78,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       // double completion support
       var parameters = context.BasicContext.Parameters;
-      if (!executionContext.IsAutoCompletion && parameters.CodeCompletionTypes.Length > 1)
+      var isDoubleCompletion = (parameters.CodeCompletionTypes.Length > 1);
+      if (!executionContext.IsAutoCompletion && isDoubleCompletion)
       {
         var firstCompletion = parameters.CodeCompletionTypes[0];
         if (firstCompletion != CodeCompletionType.AutomaticCompletion) return false;
@@ -91,9 +92,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         {
           toRemove = new JetHashSet<string>(StringComparer.Ordinal);
           foreach (var lookupItem in automaticPostfixItems)
-          {
             toRemove.Add(lookupItem.Identity);
-          }
         }
       }
 
@@ -101,7 +100,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       {
         if (toRemove.Contains(lookupItem.Identity)) continue;
 
-        collector.AddAtDefaultPlace(lookupItem);
+        if (isDoubleCompletion)
+        {
+          collector.AddToTop(lookupItem);
+        }
+        else
+        {
+          collector.AddAtDefaultPlace(lookupItem);
+        }
       }
 
       return (lookupItems.Count > 0);

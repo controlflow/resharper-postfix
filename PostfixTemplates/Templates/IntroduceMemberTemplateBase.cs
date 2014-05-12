@@ -93,13 +93,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           PredefinedPrefixPolicy = PredefinedPrefixPolicy.Remove
         });
 
-        suggestion.Add(ExpressionType, new EntryOptions {
-          SubrootPolicy = SubrootPolicy.Decompose,
-          PluralityKind = PluralityKinds.Unknown
+        suggestion.Prepare(newDeclaration.DeclaredElement, new SuggestionOptions {
+          UniqueNameContext = (ITreeNode) classDeclaration.Body ?? classDeclaration
         });
-
-        suggestion.Prepare(newDeclaration.DeclaredElement,
-          new SuggestionOptions { UniqueNameContext = classDeclaration });
 
         newDeclaration.SetName(suggestion.FirstName());
         myMemberNames = suggestion.AllNames();
