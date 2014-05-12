@@ -1,2 +1,126 @@
-﻿+ notnull
+﻿+ Insert
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
++ Substring
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
+Clone
+Compare
+CompareOrdinal
+CompareTo
+Concat
+Contains
+Copy
+CopyTo
+Count
+EndsWith
+Equals
+Equals
+Format
+GetEnumerator
+GetHashCode
+GetType
+GetTypeCode
+IndexOf
+IndexOfAny
+Intern
+IsInterned
+IsNormalized
+IsNullOrEmpty
+IsNullOrWhiteSpace
+Join
+LastIndexOf
+LastIndexOfAny
+Length
+Split
+StartsWith
+ToCharArray
+[]
+arg
+await
+cast
+else
+field
+foreach
+if
+lock
+not
+notnull
+null
+par
+parse
+prop
+return
+sel
+switch
+throw
+to
+tryparse
+using
+var
+while
+yield
 # AUTOMATIC #
++ Insert
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
++ Substring
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
+Clone
+Compare
+CompareOrdinal
+CompareTo
+Concat
+Contains
+Copy
+CopyTo
+Count
+EndsWith
+Equals
+Equals
+Format
+GetEnumerator
+GetHashCode
+GetType
+GetTypeCode
+IndexOf
+IndexOfAny
+Intern
+IsInterned
+IsNormalized
+IsNullOrEmpty
+IsNullOrWhiteSpace
+Join
+LastIndexOf
+LastIndexOfAny
+Length
+Split
+StartsWith
+ToCharArray
+[]
+field
+foreach
+parse
+prop
+switch
+tryparse
+var

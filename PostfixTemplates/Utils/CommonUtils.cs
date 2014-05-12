@@ -194,5 +194,19 @@ namespace JetBrains.ReSharper.PostfixTemplates
     {
       return treeNode.GetPsiServices().Pointers.CreateTreeElementPointer(treeNode);
     }
+
+    public static bool IsReferenceExpressionsChain([CanBeNull] ICSharpExpression expression)
+    {
+      do
+      {
+        var referenceExpression = expression as IReferenceExpression;
+        if (referenceExpression == null) return false;
+
+        expression = referenceExpression.QualifierExpression;
+      }
+      while (expression != null);
+
+      return true;
+    }
   }
 }

@@ -15,6 +15,7 @@
     </description>
     <releaseNotes>
 Minot bugfix release.
+TODO: UPDATE
 &#8226; Templates `.notnull`/`.null` no longer available over assignment expressions in automatic completion;
 &#8226; Fix caret placement in `.arg` template when completing generic method with uninferable type arguments (when "&lt;&gt;" is inserted);
 &#8226; Template `.not` no longer produces expression selector over "!a" expression;

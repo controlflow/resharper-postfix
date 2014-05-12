@@ -49,9 +49,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var expressionContext = context.InnerExpression;
       if (expressionContext == null) return null;
 
-      var expression = expressionContext.Expression;
-
-      var invocationExpression = expression as IInvocationExpression;
+      var invocationExpression = expressionContext.Expression as IInvocationExpression;
       if (invocationExpression != null) // StringBuilder().new
       {
         var reference = invocationExpression.InvokedExpression as IReferenceExpression;
@@ -66,20 +64,22 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
             {
               var canInstantiate = TypeUtils.CanInstantiateType(typeElement, reference);
               if (canInstantiate != CanInstantiate.No)
+              {
                 return new NewExpressionItem(expressionContext);
+              }
             }
           }
           else if (declaredElement == null || declaredElement is ITypeElement)
           {
-            if (IsReferenceExpressionsChain(reference))
+            if (CommonUtils.IsReferenceExpressionsChain(reference))
               return new NewExpressionItem(expressionContext);
           }
         }
       }
-      else // UnresolvedType.new
+      else if (!context.IsAutoCompletion) // UnresolvedType.new
       {
-        var reference = expression as IReferenceExpression;
-        if (reference != null && !context.IsAutoCompletion && IsReferenceExpressionsChain(reference))
+        var reference = expressionContext.Expression as IReferenceExpression;
+        if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))
         {
           var declaredElement = reference.Reference.Resolve().DeclaredElement;
           if (declaredElement == null || declaredElement is ITypeElement)
@@ -88,20 +88,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
 
       return null;
-    }
-
-    private static bool IsReferenceExpressionsChain([CanBeNull] ICSharpExpression expression)
-    {
-      do
-      {
-        var referenceExpression = expression as IReferenceExpression;
-        if (referenceExpression == null) return false;
-
-        expression = referenceExpression.QualifierExpression;
-      }
-      while (expression != null);
-
-      return true;
     }
 
     private sealed class NewTypeItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
