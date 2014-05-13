@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using JetBrains.Application;
 using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
@@ -6,11 +7,13 @@ using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Feature.Services.Tips;
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.AspectLookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
+using JetBrains.Threading;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
@@ -20,6 +23,7 @@ using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 #endif
@@ -72,6 +76,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       {
         var lookupItem = interestingItems[0];
         var text = (lookupItem.Identity == Count) ? Length : Count;
+
+#if RESHARPER9
+        // todo: check this with 9.0 RC
+        var wrapper = lookupItem as LookupItemWrapper<CSharpDeclaredElementInfo>;
+        if (wrapper != null)
+        {
+          System.GC.KeepAlive(wrapper.Item.Presentation.DisplayName);
+        }
+#endif
 
         collector.AddAtDefaultPlace(new FakeLookupElement(text, lookupItem));
       }
@@ -126,7 +139,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       public RichText DisplayTypeName { get { return myRealItem.DisplayTypeName; } }
       public bool IsDynamic { get { return myRealItem.IsDynamic; } }
       public string Identity { get { return myFakeText; } }
-      public bool CanShrink { get { return myRealItem.CanShrink; } }
+
+      public bool CanShrink
+      {
+        get
+        {
+#if RESHARPER8
+          return myRealItem.CanShrink
+#elif RESHARPER9
+          var canShrink = false;
+          ReentrancyGuard.Current.Execute("CanShrink", () =>
+          {
+            using (ReadLockCookie.Create())
+              canShrink = myRealItem.CanShrink;
+          });
+
+          return canShrink;
+#endif
+        }
+      }
+
       public bool Shrink() { return myRealItem.Shrink(); }
       public void Unshrink() { myRealItem.Unshrink(); }
 

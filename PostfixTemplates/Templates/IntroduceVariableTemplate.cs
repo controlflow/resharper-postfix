@@ -50,6 +50,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           }
         }
 
+        if (expressionContext.Expression is IAssignmentExpression)
+        {
+          if (context.IsAutoCompletion) continue;
+        }
+
         if (expressionContext.Type.IsVoid()) continue;
 
         var referencedType = expressionContext.ReferencedType;
