@@ -15,16 +15,16 @@
     </description>
     <releaseNotes>
 Minor bugfix release.
-&#8226; Double basic postfix items are moved to top of lookup list (make .arg/.to usable from code completion);
+&#8226; Double basic postfix items are moved to top of lookup list (make `.arg`/`.to`/`.sel` usable from code completion);
 &#8226; Template `.var` now available in auto completion inside invocation arguments;
 &#8226; Template `.if` automatically replaces `if (x as T)` expression with `if (x is T)` form;
 &#8226; Templates `.var`/`.throw` now can work over expressions like `Exception(message).throw` like `.new`;
 &#8226; Templates `.notnull`/`.null`/`.field`/`.prop` no longer available over assignment expressions in automatic completion;
-&#8226; Fix caret placement in `.arg` template when completing generic method with uninferable type arguments (when "&lt;&gt;" is inserted);
+&#8226; Fix caret placement in `.arg` template when completing generic method with non inferable type arguments (when "&lt;&gt;" is inserted);
 &#8226; Template `.not` no longer produces expression selector over "!a" expression;
 &#8226; Static method completion now work well with the existing arguments (replace completion, 'RSPL-6167 Invalid completion');
 &#8226; Missing read lock in `.parse` and `.tryparse` templates;
-&#8226; Template `.yeild` now works in iterators of enumerator types;
+&#8226; Template `.yield` now works in iterators of enumerator types;
 &#8226; Align with ReSharper 9.0 APIs.
     </releaseNotes>
     <dependencies>
