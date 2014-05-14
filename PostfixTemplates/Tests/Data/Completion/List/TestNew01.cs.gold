@@ -1,9 +1,6 @@
 ﻿+ A
 Format
 GetName
-GetNames
-GetUnderlyingType
-GetValues
 IsDefined
 Parse
 ToObject
@@ -16,9 +13,6 @@ ToObject
 + A
 Format
 GetName
-GetNames
-GetUnderlyingType
-GetValues
 IsDefined
 Parse
 ToObject

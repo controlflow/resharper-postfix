@@ -59,7 +59,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [NotNull]
-    public IList<ILookupItem> CollectItems([NotNull] PostfixTemplateContext context,
+    public IList<IPostfixLookupItem> CollectItems([NotNull] PostfixTemplateContext context,
                                            [CanBeNull] string templateName = null)
     {
       var store = context.Reference.GetSettingsStore();
@@ -69,10 +69,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
       var innerExpression = context.InnerExpression; // shit happens
       if (innerExpression != null && innerExpression.ReferencedElement is INamespace)
       {
-        return EmptyList<ILookupItem>.InstanceList;
+        return EmptyList<IPostfixLookupItem>.InstanceList;
       }
 
-      var lookupItems = new List<ILookupItem>();
+      var lookupItems = new List<IPostfixLookupItem>();
       foreach (var info in myTemplateProvidersInfos)
       {
         // check disabled providers

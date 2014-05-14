@@ -1,0 +1,126 @@
+﻿+ Clone
+Compare
+CompareOrdinal
++ CompareTo
+Concat
++ Contains
+Copy
++ CopyTo
++ Count
++ EndsWith
++ Equals
+Equals
+Format
++ GetEnumerator
++ GetHashCode
++ GetType
++ GetTypeCode
++ IndexOf
++ IndexOfAny
++ Insert
+Intern
+IsInterned
++ IsNormalized
+IsNullOrEmpty
+IsNullOrWhiteSpace
+Join
++ LastIndexOf
++ LastIndexOfAny
++ Length
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
++ Split
++ StartsWith
++ Substring
++ ToCharArray
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
++ []
++ arg
++ await
++ cast
++ else
++ field
++ foreach
++ if
++ lock
++ not
++ notnull
++ null
++ par
++ parse
++ prop
++ return
++ sel
++ switch
++ throw
++ to
++ tryparse
++ using
++ var
++ while
++ yield
+# AUTOMATIC #
++ Clone
+Compare
+CompareOrdinal
++ CompareTo
+Concat
++ Contains
+Copy
++ CopyTo
++ Count
++ EndsWith
++ Equals
+Equals
+Format
++ GetEnumerator
++ GetHashCode
++ GetType
++ GetTypeCode
++ IndexOf
++ IndexOfAny
++ Insert
+Intern
+IsInterned
++ IsNormalized
+IsNullOrEmpty
+IsNullOrWhiteSpace
+Join
++ LastIndexOf
++ LastIndexOfAny
++ Length
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
++ Split
++ StartsWith
++ Substring
++ ToCharArray
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
++ []
++ field
++ foreach
++ parse
++ prop
++ switch
++ tryparse
++ var

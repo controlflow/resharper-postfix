@@ -1,0 +1,12 @@
+﻿// ${COMPLETE_ITEM:var}
+
+using System;
+using System.Text;
+
+class Program
+{
+  static void Main(string[] args)
+  {
+    var stringBuilder = new StringBuilder("initial text");{caret}
+  }
+}

@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "throw expr;")]
   public class ThrowStatementTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.TypeExpression ?? context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

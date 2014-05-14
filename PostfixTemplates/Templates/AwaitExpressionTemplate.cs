@@ -16,7 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "await expr")]
   public class AwaitExpressionTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
       if (expressionContext == null) return null;

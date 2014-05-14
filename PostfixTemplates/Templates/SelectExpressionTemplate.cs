@@ -15,7 +15,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "|selected + expression|")]
   public class SelectExpressionTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       if (context.IsAutoCompletion) return null;
 

@@ -141,7 +141,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       [CanBeNull]
-      private ILookupItem GetTemplateFromTextControl([NotNull] ISolution solution,
+      private IPostfixLookupItem GetTemplateFromTextControl([NotNull] ISolution solution,
                                                      [NotNull] ITextControl textControl)
       {
         var offset = textControl.Caret.Offset();
@@ -159,7 +159,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       [CanBeNull]
-      private IList<ILookupItem> TryReparseWith([NotNull] ISolution solution,
+      private IList<IPostfixLookupItem> TryReparseWith([NotNull] ISolution solution,
                                                 [NotNull] ITextControl textControl,
                                                 [NotNull] string templateName,
                                                 [NotNull] string reparseString)

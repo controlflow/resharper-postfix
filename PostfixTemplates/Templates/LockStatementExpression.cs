@@ -13,7 +13,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "lock (expr)")]
   public class LockStatementExpression : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "((SomeType) expr)")]
   public class CastExpressionTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       if (context.IsAutoCompletion) return null;
 

@@ -15,12 +15,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "!expr")]
   public class NotExpressionTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
-    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
+    protected override IPostfixLookupItem CreateBooleanItem(PrefixExpressionContext expression)
     {
       throw new InvalidOperationException("Should not be called");
     }
 
-    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext[] expressions)
+    protected override IPostfixLookupItem CreateBooleanItem(PrefixExpressionContext[] expressions)
     {
       if (expressions.Length > 1)
       {

@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "switch (expr)")]
   public class SwitchStatementTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var isAutoCompletion = context.ExecutionContext.IsAutoCompletion;
       foreach (var expressionContext in context.Expressions)

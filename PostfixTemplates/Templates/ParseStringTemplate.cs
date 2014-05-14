@@ -9,7 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "int.Parse(expr)")]
   public class ParseStringTemplate : ParseStringTemplateBase, IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       foreach (var expressionContext in context.Expressions)
       {

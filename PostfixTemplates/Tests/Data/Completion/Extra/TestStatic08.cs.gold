@@ -4,6 +4,6 @@ class Foo {
   static void Bar<T>(ref T a) { }
   static void Main(string[] args) {
     var foo = new Foo();
-    Foo.Bar(ref foo){caret};
+    Bar(ref foo){caret};
   }
 }

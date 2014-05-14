@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "for (var i = xs.Length-1; i >= 0; i--)")]
   public class ForReverseLoopTemplate : ForLoopTemplateBase, IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       string lengthName;
       if (CreateForItem(context, out lengthName))

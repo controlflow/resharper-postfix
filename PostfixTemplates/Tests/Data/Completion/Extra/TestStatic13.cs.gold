@@ -1,0 +1,11 @@
+﻿// ${COMPLETE_ITEM:M}
+
+public class C {
+  void Main() {
+    M(this, 12){caret};
+  }
+
+  static void M(C c) { }
+  static void M(C c, int x) { }
+  static void M(C c, string x) { }
+}

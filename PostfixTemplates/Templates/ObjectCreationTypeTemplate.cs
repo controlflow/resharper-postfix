@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "new SomeType()")]
   public class ObjectCreationTypeTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
       if (typeExpression == null)
@@ -44,7 +44,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     }
 
     [CanBeNull]
-    private static ILookupItem CreateExpressionItem([NotNull] PostfixTemplateContext context)
+    private static IPostfixLookupItem CreateExpressionItem([NotNull] PostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
       if (expressionContext == null) return null;

@@ -36,7 +36,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "foreach (var x in expr)")]
   public class ForEachLoopTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.Expressions.LastOrDefault();
       if (expressionContext == null) return null;

@@ -7,7 +7,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public interface IPostfixTemplate
   {
-    [CanBeNull] ILookupItem CreateItem([NotNull] PostfixTemplateContext context);
+    [CanBeNull] IPostfixLookupItem CreateItem([NotNull] PostfixTemplateContext context);
   }
 
   [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]

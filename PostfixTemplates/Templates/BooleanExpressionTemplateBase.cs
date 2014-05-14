@@ -8,7 +8,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class BooleanExpressionTemplateBase
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var booleanExpressions = new LocalList<PrefixExpressionContext>();
 
@@ -48,10 +48,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     }
 
     [CanBeNull]
-    protected abstract ILookupItem CreateBooleanItem([NotNull] PrefixExpressionContext expression);
+    protected abstract IPostfixLookupItem CreateBooleanItem([NotNull] PrefixExpressionContext expression);
 
     [CanBeNull]
-    protected virtual ILookupItem CreateBooleanItem([NotNull] PrefixExpressionContext[] expressions)
+    protected virtual IPostfixLookupItem CreateBooleanItem([NotNull] PrefixExpressionContext[] expressions)
     {
       foreach (var expressionContext in expressions)
       {

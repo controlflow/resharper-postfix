@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "using (expr)")]
   public class UsingStatementTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

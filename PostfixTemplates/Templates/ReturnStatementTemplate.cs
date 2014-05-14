@@ -15,7 +15,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "return expr;")]
   public class ReturnStatementTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

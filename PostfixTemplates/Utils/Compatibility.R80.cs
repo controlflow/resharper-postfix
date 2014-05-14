@@ -6,6 +6,8 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
+  public interface IPostfixLookupItem : ILookupItem { }
+
   public static class Compatibility
   {
     [NotNull]

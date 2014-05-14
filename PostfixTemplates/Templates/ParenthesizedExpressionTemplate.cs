@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "(expr)")]
   public class ParenthesizedExpressionTemplate : IPostfixTemplate
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
     {
       if (context.IsAutoCompletion)
       {

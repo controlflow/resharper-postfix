@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "while (expr)")]
   public sealed class WhileLoopTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
-    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
+    protected override IPostfixLookupItem CreateBooleanItem(PrefixExpressionContext expression)
     {
       if (expression.CanBeStatement)
       {

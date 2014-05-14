@@ -19,12 +19,11 @@ using JetBrains.UI.RichText;
 using JetBrains.Util;
 #if RESHARPER9
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
-using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
-  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
+  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, IPostfixLookupItem
     where TNode : class, ITreeNode
   {
     [NotNull] private readonly Lifetime myLifetime;
