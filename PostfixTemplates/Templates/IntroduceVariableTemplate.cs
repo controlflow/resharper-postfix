@@ -28,6 +28,7 @@ using JetBrains.ReSharper.Feature.Services.Refactorings;
 #endif
 
 // todo: think about cases like F(this.var), F(42.var). disable in auto?
+// todo: try subscribe workflow finish
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
