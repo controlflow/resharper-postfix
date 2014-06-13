@@ -1,5 +1,4 @@
-﻿using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Psi;
+﻿using JetBrains.ReSharper.Psi;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {

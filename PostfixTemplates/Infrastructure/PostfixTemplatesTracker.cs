@@ -9,15 +9,16 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.TextControl.Actions;
 using JetBrains.TextControl.Util;
 using JetBrains.Util;
 #if RESHARPER8
+using JetBrains.ReSharper.Psi.Services;
 using IExecutableAction = JetBrains.ActionManagement.IActionHandler;
 #elif RESHARPER9
+using JetBrains.ReSharper.Feature.Services.Util;
 using IExecutableAction = JetBrains.UI.ActionsRevised.IExecutableAction;
 #endif
 
@@ -142,7 +143,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       [CanBeNull]
       private IPostfixLookupItem GetTemplateFromTextControl([NotNull] ISolution solution,
-                                                     [NotNull] ITextControl textControl)
+                                                            [NotNull] ITextControl textControl)
       {
         var offset = textControl.Caret.Offset();
         var prefix = LiveTemplatesManager.GetPrefix(textControl.Document, offset);
@@ -160,9 +161,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       [CanBeNull]
       private IList<IPostfixLookupItem> TryReparseWith([NotNull] ISolution solution,
-                                                [NotNull] ITextControl textControl,
-                                                [NotNull] string templateName,
-                                                [NotNull] string reparseString)
+                                                       [NotNull] ITextControl textControl,
+                                                       [NotNull] string templateName,
+                                                       [NotNull] string reparseString)
       {
         var offset = textControl.Caret.Offset();
         var document = textControl.Document;

@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:JetBrains.ReSharper.PostfixTemplates.Settings"
-             xmlns:tgv="urn:schemas-jetbrains-com:jetbrains-ui-treegrid"
+             xmlns:tgv="clr-namespace:JetBrains.UI.TreeGrid;assembly=JetBrains.Platform.ReSharper.UI"
              mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="500"
              d:DataContext="{d:DesignInstance vm:PostfixOptionsViewModel}">
   <UserControl.Resources>
@@ -25,7 +25,7 @@
 
     <Border Grid.Row="1" Margin="2" BorderThickness="1" BorderBrush="Silver">
       <tgv:TreeGridView ItemsSource="{Binding Templates}" BorderThickness="1"
-                        BorderBrush="Gray" SelectionMode="Single">
+                         BorderBrush="Gray" SelectionMode="Single">
         <tgv:TreeGridView.RowStyle>
           <Style TargetType="tgv:TreeGridRow">
             <EventSetter Event="MouseDoubleClick" Handler="DoubleClickCheck" />

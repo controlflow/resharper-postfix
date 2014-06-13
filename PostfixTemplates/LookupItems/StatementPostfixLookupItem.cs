@@ -10,12 +10,16 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
 using JetBrains.ReSharper.Psi.Pointers;
-using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Transactions;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
+#if RESHARPER8
+using JetBrains.ReSharper.Psi.Services;
+#elif RESHARPER9
+using JetBrains.ReSharper.Feature.Services.Util;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {

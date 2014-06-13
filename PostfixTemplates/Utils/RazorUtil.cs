@@ -7,9 +7,14 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Razor.Impl.CustomHandlers;
 using JetBrains.ReSharper.Psi.Razor.Tree;
-using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
+#if RESHARPER8
+using JetBrains.ReSharper.Psi.Services;
+#elif RESHARPER9
+using JetBrains.DocumentManagers.Transactions;
+using JetBrains.ReSharper.Feature.Services.Util;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {

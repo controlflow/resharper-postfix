@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.ActionManagement;
 using JetBrains.Annotations;
-using JetBrains.Application;
 using JetBrains.Application.DataContext;
 using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
@@ -15,15 +14,18 @@ using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util.EventBus;
 #if RESHARPER8
+using JetBrains.Application;
+using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Refactorings.WorkflowNew;
 #elif RESHARPER9
+using JetBrains.ReSharper.Resources.Shell;
+using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
 #endif
 

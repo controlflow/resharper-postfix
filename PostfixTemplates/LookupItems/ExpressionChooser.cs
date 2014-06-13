@@ -16,6 +16,7 @@ using JetBrains.Util;
 using JetBrains.ReSharper.Daemon.Src.Bulbs.Resources;
 #elif RESHARPER9
 using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.Resources.Shell;
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems

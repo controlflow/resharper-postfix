@@ -1,4 +1,5 @@
-﻿using JetBrains.Application.Settings;
+﻿using JetBrains.Application.Components;
+using JetBrains.Application.Settings;
 using JetBrains.Application.Settings.Store.Implementation;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
@@ -20,7 +21,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
       {
         ChangeSettingsTemporarily(lifetime);
 
-        var settingsStore = Application.Shell.Instance.GetComponent<SettingsStore>();
+        var settingsStore = ShellInstance.GetComponent<SettingsStore>();
         var context = ContextRange.ManuallyRestrictWritesToOneContext((_, contexts) => contexts.Empty);
         var settings = settingsStore.BindToContextTransient(context);
 
@@ -139,7 +140,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
       {
         ChangeSettingsTemporarily(lifetime);
 
-        var settingsStore = Application.Shell.Instance.GetComponent<SettingsStore>();
+        var settingsStore = ShellInstance.GetComponent<SettingsStore>();
         var context = ContextRange.ManuallyRestrictWritesToOneContext((_, contexts) => contexts.Empty);
         var settings = settingsStore.BindToContextTransient(context);
 

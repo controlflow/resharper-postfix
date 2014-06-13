@@ -10,14 +10,17 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Text;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-#if RESHARPER9
+#if RESHARPER8
+using JetBrains.ReSharper.Psi.Services;
+#elif RESHARPER9
+using JetBrains.ReSharper.Resources.Shell;
+using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 #endif
 
@@ -29,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     [NotNull] private readonly Lifetime myLifetime;
     [NotNull] private readonly string myShortcut, myIdentifier, myReparseString;
     [NotNull] private readonly ExpressionContextImage[] myImages;
-    private int myExpressionIndex = -1;
+    private int myExpressionIndex;
 
     protected PostfixLookupItem(
       [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)

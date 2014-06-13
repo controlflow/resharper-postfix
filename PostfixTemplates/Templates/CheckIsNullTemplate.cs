@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using JetBrains.ReSharper.Feature.Services.Lookup;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {

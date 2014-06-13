@@ -4,8 +4,14 @@ using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.ReSharper.PostfixTemplates;
 using JetBrains.Threading;
-using JetBrains.Util;
 using NUnit.Framework;
+#if RESHARPER8
+using JetBrains.Util;
+#elif RESHARPER9
+using JetBrains.TestFramework;
+using JetBrains.ReSharper.Resources.Shell;
+#pragma warning disable 618
+#endif
 
 [assembly: TestDataPathBase(@".\Data\Completion")]
 

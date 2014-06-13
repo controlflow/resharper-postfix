@@ -33,38 +33,51 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <Reference Include="JetBrains.Platform.ReSharper.ComponentModel">
-      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ReSharper.ComponentModel.dll</HintPath>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Reference Include="JetBrains.ReSharper.Psi">
+      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Psi.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.DocumentModel">
-      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ReSharper.DocumentModel.dll</HintPath>
+    <Reference Include="JetBrains.ReSharper.Psi.CSharp">
+      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Psi.CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.Metadata">
-      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ReSharper.Metadata.dll</HintPath>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Platform.ComponentModel">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ComponentModel.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.ProjectModel">
-      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ReSharper.ProjectModel.dll</HintPath>
+    <Reference Include="JetBrains.Platform.DocumentManager">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.DocumentManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.Shell">
-      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ReSharper.Shell.dll</HintPath>
+    <Reference Include="JetBrains.Platform.DocumentModel">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.DocumentModel.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.TextControl">
-      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ReSharper.TextControl.dll</HintPath>
+    <Reference Include="JetBrains.Platform.Metadata">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.Metadata.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.UI, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ReSharper.UI.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="JetBrains.Platform.ProjectModel">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ProjectModel.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.Util">
-      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.ReSharper.Util.dll</HintPath>
+    <Reference Include="JetBrains.Platform.Shell">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.Shell.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="JetBrains.Platform.TextControl">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.TextControl.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="JetBrains.Platform.UI">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="JetBrains.Platform.Util">
+      <HintPath>..\..\ReSharper\bin\JetBrains.Platform.Util.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Feature.Services">
@@ -89,11 +102,9 @@
     </Reference>
     <Reference Include="JetBrains.ReSharper.Psi">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Psi.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Psi.CSharp">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Psi.CSharp.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="JetBrains.ReSharper.Psi.Html">
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Psi.Html.dll</HintPath>
@@ -111,87 +122,6 @@
       <HintPath>..\..\ReSharper\bin\JetBrains.ReSharper.Resources.dll</HintPath>
       <Private>False</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Reference Include="JetBrains.Platform.ReSharper.ComponentModel">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.Platform.ReSharper.ComponentModel.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.DocumentModel">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.Platform.ReSharper.DocumentModel.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.Metadata">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.Platform.ReSharper.Metadata.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.ProjectModel">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.Platform.ReSharper.ProjectModel.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.Shell">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.Platform.ReSharper.Shell.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.TextControl">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.Platform.ReSharper.TextControl.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.UI, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.Platform.ReSharper.UI.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.Util">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.Platform.ReSharper.Util.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Feature.Services">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Feature.Services.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Feature.Services.CSharp">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Feature.Services.CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Features.Intellisense">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Features.Intellisense.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.LiveTemplates">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.LiveTemplates.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.NewRefactorings">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.NewRefactorings.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Psi">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Psi.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Psi.CSharp">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Psi.CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Psi.Html">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Psi.Html.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Psi.Razor">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Psi.Razor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Psi.Web">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Psi.Web.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="JetBrains.ReSharper.Resources">
-      <HintPath>C:\Program Files (x86)\JetBrains\ReSharper\v9.0\bin\JetBrains.ReSharper.Resources.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
