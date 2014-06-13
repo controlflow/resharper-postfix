@@ -105,33 +105,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.Core.dll</HintPath>
     </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.JustVs08">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.JustVs08.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.JustVs09">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.JustVs09.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.JustVs10">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.JustVs10.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.JustVs11">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.JustVs11.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.JustVs12">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.JustVs12.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.SinceVs09">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.SinceVs09.dll</HintPath>
-    </Reference>
     <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.SinceVs10, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.SinceVs10.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.SinceVs11">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.SinceVs11.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.SinceVs12">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.Platform.ReSharper.VisualStudio.SinceVs12.dll</HintPath>
     </Reference>
     <Reference Include="JetBrains.Platform.ReSharper.VisualStudio.UntilVs09, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -898,9 +874,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\ReSharper\bin\JetBrains.ReSharper.Refactorings.CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="JetBrains.ReSharper.Refactorings.Css">
-      <HintPath>..\..\..\ReSharper\bin\JetBrains.ReSharper.Refactorings.Css.dll</HintPath>
-    </Reference>
     <Reference Include="JetBrains.ReSharper.Refactorings.Html, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\ReSharper\bin\JetBrains.ReSharper.Refactorings.Html.dll</HintPath>
@@ -1055,19 +1028,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompletionList\PostfixTemplatesListTest.cs" />
-    <Compile Include="Completion\PostfixRazorTest.cs" />
-    <Compile Include="CompletionList\PostfixExtraMembersListTest.cs" />
-    <Compile Include="Completion\PostfixExtraMembersTest.cs" />
-    <Compile Include="Completion\PostfixTemplatesTest.cs" />
-    <Compile Include="Components\TestExpressionChooser.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="PostfixTestBase.cs" />
-    <Compile Include="PostfixTestsAssembly.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
@@ -1095,6 +1055,9 @@
       <Name>PostfixTemplates.R90</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="PostfixTemplates.Tests.Shared.projitems" Label="Shared" Condition="Exists('PostfixTemplates.Tests.Shared.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

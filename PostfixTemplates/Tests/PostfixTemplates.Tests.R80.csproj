@@ -65,17 +65,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompletionList\PostfixTemplatesListTest.cs" />
-    <Compile Include="Completion\PostfixRazorTest.cs" />
-    <Compile Include="CompletionList\PostfixExtraMembersListTest.cs" />
-    <Compile Include="Completion\PostfixExtraMembersTest.cs" />
-    <Compile Include="Completion\PostfixTemplatesTest.cs" />
-    <Compile Include="Components\TestExpressionChooser.cs" />
-    <Compile Include="PostfixTestBase.cs" />
-    <Compile Include="PostfixTestsAssembly.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
@@ -106,6 +95,10 @@
       <Name>PostfixTemplates.R80</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="PostfixTemplates.Tests.Shared.projitems" Label="Shared" Condition="Exists('PostfixTemplates.Tests.Shared.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\JetBrains.ReSharper.SDK.8.0.1243\build\JetBrains.ReSharper.SDK.Targets" Condition="Exists('..\..\packages\JetBrains.ReSharper.SDK.8.0.1243\build\JetBrains.ReSharper.SDK.Targets')" />
 </Project>
