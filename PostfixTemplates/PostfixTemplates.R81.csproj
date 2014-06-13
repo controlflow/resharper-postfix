@@ -50,9 +50,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Utils\Compatibility.R80.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.PostfixTemplates.R81.config" />
   </ItemGroup>
   <ItemGroup>

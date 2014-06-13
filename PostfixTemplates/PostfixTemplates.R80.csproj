@@ -50,9 +50,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Utils\Compatibility.R80.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Page Include="Settings\PostfixOptionsPage.R80.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -135,9 +135,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Utils\Compatibility.R90.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Page Include="Settings\PostfixOptionsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
