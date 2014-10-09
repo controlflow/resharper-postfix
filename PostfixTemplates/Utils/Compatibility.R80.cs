@@ -1,5 +1,4 @@
-﻿#if RESHARPER8
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi;
@@ -33,4 +32,3 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
   }
 }
-#endif

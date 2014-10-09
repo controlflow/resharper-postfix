@@ -1,5 +1,4 @@
-﻿#if RESHARPER9
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
@@ -38,4 +37,3 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
   }
 }
-#endif

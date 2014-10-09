@@ -67,8 +67,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Templates\WhileLoopTemplate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Templates\YieldReturnStatementTemplate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\CommonUtils.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\Compatibility.R80.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\Compatibility.R90.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\RazorUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\TypeUtils.cs" />
   </ItemGroup>
