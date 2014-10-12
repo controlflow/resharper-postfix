@@ -31,6 +31,8 @@ using JetBrains.Application;
 using JetBrains.ReSharper.Psi.Services;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
 #elif RESHARPER9
+using JetBrains.Metadata.Reader.API;
+using JetBrains.Metadata.Reader.Impl;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;

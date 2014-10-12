@@ -40,9 +40,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
 #elif RESHARPER9
 
-    private ILookupItemPlacement myPlacement;
+    private LookupItemPlacement myPlacement;
 
-    public ILookupItemPlacement Placement
+    public LookupItemPlacement Placement
     {
       get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(Identity)); }
       set { myPlacement = value; }
