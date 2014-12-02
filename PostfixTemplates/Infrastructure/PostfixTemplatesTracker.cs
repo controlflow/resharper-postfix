@@ -19,6 +19,7 @@ using JetBrains.ReSharper.Psi.Services;
 using IExecutableAction = JetBrains.ActionManagement.IActionHandler;
 #elif RESHARPER9
 using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.UI.ActionSystem.Text;
 using IExecutableAction = JetBrains.UI.ActionsRevised.IExecutableAction;
 #endif
 

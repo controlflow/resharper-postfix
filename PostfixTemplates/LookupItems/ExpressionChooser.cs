@@ -15,6 +15,7 @@ using JetBrains.Util;
 #if RESHARPER8
 using JetBrains.ReSharper.Daemon.Src.Bulbs.Resources;
 #elif RESHARPER9
+using JetBrains.TextControl.Layout;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Resources.Shell;
 #endif

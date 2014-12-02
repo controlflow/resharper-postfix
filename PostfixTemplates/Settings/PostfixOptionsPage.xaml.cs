@@ -3,7 +3,7 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.Resources;
-using JetBrains.UI.Application.PluginSupport;
+using JetBrains.ReSharper.Features.Intellisense.Options;
 using JetBrains.UI.CrossFramework;
 using JetBrains.UI.Options;
 
@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
   [OptionsPage(
     id: PID, name: "Postfix Templates",
     typeofIcon: typeof(ServicesThemedIcons.SurroundTemplate),
-    ParentId = PluginsPage.Pid)]
+    ParentId = IntelliSensePage.PID)]
   public sealed partial class PostfixOptionsPage : IOptionsPage
   {
     // ReSharper disable once InconsistentNaming

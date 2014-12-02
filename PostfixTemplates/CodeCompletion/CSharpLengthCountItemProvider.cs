@@ -106,6 +106,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         return myRealItem.AcceptIfOnlyMatched(itemAcceptanceContext);
       }
 
+#if RESHARPER9
+      public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
+      {
+        return prefixMatcher.Matcher(myFakeText);
+      }
+#else
       public MatchingResult Match(string prefix, ITextControl textControl)
       {
         var matcher = TextLookupItemBase.GetPrefixMatcherEx(prefix, textControl);
@@ -113,6 +119,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
         return new MatchingResult();
       }
+#endif
 
       public IconId Image
       {
@@ -126,7 +133,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         const string template = "Plugin.ControlFlow.PostfixTemplates.<{0}>";
         var featureId = string.Format(template, myFakeText.ToLowerInvariant());
         TipsManager.Instance.FeatureIsUsed(featureId, textControl.Document, solution);
-
+        Mode = EvaluationMode.Light;
+        IsStable = true;
         myRealItem.Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
       }
 
@@ -137,7 +145,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public RichText DisplayName { get { return myFakeText; } }
       public RichText DisplayTypeName { get { return myRealItem.DisplayTypeName; } }
+
+      public EvaluationMode Mode { get; set; }
+
       public bool IsDynamic { get { return myRealItem.IsDynamic; } }
+
+      public bool IsStable { get; set; }
+
       public string Identity { get { return myFakeText; } }
 
       public bool CanShrink

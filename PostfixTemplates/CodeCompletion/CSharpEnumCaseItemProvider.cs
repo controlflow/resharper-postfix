@@ -208,12 +208,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           DisplayTypeName = new RichText("= " + value,
             new TextStyle(FontStyle.Regular, SystemColors.GrayText));
         }
+        IsStable = true;
+        Mode = EvaluationMode.Light;
       }
+
+      public bool IsStable { get; set; }
 
       public override string Identity
       {
         get { return myIdentity; }
       }
+#if RESHARPER9
+      public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
+      {
+        return prefixMatcher.Matcher(myShortName);
+      }
+#else
+
+      public MatchingResult Match(string prefix, ITextControl textControl)
+      {
+        return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myShortName);
+      }
+
+#endif
 
       public void Accept(ITextControl textControl, TextRange nameRange,
                          LookupItemInsertType insertType, Suffix suffix,
@@ -278,11 +295,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         return null;
       }
 
-      public MatchingResult Match(string prefix, ITextControl textControl)
-      {
-        return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myShortName);
-      }
-
       public IconId Image
       {
         get { return PsiSymbolsThemedIcons.EnumMember.Id; }
@@ -290,6 +302,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public RichText DisplayName { get; private set; }
       public RichText DisplayTypeName { get; private set; }
+
+      public EvaluationMode Mode { get; set; }
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
@@ -22,6 +23,7 @@ using JetBrains.ReSharper.Psi.Services;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
@@ -51,6 +53,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       var executionContext = contexts[0].PostfixContext.ExecutionContext;
       myReparseString = executionContext.ReparseString;
       myLifetime = executionContext.Lifetime;
+      IsStable = true;
+      Mode = EvaluationMode.Light;
     }
 
     public virtual MatchingResult Match(string prefix, ITextControl textControl)
@@ -72,6 +76,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     {
       get { return myLifetime; }
     }
+
+#if RESHARPER9    
+    public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
+    {
+      return prefixMatcher.Matcher(myShortcut);
+    }
+#endif
 
     public void Accept(ITextControl textControl, TextRange nameRange,
                        LookupItemInsertType insertType, Suffix suffix,
@@ -227,6 +238,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     public RichText DisplayName { get { return myShortcut; } }
     public virtual RichText DisplayTypeName { get { return null; } }
+
+    public EvaluationMode Mode { get; set; }
+
+    public bool IsStable { get; set; }
+
     public override string Identity { get { return myShortcut; } }
 
     private sealed class ExpressionContextImage
