@@ -78,7 +78,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         return (unaryExpression.UnaryOperatorType == UnaryOperatorType.EXCL);
       }
 
-      return (expression is IIsExpression);
+      if (expression is IIsExpression) return true;
+
+      return false;
     }
   }
 }

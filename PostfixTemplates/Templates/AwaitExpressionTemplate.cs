@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.Metadata.Reader.Impl;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -7,8 +8,6 @@ using JetBrains.ReSharper.Psi.CSharp.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
-  // todo: check with .ConfigureAwait()
-
   [PostfixTemplate(
     templateName: "await",
     description: "Awaits expressions of 'Task' type",
@@ -28,13 +27,31 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         if (!containingFunction.IsAsync) return null;
 
         var type = expressionContext.Type;
-        if (type.IsUnknown || type.IsTask() || type.IsGenericTask()) { }
-        else return null;
+        if (!type.IsUnknown && !IsAwaitableType(type)) return null;
       }
 
       if (IsAlreadyAwaited(expressionContext)) return null;
 
       return new AwaitItem(expressionContext);
+    }
+
+    [NotNull] private static readonly ClrTypeName
+      ConfigurableAwaitable = new ClrTypeName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable"),
+      GenericConfigurableAwaitable = new ClrTypeName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1");
+
+    private static bool IsAwaitableType(IType type)
+    {
+      var declaredType = type as IDeclaredType;
+      if (declaredType == null) return false;
+
+      if (declaredType.IsTask()) return true;
+      if (declaredType.IsGenericTask()) return true;
+
+      var typeName = declaredType.GetClrName();
+      if (ConfigurableAwaitable.Equals(typeName)) return true;
+      if (GenericConfigurableAwaitable.Equals(typeName)) return true;
+
+      return false;
     }
 
     private static bool IsAlreadyAwaited([NotNull] PrefixExpressionContext context)

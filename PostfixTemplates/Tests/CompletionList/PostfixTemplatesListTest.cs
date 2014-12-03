@@ -44,5 +44,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CompletionList
     [Test] public void TestAssignment02() { DoNamedTest(); }
 
     [Test] public void TestYield01() { DoNamedTest(); }
+
+    [Test] public void TestAwait01() { DoNamedTest(); }
+    [Test] public void TestAwait02() { DoNamedTest(); }
   }
 }
