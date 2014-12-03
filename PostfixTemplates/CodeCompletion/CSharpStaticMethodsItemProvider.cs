@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
@@ -24,6 +23,7 @@ using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
 #if RESHARPER8
+using System.Drawing;
 using JetBrains.ReSharper.Psi.Services;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
 #elif RESHARPER9
@@ -32,7 +32,6 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Presentations;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 #endif
@@ -52,8 +51,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           || completionType == CodeCompletionType.BasicCompletion;
     }
 
-    protected override bool AddLookupItems(CSharpCodeCompletionContext context,
-                                           GroupedItemsCollector collector)
+    protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
       var referenceExpression = context.UnterminatedContext.ToReferenceExpression() ??
                                 context.TerminatedContext.ToReferenceExpression();
@@ -125,15 +123,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       // decorate static lookup elements
       foreach (var item in innerCollector.Items)
       {
-        var lookupItem = item as LookupItemWrapper<DeclaredElementInfo>;
+        var lookupItem = item as ILookupItemWrapper<DeclaredElementInfo>;
         if (lookupItem == null) continue;
 
         var afterComplete = BakeAfterComplete(lookupItem, solution);
         lookupItem.SubscribeAfterComplete(afterComplete);
-
-        var presentation = lookupItem.Item.Presentation as DeclaredElementPresentation<DeclaredElementInfo>;
-        if (presentation != null) presentation.TextColor = SystemColors.GrayText;
-
         collector.AddToBottom(lookupItem);
       }
     }
@@ -152,8 +146,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     }
 
     [NotNull]
-    private static AfterCompletionHandler BakeAfterComplete([NotNull] ILookupItem lookupItem,
-                                                            [NotNull] ISolution solution)
+    private static AfterCompletionHandler BakeAfterComplete([NotNull] ILookupItem lookupItem, [NotNull] ISolution solution)
     {
       // sorry, ugly as fuck :(
       return (ITextControl textControl, ref TextRange range, ref TextRange decoration,
@@ -249,9 +242,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       };
     }
 
-    private static void FixQualifierExpression([NotNull] ITextControl textControl,
-                                               [NotNull] ICSharpExpression expression,
-                                               [NotNull] ITypeElement ownerType)
+    private static void FixQualifierExpression([NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression, [NotNull] ITypeElement ownerType)
     {
       var qualifierRange = expression.GetDocumentRange().TextRange;
 
