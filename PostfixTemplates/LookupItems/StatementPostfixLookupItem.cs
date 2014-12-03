@@ -102,8 +102,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
     [NotNull]
-    protected abstract TStatement CreateStatement([NotNull] CSharpElementFactory factory,
-                                                  [NotNull] ICSharpExpression expression);
+    protected abstract TStatement CreateStatement([NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
 
     [ContractAnnotation("null => null"), CanBeNull]
     private static ICSharpStatement UnwrapFromBraces(ITreeNode statement)

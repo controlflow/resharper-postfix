@@ -3,6 +3,8 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.Util;
 
+// TODO: apply code style in R# 9.0
+
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
@@ -28,12 +30,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class ForLookupItem : ForLookupItemBase
     {
-      public ForLookupItem([NotNull] PrefixExpressionContext context,
-                           [CanBeNull] string lengthName)
+      public ForLookupItem([NotNull] PrefixExpressionContext context, [CanBeNull] string lengthName)
         : base("for", context, lengthName) { }
 
-      protected override IForStatement CreateStatement(CSharpElementFactory factory,
-                                                       ICSharpExpression expression)
+      protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = "for(var x=0;x<$0;x++)" + EmbeddedStatementBracesTemplate;
         var forStatement = (IForStatement) factory.CreateStatement(template, expression);

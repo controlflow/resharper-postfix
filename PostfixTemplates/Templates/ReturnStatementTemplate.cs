@@ -52,7 +52,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         // unwrap return type from Task<T>
         var genericTask = returnType as IDeclaredType;
-        if (genericTask.IsGenericTask())
+        // ReSharper disable once MergeSequentialChecks
+        if (genericTask != null && genericTask.IsGenericTask())
         {
           var typeElement = genericTask.GetTypeElement();
           if (typeElement != null)
@@ -75,8 +76,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public ReturnLookupItem([NotNull] PrefixExpressionContext context)
         : base("return", context) { }
 
-      protected override IReturnStatement CreateStatement(CSharpElementFactory factory,
-                                                          ICSharpExpression expression)
+      protected override IReturnStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IReturnStatement) factory.CreateStatement("return $0;", expression);
       }

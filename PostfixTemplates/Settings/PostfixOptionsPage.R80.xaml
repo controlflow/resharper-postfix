@@ -1,4 +1,5 @@
-﻿<UserControl x:Class="JetBrains.ReSharper.PostfixTemplates.Settings.PostfixOptionsPage"
+﻿<!-- ReSharper disable MarkupAttributeTypo -->
+<UserControl x:Class="JetBrains.ReSharper.PostfixTemplates.Settings.PostfixOptionsPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

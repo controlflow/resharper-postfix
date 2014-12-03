@@ -36,8 +36,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public CastItem([NotNull] PrefixExpressionContext[] contexts,
-                      [NotNull] PostfixTemplateContext postfixContext) : base("cast", contexts)
+      public CastItem([NotNull] PrefixExpressionContext[] contexts, [NotNull] PostfixTemplateContext postfixContext)
+        : base("cast", contexts)
       {
         myTemplatesManager = postfixContext.ExecutionContext.LiveTemplatesManager;
       }
@@ -47,8 +47,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         get { return "Select expression to cast"; }
       }
 
-      protected override IParenthesizedExpression CreateExpression(CSharpElementFactory factory,
-                                                                   ICSharpExpression expression)
+      protected override IParenthesizedExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IParenthesizedExpression) factory.CreateExpression("((T) $0)", expression);
       }

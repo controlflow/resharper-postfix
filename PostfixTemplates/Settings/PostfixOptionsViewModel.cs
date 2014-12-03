@@ -44,6 +44,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       FillTemplates();
     }
 
+    // ReSharper disable once CollectionNeverQueried.Global
     [NotNull] public ObservableCollection<PostfixTemplateViewModel> Templates { get; private set; }
 
     [NotNull] public IProperty<bool> ShowPostfixTemplates { get; private set; }

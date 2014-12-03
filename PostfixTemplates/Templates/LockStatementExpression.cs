@@ -36,8 +36,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       public LockItem([NotNull] PrefixExpressionContext context) : base("lock", context) { }
 
-      protected override ILockStatement CreateStatement(CSharpElementFactory factory,
-                                                        ICSharpExpression expression)
+      protected override ILockStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = "lock($0)" + EmbeddedStatementBracesTemplate;
         return (ILockStatement) factory.CreateStatement(template, expression);

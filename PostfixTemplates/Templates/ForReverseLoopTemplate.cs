@@ -28,12 +28,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class ReverseForLookupItem : ForLookupItemBase
     {
-      public ReverseForLookupItem([NotNull] PrefixExpressionContext context,
-                                  [CanBeNull] string lengthName)
+      public ReverseForLookupItem([NotNull] PrefixExpressionContext context, [CanBeNull] string lengthName)
         : base("forR", context, lengthName) { }
 
-      protected override IForStatement CreateStatement(CSharpElementFactory factory,
-                                                       ICSharpExpression expression)
+      protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var hasLength = (LengthName != null);
         var template = hasLength ? "for(var x=$0;x>=0;x--)" : "for(var x=$0;x>0;x--)";

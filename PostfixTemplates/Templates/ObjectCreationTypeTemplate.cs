@@ -83,7 +83,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         {
           var declaredElement = reference.Reference.Resolve().DeclaredElement;
           if (declaredElement == null || declaredElement is ITypeElement)
+          {
             return new NewTypeItem(expressionContext, hasParameters: true);
+          }
         }
       }
 
@@ -102,8 +104,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
       }
 
-      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory,
-                                                                    ICSharpExpression expression)
+      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = string.Format("new {0}()", expression.GetText());
         return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
@@ -136,8 +137,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public NewExpressionItem([NotNull] PrefixExpressionContext context)
         : base("new", context) { }
 
-      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory,
-                                                                    ICSharpExpression expression)
+      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = string.Format("new {0}", expression.GetText());
         return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);

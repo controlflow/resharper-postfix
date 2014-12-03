@@ -51,8 +51,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = executionContext.LiveTemplatesManager;
       }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory,
-                                                              ICSharpExpression expression)
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IExpressionStatement) factory.CreateStatement("target = $0;", expression);
       }

@@ -349,7 +349,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         elementType.Accept(this);
 
         var resolveContext = elementType.GetResolveContext();
-        if (resolveContext == null) return;
 
         var predefined = elementType.Module.GetPredefinedType(resolveContext);
         if (predefined.Array.IsResolved) predefined.Array.Accept(this);

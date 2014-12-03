@@ -57,16 +57,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullStatementItem([NotNull] string shortcut,
-                                       [NotNull] PrefixExpressionContext context,
-                                       [NotNull] string template)
+      public CheckForNullStatementItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context, [NotNull] string template)
         : base(shortcut, context)
       {
         myTemplate = template;
       }
 
-      protected override IIfStatement CreateStatement(CSharpElementFactory factory,
-                                                      ICSharpExpression expression)
+      protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = myTemplate + EmbeddedStatementBracesTemplate;
         return (IIfStatement) factory.CreateStatement(template, expression);
@@ -77,16 +74,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullExpressionItem([NotNull] string shortcut,
-                                        [NotNull] PrefixExpressionContext[] context,
-                                        [NotNull] string template)
+      public CheckForNullExpressionItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext[] context, [NotNull] string template)
         : base(shortcut, context)
       {
         myTemplate = template;
       }
 
-      protected override IEqualityExpression CreateExpression(CSharpElementFactory factory,
-                                                              ICSharpExpression expression)
+      protected override IEqualityExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IEqualityExpression) factory.CreateExpression(myTemplate, expression);
       }

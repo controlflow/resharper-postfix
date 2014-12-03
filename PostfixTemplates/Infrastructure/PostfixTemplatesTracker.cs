@@ -11,10 +11,10 @@ using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
-using JetBrains.TextControl.Actions;
 using JetBrains.TextControl.Util;
 using JetBrains.Util;
 #if RESHARPER8
+using JetBrains.TextControl.Actions;
 using JetBrains.ReSharper.Psi.Services;
 using IExecutableAction = JetBrains.ActionManagement.IActionHandler;
 #elif RESHARPER9

@@ -27,8 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       public TypeOfItem([NotNull] PrefixExpressionContext context) : base("typeOf", context) { }
 
-      protected override ITypeofExpression CreateExpression(CSharpElementFactory factory,
-                                                            ICSharpExpression expression)
+      protected override ITypeofExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = "typeof(" + expression.GetText() + ")";
         return (ITypeofExpression) factory.CreateExpressionAsIs(template);

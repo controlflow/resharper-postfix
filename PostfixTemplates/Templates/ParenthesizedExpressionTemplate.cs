@@ -47,8 +47,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         get { return "Select expression to parenthesize"; }
       }
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
-                                                            ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         return factory.CreateExpression("($0)", expression);
       }

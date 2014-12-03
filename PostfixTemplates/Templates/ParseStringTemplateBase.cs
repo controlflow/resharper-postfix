@@ -35,9 +35,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
       private readonly bool myIsTryParse;
 
-      public ParseItem([NotNull] string shortcut,
-                       [NotNull] PrefixExpressionContext context,
-                       bool isTryParse)
+      public ParseItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context, bool isTryParse)
         : base(shortcut, context)
       {
         myIsTryParse = isTryParse;
@@ -47,8 +45,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myLookupItemsOwner = executionContext.LookupItemsOwner;
       }
 
-      protected override IInvocationExpression CreateExpression(CSharpElementFactory factory,
-                                                                ICSharpExpression expression)
+      protected override IInvocationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = myIsTryParse ? "int.TryParse($0, )" : "int.Parse($0)";
         return (IInvocationExpression) factory.CreateExpression(template, expression);
@@ -124,8 +121,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       var symbolCache = context.GetPsiServices().Symbols;
       var symbolScope = symbolCache.GetSymbolScope(
-        context.GetPsiModule(), context.GetResolveContext(),
-        withReferences: true, caseSensitive: true);
+        context.GetPsiModule(), context.GetResolveContext(), withReferences: true, caseSensitive: true);
 
       var list = new LocalList<IType>();
       foreach (var type in TypesWithParsers)

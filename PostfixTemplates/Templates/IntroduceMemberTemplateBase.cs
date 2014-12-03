@@ -54,8 +54,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return null;
     }
 
-    protected abstract IntroduceMemberLookupItem CreateItem([NotNull] PrefixExpressionContext expression,
-                                                            [NotNull] IType expressionType, bool isStatic);
+    protected abstract IntroduceMemberLookupItem CreateItem([NotNull] PrefixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
 
     protected abstract class IntroduceMemberLookupItem : StatementPostfixLookupItem<IExpressionStatement>
     {
@@ -79,8 +78,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myMemberNames = EmptyList<string>.InstanceList;
       }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory,
-                                                              ICSharpExpression expression)
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var statement = (IExpressionStatement) factory.CreateStatement("__ = expression;");
         var newDeclaration = CreateMemberDeclaration(factory);
@@ -115,8 +113,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
 
       [CanBeNull]
-      protected abstract ICSharpTypeMemberDeclaration GetAnchorMember(
-        [NotNull] IList<ICSharpTypeMemberDeclaration> members);
+      protected abstract ICSharpTypeMemberDeclaration GetAnchorMember([NotNull] IList<ICSharpTypeMemberDeclaration> members);
 
       [NotNull]
       protected abstract IClassMemberDeclaration CreateMemberDeclaration([NotNull] CSharpElementFactory factory);

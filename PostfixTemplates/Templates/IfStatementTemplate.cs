@@ -25,8 +25,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       public IfItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
 
-      protected override IIfStatement CreateStatement(CSharpElementFactory factory,
-                                                      ICSharpExpression expression)
+      protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         // automatically fix 'as'-expression to became 'is'-expression
         var asExpression = expression as IAsExpression;

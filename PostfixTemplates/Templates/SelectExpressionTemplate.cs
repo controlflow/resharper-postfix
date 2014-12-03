@@ -29,8 +29,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       public SelectItem([NotNull] PrefixExpressionContext[] contexts)
         : base("sel", contexts) { }
 
-      protected override ICSharpExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         return expression;
       }

@@ -27,8 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       public ElseItem([NotNull] PrefixExpressionContext context) : base("else", context) { }
 
-      protected override IIfStatement CreateStatement(CSharpElementFactory factory,
-                                                      ICSharpExpression expression)
+      protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = "if($0)" + EmbeddedStatementBracesTemplate;
         var statement = (IIfStatement) factory.CreateStatement(template, expression);

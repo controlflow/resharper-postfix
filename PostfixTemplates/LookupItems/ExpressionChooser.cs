@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.CommonControls;
 using JetBrains.DataFlow;
-using JetBrains.IDE;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.TextControl;
 using JetBrains.TextControl.DocumentMarkup;
@@ -13,6 +12,7 @@ using JetBrains.Threading;
 using JetBrains.UI.PopupMenu;
 using JetBrains.Util;
 #if RESHARPER8
+using JetBrains.IDE;
 using JetBrains.ReSharper.Daemon.Src.Bulbs.Resources;
 #elif RESHARPER9
 using JetBrains.TextControl.Layout;

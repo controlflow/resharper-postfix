@@ -40,8 +40,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CompletionList
     [Test] public void TestBoolean02() { DoNamedTest(); }
     [Test] public void TestBoolean03() { DoNamedTest(); }
 
-    [Test] public void TestAssigment01() { DoNamedTest(); }
-    [Test] public void TestAssigment02() { DoNamedTest(); }
+    [Test] public void TestAssignment01() { DoNamedTest(); }
+    [Test] public void TestAssignment02() { DoNamedTest(); }
 
     [Test] public void TestYield01() { DoNamedTest(); }
   }

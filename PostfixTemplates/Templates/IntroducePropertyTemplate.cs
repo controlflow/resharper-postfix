@@ -5,6 +5,9 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
+// TODO: C# 6.0 auto-properties support
+// TODO: emit private setter in C# 5.0
+
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
@@ -13,8 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "Property = expr;")]
   public class IntroducePropertyTemplate : IntroduceMemberTemplateBase
   {
-    protected override IntroduceMemberLookupItem CreateItem(PrefixExpressionContext expression,
-                                                            IType expressionType, bool isStatic)
+    protected override IntroduceMemberLookupItem CreateItem(PrefixExpressionContext expression, IType expressionType, bool isStatic)
     {
       return new IntroducePropertyLookupItem(expression, isStatic);
     }
@@ -28,8 +30,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         var declaration = factory.CreatePropertyDeclaration(ExpressionType, "__");
         declaration.SetAccessRights(AccessRights.PUBLIC);
-        var getter = factory.CreateAccessorDeclaration(AccessorKind.GETTER, false);
-        var setter = factory.CreateAccessorDeclaration(AccessorKind.SETTER, false);
+        var getter = factory.CreateAccessorDeclaration(AccessorKind.GETTER, withBody: false);
+        var setter = factory.CreateAccessorDeclaration(AccessorKind.SETTER, withBody: false);
 
         declaration.AddAccessorDeclarationAfter(getter, null);
         declaration.AddAccessorDeclarationBefore(setter, null);
@@ -40,10 +42,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       protected override ICSharpTypeMemberDeclaration GetAnchorMember(IList<ICSharpTypeMemberDeclaration> members)
       {
-        var anchor = members.LastOrDefault(member =>
-                       member.DeclaredElement is IProperty && member.IsStatic == IsStatic) ??
-                     members.LastOrDefault(member =>
-                       member.DeclaredElement is IField && member.IsStatic == IsStatic);
+        var anchor = members.LastOrDefault(member => member.DeclaredElement is IProperty && member.IsStatic == IsStatic) ??
+                     members.LastOrDefault(member => member.DeclaredElement is IField && member.IsStatic == IsStatic);
         if (anchor == null && IsStatic)
         {
           return members.LastOrDefault(m => m.DeclaredElement is IProperty) ??

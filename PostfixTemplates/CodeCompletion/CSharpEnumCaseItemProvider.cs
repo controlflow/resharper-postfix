@@ -21,12 +21,12 @@ using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resources;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
-using JetBrains.Text;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
 #if RESHARPER8
+using JetBrains.Text;
 using JetBrains.Application;
 using JetBrains.ReSharper.Psi.Services;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;

@@ -20,9 +20,7 @@ using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
 using JetBrains.Threading;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
-using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.AspectLookupItems;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 #endif

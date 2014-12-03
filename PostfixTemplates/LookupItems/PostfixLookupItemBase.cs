@@ -1,10 +1,10 @@
-﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using JetBrains.TextControl;
 using JetBrains.Util;
 #if RESHARPER8
 using JetBrains.ReSharper.Feature.Services.Lookup;
 #elif RESHARPER9
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 #endif
 

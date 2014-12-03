@@ -48,10 +48,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         get { return "Select expression to invert"; }
       }
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
-                                                            ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return CSharpExpressionUtil.CreateLogicallyNegatedExpression(expression) ?? expression;
+        return CSharpExpressionUtil.CreateLogicallyNegatedExpression(expression);
       }
 
       protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)

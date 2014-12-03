@@ -155,9 +155,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
 #endif
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression1)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return expression1;
+        return expression;
       }
 
       protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)

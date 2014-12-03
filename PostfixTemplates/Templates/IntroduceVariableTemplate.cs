@@ -218,7 +218,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myHasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
       }
 
-      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression1)
+      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IObjectCreationExpression) factory.CreateExpression("new $0();", myReferencedType);
       }
