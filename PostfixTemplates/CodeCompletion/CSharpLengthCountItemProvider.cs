@@ -20,7 +20,6 @@ using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
 using JetBrains.Threading;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.AspectLookupItems;
@@ -77,15 +76,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var lookupItem = interestingItems[0];
         var text = (lookupItem.Identity == Count) ? Length : Count;
 
-#if RESHARPER9
-        // todo: check this with 9.0 RC
-        var wrapper = lookupItem as LookupItemWrapper<CSharpDeclaredElementInfo>;
-        if (wrapper != null)
-        {
-          System.GC.KeepAlive(wrapper.Item.Presentation.DisplayName);
-        }
-#endif
-
         collector.AddAtDefaultPlace(new FakeLookupElement(text, lookupItem));
       }
     }
@@ -107,11 +97,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       }
 
 #if RESHARPER9
+
       public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       {
         return prefixMatcher.Matcher(myFakeText);
       }
-#else
+
+#elif RESHARPER8
+
       public MatchingResult Match(string prefix, ITextControl textControl)
       {
         var matcher = TextLookupItemBase.GetPrefixMatcherEx(prefix, textControl);
@@ -119,6 +112,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
         return new MatchingResult();
       }
+
 #endif
 
       public IconId Image
@@ -126,15 +120,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         get { return ServicesThemedIcons.LiveTemplate.Id; }
       }
 
-      public void Accept(ITextControl textControl, TextRange nameRange,
-                         LookupItemInsertType insertType, Suffix suffix,
-                         ISolution solution, bool keepCaretStill)
+      public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
+                         Suffix suffix, ISolution solution, bool keepCaretStill)
       {
         const string template = "Plugin.ControlFlow.PostfixTemplates.<{0}>";
         var featureId = string.Format(template, myFakeText.ToLowerInvariant());
         TipsManager.Instance.FeatureIsUsed(featureId, textControl.Document, solution);
-        Mode = EvaluationMode.Light;
-        IsStable = true;
+
         myRealItem.Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
       }
 
@@ -146,11 +138,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       public RichText DisplayName { get { return myFakeText; } }
       public RichText DisplayTypeName { get { return myRealItem.DisplayTypeName; } }
 
-      public EvaluationMode Mode { get; set; }
-
       public bool IsDynamic { get { return myRealItem.IsDynamic; } }
-
-      public bool IsStable { get; set; }
 
       public string Identity { get { return myFakeText; } }
 
@@ -196,6 +184,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       }
 
 #elif RESHARPER9
+
+      public bool IsStable
+      {
+        get { return true; }
+        set { }
+      }
+
+      public EvaluationMode Mode
+      {
+        get { return EvaluationMode.Light; }
+        set { }
+      }
 
       private LookupItemPlacement myPlacement;
 

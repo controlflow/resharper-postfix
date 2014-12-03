@@ -70,7 +70,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       // unwrap return type from IEnumerable<T>
       var enumerable = returnType as IDeclaredType;
-      if (enumerable != null && enumerable.IsGenericIEnumerable())
+      if (enumerable.IsGenericIEnumerable())
       {
         var typeElement = enumerable.GetTypeElement();
         if (typeElement != null)

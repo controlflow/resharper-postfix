@@ -50,13 +50,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
     {
       var expression = PostfixContext.GetOuterExpression(Expression);
 
-      ICSharpStatement statement = ExpressionStatementNavigator.GetByExpression(expression);
+      var statement = ExpressionStatementNavigator.GetByExpression(expression);
       if (statement != null) return statement;
 
-      statement = RazorUtil.CanBeStatement(expression);
-      if (statement != null) return statement;
-
-      return null;
+      return RazorUtil.CanBeStatement(expression);
     }
 
     [NotNull] public PostfixTemplateContext PostfixContext { get; private set; }

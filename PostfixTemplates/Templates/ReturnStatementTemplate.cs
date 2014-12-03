@@ -39,8 +39,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     }
 
     [CanBeNull]
-    private static IType GetMethodReturnValueType([NotNull] IParametersOwner function,
-                                                  [NotNull] ICSharpFunctionDeclaration declaration)
+    private static IType GetMethodReturnValueType([NotNull] IParametersOwner function, [NotNull] ICSharpFunctionDeclaration declaration)
     {
       var returnType = function.ReturnType;
       if (returnType.IsVoid()) return null;
@@ -53,7 +52,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         // unwrap return type from Task<T>
         var genericTask = returnType as IDeclaredType;
-        if (genericTask != null && genericTask.IsGenericTask())
+        if (genericTask.IsGenericTask())
         {
           var typeElement = genericTask.GetTypeElement();
           if (typeElement != null)

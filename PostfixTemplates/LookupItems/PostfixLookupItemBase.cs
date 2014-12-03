@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.Annotations;
 using JetBrains.TextControl;
 using JetBrains.Util;
 #if RESHARPER8
@@ -39,6 +40,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
 #elif RESHARPER9
+
+    public bool IsStable
+    {
+      get { return true; }
+      // ReSharper disable once ValueParameterNotUsed
+      set { }
+    }
+
+    public EvaluationMode Mode
+    {
+      get { return EvaluationMode.Light; }
+      // ReSharper disable once ValueParameterNotUsed
+      set { }
+    }
 
     private LookupItemPlacement myPlacement;
 

@@ -1,5 +1,4 @@
-﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
@@ -9,15 +8,16 @@ using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Text;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
 #if RESHARPER8
+using JetBrains.Text;
 using JetBrains.ReSharper.Psi.Services;
 #elif RESHARPER9
 using JetBrains.ReSharper.Resources.Shell;
@@ -36,8 +36,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     [NotNull] private readonly ExpressionContextImage[] myImages;
     private int myExpressionIndex;
 
-    protected PostfixLookupItem(
-      [NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
+    protected PostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : this(shortcut, new[] {context}) { }
 
     protected PostfixLookupItem(
@@ -57,10 +56,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       Mode = EvaluationMode.Light;
     }
 
+#if RESHARPER9
+
+    public virtual MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
+    {
+      return prefixMatcher.Matcher(myIdentifier);
+    }
+
+#elif RESHARPER8
+
     public virtual MatchingResult Match(string prefix, ITextControl textControl)
     {
       return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
     }
+
+#endif
 
     protected string ExpandCommandName
     {
@@ -77,16 +87,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return myLifetime; }
     }
 
-#if RESHARPER9    
-    public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
-    {
-      return prefixMatcher.Matcher(myShortcut);
-    }
-#endif
-
-    public void Accept(ITextControl textControl, TextRange nameRange,
-                       LookupItemInsertType insertType, Suffix suffix,
-                       ISolution solution, bool keepCaretStill)
+    public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
+                       Suffix suffix, ISolution solution, bool keepCaretStill)
     {
       textControl.Document.InsertText(
         nameRange.EndOffset, myReparseString, TextModificationSide.RightSide);

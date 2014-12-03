@@ -29,6 +29,8 @@ using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
 #endif
 
+#pragma warning disable 618
+
 // todo: think about cases like F(this.var), F(42.var). disable in auto?
 // todo: try subscribe workflow finish
 
@@ -87,18 +89,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         if (referencedType != null)
           return new VarByTypeItem(bestContext, referencedType);
 
-        var isContructorCall = IsContructorInvocation(bestContext.Expression);
+        var isConstructorCall = IsConstructorInvocation(bestContext.Expression);
 
         if (bestContext.CanBeStatement)
-          return new VarStatementItem(bestContext, isContructorCall);
+          return new VarStatementItem(bestContext, isConstructorCall);
 
-        return new VarExpressionItem(bestContext, isContructorCall);
+        return new VarExpressionItem(bestContext, isConstructorCall);
       }
 
       return null;
     }
 
-    private static bool IsContructorInvocation([NotNull] ICSharpExpression expression)
+    private static bool IsConstructorInvocation([NotNull] ICSharpExpression expression)
     {
       var invocationExpression = expression as IInvocationExpression;
       if (invocationExpression != null) // StringBuilder().new
@@ -137,21 +139,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class VarExpressionItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      private readonly bool myIsContructorCall;
+      private readonly bool myIsConstructorCall;
 
-      public VarExpressionItem([NotNull] PrefixExpressionContext context, bool isContructorCall)
+      public VarExpressionItem([NotNull] PrefixExpressionContext context, bool isConstructorCall)
         : base("var", context)
       {
-        myIsContructorCall = isContructorCall;
+        myIsConstructorCall = isConstructorCall;
       }
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory,
-                                                            ICSharpExpression expression)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression1)
       {
-        if (myIsContructorCall)
-          return factory.CreateExpression("new $0", expression.GetText());
+        if (myIsConstructorCall)
+          return factory.CreateExpression("new $0", expression1.GetText());
 
-        return expression;
+        return expression1;
       }
 
       protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)
@@ -179,18 +180,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class VarStatementItem : StatementPostfixLookupItem<IExpressionStatement>
     {
-      private readonly bool myIsContructorCall;
+      private readonly bool myIsConstructorCall;
 
-      public VarStatementItem([NotNull] PrefixExpressionContext context, bool isContructorCall)
+      public VarStatementItem([NotNull] PrefixExpressionContext context, bool isConstructorCall)
         : base("var", context)
       {
-        myIsContructorCall = isContructorCall;
+        myIsConstructorCall = isConstructorCall;
       }
 
-      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory,
-                                                              ICSharpExpression expression)
+      protected override IExpressionStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        if (myIsContructorCall)
+        if (myIsConstructorCall)
           expression = factory.CreateExpression("new $0", expression.GetText());
 
         return (IExpressionStatement) factory.CreateStatement("$0;", expression);
@@ -208,8 +208,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       private readonly bool myHasParameters;
 
-      public VarByTypeItem([NotNull] PrefixExpressionContext context,
-                           [NotNull] IDeclaredType referencedType)
+      public VarByTypeItem([NotNull] PrefixExpressionContext context, [NotNull] IDeclaredType referencedType)
         : base("var", context)
       {
         myReferencedType = referencedType;
@@ -219,8 +218,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myHasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
       }
 
-      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory,
-                                                                    ICSharpExpression expression)
+      protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression1)
       {
         return (IObjectCreationExpression) factory.CreateExpression("new $0();", myReferencedType);
       }
@@ -261,8 +259,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
     }
 
-    private static void ExecuteRefactoring([NotNull] ITextControl textControl,
-                                           [NotNull] ICSharpExpression expression,
+    private static void ExecuteRefactoring([NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression,
                                            [CanBeNull] Action executeAfter = null)
     {
       const string actionId = IntroVariableAction.ACTION_ID;
@@ -287,9 +284,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var dataContexts = solution.GetComponent<DataContexts>();
         var dataContext = dataContexts.CreateWithDataRules(definition.Lifetime, rules);
 
-        #pragma warning disable 618
         if (multipleOccurrences && !Shell.Instance.IsTestShell)
-        #pragma warning restore 618
         {
           var introduceAction = new IntroVariableAction();
           if (introduceAction.Update(dataContext, new ActionPresentation(), () => false))

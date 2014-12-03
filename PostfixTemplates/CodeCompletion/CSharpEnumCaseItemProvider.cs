@@ -205,25 +205,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
         if (value.Length <= 32) // protect from too heavy values
         {
-          DisplayTypeName = new RichText("= " + value,
-            new TextStyle(FontStyle.Regular, SystemColors.GrayText));
+          DisplayTypeName = new RichText("= " + value, new TextStyle(FontStyle.Regular, SystemColors.GrayText));
         }
-        IsStable = true;
-        Mode = EvaluationMode.Light;
       }
-
-      public bool IsStable { get; set; }
 
       public override string Identity
       {
         get { return myIdentity; }
       }
+
 #if RESHARPER9
+
       public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       {
         return prefixMatcher.Matcher(myShortName);
       }
-#else
+
+#elif RESHARPER8
 
       public MatchingResult Match(string prefix, ITextControl textControl)
       {
@@ -232,9 +230,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
 #endif
 
-      public void Accept(ITextControl textControl, TextRange nameRange,
-                         LookupItemInsertType insertType, Suffix suffix,
-                         ISolution solution, bool keepCaretStill)
+      public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
+                         Suffix suffix, ISolution solution, bool keepCaretStill)
       {
         textControl.Document.ReplaceText(nameRange, "E()");
 
@@ -275,8 +272,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       }
 
       [CanBeNull]
-      private IReferenceExpression FindReferenceExpression([NotNull] ITextControl textControl,
-                                                           [NotNull] ISolution solution)
+      private IReferenceExpression FindReferenceExpression([NotNull] ITextControl textControl, [NotNull] ISolution solution)
       {
         var dotRange = myDotRangeMarker.DocumentRange;
         if (!dotRange.IsValid()) return null;
@@ -302,8 +298,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public RichText DisplayName { get; private set; }
       public RichText DisplayTypeName { get; private set; }
-
-      public EvaluationMode Mode { get; set; }
     }
   }
 }

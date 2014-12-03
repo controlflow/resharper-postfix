@@ -26,6 +26,7 @@ using JetBrains.ReSharper.LiveTemplates;
 #elif RESHARPER9
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
@@ -86,13 +87,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
+#if RESHARPER9
+
+      public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
+      {
+        var coolMatcher = prefixMatcher.Factory.CreatePrefixMatcher(
+          HackPrefix(prefixMatcher.Prefix), prefixMatcher.IdentifierMatchingStyle);
+
+        return base.Match(coolMatcher, textControl);
+      }
+
+#elif RESHARPER8
+
       public override MatchingResult Match(string prefix, ITextControl textControl)
       {
         return base.Match(HackPrefix(prefix), textControl);
       }
 
-      protected override IForeachStatement CreateStatement(CSharpElementFactory factory,
-                                                           ICSharpExpression expression)
+#endif
+
+      protected override IForeachStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = "foreach(var x in $0)" + EmbeddedStatementBracesTemplate;
         return (IForeachStatement) factory.CreateStatement(template, expression);
@@ -122,15 +136,28 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
       }
 
+#if RESHARPER9
+
+      public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
+      {
+        var coolMatcher = prefixMatcher.Factory.CreatePrefixMatcher(
+          HackPrefix(prefixMatcher.Prefix), prefixMatcher.IdentifierMatchingStyle);
+
+        return base.Match(coolMatcher, textControl);
+      }
+
+#elif RESHARPER8
+
       public override MatchingResult Match(string prefix, ITextControl textControl)
       {
         return base.Match(HackPrefix(prefix), textControl);
       }
 
-      protected override ICSharpExpression CreateExpression(
-        CSharpElementFactory factory, ICSharpExpression expression)
+#endif
+
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression1)
       {
-        return expression;
+        return expression1;
       }
 
       protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)
@@ -245,8 +272,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     [NotNull] private static string HackPrefix([NotNull] string prefix)
     {
-      if (prefix.Length <= 3 &&
-          prefix.Equals("for".Substring(0, prefix.Length), StringComparison.OrdinalIgnoreCase))
+      if (prefix.Length <= 3 && prefix.Equals("for".Substring(0, prefix.Length), StringComparison.OrdinalIgnoreCase))
       {
         return prefix + "Each";
       }
