@@ -106,6 +106,7 @@ TestResults
 *.Cache
 ClientBin
 stylecop.*
+*.nupkg
 ~$*
 *.dbmdl
 Generated_Code #added for RIA/Silverlight projects
