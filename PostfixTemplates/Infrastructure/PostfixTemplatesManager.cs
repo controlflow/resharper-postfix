@@ -58,8 +58,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [NotNull]
-    public IList<IPostfixLookupItem> CollectItems([NotNull] PostfixTemplateContext context,
-                                           [CanBeNull] string templateName = null)
+    public IList<IPostfixLookupItem> CollectItems([NotNull] PostfixTemplateContext context, [CanBeNull] string templateName = null)
     {
       var store = context.Reference.GetSettingsStore();
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
@@ -102,8 +101,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [CanBeNull]
-    public PostfixTemplateContext IsAvailable([CanBeNull] ITreeNode position,
-                                              [NotNull] PostfixExecutionContext context)
+    public PostfixTemplateContext IsAvailable([CanBeNull] ITreeNode position, [NotNull] PostfixExecutionContext context)
     {
       if (!(position is ICSharpIdentifier)) return null;
 

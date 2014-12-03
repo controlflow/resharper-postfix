@@ -24,8 +24,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return CanInstantiate.No;
     }
 
-    public static CanInstantiate CanInstantiateType([NotNull] ITypeElement typeElement,
-                                                    [NotNull] ITreeNode expression)
+    public static CanInstantiate CanInstantiateType([NotNull] ITypeElement typeElement, [NotNull] ITreeNode expression)
     {
       if (typeElement is IStruct || typeElement is IEnum || typeElement is IClass)
       {

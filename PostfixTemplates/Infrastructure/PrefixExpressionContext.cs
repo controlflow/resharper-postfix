@@ -8,8 +8,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 {
   public sealed class PrefixExpressionContext
   {
-    public PrefixExpressionContext([NotNull] PostfixTemplateContext postfixContext,
-                                   [NotNull] ICSharpExpression expression)
+    public PrefixExpressionContext([NotNull] PostfixTemplateContext postfixContext, [NotNull] ICSharpExpression expression)
     {
       PostfixContext = postfixContext;
       Expression = expression;
@@ -84,8 +83,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     // A M(object o) { o as A.re| } - postfix reference breaks as-expression type
     [CanBeNull]
-    private static IDeclaredType IsBrokenAsExpressionCase(
-      [NotNull] ICSharpExpression expression, [NotNull] ITreeNode reference)
+    private static IDeclaredType IsBrokenAsExpressionCase([NotNull] ICSharpExpression expression, [NotNull] ITreeNode reference)
     {
       var asExpression = expression as IAsExpression;
       if (asExpression == null) return null;

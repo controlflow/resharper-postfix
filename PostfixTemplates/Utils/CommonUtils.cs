@@ -46,8 +46,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return CSharpDeclaredElementUtil.IsForeachEnumeratorPatternType(typeElement);
     }
 
-    public static DocumentRange ToDocumentRange([CanBeNull] this ReparsedCodeCompletionContext context,
-                                                [NotNull] ITreeNode treeNode)
+    public static DocumentRange ToDocumentRange([CanBeNull] this ReparsedCodeCompletionContext context, [NotNull] ITreeNode treeNode)
     {
       var documentRange = treeNode.GetDocumentRange();
       if (context == null) return documentRange;
@@ -160,8 +159,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [NotNull]
-    public static PrefixExpressionContext[] FindExpressionWithValuesContexts(
-      [NotNull] PostfixTemplateContext context, [CanBeNull] Predicate<ICSharpExpression> predicate = null)
+    public static PrefixExpressionContext[] FindExpressionWithValuesContexts([NotNull] PostfixTemplateContext context,
+                                                                             [CanBeNull] Predicate<ICSharpExpression> predicate = null)
     {
       var results = new LocalList<PrefixExpressionContext>();
 

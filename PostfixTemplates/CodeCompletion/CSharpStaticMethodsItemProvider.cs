@@ -158,8 +158,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var allMethods = GetAllTargetMethods(lookupItem);
         if (allMethods.Count == 0) return;
 
-        var reference = TextControlToPsi.GetElement
-          <IReferenceExpression>(solution, textControl.Document, range.StartOffset);
+        var reference = TextControlToPsi.GetElement<IReferenceExpression>(solution, textControl.Document, range.StartOffset);
         if (reference == null) return;
 
         var decorationText = textControl.Document.GetText(decoration);

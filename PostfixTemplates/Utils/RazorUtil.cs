@@ -47,8 +47,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [CanBeNull]
-    public static ICSharpStatement FixExpressionToStatement(DocumentRange expressionRange,
-                                                            [NotNull] IPsiServices psiServices)
+    public static ICSharpStatement FixExpressionToStatement(DocumentRange expressionRange, [NotNull] IPsiServices psiServices)
     {
       var solution = psiServices.Solution;
       var offset = expressionRange.TextRange.StartOffset;

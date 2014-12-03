@@ -1,4 +1,3 @@
-
 using JetBrains.Annotations;
 using JetBrains.Application.Progress;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -59,8 +58,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       psiServices.DoTransaction(FixCommandName, () =>
       {
         LowLevelModificationUtil.DeleteChild(operand);
-        LowLevelModificationUtil.ReplaceChildRange(
-          uncheckedExpression, uncheckedExpression, operand);
+        LowLevelModificationUtil.ReplaceChildRange(uncheckedExpression, uncheckedExpression, operand);
       });
 
       Assertion.Assert(operand.IsPhysical(), "operand.IsPhysical()");

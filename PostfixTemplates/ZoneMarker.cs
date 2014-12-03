@@ -5,7 +5,5 @@ using JetBrains.ReSharper.Psi.CSharp;
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   [ZoneMarker]
-  public class ZoneMarker : IRequire<ICodeEditingZone>, IRequire<ILanguageCSharpZone>
-  {
-  }
+  public class ZoneMarker : IRequire<ICodeEditingZone>, IRequire<ILanguageCSharpZone> { }
 }

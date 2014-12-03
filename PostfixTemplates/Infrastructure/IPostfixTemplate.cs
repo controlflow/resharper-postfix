@@ -14,9 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public sealed class PostfixTemplateAttribute : ShellComponentAttribute
   {
-    public PostfixTemplateAttribute([NotNull] string templateName,
-                                    [NotNull] string description,
-                                    [CanBeNull] string example = null)
+    public PostfixTemplateAttribute([NotNull] string templateName, [NotNull] string description, [CanBeNull] string example = null)
     {
       TemplateName = templateName;
       Description = description;
