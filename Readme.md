@@ -1,4 +1,4 @@
-﻿ReSharper Postfix Templates plugin
+﻿[ReSharper](http://jetbrains.com/resharper) Postfix Templates plugin
 ----------------------------------
 
 The basic idea is to prevent caret jumps backwards while typing C# code.
@@ -10,8 +10,8 @@ Kind of surround templates on steroids baked with code completion.
 #### Download
 
 * Currently supported ReSharper versions are `8.0`, `8.1`, `8.2` and `9.0`;
-* This plugin is available for download in ReSharper extensions gallery ([8.x](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix/) and [9.0](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix/));
-* ReSharper 7.1 is no longer supported, last build is [available here](https://dl.dropboxusercontent.com/u/2209105/PostfixCompletion/bin.R7/PostfixCompletion.dll);
+* This plugin is available for download in ReSharper [extensions gallery](http://resharper-plugins.jetbrains.com/) ([8.x](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix/) and [9.0](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix/));
+* ReSharper version 7.1 is no longer supported, last build is [available here](https://dl.dropboxusercontent.com/u/2209105/PostfixCompletion/bin.R7/PostfixCompletion.dll);
 * Plugin's [changelog is here](Content/Changelog.md).
 
 #### Features
@@ -56,13 +56,14 @@ Also Postfix Templates including two features sharing the same idea:
 * TODO: .Length <==> .Count feature
 * TODO: expression chooser
 
-Other notes:
+#### Notes
 
 * By now it supports only **C# language** (including C# in **Razor markup**)
 * Templates can be **expanded by `Tab` key** just like ReSharper live templates
 * You can use ReSharper 8 **double completion** feature to list and invoke all the templates are not normally available in current context
 * **Options page** allows to enable/disable specific templates and control braces insertion:
 ![options](https://github.com/controlflow/resharper-postfix/blob/master/Content/options.png)
+* You may also try out similar [postfix completion](http://blog.jetbrains.com/webstorm/2014/08/javascript-postfix-completion/) feature in IntelliJ IDEA 14
 
 #### Feedback
 
