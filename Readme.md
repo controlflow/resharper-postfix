@@ -54,7 +54,6 @@ Also Postfix Templates including two features sharing the same idea:
 ![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enum.gif)
 
 * TODO: .Length <==> .Count feature
-* TODO: expression chooser
 
 #### Notes
 
@@ -63,7 +62,7 @@ Also Postfix Templates including two features sharing the same idea:
 * You can use ReSharper 8 **double completion** feature to list and invoke all the templates are not normally available in current context
 * **Options page** allows to enable/disable specific templates and control braces insertion:
 ![options](https://github.com/controlflow/resharper-postfix/blob/master/Content/options.png)
-* You may also try out similar [postfix completion](http://blog.jetbrains.com/webstorm/2014/08/javascript-postfix-completion/) feature in IntelliJ IDEA 14
+* You may also try out similar [postfix completion](http://blog.jetbrains.com/webstorm/2014/08/javascript-postfix-completion/) feature in **IntelliJ IDEA** 14
 
 #### Feedback
 
