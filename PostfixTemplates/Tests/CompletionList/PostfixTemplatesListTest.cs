@@ -9,6 +9,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CompletionList
     protected override string RelativeTestDataPath { get { return @"List"; } }
 
     [Test] public void TestIf01() { DoNamedTest(); }
+    [Test] public void TestIf02() { DoNamedTest(); }
+    [Test] public void TestIf03() { DoNamedTest(); }
 
     [Test] public void TestNamespace01() { DoNamedTest(); }
 

@@ -35,10 +35,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return new AwaitItem(expressionContext);
     }
 
-    [NotNull] private static readonly ClrTypeName
-      ConfigurableAwaitable = new ClrTypeName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable"),
-      GenericConfigurableAwaitable = new ClrTypeName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1");
-
     private static bool IsAwaitableType(IType type)
     {
       var declaredType = type as IDeclaredType;
@@ -46,10 +42,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
       if (declaredType.IsTask()) return true;
       if (declaredType.IsGenericTask()) return true;
-
-      var typeName = declaredType.GetClrName();
-      if (ConfigurableAwaitable.Equals(typeName)) return true;
-      if (GenericConfigurableAwaitable.Equals(typeName)) return true;
+      if (declaredType.IsConfigurableAwaitable()) return true;
+      if (declaredType.IsGenericConfigurableAwaitable()) return true;
 
       return false;
     }

@@ -1,0 +1,11 @@
+﻿Id
+IsCanceled
+IsCompleted
+IsFaulted
++ if
+# AUTOMATIC #
+Id
+IsCanceled
+IsCompleted
+IsFaulted
++ if

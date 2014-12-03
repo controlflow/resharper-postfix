@@ -14,7 +14,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
       Expression = expression;
       CanBeStatement = GetContainingStatement() != null;
 
-      var brokenType = IsBrokenAsExpressionCase(expression, postfixContext.Reference);
+      var brokenType = IsBrokenAsExpressionCase(expression, postfixContext.Reference)
+                    ?? IsBrokenByAwaitCase(expression, postfixContext.Reference);
+
       ExpressionType = brokenType ?? expression.GetExpressionType();
       Type = brokenType ?? expression.Type();
 
@@ -103,6 +105,42 @@ namespace JetBrains.ReSharper.PostfixTemplates
       if (typeElement != null)
       {
         return TypeFactory.CreateType(typeElement, resolveResult.Substitution);
+      }
+
+      return null;
+    }
+
+    // await taskOfBoolean.if - postfix reference await-expression type
+    [CanBeNull]
+    private static IType IsBrokenByAwaitCase([NotNull] ICSharpExpression expression, [NotNull] ITreeNode reference)
+    {
+      var awaitExpression = expression as IAwaitExpression;
+      if (awaitExpression == null) return null;
+
+      var taskExpression = awaitExpression.Task as IReferenceExpression;
+      if (taskExpression == null || taskExpression != reference) return null;
+
+      var taskQualifier = taskExpression.QualifierExpression;
+      if (taskQualifier == null) return null;
+
+      var expressionType = taskQualifier.Type();
+      if (expressionType.IsTask() || expressionType.IsConfigurableAwaitable())
+      {
+        return taskExpression.GetPredefinedType().Void;
+      }
+
+      if (expressionType.IsGenericTask() || expressionType.IsGenericConfigurableAwaitable())
+      {
+        var declaredType = expressionType as IDeclaredType;
+        if (declaredType == null) return null;
+
+        var typeElement = declaredType.GetTypeElement();
+        if (typeElement == null) return null;
+
+        var typeParameters = typeElement.TypeParameters;
+        if (typeParameters.Count != 1) return null;
+
+        return declaredType.GetSubstitution().Apply(typeParameters[0]);
       }
 
       return null;

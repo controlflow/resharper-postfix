@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
+using JetBrains.Metadata.Reader.Impl;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
@@ -206,6 +207,26 @@ namespace JetBrains.ReSharper.PostfixTemplates
       while (expression != null);
 
       return true;
+    }
+
+    [NotNull]
+    private static readonly ClrTypeName ConfigurableAwaitable = new ClrTypeName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable");
+
+    [Pure, ContractAnnotation("null => false")]
+    public static bool IsConfigurableAwaitable(this IType type)
+    {
+      var declaredType = type as IDeclaredType;
+      return declaredType != null && declaredType.GetClrName().Equals(ConfigurableAwaitable);
+    }
+
+    [NotNull]
+    private static readonly ClrTypeName GenericConfigurableAwaitable = new ClrTypeName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1");
+
+    [Pure, ContractAnnotation("null => false")]
+    public static bool IsGenericConfigurableAwaitable(this IType type)
+    {
+      var declaredType = type as IDeclaredType;
+      return declaredType != null && declaredType.GetClrName().Equals(GenericConfigurableAwaitable);
     }
   }
 }
