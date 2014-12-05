@@ -12,11 +12,13 @@ using JetBrains.Application.PluginSupport;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("2.0.7")]
+[assembly: AssemblyVersion("2.0.8")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-#if RESHARPER8  
+#if RESHARPER8
+
 [assembly: PluginTitle("Postfix Templates")]
 [assembly: PluginDescription("Templating/code completion plugin for ReSharper")]
 [assembly: PluginVendor("Shvedov Alexander")]
+
 #endif

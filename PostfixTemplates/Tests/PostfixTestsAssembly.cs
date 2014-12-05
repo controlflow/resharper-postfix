@@ -8,15 +8,14 @@ using NUnit.Framework;
 
 #pragma warning disable 618
 
-
 #if RESHARPER8
 using JetBrains.Util;
 #elif RESHARPER9
-  using JetBrains.Application.BuildScript.Application.Zones;
-  using JetBrains.TestFramework;
-  using JetBrains.ReSharper.Resources.Shell;
-  using JetBrains.ReSharper.TestFramework;
-  using JetBrains.TestFramework.Application.Zones;
+using JetBrains.Application.BuildScript.Application.Zones;
+using JetBrains.TestFramework;
+using JetBrains.ReSharper.Resources.Shell;
+using JetBrains.ReSharper.TestFramework;
+using JetBrains.TestFramework.Application.Zones;
 #endif
 
 [assembly: TestDataPathBase(@".\Data\Completion")]
