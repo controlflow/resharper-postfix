@@ -45,13 +45,14 @@ namespace JetBrains.ReSharper.PostfixTemplates
       if (expandAction != null)
       {
         var postfixHandler = new ExpandPostfixTemplateHandler(
-          lifetime, commandProcessor, lookupWindowManager,
-          templatesManager, lookupItemsFactory, changeUnitFactory);
+          lifetime, commandProcessor, lookupWindowManager, templatesManager, lookupItemsFactory, changeUnitFactory);
 
 #if RESHARPER8
         expandAction.AddHandler(lifetime, postfixHandler);
 #elif RESHARPER9
-        manager.Handlers.AddHandler(expandAction, postfixHandler);
+        lifetime.AddBracket(
+          FOpening: () => manager.Handlers.AddHandler(expandAction, postfixHandler),
+          FClosing: () => manager.Handlers.RemoveHandler(expandAction, postfixHandler));
 #endif
       }
     }
@@ -124,8 +125,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
               postfixItem.Accept(
                 textControl, TextRange.FromLength(offset, nameLength),
-                LookupItemInsertType.Insert, Suffix.Empty,
-                solution, keepCaretStill: false);
+                LookupItemInsertType.Insert, Suffix.Empty, solution, keepCaretStill: false);
 
               return;
             }
