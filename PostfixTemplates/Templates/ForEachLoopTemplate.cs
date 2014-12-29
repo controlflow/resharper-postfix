@@ -272,7 +272,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     [NotNull] private static string HackPrefix([NotNull] string prefix)
     {
-      if (prefix.Length <= 3 && prefix.Equals("for".Substring(0, prefix.Length), StringComparison.OrdinalIgnoreCase))
+      if (prefix.Length > 0 && prefix.Length <= 3 &&
+          prefix.Equals("for".Substring(0, prefix.Length), StringComparison.OrdinalIgnoreCase))
       {
         return prefix + "Each";
       }

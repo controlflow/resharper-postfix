@@ -17,8 +17,6 @@ using JetBrains.Util;
 #if RESHARPER8
 using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
 #elif RESHARPER9
-using JetBrains.Threading;
-using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
@@ -74,7 +72,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var lookupItem = interestingItems[0];
         var text = (lookupItem.Identity == Count) ? Length : Count;
 
+#if RESHARPER8
         collector.AddAtDefaultPlace(new FakeLookupElement(text, lookupItem));
+#elif RESHARPER9
+        collector.AddToBottom(new FakeLookupElement(text, lookupItem));
+#endif
       }
     }
 
@@ -140,24 +142,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public string Identity { get { return myFakeText; } }
 
-      public bool CanShrink
-      {
-        get
-        {
-#if RESHARPER8
-          return myRealItem.CanShrink;
-#elif RESHARPER9
-          var canShrink = false;
-          ReentrancyGuard.Current.Execute("CanShrink", () =>
-          {
-            using (ReadLockCookie.Create())
-              canShrink = myRealItem.CanShrink;
-          });
-
-          return canShrink;
-#endif
-        }
-      }
+      public bool CanShrink { get { return false; } }
 
       public bool Shrink() { return myRealItem.Shrink(); }
       public void Unshrink() { myRealItem.Unshrink(); }
