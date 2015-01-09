@@ -53,8 +53,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           || completionType == CodeCompletionType.BasicCompletion;
     }
 
-    protected override bool AddLookupItems(CSharpCodeCompletionContext context,
-                                           GroupedItemsCollector collector)
+    protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
       var referenceExpression = context.UnterminatedContext.ToReferenceExpression() ??
                                 context.TerminatedContext.ToReferenceExpression();
@@ -155,11 +154,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var value = isFlagsEnum ? normalizedValue : member.Second;
 
         var instance = new DeclaredElementInstance<IField>(member.First, substitution);
-        var textLookupItem = new EnumMemberLookupItem(
-          dotMarker, instance, normalizedValue, value, isFlagsEnum);
+        var textLookupItem = new EnumMemberLookupItem(dotMarker, instance, normalizedValue, value, isFlagsEnum);
 
-        // todo: fix in 9.0
-        collector.AddAtDefaultPlace(textLookupItem);
+        collector.AddSomewhere(textLookupItem);
       }
 
       return true;
@@ -279,8 +276,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         if (!dotRange.IsValid()) return null;
 
         var tokenOffset = dotRange.TextRange.StartOffset;
-        foreach (var token in TextControlToPsi
-          .GetElements<ITokenNode>(solution, textControl.Document, tokenOffset))
+        foreach (var token in TextControlToPsi.GetElements<ITokenNode>(solution, textControl.Document, tokenOffset))
         {
           if (token.GetTokenType() == CSharpTokenType.DOT)
           {

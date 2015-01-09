@@ -30,5 +30,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       return declaredElementItem.PreferredDeclaredElement;
     }
+
+    public static void AddSomewhere([NotNull] this GroupedItemsCollector collector, [NotNull] ILookupItem lookupItem)
+    {
+      collector.AddAtDefaultPlace(lookupItem);
+    }
   }
 }

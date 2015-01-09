@@ -99,11 +99,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         }
         else
         {
-#if RESHARPER8
-          collector.AddAtDefaultPlace(lookupItem);
-#elif RESHARPER9
-          collector.AddToBottom(lookupItem);
-#endif
+          collector.AddSomewhere(lookupItem);
         }
       }
 

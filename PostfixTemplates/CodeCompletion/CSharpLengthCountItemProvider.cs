@@ -72,11 +72,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var lookupItem = interestingItems[0];
         var text = (lookupItem.Identity == Count) ? Length : Count;
 
-#if RESHARPER8
-        collector.AddAtDefaultPlace(new FakeLookupElement(text, lookupItem));
-#elif RESHARPER9
-        collector.AddToBottom(new FakeLookupElement(text, lookupItem));
-#endif
+        collector.AddSomewhere(new FakeLookupElement(text, lookupItem));
       }
     }
 

@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Psi;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 
@@ -34,6 +35,11 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       return null;
+    }
+
+    public static void AddSomewhere([NotNull] this GroupedItemsCollector collector, [NotNull] ILookupItem lookupItem)
+    {
+      collector.AddToBottom(lookupItem);
     }
   }
 }
