@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.ActionManagement;
@@ -32,7 +33,6 @@ using JetBrains.ReSharper.Feature.Services.Refactorings;
 #pragma warning disable 618
 
 // todo: think about cases like F(this.var), F(42.var). disable in auto?
-// todo: try subscribe workflow finish
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -147,12 +147,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myIsConstructorCall = isConstructorCall;
       }
 
-      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression1)
+      protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         if (myIsConstructorCall)
-          return factory.CreateExpression("new $0", expression1.GetText());
+          return factory.CreateExpression("new $0", expression.GetText());
 
-        return expression1;
+        return expression;
       }
 
       protected override void AfterComplete(ITextControl textControl, ICSharpExpression expression)
@@ -206,7 +206,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly IDeclaredType myReferencedType;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
-      private readonly bool myHasParameters;
+      private readonly bool myHasRequiredArguments;
 
       public VarByTypeItem([NotNull] PrefixExpressionContext context, [NotNull] IDeclaredType referencedType)
         : base("var", context)
@@ -215,17 +215,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
 
         var canInstantiate = TypeUtils.CanInstantiateType(referencedType, context.Expression);
-        myHasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
+        myHasRequiredArguments = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
       }
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IObjectCreationExpression) factory.CreateExpression("new $0();", myReferencedType);
+        return (IObjectCreationExpression) factory.CreateExpression("new $0()", myReferencedType);
       }
 
       protected override void AfterComplete(ITextControl textControl, IObjectCreationExpression expression)
       {
-        if (myHasParameters)
+        if (myHasRequiredArguments)
         {
           var lparRange = expression.LPar.GetDocumentRange();
           var rparRange = expression.RPar.GetDocumentRange();
@@ -235,6 +235,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
           var settingsStore = expression.GetSettingsStore();
           var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+
           var solution = expression.GetSolution();
 
           ExecuteRefactoring(textControl, expression, executeAfter: () =>
@@ -289,15 +290,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           if (introduceAction.Update(dataContext, new ActionPresentation(), () => false))
           {
             introduceAction.Execute(dataContext, delegate { });
+
+            if (executeAfter != null) SubscribeAfterExecute(executeAfter);
           }
         }
         else
         {
           var workflow = new IntroduceVariableWorkflow(solution, actionId);
           WorkflowExecuter.ExecuteBatch(dataContext, workflow);
-        }
 
-        if (executeAfter != null) SubscribeAfterExecute(executeAfter);
+#if RESHARPER8
+          if (executeAfter != null) SubscribeAfterExecute(executeAfter);
+#elif RESHARPER9
+          var finishedAction = executeAfter;
+          if (finishedAction != null)
+            workflow.SuccessfullyFinished += delegate { finishedAction(); };
+#endif
+        }
       }
       finally
       {

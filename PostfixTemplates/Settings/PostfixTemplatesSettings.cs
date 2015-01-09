@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     [SettingsEntry(true, "Insert braces for embedded statements")]
     public bool UseBracesForEmbeddedStatements;
 
-    [SettingsEntry(true, "Invoke parameter info from templates")]
+    [SettingsEntry(false, "Invoke parameter info from templates")]
     public bool InvokeParameterInfoFromTemplates;
 
     [SettingsEntry(true, "Search for occurrences in .var template")]

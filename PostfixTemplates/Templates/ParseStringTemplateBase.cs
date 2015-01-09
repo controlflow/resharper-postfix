@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
-using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
@@ -60,32 +59,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var psiModule = typeQualifier.GetPsiModule();
 
         var typesWithParsers = GetTypesWithParsers(typeQualifier);
-        var templateExpression = new TypeTemplateExpression(
-          typesWithParsers, psiModule, CSharpLanguage.Instance);
+        var templateExpression = new TypeTemplateExpression(typesWithParsers, psiModule, CSharpLanguage.Instance);
+        var templateField = new TemplateField("type", templateExpression, 0);
 
-        var hotspotInfo = new HotspotInfo(
-          new TemplateField("type", templateExpression, 0),
-          typeQualifier.GetDocumentRange());
+        var hotspotInfo = new HotspotInfo(templateField, typeQualifier.GetDocumentRange());
 
         var argumentsRange = expression.ArgumentList.GetDocumentRange();
 
+        var endSelectionRange = argumentsRange.EndOffsetRange().TextRange;
         var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          solution, argumentsRange.EndOffsetRange().TextRange, textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
-
-        // parentheses marker for parameter info
-        //var marker = expression.LPar.GetDocumentRange()
-        //  .SetEndTo(expression.RPar.GetDocumentRange().TextRange.EndOffset)
-        //  .CreateRangeMarker();
+          solution, endSelectionRange, textControl, LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
         var settingsStore = expression.GetSettingsStore();
-        var invokeParameterName = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+        var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
 
         session.Closed.Advise(Lifetime, args =>
         {
           if (myIsTryParse)
           {
-            solution.GetComponent<IShellLocks>().QueueReadLock("Smart completion for .tryparse", () =>
+            var shellLocks = solution.GetComponent<IShellLocks>();
+            shellLocks.QueueReadLock("Smart completion for .tryparse", () =>
             {
 #if RESHARPER8
               var intellisenseManager = solution.GetComponent<IntellisenseManager>();
@@ -99,7 +92,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
             });
           }
 
-          if (invokeParameterName)
+          if (invokeParameterInfo)
           {
             using (ReadLockCookie.Create())
             {

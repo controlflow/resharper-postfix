@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -131,7 +132,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         if (myHasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
         {
-          LookupUtil.ShowParameterInfo(expression.GetSolution(), textControl, myLookupItemsOwner);
+          var solution = expression.GetSolution();
+          LookupUtil.ShowParameterInfo(solution, textControl, myLookupItemsOwner);
         }
       }
     }
