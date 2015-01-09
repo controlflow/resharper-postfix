@@ -1,0 +1,10 @@
+﻿// ${COMPLETE_ITEM:new}
+// ${PARENS:None}
+
+class Foo
+{
+  void Bar()
+  {
+    new Unresolved{caret}
+  }
+}

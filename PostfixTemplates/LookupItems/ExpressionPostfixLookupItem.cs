@@ -24,8 +24,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       {
         var factory = CSharpElementFactory.GetInstance(psiModule);
         var expression = context.Expression;
-        var newExpression = CreateExpression(
-          factory, expression.GetOperandThroughParenthesis().NotNull());
+        var operand = expression.GetOperandThroughParenthesis().NotNull("operand != null");
+
+        var newExpression = CreateExpression(factory, operand);
 
         return expression.ReplaceBy(newExpression);
       });

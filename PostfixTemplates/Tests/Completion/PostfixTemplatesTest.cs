@@ -3,6 +3,7 @@ using JetBrains.Application.Settings;
 using JetBrains.Application.Settings.Store.Implementation;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.TestFramework;
@@ -17,19 +18,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
 
     protected override void DoTest(IProject testProject)
     {
-      Lifetimes.Using(lifetime =>
+      var definition = Lifetimes.Define(EternalLifetime.Instance);
+      try
       {
-        ChangeSettingsTemporarily(lifetime);
+        ChangeSettingsTemporarily(definition.Lifetime);
 
         var settingsStore = ShellInstance.GetComponent<SettingsStore>();
-        var context = ContextRange.ManuallyRestrictWritesToOneContext((_, contexts) => contexts.Empty);
-        var settings = settingsStore.BindToContextTransient(context);
+        var store = settingsStore.BindToContext(settingsStore.DataContexts.Empty);
 
-        settings.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
-        settings.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
+        store.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
+        store.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
 
         base.DoTest(testProject);
-      });
+      }
+      finally
+      {
+        definition.Terminate();
+      }
     }
 
     [Test] public void TestIf01() { DoNamedTest(); }
@@ -60,6 +65,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
     [Test] public void TestNew04() { DoNamedTest(); }
     [Test] public void TestNew05() { DoNamedTest(); }
     [Test] public void TestNew06() { DoNamedTest(); }
+    [Test] public void TestNew07() { DoNamedTest(); }
+    [Test] public void TestNew08() { DoNamedTest(); }
 
     [Test] public void TestVar01() { DoNamedTest(); }
     [Test] public void TestVar02() { DoNamedTest(); }
