@@ -3,10 +3,10 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.Util;
 
-// TODO: apply code style in R# 9.0
-
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // todo: apply code style in R# 9.0
+
   [PostfixTemplate(
     templateName: "for",
     description: "Iterates over collection with index",

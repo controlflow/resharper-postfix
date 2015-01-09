@@ -32,6 +32,8 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   // todo: hide from auto for string type?
+  // todo: apply var code style in 9.0
+  // todo: .from template?
 
   [PostfixTemplate(
     templateName: "forEach",

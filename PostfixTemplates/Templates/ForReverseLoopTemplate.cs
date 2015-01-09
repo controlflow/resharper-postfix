@@ -5,6 +5,8 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // todo: apply code style in R# 9.0
+
   [PostfixTemplate(
     templateName: "forr",
     description: "Iterates over collection in reverse with index",

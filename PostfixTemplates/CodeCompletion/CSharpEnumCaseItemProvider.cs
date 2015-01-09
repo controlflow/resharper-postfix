@@ -158,6 +158,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var textLookupItem = new EnumMemberLookupItem(
           dotMarker, instance, normalizedValue, value, isFlagsEnum);
 
+        // todo: fix in 9.0
         collector.AddAtDefaultPlace(textLookupItem);
       }
 

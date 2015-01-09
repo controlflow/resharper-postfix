@@ -23,8 +23,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class ForLoopTemplateBase
   {
-    protected bool CreateForItem([NotNull] PostfixTemplateContext context,
-                                 [CanBeNull] out string lengthName)
+    protected bool CreateForItem([NotNull] PostfixTemplateContext context, [CanBeNull] out string lengthName)
     {
       lengthName = null;
 

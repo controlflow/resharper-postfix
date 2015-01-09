@@ -1,5 +1,8 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using JetBrains.Application.Settings;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Settings;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -11,6 +14,8 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
+  // todo: respect parentheses insertion setting?
+
   [PostfixTemplate(
     templateName: "new",
     description: "Produces instantiation expression for type",
@@ -72,7 +77,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           else if (declaredElement == null || declaredElement is ITypeElement)
           {
             if (CommonUtils.IsReferenceExpressionsChain(reference))
+            {
               return new NewExpressionItem(expressionContext);
+            }
           }
         }
       }
@@ -84,7 +91,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           var declaredElement = reference.Reference.Resolve().DeclaredElement;
           if (declaredElement == null || declaredElement is ITypeElement)
           {
-            return new NewTypeItem(expressionContext, hasParameters: true);
+            return new NewTypeItem(expressionContext, hasRequiredArguments: true);
           }
         }
       }
@@ -94,40 +101,55 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class NewTypeItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
     {
-      private readonly bool myHasParameters;
+      private readonly bool myHasRequiredArguments;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
 
-      public NewTypeItem([NotNull] PrefixExpressionContext context, bool hasParameters)
+      public NewTypeItem([NotNull] PrefixExpressionContext context, bool hasRequiredArguments)
         : base("new", context)
       {
-        myHasParameters = hasParameters;
+        myHasRequiredArguments = hasRequiredArguments;
         myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
       }
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var template = string.Format("new {0}()", expression.GetText());
+        var settingsStore = expression.GetSettingsStore();
+        var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
+        var parentheses = GetParenthesesTemplate(parenthesesType);
+
+        var template = string.Format("new {0}{1}", expression.GetText(), parentheses);
         return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
+      }
+
+      [NotNull] // todo: extract somewhere?
+      private static string GetParenthesesTemplate(ParenthesesInsertType parenthesesType)
+      {
+        switch (parenthesesType)
+        {
+          case ParenthesesInsertType.None:
+            return "";
+          case ParenthesesInsertType.Left:
+            return "(";
+          default:
+            return "()";
+        }
       }
 
       protected override void AfterComplete(ITextControl textControl, IObjectCreationExpression expression)
       {
-        var caretNode = (myHasParameters ? expression.LPar : (ITreeNode) expression);
+        var settingsStore = expression.GetSettingsStore();
+
+        var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
+        if (parenthesesType == ParenthesesInsertType.None) return;
+
+        var caretNode = myHasRequiredArguments ? expression.LPar : (ITreeNode) expression;
         var endOffset = caretNode.GetDocumentRange().TextRange.EndOffset;
 
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
-        if (!myHasParameters) return;
-
-        var parenthesisRange =
-          expression.LPar.GetDocumentRange().TextRange.SetEndTo(
-            expression.RPar.GetDocumentRange().TextRange.EndOffset);
-
-        var settingsStore = expression.GetSettingsStore();
-        if (settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
+        if (myHasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
         {
-          LookupUtil.ShowParameterInfo(
-            expression.GetSolution(), textControl, parenthesisRange, null, myLookupItemsOwner);
+          LookupUtil.ShowParameterInfo(expression.GetSolution(), textControl, myLookupItemsOwner);
         }
       }
     }
@@ -140,7 +162,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = string.Format("new {0}", expression.GetText());
-        return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
+        return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, applyCodeFormatter: false);
       }
     }
   }

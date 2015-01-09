@@ -30,8 +30,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       {
         // filter out abstract classes
         var classType = typeElement as IClass;
-        if (classType != null && classType.IsAbstract)
-          return CanInstantiate.No;
+        if (classType != null && classType.IsAbstract) return CanInstantiate.No;
 
         // check type has any constructor accessible
         var accessContext = new ElementAccessContext(expression);

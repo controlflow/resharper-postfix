@@ -161,6 +161,7 @@
     <Compile Include="Infrastructure\PostfixTemplatesTracker.cs" />
     <Compile Include="Infrastructure\PrefixExpressionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\CodeCompletionSettingsAccessor.cs" />
     <Compile Include="Settings\PostfixOptionsPage.xaml.cs">
       <DependentUpon>PostfixOptionsPage.xaml</DependentUpon>
     </Compile>
