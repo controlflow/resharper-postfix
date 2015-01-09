@@ -111,25 +111,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       {
         var settingsStore = expression.GetSettingsStore();
         var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
-        var parentheses = GetParenthesesTemplate(parenthesesType);
 
-        var template = string.Format("new {0}{1}", expression.GetText(), parentheses);
+        var template = string.Format("new {0}{1}", expression.GetText(), parenthesesType.GetParenthesesTemplate());
         return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, false);
       }
 
-      [NotNull] // todo: extract somewhere?
-      private static string GetParenthesesTemplate(ParenthesesInsertType parenthesesType)
-      {
-        switch (parenthesesType)
-        {
-          case ParenthesesInsertType.None:
-            return "";
-          case ParenthesesInsertType.Left:
-            return "(";
-          default:
-            return "()";
-        }
-      }
 
       protected override void AfterComplete(ITextControl textControl, IObjectCreationExpression expression)
       {

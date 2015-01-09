@@ -237,18 +237,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
           var solution = expression.GetSolution();
 
-          ExecuteRefactoring(textControl, expression, () =>
+          ExecuteRefactoring(textControl, expression, executeAfter: () =>
           {
             var argumentsRange = argumentsMarker.Range;
             if (!argumentsRange.IsValid) return;
 
-            var offset = argumentsRange.StartOffset + argumentsRange.Length / 2;
+            var offset = argumentsRange.StartOffset + argumentsRange.Length / 2; // EWW
             textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
 
             if (invokeParameterInfo)
             {
-              LookupUtil.ShowParameterInfo(
-                solution, textControl, argumentsRange, null, myLookupItemsOwner);
+              LookupUtil.ShowParameterInfo(solution, textControl, myLookupItemsOwner);
             }
           });
         }

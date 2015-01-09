@@ -74,9 +74,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
         // parentheses marker for parameter info
-        var marker = expression.LPar.GetDocumentRange()
-          .SetEndTo(expression.RPar.GetDocumentRange().TextRange.EndOffset)
-          .CreateRangeMarker();
+        //var marker = expression.LPar.GetDocumentRange()
+        //  .SetEndTo(expression.RPar.GetDocumentRange().TextRange.EndOffset)
+        //  .CreateRangeMarker();
 
         var settingsStore = expression.GetSettingsStore();
         var invokeParameterName = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
@@ -103,11 +103,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           {
             using (ReadLockCookie.Create())
             {
-              if (marker.IsValid)
-              {
-                LookupUtil.ShowParameterInfo(
-                  solution, textControl, marker.Range, null, myLookupItemsOwner);
-              }
+              LookupUtil.ShowParameterInfo(solution, textControl, myLookupItemsOwner);
             }
           }
         });

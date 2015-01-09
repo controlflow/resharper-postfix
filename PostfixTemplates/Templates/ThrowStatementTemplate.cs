@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -38,14 +39,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
 
       bool needFixWithNew;
-      if (!CheckExpressionType(expressionContext, out needFixWithNew) && context.IsAutoCompletion)
-        return null;
+      if (CheckExpressionType(expressionContext, out needFixWithNew) || !context.IsAutoCompletion)
+      {
+        var reference = expressionContext.Expression as IReferenceExpression;
+        if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))
+        {
+          return new ThrowByTypeItem(expressionContext, hasRequiredArguments: true);
+        }
 
-      return new ThrowValueItem(expressionContext, needFixWithNew);
+        return new ThrowExpressionItem(expressionContext, needFixWithNew);
+      }
+
+      return null;
     }
 
-    private static bool CheckExpressionType(
-      [NotNull] PrefixExpressionContext expressionContext, out bool needFixWithNew)
+    private static bool CheckExpressionType([NotNull] PrefixExpressionContext expressionContext, out bool needFixWithNew)
     {
       needFixWithNew = false;
 
@@ -80,27 +88,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return false;
     }
 
-    private static bool IsInstantiableExceptionType([NotNull] IDeclaredType declaredType,
-                                                    [NotNull] ICSharpExpression context)
+    private static bool IsInstantiableExceptionType([NotNull] IDeclaredType declaredType, [NotNull] ICSharpExpression context)
     {
       var predefinedType = context.GetPredefinedType();
       var conversionRule = context.GetTypeConversionRule();
+
       return conversionRule.IsImplicitlyConvertibleTo(declaredType, predefinedType.Exception)
           && TypeUtils.CanInstantiateType(declaredType, context) != CanInstantiate.No;
     }
 
-    private sealed class ThrowValueItem : StatementPostfixLookupItem<IThrowStatement>
+    private sealed class ThrowExpressionItem : StatementPostfixLookupItem<IThrowStatement>
     {
       private readonly bool myInsertNewExpression;
 
-      public ThrowValueItem([NotNull] PrefixExpressionContext context, bool insertNewExpression)
+      public ThrowExpressionItem([NotNull] PrefixExpressionContext context, bool insertNewExpression)
         : base("throw", context)
       {
         myInsertNewExpression = insertNewExpression;
       }
 
-      protected override IThrowStatement CreateStatement(CSharpElementFactory factory,
-                                                         ICSharpExpression expression)
+      protected override IThrowStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = myInsertNewExpression ? "throw new $0;" : "throw $0;";
         return (IThrowStatement) factory.CreateStatement(template, expression.GetText());
@@ -110,42 +117,50 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     private sealed class ThrowByTypeItem : StatementPostfixLookupItem<IThrowStatement>
     {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
-      private readonly bool myHasParameters;
+      private readonly bool myHasRequiredArguments;
 
-      public ThrowByTypeItem([NotNull] PrefixExpressionContext context, bool hasParameters)
+      public ThrowByTypeItem([NotNull] PrefixExpressionContext context, bool hasRequiredArguments)
         : base("throw", context)
       {
         var executionContext = context.PostfixContext.ExecutionContext;
         myLookupItemsOwner = executionContext.LookupItemsOwner;
-        myHasParameters = hasParameters;
+        myHasRequiredArguments = hasRequiredArguments;
       }
 
-      protected override IThrowStatement CreateStatement(CSharpElementFactory factory,
-                                                         ICSharpExpression expression)
+      protected override IThrowStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IThrowStatement) factory.CreateStatement("throw new $0();", expression.GetText());
+        var settingsStore = expression.GetSettingsStore();
+        var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
+        var parenthesesTemplate = parenthesesType.GetParenthesesTemplate(atStatementEnd: true);
+
+        var template = string.Format("throw new {0}{1}", expression.GetText(), parenthesesTemplate);
+        return (IThrowStatement) factory.CreateStatement(template, expression.GetText());
       }
 
       protected override void AfterComplete(ITextControl textControl, IThrowStatement statement)
       {
-        FormatStatementOnSemicolon(statement);
-
-        var expression = (IObjectCreationExpression) statement.Exception;
-        var endOffset = myHasParameters
-          ? expression.LPar.GetDocumentRange().TextRange.EndOffset
-          : statement.GetDocumentRange().TextRange.EndOffset;
-
-        textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
-        if (!myHasParameters) return;
-
-        var parenthesisRange = expression.LPar.GetDocumentRange().SetEndTo(
-          expression.RPar.GetDocumentRange().TextRange.EndOffset).TextRange;
+        if (statement.Semicolon != null) FormatStatementOnSemicolon(statement);
 
         var settingsStore = statement.GetSettingsStore();
-        if (settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
+        var expression = (IObjectCreationExpression) statement.Exception;
+
+        var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
+        if (parenthesesType == ParenthesesInsertType.None)
         {
-          LookupUtil.ShowParameterInfo(
-            statement.GetSolution(), textControl, parenthesisRange, null, myLookupItemsOwner);
+          var endOffset = expression.GetDocumentRange().TextRange.EndOffset;
+          textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+        }
+        else
+        {
+          var caretNode = myHasRequiredArguments ? expression.LPar : (statement.Semicolon ?? (ITreeNode) expression);
+          var endOffset = caretNode.GetDocumentRange().TextRange.EndOffset;
+
+          textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+
+          if (myHasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
+          {
+            LookupUtil.ShowParameterInfo(statement.GetSolution(), textControl, myLookupItemsOwner);
+          }
         }
       }
     }

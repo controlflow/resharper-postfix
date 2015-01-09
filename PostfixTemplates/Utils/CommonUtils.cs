@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.Metadata.Reader.Impl;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
@@ -227,6 +228,18 @@ namespace JetBrains.ReSharper.PostfixTemplates
     {
       var declaredType = type as IDeclaredType;
       return declaredType != null && declaredType.GetClrName().Equals(GenericConfigurableAwaitable);
+    }
+
+    [NotNull]
+    public static string GetParenthesesTemplate(this ParenthesesInsertType parenthesesType, bool atStatementEnd = false)
+    {
+      switch (parenthesesType)
+      {
+        case ParenthesesInsertType.None: return "";
+        case ParenthesesInsertType.Left: return "(";
+      }
+
+      return atStatementEnd ? "();" : "()";
     }
   }
 }

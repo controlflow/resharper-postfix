@@ -120,9 +120,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
             if (invokeParameterInfo)
             {
-              var argumentsRange = TextRange.FromLength(hotspotRange.EndOffset, length + 1);
-              LookupUtil.ShowParameterInfo(
-                solution, textControl, argumentsRange, null, myLookupItemsOwner);
+              LookupUtil.ShowParameterInfo(solution, textControl, myLookupItemsOwner);
             }
           }
         });

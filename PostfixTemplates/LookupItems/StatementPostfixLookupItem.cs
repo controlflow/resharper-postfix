@@ -4,6 +4,7 @@ using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.Options;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
+using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -16,8 +17,10 @@ using JetBrains.TextControl;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
 #if RESHARPER8
+using JetBrains.Application;
 using JetBrains.ReSharper.Psi.Services;
 #elif RESHARPER9
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.Util;
 #endif
 
@@ -28,8 +31,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   {
     private readonly bool myUseBraces;
 
-    protected StatementPostfixLookupItem([NotNull] string shortcut,
-                                         [NotNull] PrefixExpressionContext context)
+    protected StatementPostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : base(shortcut, context)
     {
       Assertion.Assert(context.CanBeStatement, "context.CanBeStatement");
@@ -96,6 +98,22 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
         Assertion.AssertNotNull(targetStatement, "targetStatement != null");
         Assertion.Assert(targetStatement.IsPhysical(), "targetStatement.IsPhysical()");
+
+        // Sometimes statements produced by templates are unfinished (for example, because of
+        // parentheses insertion mode in R#), so the created statements has error element at and,
+        // prefixed with single-characted whitespace. We remove this whitespace here:
+        var errorElement = newStatement.LastChild as IErrorElement;
+        if (errorElement != null)
+        {
+          var whitespaceNode = errorElement.PrevSibling as IWhitespaceNode;
+          if (whitespaceNode != null && !whitespaceNode.IsNewLine && whitespaceNode.GetText() == " ")
+          {
+            using (WriteLockCookie.Create(newStatement.IsPhysical()))
+            {
+              LowLevelModificationUtil.DeleteChild(whitespaceNode);
+            }
+          }
+        }
 
         return targetStatement.ReplaceBy(newStatement);
       });
