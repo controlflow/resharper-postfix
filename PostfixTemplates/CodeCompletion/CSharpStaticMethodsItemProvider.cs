@@ -39,6 +39,7 @@ using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastr
 
 // todo: caret placement after completing generic method<>
 // todo: gray color sometimes missing in 9.0 for bold items
+// todo: AdjustTextColor
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
