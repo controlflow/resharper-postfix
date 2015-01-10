@@ -23,11 +23,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
       {
         ChangeSettingsTemporarily(definition.Lifetime);
 
+#if RESHARPER8
         var settingsStore = ShellInstance.GetComponent<SettingsStore>();
         var store = settingsStore.BindToContext(settingsStore.DataContexts.Empty);
 
         store.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
         store.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
+#endif
 
         base.DoTest(testProject);
       }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
@@ -77,11 +78,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       // prepare symbol table of suitable static methods
       var accessFilter = new AccessRightsFilter(new ElementAccessContext(qualifier));
-      var filteredSymbolTable = symbolTable.Filter(
-        new SuitableStaticMethodsFilter(filterType, qualifier, argumentsCount),
-        OverriddenFilter.INSTANCE, accessFilter);
+      var staticMethodsFilter = new SuitableStaticMethodsFilter(filterType, qualifier, argumentsCount);
+      var filteredSymbolTable = symbolTable.Filter(staticMethodsFilter, OverriddenFilter.INSTANCE, accessFilter);
 
-      FillCollectorWithStaticItems(context, collector, filteredSymbolTable);
+      FillCollectorWithStaticItems(context, collector, filteredSymbolTable, argumentsCount);
       return true;
     }
 
@@ -89,7 +89,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     private void FillCollectorWithStaticItems([NotNull] CSharpCodeCompletionContext context,
                                               [NotNull] GroupedItemsCollector collector,
-                                              [NotNull] ISymbolTable staticsSymbolTable)
+                                              [NotNull] ISymbolTable staticsSymbolTable, int argumentsCount)
     {
       var innerCollector = new GroupedItemsCollector();
       GetLookupItemsFromSymbolTable(staticsSymbolTable, innerCollector, context, false);
@@ -102,7 +102,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var lookupItem = item as DeclaredElementLookupItem;
         if (lookupItem == null) continue;
 
-        lookupItem.AfterComplete += BakeAfterComplete(lookupItem, solution);
+        lookupItem.AfterComplete += BakeAfterComplete(lookupItem, solution, argumentsCount);
         lookupItem.TextColor = SystemColors.GrayText;
 
         collector.AddToBottom(lookupItem);
@@ -113,7 +113,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     private void FillCollectorWithStaticItems([NotNull] CSharpCodeCompletionContext context,
                                               [NotNull] GroupedItemsCollector collector,
-                                              [NotNull] ISymbolTable staticsSymbolTable)
+                                              [NotNull] ISymbolTable staticsSymbolTable, int argumentsCount)
     {
       var innerCollector = context.BasicContext.CreateCollector();
       GetLookupItemsFromSymbolTable(staticsSymbolTable, innerCollector, context, false);
@@ -126,7 +126,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var lookupItem = item as ILookupItemWrapper<DeclaredElementInfo>;
         if (lookupItem == null) continue;
 
-        var afterComplete = BakeAfterComplete(lookupItem, solution);
+        var afterComplete = BakeAfterComplete(lookupItem, solution, argumentsCount);
         lookupItem.SubscribeAfterComplete(afterComplete);
         collector.AddToBottom(lookupItem);
       }
@@ -137,16 +137,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     private static int GetExistingArgumentsCount([NotNull] IReferenceExpression referenceExpression)
     {
       var invocationExpression = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
-      if (invocationExpression != null)
-      {
-        return invocationExpression.Arguments.Count;
-      }
+      if (invocationExpression == null) return 0;
 
-      return 0;
+      return invocationExpression.Arguments.Count;
+
+      //var arguments = invocationExpression.Arguments;
+      //
+      //// TODO: may be reference from next line parsed as argument
+      //
+      //// special case: "Foo(" parses as invocation with 1 argument
+      //if (arguments.Count == 1)
+      //{
+      //  var textRange = arguments[0].GetTreeTextRange();
+      //  if (textRange.Length == 0) return 0;
+      //}
+      //
+      //return arguments.Count;
     }
 
     [NotNull]
-    private static AfterCompletionHandler BakeAfterComplete([NotNull] ILookupItem lookupItem, [NotNull] ISolution solution)
+    private static AfterCompletionHandler BakeAfterComplete([NotNull] ILookupItem lookupItem, [NotNull] ISolution solution, int argumentsCount)
     {
       // sorry, ugly as fuck :(
       return (ITextControl textControl, ref TextRange range, ref TextRange decoration,
@@ -162,48 +172,37 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         if (reference == null) return;
 
         var decorationText = textControl.Document.GetText(decoration);
-        var decorationDocumentRange = new DocumentRange(textControl.Document, decoration);
+        var decorationRange = new DocumentRange(textControl.Document, decoration);
 
-        var argumentsCount = GetExistingArgumentsCount(reference);
         var hasMoreParameters = HasMoreParameters(allMethods, argumentsCount);
         if (!hasMoreParameters) // put caret 'foo(arg){here};'
         {
-          caretMarker = decorationDocumentRange.EndOffsetRange().CreateRangeMarker();
+          caretMarker = decorationRange.EndOffsetRange().CreateRangeMarker();
         }
         else if (argumentsCount > 0)
         {
           var parenthesisCloseIndex = decorationText.LastIndexOf(')');
           if (parenthesisCloseIndex >= 0)
           {
-            caretMarker = decorationDocumentRange.EndOffsetRange()
-              .Shift(-(decoration.Length - parenthesisCloseIndex)).CreateRangeMarker();
+            var delta = decoration.Length - parenthesisCloseIndex;
+            caretMarker = decorationRange.EndOffsetRange().Shift(-delta).CreateRangeMarker();
           }
         }
 
-        // 'remember' qualifier textually
-        var qualifierExpression = reference.QualifierExpression.NotNull();
-        var qualifierText = qualifierExpression.GetText();
+        var qualifierExpression = reference.QualifierExpression.NotNull("qualifierExpression != null");
         var referencePointer = reference.CreateTreeElementPointer();
 
-        if (IsEnumTypeReference(qualifierExpression) != null)
+        var qualifierText = InsertQualifierAsArgument(
+          qualifierExpression, allMethods, argumentsCount, textControl, decoration, decorationText);
+
+        // TODO: mmm?
+        if (!hasMoreParameters && !decorationText.EndsWith(")", StringComparison.Ordinal))
         {
-          qualifierText = "typeof(" + qualifierText + ")";
+          caretMarker = caretMarker.DocumentRange.Shift(+qualifierText.Length).CreateRangeMarker();
         }
 
-        if (FirstArgumentAlwaysByRef(allMethods)) qualifierText = "ref " + qualifierText;
-        if (argumentsCount > 0 || HasOnlyMultipleParameters(allMethods)) qualifierText += ", ";
-
-        var parenthesisRange = decoration.SetStartTo(range.EndOffset);
-        var parenthesisMarker = parenthesisRange.CreateRangeMarker(textControl.Document);
-        var parenthesisOpenIndex = decorationText.IndexOf('(');
-
-        // insert qualifier as first argument
-        var shift = (parenthesisOpenIndex >= 0) ? parenthesisOpenIndex : 0;
-        var argPosition = TextRange.FromLength(decoration.StartOffset + shift + 1, 0);
-        textControl.Document.ReplaceText(argPosition, qualifierText);
-
         // replace qualifier with type (predefined/user type)
-        var ownerType = allMethods[0].GetContainingType().NotNull();
+        var ownerType = allMethods[0].GetContainingType().NotNull("ownerType != null");
         FixQualifierExpression(textControl, qualifierExpression, ownerType);
 
         psiServices.CommitAllDocuments();
@@ -217,7 +216,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
             var newQualifier = (IReferenceExpression) newReference.QualifierExpression;
             if (newQualifier != null)
             {
-              var elementInstance = lookupItem.GetDeclaredElement().NotNull();
+              var elementInstance = lookupItem.GetDeclaredElement().NotNull("elementInstance != null");
               newQualifier.Reference.BindTo(ownerType, elementInstance.Substitution);
             }
 
@@ -226,13 +225,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           }
 
           // show parameter info when needed
-          if (hasMoreParameters && parenthesisMarker.IsValid)
+          if (hasMoreParameters)
           {
             var factory = solution.GetComponent<LookupItemsOwnerFactory>();
             var lookupItemsOwner = factory.CreateLookupItemsOwner(textControl);
 
-            LookupUtil.ShowParameterInfo(
-              solution, textControl, parenthesisMarker.Range, null, lookupItemsOwner);
+            LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
           }
         }
 
@@ -241,18 +239,59 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       };
     }
 
+    [NotNull]
+    private static string InsertQualifierAsArgument([NotNull] ICSharpExpression qualifierExpression,
+                                                    [NotNull] IList<IMethod> allMethods, int argumentsCount,
+                                                    [NotNull] ITextControl textControl, TextRange decoration,
+                                                    [NotNull] string decorationText)
+    {
+      var qualifierText = qualifierExpression.GetText();
+
+      var enumerationType = FindEnumerationType(qualifierExpression);
+      if (enumerationType != null)
+      {
+        qualifierText = "typeof(" + qualifierText + ")";
+      }
+
+      if (FirstArgumentAlwaysPassByRef(allMethods))
+      {
+        qualifierText = "ref " + qualifierText;
+      }
+
+      if (argumentsCount > 0 || HasOnlyMultipleParameters(allMethods))
+      {
+        qualifierText += ", ";
+      }
+
+      var parenthesisOpenIndex = decorationText.IndexOf('(');
+      if (parenthesisOpenIndex < 0)
+      {
+        qualifierText = "(" + qualifierText;
+      }
+
+      // insert qualifier as first argument
+      var shift = (parenthesisOpenIndex >= 0) ? parenthesisOpenIndex + 1 : decoration.Length;
+      var argPosition = TextRange.FromLength(decoration.StartOffset + shift, 0);
+
+      textControl.Document.ReplaceText(argPosition, qualifierText);
+      return qualifierText;
+    }
+
     private static void FixQualifierExpression([NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression, [NotNull] ITypeElement ownerType)
     {
       var qualifierRange = expression.GetDocumentRange().TextRange;
 
-      // do not produce type qualifier when static method from the same type completed
+      var comparer = DeclaredElementEqualityComparer.TypeElementComparer;
+
+      // do not produce type qualifier when static method from containing type completed
       var typeDeclaration = expression.GetContainingTypeDeclaration();
-      if (typeDeclaration != null && DeclaredElementEqualityComparer
-        .TypeElementComparer.Equals(typeDeclaration.DeclaredElement, ownerType))
+      if (typeDeclaration != null && comparer.Equals(typeDeclaration.DeclaredElement, ownerType))
       {
-        var referenceExpression = ReferenceExpressionNavigator.GetByQualifierExpression(expression).NotNull();
-        if (referenceExpression.Delimiter != null)
-          qualifierRange = qualifierRange.SetEndTo(referenceExpression.Delimiter.GetDocumentRange().TextRange.EndOffset);
+        var reference = ReferenceExpressionNavigator.GetByQualifierExpression(expression).NotNull("reference != null");
+
+        var delimiter = reference.Delimiter;
+        if (delimiter != null)
+          qualifierRange = qualifierRange.JoinRight(delimiter.GetDocumentRange().TextRange);
 
         textControl.Document.ReplaceText(qualifierRange, string.Empty);
       }
@@ -269,7 +308,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       var qualifierType = filterType = qualifier.Type();
       if (qualifierType.IsResolved) return qualifierType;
 
-      var enumType = IsEnumTypeReference(qualifier);
+      var enumType = FindEnumerationType(qualifier);
       if (enumType == null) return null;
 
       filterType = qualifier.GetPredefinedType().Type;
@@ -277,7 +316,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     }
 
     [CanBeNull]
-    private static IDeclaredType IsEnumTypeReference([NotNull] ICSharpExpression expression)
+    private static IDeclaredType FindEnumerationType([NotNull] ICSharpExpression expression)
     {
       var referenceExpression = expression as IReferenceExpression;
       if (referenceExpression == null) return null;
@@ -377,7 +416,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       return true;
     }
 
-    private static bool FirstArgumentAlwaysByRef([NotNull] IList<IMethod> methods)
+    private static bool FirstArgumentAlwaysPassByRef([NotNull] IList<IMethod> methods)
     {
       foreach (var method in methods)
       {
