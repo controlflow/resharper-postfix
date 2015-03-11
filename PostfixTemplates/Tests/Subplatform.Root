@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SubplatformInfo xmlns="urn:schemas-jetbrains-com:build-subplatform-info" CompanyNameHuman="JetBrains">
+	<SubplatformInfo.SubplatformReferences>
+		<SubplatformReference Name="Psi.Features\src" />
+		<SubplatformReference Name="Psi.Features\test\Framework" />
+		<SubplatformReference Name="Platform\Tests\Framework" />
+		<!--<SubplatformReference Name="Platform\Tests\Cases" />-->
+	</SubplatformInfo.SubplatformReferences>
+</SubplatformInfo>
