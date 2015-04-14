@@ -30,9 +30,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   {
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
-      var completionType = context.BasicContext.CodeCompletionType;
-      return completionType == CodeCompletionType.AutomaticCompletion
-          || completionType == CodeCompletionType.BasicCompletion;
+      return context.BasicContext.IsAutoOrBasicCompletionType();
     }
 
     private const string Length = "Length", Count = "Count";
@@ -178,11 +176,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       private LookupItemPlacement myPlacement;
 
+  #if RESHARPER91
+
+      public LookupItemPlacement Placement
+      {
+        get { return myPlacement ?? (myPlacement = new LookupItemPlacement(myFakeText)); }
+        set { myPlacement = value; }
+      }
+
+  #else
+
       public LookupItemPlacement Placement
       {
         get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(myFakeText)); }
         set { myPlacement = value; }
       }
+
+  #endif
 
 #endif
     }

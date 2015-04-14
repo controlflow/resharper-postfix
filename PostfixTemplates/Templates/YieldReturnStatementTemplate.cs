@@ -11,8 +11,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
     templateName: "yield",
-    description: "Returns expression/yields value from iterator",
-    example: "return expr;")]
+    description: "Yields value from iterator method",
+    example: "yield return expr;")]
   public class YieldReturnStatementTemplate : IPostfixTemplate
   {
     public IPostfixLookupItem CreateItem(PostfixTemplateContext context)

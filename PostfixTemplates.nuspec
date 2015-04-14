@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>$PackageId$</id>
-    <version>2.0.9</version>
+    <version>2.1.13</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>Postfix Templates</title>
     <authors>Alexander Shvedov</authors>
@@ -14,10 +14,11 @@
       Templating/code completion plugin that helps reducing backward caret jumps while typing C# code. Kind of surround templates on steroids baked with code completion.
     </description>
     <releaseNotes>
-Minor bugfix release.
-&#8226; Fix solution leak in ReSharper 9.0 version;
-&#8226; Trying to fix postfix items ordering (should no longer be on top or take preselection);
-&#8226; Build against R# 9.0 RTM SDK binaries;
+&#8226; ReSharper 9.1 support;
+&#8226; Parameter info is turned off by default (too annoying);
+&#8226; Respect "Automatically insert parentheses after completion" ReSharper setting in `.new`/`.throw` templates and static members completion;
+&#8226; Fix lookup list placement of enum cases items in 9.0 build;
+&#8226; Fix static member completion with "Automatically insert parentheses after completion" ReSharper setting turned off.
     </releaseNotes>
     <dependencies>
       <dependency id="$ReSharperDep$" version="$ReSharperVer$" />
@@ -29,5 +30,6 @@ Minor bugfix release.
     <file src="PostfixTemplates\bin.R81\$Configuration$\PostfixTemplates.*" target="ReSharper\v8.1\plugins\" />
     <file src="PostfixTemplates\bin.R82\$Configuration$\PostfixTemplates.*" target="ReSharper\v8.2\plugins\" />
     <file src="PostfixTemplates\bin.R90\$Configuration$\PostfixTemplates.*" target="dotFiles\" />
+    <file src="PostfixTemplates\bin.R91\$Configuration$\PostfixTemplates.*" target="dotFiles\" />
   </files>
 </package>

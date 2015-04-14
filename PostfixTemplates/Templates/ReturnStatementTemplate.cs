@@ -10,7 +10,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   [PostfixTemplate(
     templateName: "return",
-    description: "Returns expression/yields value from iterator",
+    description: "Returns expression from current function",
     example: "return expr;")]
   public class ReturnStatementTemplate : IPostfixTemplate
   {

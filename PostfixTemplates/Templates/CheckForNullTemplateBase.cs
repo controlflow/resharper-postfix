@@ -10,6 +10,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   // todo: check (new C()).notnull is not available
   // todo: public Ctor(string arg) { _arg = arg.notnull; } - disable
   // todo: parentheses!
+  // todo: maybe enable in expression context
 
   public abstract class CheckForNullTemplateBase
   {

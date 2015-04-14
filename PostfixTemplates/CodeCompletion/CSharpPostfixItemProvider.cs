@@ -4,6 +4,8 @@ using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
+using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -33,30 +35,35 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
-      var completionType = context.BasicContext.CodeCompletionType;
-      return completionType == CodeCompletionType.AutomaticCompletion
-          || completionType == CodeCompletionType.BasicCompletion;
+      return context.BasicContext.IsAutoOrBasicCompletionType();
     }
 
-    public override bool IsAvailableEx([NotNull] CodeCompletionType[] codeCompletionTypes,
-                                       [NotNull] CSharpCodeCompletionContext specificContext)
+#if !RESHARPER91
+
+    public override bool IsAvailableEx(
+      [NotNull] CodeCompletionType[] codeCompletionTypes, [NotNull] CSharpCodeCompletionContext specificContext)
     {
       return codeCompletionTypes.Length <= 2;
     }
 
+#endif
+
     protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
-      var settingsStore = context.BasicContext.File.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems))
-        return false;
+      var completionContext = context.BasicContext;
 
-      var executionContext = new ReparsedPostfixExecutionContext(myLifetime, context.BasicContext, context.UnterminatedContext, "__");
-      var postfixContext = myTemplatesManager.IsAvailable(context.UnterminatedContext.TreeNode, executionContext);
+      var settingsStore = completionContext.File.GetSettingsStore();
+      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems)) return false;
+
+      var unterminatedContext = context.UnterminatedContext;
+      var executionContext = new ReparsedPostfixExecutionContext(myLifetime, completionContext, unterminatedContext, "__");
+      var postfixContext = myTemplatesManager.IsAvailable(unterminatedContext.TreeNode, executionContext);
 
       if (postfixContext == null) // try unterminated context if terminated sucks
       {
-        executionContext = new ReparsedPostfixExecutionContext(myLifetime, context.BasicContext, context.TerminatedContext, "__;");
-        postfixContext = myTemplatesManager.IsAvailable(context.TerminatedContext.TreeNode, executionContext);
+        var terminatedContext = context.TerminatedContext;
+        executionContext = new ReparsedPostfixExecutionContext(myLifetime, completionContext, terminatedContext, "__;");
+        postfixContext = myTemplatesManager.IsAvailable(terminatedContext.TreeNode, executionContext);
       }
 
       if (postfixContext == null) return false;
@@ -70,13 +77,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       ICollection<string> toRemove = EmptyList<string>.InstanceList;
 
       // double completion support
-      var parameters = context.BasicContext.Parameters;
+      var parameters = completionContext.Parameters;
       var isDoubleCompletion = (parameters.CodeCompletionTypes.Length > 1);
 
       if (!executionContext.IsAutoCompletion && isDoubleCompletion)
       {
+#if RESHARPER91
+        if (parameters.IsAutomaticCompletion) return false;
+#else
         var firstCompletion = parameters.CodeCompletionTypes[0];
         if (firstCompletion != CodeCompletionType.AutomaticCompletion) return false;
+#endif
 
         // run postfix templates like we are in auto completion
         executionContext.IsAutoCompletion = true;
@@ -85,7 +96,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         if (automaticPostfixItems.Count > 0)
         {
           toRemove = new JetHashSet<string>(StringComparer.Ordinal);
-          foreach (var lookupItem in automaticPostfixItems) toRemove.Add(lookupItem.Identity);
+
+          foreach (var lookupItem in automaticPostfixItems)
+            toRemove.Add(lookupItem.Identity);
         }
       }
 
@@ -95,7 +108,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
         if (isDoubleCompletion)
         {
+#if RESHARPER91
+          collector.Add(lookupItem);
+#else
           collector.AddToTop(lookupItem);
+#endif
         }
         else
         {

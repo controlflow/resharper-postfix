@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
@@ -48,9 +47,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   {
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
-      var completionType = context.BasicContext.CodeCompletionType;
-      return completionType == CodeCompletionType.AutomaticCompletion
-          || completionType == CodeCompletionType.BasicCompletion;
+      return context.BasicContext.IsAutoOrBasicCompletionType();
     }
 
     protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
@@ -124,12 +121,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       // decorate static lookup elements
       foreach (var item in innerCollector.Items)
       {
+#if RESHARPER91
+        var lookupItem = item as IAspectLookupItem<DeclaredElementInfo>;
+#else
         var lookupItem = item as ILookupItemWrapper<DeclaredElementInfo>;
+#endif
         if (lookupItem == null) continue;
-
+        
         var afterComplete = BakeAfterComplete(lookupItem, solution, argumentsCount);
         lookupItem.SubscribeAfterComplete(afterComplete);
+
+#if RESHARPER91
+        collector.Add(lookupItem);
+#else
         collector.AddToBottom(lookupItem);
+#endif
       }
     }
 
