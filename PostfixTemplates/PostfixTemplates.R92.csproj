@@ -1,0 +1,284 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.2</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B85B7DAD-0147-486B-9A56-BCAC8592BCF1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <HostFullIdentifier>ReSharperPlatformVs12Exp</HostFullIdentifier>
+    <RootNamespace>JetBrains.ReSharper.PostfixTemplates</RootNamespace>
+    <AssemblyName>PostfixTemplates</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <BaseIntermediateOutputPath>obj.R92\</BaseIntermediateOutputPath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>f17bd5a5</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin.R92\Debug\</OutputPath>
+    <DefineConstants>TRACE;JET_MODE_ASSERT;RESHARPER9;RESHARPER92</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin.R92\Release\</OutputPath>
+    <DefineConstants>TRACE;RESHARPER9;RESHARPER92</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="antlr.runtime, Version=2.7.7.1, Culture=neutral, PublicKeyToken=0f493c87b190d7e9, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr2.Runtime.2.7.7.02\lib\antlr.runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CookComputing.XmlRpcV2, Version=2.5.0.0, Culture=neutral, PublicKeyToken=a7d6e17aa302004d, processorArchitecture=MSIL">
+      <HintPath>..\packages\xmlrpcnet.2.5.0\lib\net20\CookComputing.XmlRpcV2.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DevExpress.Data.v7.1, Version=7.1.3.0, Culture=neutral, PublicKeyToken=ac81f19954537d54, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.DevExpress.2.0.20150224.0\lib\Net\DevExpress.Data.v7.1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v7.1, Version=7.1.3.0, Culture=neutral, PublicKeyToken=ac81f19954537d54, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.DevExpress.2.0.20150224.0\lib\Net\DevExpress.Utils.v7.1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v7.1, Version=7.1.3.0, Culture=neutral, PublicKeyToken=ac81f19954537d54, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.DevExpress.2.0.20150224.0\lib\Net\DevExpress.XtraEditors.v7.1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v7.1, Version=7.1.3.0, Culture=neutral, PublicKeyToken=ac81f19954537d54, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.DevExpress.2.0.20150224.0\lib\Net\DevExpress.XtraTreeList.v7.1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=25313d96c538ed3d, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.JetBrains.Stripped.0.86.20150204.1\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNetZip.Reduced.1.9.1.8\lib\net20\Ionic.Zip.Reduced.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="JbUnixUtils, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Unix.Utils.20150702.4\lib\net40\JbUnixUtils.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="JetBrains.Annotations, Version=9.1.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.9.1.1\lib\net20\JetBrains.Annotations.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Deployment.Compression, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ce35f76fcda82bad, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.Microsoft.Deployment.Compression.Cab.2.0.20140304.0\lib\Microsoft.Deployment.Compression.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Deployment.Compression.Cab, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ce35f76fcda82bad, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.Microsoft.Deployment.Compression.Cab.2.0.20140304.0\lib\Microsoft.Deployment.Compression.Cab.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Deployment.WindowsInstaller, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ce35f76fcda82bad, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.Microsoft.Deployment.WindowsInstaller.2.0.20140821.0\lib\Microsoft.Deployment.WindowsInstaller.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\JetBrains.Platform.Lib.VisualStudio.AnyVs.ShellInterop.PrivateBuild.2.0.20140304.0\lib\Microsoft.VisualStudio.Shell.Interop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Web.XmlTransform, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Windows7APICodePack.JetBrains.Stripped.1.1.20150225.0\lib\Net\Microsoft.WindowsAPICodePack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Windows7APICodePack.JetBrains.Stripped.1.1.20150225.0\lib\Net\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft35.Json.7.0.1\lib\net35\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NuGet.Core, Version=2.8.60717.93, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\NuGet.Core.2.8.6\lib\net40-Client\NuGet.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nunit.core, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.Core.2.6.4\lib\nunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nunit.core.interfaces, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.Core.2.6.4\lib\nunit.core.interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nunit.util, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.Core.2.6.4\lib\nunit.util.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NVelocity, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\NVelocity.1.0.3\lib\NVelocity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Sprache, Version=2.0.0.0, Culture=neutral, PublicKeyToken=23dafc55df9bd3a3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sprache.JetBrains.2.0.0.44\lib\portable-net4+netcore45+win8+wp8+sl5+MonoAndroid1+MonoTouch1\Sprache.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Interactivity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.System.Windows.Interactivity.2.0.20140318.0\lib\System.Windows.Interactivity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Vestris.ResourceLib, Version=1.4.33.0, Culture=neutral, PublicKeyToken=ec632d8ba5e5750d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vestris.ResourceLib.JetBrains.1.4.20150303.0\lib\Net\Vestris.ResourceLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="WpfContrib, Version=1.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Platform.Lib.WpfContrib.2.0.20150225.0\lib\Net\WpfContrib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CodeCompletion\CSharpEnumCaseItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpLengthCountItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpPostfixItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpStaticMethodsItemProvider.cs" />
+    <Compile Include="Infrastructure\Contexts\ReparsedPostfixExecutionContext.cs" />
+    <Compile Include="Infrastructure\Contexts\BrokenStatementPostfixTemplateContext.cs" />
+    <Compile Include="Infrastructure\Contexts\ReferenceExpressionPostfixTemplateContext.cs" />
+    <Compile Include="Infrastructure\Contexts\ReferenceNamePostfixTemplateContext.cs" />
+    <Compile Include="Infrastructure\IPostfixTemplate.cs" />
+    <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
+    <Compile Include="LookupItems\PostfixLookupItem.cs" />
+    <Compile Include="LookupItems\PostfixLookupItemBase.cs" />
+    <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
+    <Compile Include="Infrastructure\Contexts\PostfixExecutionContext.cs" />
+    <Compile Include="Infrastructure\Contexts\PostfixTemplateContext.cs" />
+    <Compile Include="Infrastructure\PostfixTemplatesManager.cs" />
+    <Compile Include="Infrastructure\PostfixTemplatesTracker.cs" />
+    <Compile Include="Infrastructure\PrefixExpressionContext.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\CodeCompletionSettingsAccessor.cs" />
+    <Compile Include="Settings\PostfixOptionsPage.xaml.cs">
+      <DependentUpon>PostfixOptionsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\PostfixOptionsViewModel.cs" />
+    <Compile Include="Settings\PostfixTemplatesSettings.cs" />
+    <Compile Include="Settings\PostfixTemplateViewModel.cs" />
+    <Compile Include="Templates\ArgumentExpressionTemplate.cs" />
+    <Compile Include="Templates\AssignmentExpressionTemplate.cs" />
+    <Compile Include="Templates\BooleanExpressionTemplateBase.cs" />
+    <Compile Include="Templates\AwaitExpressionTemplate.cs" />
+    <Compile Include="Templates\CastExpressionTemplate.cs" />
+    <Compile Include="Templates\CheckNotNullTemplate.cs" />
+    <Compile Include="Templates\CheckForNullTemplateBase.cs" />
+    <Compile Include="Templates\CheckIsNullTemplate.cs" />
+    <Compile Include="Templates\ForEachLoopTemplate.cs" />
+    <Compile Include="Templates\ForLoopTemplate.cs" />
+    <Compile Include="Templates\ForLoopTemplateBase.cs" />
+    <Compile Include="Templates\ForReverseLoopTemplate.cs" />
+    <Compile Include="Templates\ElseStatementTemplate.cs" />
+    <Compile Include="Templates\IfStatementTemplate.cs" />
+    <Compile Include="Templates\IntroduceFieldTemplate.cs" />
+    <Compile Include="Templates\IntroduceMemberTemplateBase.cs" />
+    <Compile Include="Templates\IntroducePropertyTemplate.cs" />
+    <Compile Include="Templates\IntroduceVariableTemplate.cs" />
+    <Compile Include="Templates\LockStatementExpression.cs" />
+    <Compile Include="Templates\NotExpressionTemplate.cs" />
+    <Compile Include="Templates\ObjectCreationTypeTemplate.cs" />
+    <Compile Include="Templates\ParenthesizedExpressionTemplate.cs" />
+    <Compile Include="Templates\ParseStringTemplate.cs" />
+    <Compile Include="Templates\ParseStringTemplateBase.cs" />
+    <Compile Include="Templates\ReturnStatementTemplate.cs" />
+    <Compile Include="Templates\SelectExpressionTemplate.cs" />
+    <Compile Include="Templates\SwitchStatementTemplate.cs" />
+    <Compile Include="Templates\ThrowStatementTemplate.cs" />
+    <Compile Include="Templates\TryParseStringTemplate.cs" />
+    <Compile Include="Templates\TypeOfExpressionTemplate.cs" />
+    <Compile Include="Templates\UsingStatementTemplate.cs" />
+    <Compile Include="Templates\WhileLoopTemplate.cs" />
+    <Compile Include="Templates\YieldReturnStatementTemplate.cs" />
+    <Compile Include="Utils\CommonUtils.cs" />
+    <Compile Include="LookupItems\ExpressionChooser.cs" />
+    <Compile Include="Utils\RazorUtil.cs" />
+    <Compile Include="Utils\TypeUtils.cs" />
+    <Compile Include="ZoneMarker.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Settings\PostfixOptionsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.PostfixTemplates.R92.config" />
+    <Compile Include="Utils\Compatibility.R91.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Platform.Core.Ide.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Ide.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Platform.Core.Ide.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Ide.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Platform.Symbols.103.0.20150811.113821-RC2\build\JetBrains.Platform.Symbols.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Platform.Symbols.103.0.20150811.113821-RC2\build\JetBrains.Platform.Symbols.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Platform.Interop.dotMemoryUnit.Interop.103.0.20150811.113821-RC2\build\JetBrains.Platform.Interop.dotMemoryUnit.Interop.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Platform.Interop.dotMemoryUnit.Interop.103.0.20150811.113821-RC2\build\JetBrains.Platform.Interop.dotMemoryUnit.Interop.Targets'))" />
+    <Error Condition="!Exists('..\packages\Antlr2.Tools.2.7.6.4\build\Antlr2.Tools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr2.Tools.2.7.6.4\build\Antlr2.Tools.targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Psi.Features.Tasks.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.Tasks.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Psi.Features.Tasks.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.Tasks.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Psi.Features.Core.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.Core.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Psi.Features.Core.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.Core.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Psi.Features.UnitTesting.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.UnitTesting.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Psi.Features.UnitTesting.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.UnitTesting.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Psi.Features.src.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.src.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Psi.Features.src.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.src.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Platform.VisualStudio.103.0.20150811.113821-RC2\build\JetBrains.Platform.VisualStudio.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Platform.VisualStudio.103.0.20150811.113821-RC2\build\JetBrains.Platform.VisualStudio.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Psi.Features.VisualStudio.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.VisualStudio.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Psi.Features.VisualStudio.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.VisualStudio.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Psi.Features.SolutionBuilder.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.SolutionBuilder.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Psi.Features.SolutionBuilder.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.SolutionBuilder.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Platform.Installer.103.0.20150811.113821-RC2\build\JetBrains.Platform.Installer.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Platform.Installer.103.0.20150811.113821-RC2\build\JetBrains.Platform.Installer.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Psi.Features.Cpp.src.103.0.20150811.122433-RC2\build\JetBrains.Psi.Features.Cpp.src.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Psi.Features.Cpp.src.103.0.20150811.122433-RC2\build\JetBrains.Psi.Features.Cpp.src.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Platform.Tests.Framework.103.0.20150811.113821-RC2\build\JetBrains.Platform.Tests.Framework.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Platform.Tests.Framework.103.0.20150811.113821-RC2\build\JetBrains.Platform.Tests.Framework.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.Psi.Features.test.Framework.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.test.Framework.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.Psi.Features.test.Framework.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.test.Framework.Targets'))" />
+    <Error Condition="!Exists('..\packages\JetBrains.ReSharper.SDK.9.2.20150811.130840-RC2\build\JetBrains.ReSharper.SDK.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JetBrains.ReSharper.SDK.9.2.20150811.130840-RC2\build\JetBrains.ReSharper.SDK.Targets'))" />
+  </Target>
+  <Import Project="..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets')" />
+  <Import Project="..\packages\JetBrains.Platform.Core.Ide.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Ide.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Ide.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Ide.Targets')" />
+  <Import Project="..\packages\JetBrains.Platform.Symbols.103.0.20150811.113821-RC2\build\JetBrains.Platform.Symbols.Targets" Condition="Exists('..\packages\JetBrains.Platform.Symbols.103.0.20150811.113821-RC2\build\JetBrains.Platform.Symbols.Targets')" />
+  <Import Project="..\packages\JetBrains.Platform.Interop.dotMemoryUnit.Interop.103.0.20150811.113821-RC2\build\JetBrains.Platform.Interop.dotMemoryUnit.Interop.Targets" Condition="Exists('..\packages\JetBrains.Platform.Interop.dotMemoryUnit.Interop.103.0.20150811.113821-RC2\build\JetBrains.Platform.Interop.dotMemoryUnit.Interop.Targets')" />
+  <Import Project="..\packages\Antlr2.Tools.2.7.6.4\build\Antlr2.Tools.targets" Condition="Exists('..\packages\Antlr2.Tools.2.7.6.4\build\Antlr2.Tools.targets')" />
+  <Import Project="..\packages\JetBrains.Psi.Features.Tasks.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.Tasks.Targets" Condition="Exists('..\packages\JetBrains.Psi.Features.Tasks.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.Tasks.Targets')" />
+  <Import Project="..\packages\JetBrains.Psi.Features.Core.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.Core.Targets" Condition="Exists('..\packages\JetBrains.Psi.Features.Core.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.Core.Targets')" />
+  <Import Project="..\packages\JetBrains.Psi.Features.UnitTesting.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.UnitTesting.Targets" Condition="Exists('..\packages\JetBrains.Psi.Features.UnitTesting.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.UnitTesting.Targets')" />
+  <Import Project="..\packages\JetBrains.Psi.Features.src.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.src.Targets" Condition="Exists('..\packages\JetBrains.Psi.Features.src.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.src.Targets')" />
+  <Import Project="..\packages\JetBrains.Platform.VisualStudio.103.0.20150811.113821-RC2\build\JetBrains.Platform.VisualStudio.Targets" Condition="Exists('..\packages\JetBrains.Platform.VisualStudio.103.0.20150811.113821-RC2\build\JetBrains.Platform.VisualStudio.Targets')" />
+  <Import Project="..\packages\JetBrains.Psi.Features.VisualStudio.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.VisualStudio.Targets" Condition="Exists('..\packages\JetBrains.Psi.Features.VisualStudio.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.VisualStudio.Targets')" />
+  <Import Project="..\packages\JetBrains.Psi.Features.SolutionBuilder.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.SolutionBuilder.Targets" Condition="Exists('..\packages\JetBrains.Psi.Features.SolutionBuilder.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.SolutionBuilder.Targets')" />
+  <Import Project="..\packages\JetBrains.Platform.Installer.103.0.20150811.113821-RC2\build\JetBrains.Platform.Installer.Targets" Condition="Exists('..\packages\JetBrains.Platform.Installer.103.0.20150811.113821-RC2\build\JetBrains.Platform.Installer.Targets')" />
+  <Import Project="..\packages\JetBrains.Psi.Features.Cpp.src.103.0.20150811.122433-RC2\build\JetBrains.Psi.Features.Cpp.src.Targets" Condition="Exists('..\packages\JetBrains.Psi.Features.Cpp.src.103.0.20150811.122433-RC2\build\JetBrains.Psi.Features.Cpp.src.Targets')" />
+  <Import Project="..\packages\JetBrains.Platform.Tests.Framework.103.0.20150811.113821-RC2\build\JetBrains.Platform.Tests.Framework.Targets" Condition="Exists('..\packages\JetBrains.Platform.Tests.Framework.103.0.20150811.113821-RC2\build\JetBrains.Platform.Tests.Framework.Targets')" />
+  <Import Project="..\packages\JetBrains.Psi.Features.test.Framework.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.test.Framework.Targets" Condition="Exists('..\packages\JetBrains.Psi.Features.test.Framework.103.0.20150811.115047-RC2\build\JetBrains.Psi.Features.test.Framework.Targets')" />
+  <Import Project="..\packages\JetBrains.ReSharper.SDK.9.2.20150811.130840-RC2\build\JetBrains.ReSharper.SDK.Targets" Condition="Exists('..\packages\JetBrains.ReSharper.SDK.9.2.20150811.130840-RC2\build\JetBrains.ReSharper.SDK.Targets')" />
+</Project>
