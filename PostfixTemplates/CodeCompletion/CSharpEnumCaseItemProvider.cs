@@ -31,7 +31,6 @@ using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
-using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
@@ -220,11 +219,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public LookupItemPlacement Placement
       {
-  #if RESHARPER91
         get { return myPlacement ?? (myPlacement = new LookupItemPlacement(Identity)); }
-  #else
-        get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(Identity)); }
-  #endif
         set { myPlacement = value; }
       }
 

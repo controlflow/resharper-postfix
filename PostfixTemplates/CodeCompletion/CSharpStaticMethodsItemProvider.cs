@@ -28,7 +28,6 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
-using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 
 // todo: caret placement after completing generic method<>
 // todo: gray color sometimes missing in 9.0 for bold items
@@ -89,21 +88,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       // decorate static lookup elements
       foreach (var item in innerCollector.Items)
       {
-#if RESHARPER91
         var lookupItem = item as IAspectLookupItem<DeclaredElementInfo>;
-#else
-        var lookupItem = item as ILookupItemWrapper<DeclaredElementInfo>;
-#endif
         if (lookupItem == null) continue;
         
         var afterComplete = BakeAfterComplete(lookupItem, solution, argumentsCount);
         lookupItem.SubscribeAfterComplete(afterComplete);
 
-#if RESHARPER91
         collector.Add(lookupItem);
-#else
-        collector.AddToBottom(lookupItem);
-#endif
       }
     }
 

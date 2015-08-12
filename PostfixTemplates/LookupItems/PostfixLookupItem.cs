@@ -243,11 +243,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     public LookupItemPlacement Placement
     {
-#if RESHARPER91
       get { return myPlacement ?? (myPlacement = new LookupItemPlacement(Identity)); }
-#else
-      get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(Identity)); }
-#endif
       set { myPlacement = value; }
     }
 

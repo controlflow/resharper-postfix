@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
-using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -33,16 +30,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     {
       return context.BasicContext.IsAutoOrBasicCompletionType();
     }
-
-#if !RESHARPER91
-
-    public override bool IsAvailableEx(
-      [NotNull] CodeCompletionType[] codeCompletionTypes, [NotNull] CSharpCodeCompletionContext specificContext)
-    {
-      return codeCompletionTypes.Length <= 2;
-    }
-
-#endif
 
     protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
@@ -78,12 +65,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       if (!executionContext.IsAutoCompletion && isDoubleCompletion)
       {
-#if RESHARPER91
         if (parameters.IsAutomaticCompletion) return false;
-#else
-        var firstCompletion = parameters.CodeCompletionTypes[0];
-        if (firstCompletion != CodeCompletionType.AutomaticCompletion) return false;
-#endif
 
         // run postfix templates like we are in auto completion
         executionContext.IsAutoCompletion = true;
@@ -104,11 +86,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
         if (isDoubleCompletion)
         {
-#if RESHARPER91
           collector.Add(lookupItem);
-#else
-          collector.AddToTop(lookupItem);
-#endif
         }
         else
         {
