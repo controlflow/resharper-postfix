@@ -8,7 +8,7 @@
     <ProjectGuid>{B85B7DAD-0147-486B-9A56-BCAC8592BCF1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <HostFullIdentifier>ReSharperPlatformVs12Exp</HostFullIdentifier>
+    <HostFullIdentifier>ReSharperPlatformVs12Plugin</HostFullIdentifier>
     <RootNamespace>JetBrains.ReSharper.PostfixTemplates</RootNamespace>
     <AssemblyName>PostfixTemplates</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
