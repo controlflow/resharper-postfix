@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -12,7 +13,6 @@ using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {

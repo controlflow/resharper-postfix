@@ -1,11 +1,11 @@
 using JetBrains.Annotations;
 using JetBrains.Application.Progress;
+using JetBrains.DocumentManagers.Transactions;
+using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
-using JetBrains.DocumentManagers.Transactions;
-using JetBrains.ReSharper.Feature.Services.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {

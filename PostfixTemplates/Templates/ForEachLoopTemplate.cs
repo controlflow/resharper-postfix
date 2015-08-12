@@ -4,11 +4,14 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -20,9 +23,6 @@ using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {

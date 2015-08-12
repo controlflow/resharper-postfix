@@ -10,6 +10,8 @@ using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Feature.Services.Refactorings;
+using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -18,11 +20,10 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable.Impl;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.Util.EventBus;
-using JetBrains.ReSharper.Resources.Shell;
-using JetBrains.ReSharper.Feature.Services.Util;
-using JetBrains.ReSharper.Feature.Services.Refactorings;
+
 #pragma warning disable 618
 
 // todo: think about cases like F(this.var), F(42.var). disable in auto?

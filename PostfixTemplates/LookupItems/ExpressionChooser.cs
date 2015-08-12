@@ -6,14 +6,14 @@ using JetBrains.Application;
 using JetBrains.CommonControls;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
+using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.TextControl.DocumentMarkup;
+using JetBrains.TextControl.Layout;
 using JetBrains.Threading;
 using JetBrains.UI.PopupMenu;
 using JetBrains.Util;
-using JetBrains.TextControl.Layout;
-using JetBrains.ReSharper.Feature.Services.Resources;
-using JetBrains.ReSharper.Resources.Shell;
 #if RESHARPER92
 using JetBrains.Application.Threading;
 #endif

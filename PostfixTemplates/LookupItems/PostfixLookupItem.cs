@@ -6,19 +6,19 @@ using JetBrains.Application.CommandProcessing;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Feature.Services.Tips;
+using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-using JetBrains.ReSharper.Resources.Shell;
-using JetBrains.ReSharper.Feature.Services.Util;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {

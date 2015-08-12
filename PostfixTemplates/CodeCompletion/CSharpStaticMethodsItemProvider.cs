@@ -5,9 +5,15 @@ using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
+using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -23,12 +29,6 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
-using JetBrains.ReSharper.Feature.Services.Util;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
-using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 
 // todo: caret placement after completing generic method<>
 // todo: gray color sometimes missing in 9.0 for bold items

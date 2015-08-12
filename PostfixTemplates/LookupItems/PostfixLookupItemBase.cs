@@ -1,7 +1,7 @@
-﻿using JetBrains.TextControl;
-using JetBrains.Util;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.TextControl;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {

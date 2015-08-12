@@ -6,10 +6,17 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
+using JetBrains.Metadata.Reader.API;
+using JetBrains.Metadata.Reader.Impl;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
+using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -20,18 +27,11 @@ using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resources;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-using JetBrains.Metadata.Reader.API;
-using JetBrains.Metadata.Reader.Impl;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using JetBrains.ReSharper.Resources.Shell;
-using JetBrains.ReSharper.Feature.Services.Util;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
-using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {

@@ -3,21 +3,21 @@ using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.Options;
+using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
-using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
+using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Transactions;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
-using JetBrains.ReSharper.Resources.Shell;
-using JetBrains.ReSharper.Feature.Services.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {

@@ -2,10 +2,13 @@ using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Feature.Services.Tips;
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -14,9 +17,6 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
-using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {

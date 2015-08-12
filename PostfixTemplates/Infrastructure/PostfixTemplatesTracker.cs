@@ -9,14 +9,14 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
+using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.TextControl.Util;
-using JetBrains.Util;
-using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.UI.ActionsRevised;
 using JetBrains.UI.ActionSystem.Text;
-using IExecutableAction = JetBrains.UI.ActionsRevised.IExecutableAction;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
