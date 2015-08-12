@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   {
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
-      return context.BasicContext.IsAutoOrBasicCompletionType();
+      return context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion;
     }
 
     private const string Length = "Length", Count = "Count";
@@ -65,7 +65,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var lookupItem = interestingItems[0];
         var text = (lookupItem.Placement.OrderString == Count) ? Length : Count;
 
-        collector.AddSomewhere(new FakeLookupElement(text, lookupItem));
+        collector.Add(new FakeLookupElement(text, lookupItem));
       }
     }
 

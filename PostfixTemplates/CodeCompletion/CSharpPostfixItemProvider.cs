@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -28,7 +29,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
-      return context.BasicContext.IsAutoOrBasicCompletionType();
+      return context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion;
     }
 
     protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
@@ -90,7 +91,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         }
         else
         {
-          collector.AddSomewhere(lookupItem);
+          collector.Add(lookupItem);
         }
       }
 

@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.Metadata.Reader.Impl;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -28,15 +32,13 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     public static void DoTransaction(
-      [NotNull] this IPsiServices services, [NotNull] string commandName,
-      [NotNull, InstantHandle] Action action)
+      [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull, InstantHandle] Action action)
     {
       services.Transactions.Execute(commandName, action);
     }
 
     public static T DoTransaction<T>(
-      [NotNull] this IPsiServices services, [NotNull] string commandName,
-      [NotNull, InstantHandle] Func<T> func)
+      [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull, InstantHandle] Func<T> func)
     {
       var value = default(T);
       services.Transactions.Execute(commandName, () => value = func());
@@ -161,8 +163,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [NotNull]
-    public static PrefixExpressionContext[] FindExpressionWithValuesContexts([NotNull] PostfixTemplateContext context,
-                                                                             [CanBeNull] Predicate<ICSharpExpression> predicate = null)
+    public static PrefixExpressionContext[] FindExpressionWithValuesContexts(
+      [NotNull] PostfixTemplateContext context, [CanBeNull] Predicate<ICSharpExpression> predicate = null)
     {
       var results = new LocalList<PrefixExpressionContext>();
 
@@ -240,6 +242,24 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       return atStatementEnd ? "();" : "()";
+    }
+
+    [NotNull]
+    public static IEnumerable<DeclaredElementInstance> GetAllDeclaredElementInstances([NotNull] this ILookupItem lookupItem)
+    {
+      var wrapper = lookupItem as IAspectLookupItem<DeclaredElementInfo>;
+      if (wrapper != null) return wrapper.Info.AllDeclaredElements;
+
+      return EmptyList<DeclaredElementInstance>.InstanceList;
+    }
+
+    [CanBeNull]
+    public static DeclaredElementInstance GetDeclaredElement([NotNull] this ILookupItem lookupItem)
+    {
+      var wrapper = lookupItem as IAspectLookupItem<DeclaredElementInfo>;
+      if (wrapper == null) return null;
+
+      return wrapper.Info.PreferredDeclaredElement;
     }
   }
 }

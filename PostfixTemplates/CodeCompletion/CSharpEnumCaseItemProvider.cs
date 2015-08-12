@@ -26,6 +26,7 @@ using JetBrains.UI.RichText;
 using JetBrains.Util;
 using JetBrains.Metadata.Reader.API;
 using JetBrains.Metadata.Reader.Impl;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
@@ -39,7 +40,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   {
     protected override bool IsAvailable(CSharpCodeCompletionContext context)
     {
-      return context.BasicContext.IsAutoOrBasicCompletionType();
+      return context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion;
     }
 
     protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
@@ -142,7 +143,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var instance = new DeclaredElementInstance<IField>(member.First, substitution);
         var textLookupItem = new EnumMemberLookupItem(dotMarker, instance, normalizedValue, value, isFlagsEnum);
 
-        collector.AddSomewhere(textLookupItem);
+        collector.Add(textLookupItem);
       }
 
       return true;

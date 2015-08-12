@@ -15,7 +15,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
                                            [NotNull] ReparsedCodeCompletionContext reparsedContext,
                                            [NotNull] string reparseString)
       : base(lifetime, context.Solution, context.TextControl, context.LookupItemsOwner,
-             reparseString, isAutoCompletion: context.IsAutoCompletion())
+             reparseString, isAutoCompletion: context.Parameters.IsAutomaticCompletion)
     {
       myReparsedContext = reparsedContext;
     }
