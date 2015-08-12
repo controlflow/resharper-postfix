@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{F72925
 		Content\Changelog.md = Content\Changelog.md
 		PostfixTemplates.nuspec = PostfixTemplates.nuspec
 		Readme.md = Readme.md
+		Content\Todo.txt = Content\Todo.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R91", "PostfixTemplates\PostfixTemplates.R91.csproj", "{427FAAB8-29CB-4D09-9C46-7D5F65471525}"
