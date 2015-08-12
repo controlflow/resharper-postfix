@@ -1,12 +1,13 @@
 ﻿using System;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   public interface IPostfixTemplate
   {
-    [CanBeNull] IPostfixLookupItem CreateItem([NotNull] PostfixTemplateContext context);
+    [CanBeNull] ILookupItem CreateItem([NotNull] PostfixTemplateContext context);
   }
 
   [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]

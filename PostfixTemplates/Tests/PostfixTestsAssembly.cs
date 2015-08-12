@@ -10,8 +10,11 @@ using JetBrains.TestFramework;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.TestFramework;
 using JetBrains.TestFramework.Application.Zones;
+// ReSharper disable CheckNamespace
 
+#pragma warning disable 618
 [assembly: TestDataPathBase(@".\Data\Completion")]
+#pragma warning restore 618
 
 [ZoneDefinition]
 public class IPostfixTestEnvironmentZone : ITestsZone, IRequire<PsiFeatureTestZone>

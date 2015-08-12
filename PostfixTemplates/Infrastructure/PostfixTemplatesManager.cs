@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
@@ -58,7 +59,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [NotNull]
-    public IList<IPostfixLookupItem> CollectItems([NotNull] PostfixTemplateContext context, [CanBeNull] string templateName = null)
+    public IList<ILookupItem> CollectItems([NotNull] PostfixTemplateContext context, [CanBeNull] string templateName = null)
     {
       var store = context.Reference.GetSettingsStore();
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
@@ -67,10 +68,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
       var innerExpression = context.InnerExpression; // shit happens
       if (innerExpression != null && innerExpression.ReferencedElement is INamespace)
       {
-        return EmptyList<IPostfixLookupItem>.InstanceList;
+        return EmptyList<ILookupItem>.InstanceList;
       }
 
-      var lookupItems = new List<IPostfixLookupItem>();
+      var lookupItems = new List<ILookupItem>();
       foreach (var info in myTemplateProvidersInfos)
       {
         // check disabled providers

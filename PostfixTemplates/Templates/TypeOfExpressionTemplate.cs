@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -12,7 +13,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "typeof(TExpr)")]
   public class TypeOfExpressionTemplate : IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
       if (typeExpression != null && typeExpression.ReferencedElement is ITypeElement)

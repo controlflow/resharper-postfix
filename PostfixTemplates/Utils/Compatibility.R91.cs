@@ -7,12 +7,9 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectL
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.Util;
-using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
-  public interface IPostfixLookupItem : ILookupItem { }
-
   public static class Compatibility
   {
     [NotNull]

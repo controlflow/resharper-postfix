@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -15,7 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "yield return expr;")]
   public class YieldReturnStatementTemplate : IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

@@ -5,6 +5,7 @@ using JetBrains.Application.CommandProcessing;
 using JetBrains.Application.DataContext;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
@@ -129,7 +130,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       [CanBeNull]
-      private IPostfixLookupItem GetTemplateFromTextControl([NotNull] ISolution solution, [NotNull] ITextControl textControl)
+      private ILookupItem GetTemplateFromTextControl([NotNull] ISolution solution, [NotNull] ITextControl textControl)
       {
         var offset = textControl.Caret.Offset();
         var prefix = LiveTemplatesManager.GetPrefix(textControl.Document, offset);
@@ -146,7 +147,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       [CanBeNull]
-      private IList<IPostfixLookupItem> TryReparseWith([NotNull] ISolution solution, [NotNull] ITextControl textControl,
+      private IList<ILookupItem> TryReparseWith([NotNull] ISolution solution, [NotNull] ITextControl textControl,
                                                        [NotNull] string templateName, [NotNull] string reparseString)
       {
         var offset = textControl.Caret.Offset();

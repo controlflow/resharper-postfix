@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.Util;
@@ -13,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "for (var i = xs.Length-1; i >= 0; i--)")]
   public class ForReverseLoopTemplate : ForLoopTemplateBase, IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       string lengthName;
       if (CreateForItem(context, out lengthName))

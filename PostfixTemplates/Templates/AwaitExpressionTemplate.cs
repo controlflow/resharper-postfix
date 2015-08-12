@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.Metadata.Reader.Impl;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "await expr")]
   public class AwaitExpressionTemplate : IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
       if (expressionContext == null) return null;

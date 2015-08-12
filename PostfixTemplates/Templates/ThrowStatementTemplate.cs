@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -19,7 +20,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "throw expr;")]
   public class ThrowStatementTemplate : IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var expressionContext = context.TypeExpression ?? context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

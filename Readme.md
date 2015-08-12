@@ -11,7 +11,7 @@ Kind of surround templates on steroids baked with code completion.
 
 * Currently supported ReSharper versions are `9.1` and `9.2`;
 * This plugin is available for download in ReSharper [extensions gallery](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix.R90/);
-* ReSharper `8.x` and `9.0` is no longer supported, latest versions are available via [extension manager](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix/)
+* ReSharper `8.x` and `9.0` is no longer supported, check [extension manager](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix/) for latest versions;
 * ReSharper `7.1` is no longer supported, last build is [available here](https://dl.dropboxusercontent.com/u/2209105/PostfixCompletion/bin.R7/PostfixCompletion.dll);
 * Plugin's [changelog is here](Content/Changelog.md).
 

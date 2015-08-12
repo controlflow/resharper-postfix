@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -17,7 +18,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public abstract class IntroduceMemberTemplateBase : IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var functionDeclaration = context.ContainingFunction;
       if (functionDeclaration == null) return null;

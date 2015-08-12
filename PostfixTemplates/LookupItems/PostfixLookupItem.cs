@@ -22,7 +22,7 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
-  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, IPostfixLookupItem
+  public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
     where TNode : class, ITreeNode
   {
     [NotNull] private readonly Lifetime myLifetime;

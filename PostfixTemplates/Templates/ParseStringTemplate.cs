@@ -1,4 +1,5 @@
-﻿using JetBrains.ReSharper.Psi;
+﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Psi;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -8,7 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "int.Parse(expr)")]
   public class ParseStringTemplate : ParseStringTemplateBase, IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       foreach (var expressionContext in context.Expressions)
       {

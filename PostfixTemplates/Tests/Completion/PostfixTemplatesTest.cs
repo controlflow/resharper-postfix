@@ -3,8 +3,6 @@ using JetBrains.Application.Settings;
 using JetBrains.Application.Settings.Store.Implementation;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using JetBrains.ReSharper.Feature.Services.Refactorings;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.TestFramework;
 using NUnit.Framework;
@@ -133,8 +131,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
         var context = ContextRange.ManuallyRestrictWritesToOneContext((_, contexts) => contexts.Empty);
         var settings = settingsStore.BindToContextTransient(context);
 
-        settings.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
-        settings.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
         settings.SetValue((PostfixTemplatesSettings s) => s.UseBracesForEmbeddedStatements, false);
 
         base.DoTest(testProject);

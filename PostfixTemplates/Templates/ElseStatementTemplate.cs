@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -13,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "if (!expr)")]
   public class ElseStatementTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
-    protected override IPostfixLookupItem CreateBooleanItem(PrefixExpressionContext expression)
+    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
     {
       if (expression.CanBeStatement)
       {

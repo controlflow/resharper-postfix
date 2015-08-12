@@ -1,5 +1,4 @@
-﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.ActionManagement;
@@ -9,6 +8,7 @@ using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -35,7 +35,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "var x = expr;")]
   public sealed class IntroduceVariableTemplate : IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var contexts = new List<PrefixExpressionContext>();
       foreach (var expressionContext in context.ExpressionsOrTypes)

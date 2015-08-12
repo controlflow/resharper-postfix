@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "new SomeType()")]
   public class ObjectCreationTypeTemplate : IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
       if (typeExpression == null)
@@ -46,7 +46,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     }
 
     [CanBeNull]
-    private static IPostfixLookupItem CreateExpressionItem([NotNull] PostfixTemplateContext context)
+    private static ILookupItem CreateExpressionItem([NotNull] PostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
       if (expressionContext == null) return null;

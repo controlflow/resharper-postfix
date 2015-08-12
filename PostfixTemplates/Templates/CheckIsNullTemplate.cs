@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -8,7 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "if (expr == null)")]
   public class CheckIsNullTemplate : CheckForNullTemplateBase, IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var outerExpression = context.OuterExpression;
       if (outerExpression != null && outerExpression.CanBeStatement)

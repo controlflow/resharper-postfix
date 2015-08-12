@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -13,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "switch (expr)")]
   public class SwitchStatementTemplate : IPostfixTemplate
   {
-    public IPostfixLookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(PostfixTemplateContext context)
     {
       var isAutoCompletion = context.ExecutionContext.IsAutoCompletion;
       foreach (var expressionContext in context.Expressions)
