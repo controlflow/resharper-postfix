@@ -14,14 +14,10 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-#if RESHARPER8
-using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
-#elif RESHARPER9
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
-#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
@@ -90,24 +86,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         return myRealItem.AcceptIfOnlyMatched(itemAcceptanceContext);
       }
 
-#if RESHARPER9
-
       public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       {
         return prefixMatcher.Matcher(myFakeText);
       }
-
-#elif RESHARPER8
-
-      public MatchingResult Match(string prefix, ITextControl textControl)
-      {
-        var matcher = TextLookupItemBase.GetPrefixMatcherEx(prefix, textControl);
-        if (matcher != null) return matcher(myFakeText);
-
-        return new MatchingResult();
-      }
-
-#endif
 
       public IconId Image
       {
@@ -157,15 +139,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         set { myRealItem.IgnoreSoftOnSpace = value; }
       }
 
-#if RESHARPER8
-
-      public string OrderingString
-      {
-        get { return myFakeText; }
-      }
-
-#elif RESHARPER9
-
       public bool IsStable
       {
         get { return true; }
@@ -180,7 +153,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       private LookupItemPlacement myPlacement;
 
-  #if RESHARPER91
+#if RESHARPER91
 
       public LookupItemPlacement Placement
       {
@@ -188,15 +161,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         set { myPlacement = value; }
       }
 
-  #else
+#else
 
       public LookupItemPlacement Placement
       {
         get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(myFakeText)); }
         set { myPlacement = value; }
       }
-
-  #endif
 
 #endif
     }

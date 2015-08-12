@@ -22,11 +22,6 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER8
-using System.Drawing;
-using JetBrains.ReSharper.Psi.Services;
-using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
-#elif RESHARPER9
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.Impl;
@@ -34,7 +29,6 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectL
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
-#endif
 
 // todo: caret placement after completing generic method<>
 // todo: gray color sometimes missing in 9.0 for bold items
@@ -83,32 +77,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       return true;
     }
 
-#if RESHARPER8
-
-    private void FillCollectorWithStaticItems([NotNull] CSharpCodeCompletionContext context,
-                                              [NotNull] GroupedItemsCollector collector,
-                                              [NotNull] ISymbolTable staticsSymbolTable, int argumentsCount)
-    {
-      var innerCollector = new GroupedItemsCollector();
-      GetLookupItemsFromSymbolTable(staticsSymbolTable, innerCollector, context, false);
-
-      var solution = context.BasicContext.Solution;
-
-      // decorate static lookup elements
-      foreach (var item in innerCollector.Items)
-      {
-        var lookupItem = item as DeclaredElementLookupItem;
-        if (lookupItem == null) continue;
-
-        lookupItem.AfterComplete += BakeAfterComplete(lookupItem, solution, argumentsCount);
-        lookupItem.TextColor = SystemColors.GrayText;
-
-        collector.AddToBottom(lookupItem);
-      }
-    }
-
-#elif RESHARPER9
-
     private void FillCollectorWithStaticItems([NotNull] CSharpCodeCompletionContext context,
                                               [NotNull] GroupedItemsCollector collector,
                                               [NotNull] ISymbolTable staticsSymbolTable, int argumentsCount)
@@ -138,8 +106,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 #endif
       }
     }
-
-#endif
 
     private static int GetExistingArgumentsCount([NotNull] IReferenceExpression referenceExpression)
     {

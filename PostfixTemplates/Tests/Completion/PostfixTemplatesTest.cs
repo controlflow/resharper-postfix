@@ -16,29 +16,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Completion
   {
     protected override string RelativeTestDataPath { get { return string.Empty; } }
 
-    protected override void DoTest(IProject testProject)
-    {
-      var definition = Lifetimes.Define(EternalLifetime.Instance);
-      try
-      {
-        ChangeSettingsTemporarily(definition.Lifetime);
-
-#if RESHARPER8
-        var settingsStore = ShellInstance.GetComponent<SettingsStore>();
-        var store = settingsStore.BindToContext(settingsStore.DataContexts.Empty);
-
-        store.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoringEvident, true);
-        store.SetValue((IntroduceVariableUseVarSettings s) => s.UseVarForIntroduceVariableRefactoring, true);
-#endif
-
-        base.DoTest(testProject);
-      }
-      finally
-      {
-        definition.Terminate();
-      }
-    }
-
     [Test] public void TestIf01() { DoNamedTest(); }
     [Test] public void TestIf02() { DoNamedTest(); }
     [Test] public void TestIf03() { DoNamedTest(); }

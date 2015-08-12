@@ -20,14 +20,9 @@ using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.LiveTemplates;
-#elif RESHARPER9
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -89,8 +84,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
 
-#if RESHARPER9
-
       public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       {
         var coolMatcher = prefixMatcher.Factory.CreatePrefixMatcher(
@@ -98,15 +91,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         return base.Match(coolMatcher, textControl);
       }
-
-#elif RESHARPER8
-
-      public override MatchingResult Match(string prefix, ITextControl textControl)
-      {
-        return base.Match(HackPrefix(prefix), textControl);
-      }
-
-#endif
 
       protected override IForeachStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
@@ -138,8 +122,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
       }
 
-#if RESHARPER9
-
       public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       {
         var coolMatcher = prefixMatcher.Factory.CreatePrefixMatcher(
@@ -147,15 +129,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         return base.Match(coolMatcher, textControl);
       }
-
-#elif RESHARPER8
-
-      public override MatchingResult Match(string prefix, ITextControl textControl)
-      {
-        return base.Match(HackPrefix(prefix), textControl);
-      }
-
-#endif
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {

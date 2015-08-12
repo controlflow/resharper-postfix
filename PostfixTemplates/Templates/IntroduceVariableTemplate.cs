@@ -20,16 +20,9 @@ using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable.Impl;
 using JetBrains.TextControl;
 using JetBrains.Util.EventBus;
-#if RESHARPER8
-using JetBrains.Application;
-using JetBrains.ReSharper.Psi.Services;
-using JetBrains.ReSharper.Refactorings.WorkflowNew;
-#elif RESHARPER9
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
-#endif
-
 #pragma warning disable 618
 
 // todo: think about cases like F(this.var), F(42.var). disable in auto?
@@ -299,13 +292,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
           var workflow = new IntroduceVariableWorkflow(solution, actionId);
           WorkflowExecuter.ExecuteBatch(dataContext, workflow);
 
-#if RESHARPER8
-          if (executeAfter != null) SubscribeAfterExecute(executeAfter);
-#elif RESHARPER9
           var finishedAction = executeAfter;
           if (finishedAction != null)
             workflow.SuccessfullyFinished += delegate { finishedAction(); };
-#endif
         }
       }
       finally

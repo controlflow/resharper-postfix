@@ -16,13 +16,8 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
-#if RESHARPER8
-using JetBrains.Application;
-using JetBrains.ReSharper.Psi.Services;
-#elif RESHARPER9
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.Util;
-#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {

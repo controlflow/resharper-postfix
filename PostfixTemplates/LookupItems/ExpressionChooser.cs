@@ -11,16 +11,11 @@ using JetBrains.TextControl.DocumentMarkup;
 using JetBrains.Threading;
 using JetBrains.UI.PopupMenu;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.IDE;
-using JetBrains.ReSharper.Daemon.Src.Bulbs.Resources;
-#elif RESHARPER9
 using JetBrains.TextControl.Layout;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Resources.Shell;
 #if RESHARPER92
 using JetBrains.Application.Threading;
-#endif
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems

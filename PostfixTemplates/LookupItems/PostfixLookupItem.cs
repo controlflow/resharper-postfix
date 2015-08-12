@@ -15,15 +15,10 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.Text;
-using JetBrains.ReSharper.Psi.Services;
-#elif RESHARPER9
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
@@ -53,21 +48,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       myLifetime = executionContext.Lifetime;
     }
 
-#if RESHARPER9
-
     public virtual MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
     {
       return prefixMatcher.Matcher(myIdentifier);
     }
-
-#elif RESHARPER8
-
-    public virtual MatchingResult Match(string prefix, ITextControl textControl)
-    {
-      return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myIdentifier);
-    }
-
-#endif
 
     protected string ExpandCommandName
     {
@@ -253,7 +237,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
 #else
 
-    public override string Identity { get { return myShortcut; } }
+    public string Identity { get { return myShortcut; } }
+
+    private LookupItemPlacement myPlacement;
+
+    public LookupItemPlacement Placement
+    {
+#if RESHARPER91
+      get { return myPlacement ?? (myPlacement = new LookupItemPlacement(Identity)); }
+#else
+      get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(Identity)); }
+#endif
+      set { myPlacement = value; }
+    }
 
 #endif
 

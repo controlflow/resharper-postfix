@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
@@ -25,12 +24,6 @@ using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.Text;
-using JetBrains.Application;
-using JetBrains.ReSharper.Psi.Services;
-using ILookupItem = JetBrains.ReSharper.Feature.Services.Lookup.ILookupItem;
-#elif RESHARPER9
 using JetBrains.Metadata.Reader.API;
 using JetBrains.Metadata.Reader.Impl;
 using JetBrains.ReSharper.Resources.Shell;
@@ -39,7 +32,6 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using ILookupItem = JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems.ILookupItem;
-#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
@@ -99,17 +91,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         }
       }
 
-      return AddEnumerationMembers(
-        context, collector, qualifierType, referenceExpression);
+      return AddEnumerationMembers(context, collector, qualifierType, referenceExpression);
     }
 
     [NotNull] private static readonly IClrTypeName FlagsAttributeClrName =
       new ClrTypeName(typeof(FlagsAttribute).FullName);
 
-    private static bool AddEnumerationMembers([NotNull] CSharpCodeCompletionContext context,
-                                              [NotNull] GroupedItemsCollector collector,
-                                              [NotNull] IDeclaredType qualifierType,
-                                              [NotNull] IReferenceExpression referenceExpression)
+    private static bool AddEnumerationMembers(
+      [NotNull] CSharpCodeCompletionContext context, [NotNull] GroupedItemsCollector collector,
+      [NotNull] IDeclaredType qualifierType, [NotNull] IReferenceExpression referenceExpression)
     {
       var enumerationType = (IEnum) qualifierType.GetTypeElement().NotNull();
       var substitution = qualifierType.GetSubstitution();
@@ -131,8 +121,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         foreach (var member in enumerationType.EnumMembers)
         {
           var convertible = member.ConstantValue.Value as IConvertible;
-          var memberValue = (convertible != null)
-            ? GetBinaryRepresentation(convertible) : string.Empty;
+          var memberValue = (convertible != null) ? GetBinaryRepresentation(convertible) : string.Empty;
           memberValues.Add(Pair.Of(member, memberValue));
         }
       }
@@ -227,23 +216,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         get { return myIdentity; }
       }
 
-#endif
+      private LookupItemPlacement myPlacement;
 
-#if RESHARPER9
+      public LookupItemPlacement Placement
+      {
+  #if RESHARPER91
+        get { return myPlacement ?? (myPlacement = new LookupItemPlacement(Identity)); }
+  #else
+        get { return myPlacement ?? (myPlacement = new GenericLookupItemPlacement(Identity)); }
+  #endif
+        set { myPlacement = value; }
+      }
+
+#endif
 
       public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       {
         return prefixMatcher.Matcher(myShortName);
       }
-
-#elif RESHARPER8
-
-      public MatchingResult Match(string prefix, ITextControl textControl)
-      {
-        return LookupUtil.MatchPrefix(new IdentifierMatcher(prefix), myShortName);
-      }
-
-#endif
 
       public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
                          Suffix suffix, ISolution solution, bool keepCaretStill)

@@ -17,12 +17,8 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.ReSharper.LiveTemplates;
-#elif RESHARPER9
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
-#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -80,11 +76,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
             var shellLocks = solution.GetComponent<IShellLocks>();
             shellLocks.QueueReadLock("Smart completion for .tryparse", () =>
             {
-#if RESHARPER8
-              var intellisenseManager = solution.GetComponent<IntellisenseManager>();
-#elif RESHARPER9
               var intellisenseManager = solution.GetComponent<ICodeCompletionSessionManager>();
-#endif
               intellisenseManager.ExecuteManualCompletion(
                 CodeCompletionType.SmartCompletion, textControl, solution, EmptyAction.Instance,
                 intellisenseManager.GetPrimaryEvaluationMode(CodeCompletionType.SmartCompletion),

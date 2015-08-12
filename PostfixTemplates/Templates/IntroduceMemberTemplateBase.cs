@@ -11,11 +11,7 @@ using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
-#if RESHARPER8
-using JetBrains.ReSharper.LiveTemplates;
-#elif RESHARPER9
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
-#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
