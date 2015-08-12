@@ -9,6 +9,9 @@ using JetBrains.TextControl;
 using JetBrains.TextControl.DocumentMarkup;
 using JetBrains.Threading;
 using JetBrains.UI.PopupMenu;
+#if RESHARPER92
+using JetBrains.Application.Threading;
+#endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.Components
 {

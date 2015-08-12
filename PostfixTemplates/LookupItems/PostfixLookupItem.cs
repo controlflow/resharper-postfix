@@ -79,6 +79,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return "Select expression"; }
     }
 
+    // todo: drop this lifetime
     [NotNull] protected Lifetime Lifetime
     {
       get { return myLifetime; }
@@ -238,7 +239,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     public RichText DisplayName { get { return myShortcut; } }
     public virtual RichText DisplayTypeName { get { return null; } }
 
+#if RESHARPER92
+
+    public int Identity { get { return 0; } }
+
+    private LookupItemPlacement myPlacement;
+
+    public LookupItemPlacement Placement
+    {
+      get { return myPlacement ?? (myPlacement = new LookupItemPlacement(myShortcut)); }
+      set { myPlacement = value; }
+    }
+
+#else
+
     public override string Identity { get { return myShortcut; } }
+
+#endif
 
     private sealed class ExpressionContextImage
     {

@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
@@ -204,10 +205,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         }
       }
 
-      public override string Identity
+#if RESHARPER92
+
+      public int Identity
+      {
+        get { return 0; }
+      }
+
+      private LookupItemPlacement myPlacement;
+
+      public LookupItemPlacement Placement
+      {
+        get { return myPlacement ?? (myPlacement = new LookupItemPlacement(myIdentity)); }
+        set { myPlacement = value; }
+      }
+
+#else
+
+      public string Identity
       {
         get { return myIdentity; }
       }
+
+#endif
 
 #if RESHARPER9
 

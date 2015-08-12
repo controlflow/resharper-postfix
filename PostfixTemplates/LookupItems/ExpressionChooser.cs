@@ -18,6 +18,9 @@ using JetBrains.ReSharper.Daemon.Src.Bulbs.Resources;
 using JetBrains.TextControl.Layout;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Resources.Shell;
+#if RESHARPER92
+using JetBrains.Application.Threading;
+#endif
 #endif
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems

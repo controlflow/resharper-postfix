@@ -48,7 +48,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       foreach (var item in collector.Items)
       {
-        switch (item.Identity)
+        switch (item.Placement.OrderString)
         {
           case Length: break;
           case Count: break;
@@ -68,7 +68,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       if (interestingItems.Count == 1)
       {
         var lookupItem = interestingItems[0];
-        var text = (lookupItem.Identity == Count) ? Length : Count;
+        var text = (lookupItem.Placement.OrderString == Count) ? Length : Count;
 
         collector.AddSomewhere(new FakeLookupElement(text, lookupItem));
       }
@@ -134,7 +134,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       public bool IsDynamic { get { return myRealItem.IsDynamic; } }
 
+#if RESHARPER92
+      public int Identity { get { return 0; } }
+#else
       public string Identity { get { return myFakeText; } }
+#endif
 
       public bool CanShrink { get { return false; } }
 

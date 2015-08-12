@@ -26,8 +26,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       return false;
     }
 
-    [NotNull] public abstract string Identity { get; }
-
     public int Multiplier { get; set; }
     public bool IsDynamic { get { return false; } }
     public bool IgnoreSoftOnSpace { get; set; }
@@ -55,9 +53,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       set { }
     }
 
-    private LookupItemPlacement myPlacement;
+  #if RESHARPER92
+  #elif RESHARPER91
 
-  #if RESHARPER91
+    private LookupItemPlacement myPlacement;
 
     public LookupItemPlacement Placement
     {
@@ -66,6 +65,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
   #else
+
+    private LookupItemPlacement myPlacement;
 
     public LookupItemPlacement Placement
     {

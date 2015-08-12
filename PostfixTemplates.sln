@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{F72925E0-4248-472A-8F0E-37F9CB88219E}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,27 +11,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{F72925
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R80", "PostfixTemplates\PostfixTemplates.R80.csproj", "{837AD254-C0A4-4DB6-97AC-A99E26A149E5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R81", "PostfixTemplates\PostfixTemplates.R81.csproj", "{50365433-AAE1-4755-9562-B777F23B7C23}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R82", "PostfixTemplates\PostfixTemplates.R82.csproj", "{92A32691-9FF3-481E-A15D-52C3BBC4F98C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R90", "PostfixTemplates\PostfixTemplates.R90.csproj", "{4DD44801-150F-4922-8835-CEA0FB1DC2DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R91", "PostfixTemplates\PostfixTemplates.R91.csproj", "{427FAAB8-29CB-4D09-9C46-7D5F65471525}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{22419BF6-6040-4310-B60D-F1CF178ED451}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.Tests.R81", "PostfixTemplates\Tests\PostfixTemplates.Tests.R81.csproj", "{6DC588F6-B12C-447E-92D7-9C21A003179C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.Tests.R80", "PostfixTemplates\Tests\PostfixTemplates.Tests.R80.csproj", "{E33A80AC-DAF5-4E32-A1BC-119C13AD6415}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.Tests.R82", "PostfixTemplates\Tests\PostfixTemplates.Tests.R82.csproj", "{1278D396-5565-4262-B758-B5599CB4A82A}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{4F510FCC-BFBF-4BFD-9669-2FACD37AFA7C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.Tests.R91", "PostfixTemplates\Tests\PostfixTemplates.Tests.R91.csproj", "{03FAC09B-5DDE-4631-B165-82761D37A6FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.R92", "PostfixTemplates\PostfixTemplates.R92.csproj", "{B85B7DAD-0147-486B-9A56-BCAC8592BCF1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostfixTemplates.Tests.R92", "PostfixTemplates\Tests\PostfixTemplates.Tests.R92.csproj", "{E14A6C6E-5057-498F-AA2F-9F709040762F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,18 +31,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{837AD254-C0A4-4DB6-97AC-A99E26A149E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{837AD254-C0A4-4DB6-97AC-A99E26A149E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{837AD254-C0A4-4DB6-97AC-A99E26A149E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{837AD254-C0A4-4DB6-97AC-A99E26A149E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{50365433-AAE1-4755-9562-B777F23B7C23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50365433-AAE1-4755-9562-B777F23B7C23}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50365433-AAE1-4755-9562-B777F23B7C23}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{50365433-AAE1-4755-9562-B777F23B7C23}.Release|Any CPU.Build.0 = Release|Any CPU
-		{92A32691-9FF3-481E-A15D-52C3BBC4F98C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{92A32691-9FF3-481E-A15D-52C3BBC4F98C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{92A32691-9FF3-481E-A15D-52C3BBC4F98C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{92A32691-9FF3-481E-A15D-52C3BBC4F98C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4DD44801-150F-4922-8835-CEA0FB1DC2DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4DD44801-150F-4922-8835-CEA0FB1DC2DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DD44801-150F-4922-8835-CEA0FB1DC2DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -59,35 +39,27 @@ Global
 		{427FAAB8-29CB-4D09-9C46-7D5F65471525}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{427FAAB8-29CB-4D09-9C46-7D5F65471525}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{427FAAB8-29CB-4D09-9C46-7D5F65471525}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DC588F6-B12C-447E-92D7-9C21A003179C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DC588F6-B12C-447E-92D7-9C21A003179C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DC588F6-B12C-447E-92D7-9C21A003179C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DC588F6-B12C-447E-92D7-9C21A003179C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E33A80AC-DAF5-4E32-A1BC-119C13AD6415}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E33A80AC-DAF5-4E32-A1BC-119C13AD6415}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E33A80AC-DAF5-4E32-A1BC-119C13AD6415}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E33A80AC-DAF5-4E32-A1BC-119C13AD6415}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1278D396-5565-4262-B758-B5599CB4A82A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1278D396-5565-4262-B758-B5599CB4A82A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1278D396-5565-4262-B758-B5599CB4A82A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1278D396-5565-4262-B758-B5599CB4A82A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{03FAC09B-5DDE-4631-B165-82761D37A6FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{03FAC09B-5DDE-4631-B165-82761D37A6FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03FAC09B-5DDE-4631-B165-82761D37A6FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03FAC09B-5DDE-4631-B165-82761D37A6FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B85B7DAD-0147-486B-9A56-BCAC8592BCF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B85B7DAD-0147-486B-9A56-BCAC8592BCF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B85B7DAD-0147-486B-9A56-BCAC8592BCF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B85B7DAD-0147-486B-9A56-BCAC8592BCF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E14A6C6E-5057-498F-AA2F-9F709040762F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E14A6C6E-5057-498F-AA2F-9F709040762F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E14A6C6E-5057-498F-AA2F-9F709040762F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E14A6C6E-5057-498F-AA2F-9F709040762F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{837AD254-C0A4-4DB6-97AC-A99E26A149E5} = {4F510FCC-BFBF-4BFD-9669-2FACD37AFA7C}
-		{50365433-AAE1-4755-9562-B777F23B7C23} = {4F510FCC-BFBF-4BFD-9669-2FACD37AFA7C}
-		{92A32691-9FF3-481E-A15D-52C3BBC4F98C} = {4F510FCC-BFBF-4BFD-9669-2FACD37AFA7C}
 		{4DD44801-150F-4922-8835-CEA0FB1DC2DE} = {4F510FCC-BFBF-4BFD-9669-2FACD37AFA7C}
 		{427FAAB8-29CB-4D09-9C46-7D5F65471525} = {4F510FCC-BFBF-4BFD-9669-2FACD37AFA7C}
-		{6DC588F6-B12C-447E-92D7-9C21A003179C} = {22419BF6-6040-4310-B60D-F1CF178ED451}
-		{E33A80AC-DAF5-4E32-A1BC-119C13AD6415} = {22419BF6-6040-4310-B60D-F1CF178ED451}
-		{1278D396-5565-4262-B758-B5599CB4A82A} = {22419BF6-6040-4310-B60D-F1CF178ED451}
 		{03FAC09B-5DDE-4631-B165-82761D37A6FE} = {22419BF6-6040-4310-B60D-F1CF178ED451}
+		{B85B7DAD-0147-486B-9A56-BCAC8592BCF1} = {4F510FCC-BFBF-4BFD-9669-2FACD37AFA7C}
+		{E14A6C6E-5057-498F-AA2F-9F709040762F} = {22419BF6-6040-4310-B60D-F1CF178ED451}
 	EndGlobalSection
 EndGlobal

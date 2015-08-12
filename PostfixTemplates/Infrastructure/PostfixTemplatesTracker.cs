@@ -120,7 +120,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
               TipsManager.Instance.FeatureIsUsed(
                 "Plugin.ControlFlow.PostfixTemplates.<tab>", textControl.Document, solution);
 
-              var nameLength = postfixItem.Identity.Length;
+              var nameLength = postfixItem.Placement.OrderString.Length;
               var offset = textControl.Caret.Offset() - nameLength;
 
               postfixItem.Accept(

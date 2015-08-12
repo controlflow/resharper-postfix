@@ -98,13 +98,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           toRemove = new JetHashSet<string>(StringComparer.Ordinal);
 
           foreach (var lookupItem in automaticPostfixItems)
-            toRemove.Add(lookupItem.Identity);
+            toRemove.Add(lookupItem.Placement.OrderString);
         }
       }
 
       foreach (var lookupItem in lookupItems)
       {
-        if (toRemove.Contains(lookupItem.Identity)) continue;
+        if (toRemove.Contains(lookupItem.Placement.OrderString)) continue;
 
         if (isDoubleCompletion)
         {
