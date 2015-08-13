@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
@@ -6,14 +7,12 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Behaviors;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Matchers;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Presentations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.Psi;
@@ -53,14 +52,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       if (!IsInsideSignatureWhereTypeUsageExpected(methodDeclaration, referenceName)) return false;
 
-      var postfixInfo = new PostfixTemplateInfo("T", "T", context.BasicContext);
-      postfixInfo.Ranges = context.CompletionRanges ?? GetDefaultRanges(context);
+      var typeParameterName = GetTypeParameterName(methodDeclaration);
+      var postfixInfo = new PostfixTemplateInfo(typeParameterName, typeParameterName, context.BasicContext);
+      postfixInfo.Ranges = context.CompletionRanges;
 
       var lookupItem = LookupItemFactory.CreateLookupItem(postfixInfo)
         .WithPresentation(item =>
         {
-          var presentation = new TextualPresentation<ILookupItemInfo>(item.Info, ServicesThemedIcons.LiveTemplate.Id);
-          presentation.DisplayTypeName = new RichText("(create type parameter)", TextStyle.FromForeColor(Color.Gray));
+          var presentation = new PostfixTemplatePresentation(item.Info);
+          var grayText = TextStyle.FromForeColor(Color.Gray);
+          presentation.DisplayName.Append("*", grayText);
+          presentation.DisplayTypeName = new RichText("(create type parameter)", grayText);
           return presentation;
         })
         .WithMatcher(item => new TextualMatcher<ILookupItemInfo>(item.Info, IdentifierMatchingStyle.Default))
@@ -73,6 +75,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       collector.Add(lookupItem);
       return true;
+    }
+
+    [NotNull]
+    private static string GetTypeParameterName([NotNull] IMethodDeclaration methodDeclaration)
+    {
+      var typeParameterList = methodDeclaration.TypeParameterList;
+      if (typeParameterList == null) return "T";
+
+      var usedNames = typeParameterList.TypeParameterDeclarations.Select(x => x.DeclaredName).ToHashSet();
+
+      var name = "T";
+      for (var index = 2; index < 100; index++)
+      {
+        if (!usedNames.Contains(name)) break;
+
+        name = "T" + index.ToString(CultureInfo.InvariantCulture);
+      }
+
+      return name;
     }
 
     private sealed class TypeParameterFromUsageBehavior : TextualBehavior<PostfixTemplateInfo>
@@ -88,39 +109,47 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var solution = Info.Context.Solution;
         var psiServices = solution.GetPsiServices();
         var startOffset = nameRange.StartOffset;
+        var suffix1 = suffix;
 
-        var hotspotInfo = psiServices.DoTransaction(typeof(CSharpTypeParameterFromUsageItemProvider).FullName, () =>
+        psiServices.Files.CommitAllDocumentsAsync(() =>
         {
-          using (WriteLockCookie.Create(true))
+          var hotspotInfo = psiServices.DoTransaction(typeof(CSharpTypeParameterFromUsageItemProvider).FullName, () =>
           {
-            var referenceName = TextControlToPsi
-              .GetElements<IReferenceName>(solution, textControl.Document, startOffset)
-              .FirstOrDefault(x => x.NameIdentifier != null && x.NameIdentifier.Name == "T");
-            if (referenceName == null) return null;
+            using (WriteLockCookie.Create(true))
+            {
+              var typeParameterName = Info.Text;
+              var referenceName = TextControlToPsi
+                .GetElements<IReferenceName>(solution, textControl.Document, startOffset)
+                .FirstOrDefault(x => x.NameIdentifier != null && x.NameIdentifier.Name == typeParameterName);
+              if (referenceName == null) return null;
 
-            var methodDeclaration = referenceName.GetContainingNode<IMethodDeclaration>();
-            if (methodDeclaration == null) return null;
+              var methodDeclaration = referenceName.GetContainingNode<IMethodDeclaration>();
+              if (methodDeclaration == null) return null;
 
-            var factory = CSharpElementFactory.GetInstance(methodDeclaration);
+              var factory = CSharpElementFactory.GetInstance(methodDeclaration);
 
-            var lastTypeParameter = methodDeclaration.TypeParameterDeclarations.LastOrDefault();
-            var newTypeParameter = methodDeclaration.AddTypeParameterAfter(
-              factory.CreateTypeParameterOfMethodDeclaration("T"), anchor: lastTypeParameter);
+              var lastTypeParameter = methodDeclaration.TypeParameterDeclarations.LastOrDefault();
+              var newTypeParameter = methodDeclaration.AddTypeParameterAfter(
+                factory.CreateTypeParameterOfMethodDeclaration(typeParameterName), anchor: lastTypeParameter);
 
-            return new HotspotInfo(new TemplateField("T", initialRange: 1),
-              documentRanges: new[] { newTypeParameter.GetDocumentRange(), referenceName.GetDocumentRange() });
-          }
+              var endOffset = referenceName.GetDocumentRange().TextRange.EndOffset;
+              textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+
+              return new HotspotInfo(new TemplateField(typeParameterName, initialRange: 1),
+                documentRanges: new[] { newTypeParameter.GetDocumentRange(), referenceName.GetDocumentRange() });
+            }
+          });
+
+          if (hotspotInfo == null) return;
+
+          // do not provide hotspots when item is completed with spacebar
+          if (suffix1.HasPresentation && suffix1.Presentation == ' ') return;
+
+          var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+            solution, TextRange.InvalidRange, textControl, LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
+
+          session.Execute();
         });
-
-        if (hotspotInfo == null) return;
-
-        // do not provide hotspots when item is completed with spacebar
-        if (suffix.HasPresentation && suffix.Presentation == ' ') return;
-
-        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
-          solution, TextRange.InvalidRange, textControl, LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
-
-        session.Execute();
       }
     }
 

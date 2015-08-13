@@ -163,7 +163,8 @@
     <Compile Include="CodeCompletion\CSharpLengthCountItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharpPostfixItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharpStaticMethodsItemProvider.cs" />
-    <Compile Include="CodeCompletion\PostfixTemplateInfo.cs" />
+    <Compile Include="CodeCompletion\CSharpTypeParameterFromUsageItemProvider.cs" />
+    <Compile Include="LookupItems\PostfixTemplateInfo.cs" />
     <Compile Include="Infrastructure\Contexts\ReparsedPostfixExecutionContext.cs" />
     <Compile Include="Infrastructure\Contexts\BrokenStatementPostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\ReferenceExpressionPostfixTemplateContext.cs" />
@@ -172,6 +173,7 @@
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItemBase.cs" />
+    <Compile Include="LookupItems\PostfixTemplatePresentation.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixExecutionContext.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixTemplateContext.cs" />
