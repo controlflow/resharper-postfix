@@ -53,8 +53,8 @@ Also Postfix Templates including two features sharing the same idea:
 ![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_static.gif)
 * **Enum members** are available over values of enumeration types and produce equality/flag checks:
 ![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enum.gif)
-
 * TODO: .Length <==> .Count feature
+* TODO: create type parameter in a postfix way feature
 
 #### Notes
 
