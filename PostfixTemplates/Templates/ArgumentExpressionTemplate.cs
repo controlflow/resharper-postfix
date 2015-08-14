@@ -2,12 +2,16 @@
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Matchers;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -17,6 +21,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Resources.Shell;
+using JetBrains.Text;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -39,7 +44,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       var expressions = CommonUtils.FindExpressionWithValuesContexts(context, IsNiceArgument);
       if (expressions.Length == 0) return null;
 
-      return new ArgumentItem(expressions, context);
+      var lookupItem = LookupItemFactory.CreateLookupItem(new PostfixTemplateInfo("arg"))
+        .WithPresentation(item => new PostfixTemplatePresentation(item.Info.Text))
+        .WithMatcher(item => new PostfixTemplateMatcher(item.Info))
+        .WithBehavior(item => new PostfixTemplateBehavior(item.Info));
+
+      return lookupItem;
+
+      //return new ArgumentItem(expressions, context);
     }
 
     private static bool IsNiceArgument([NotNull] ICSharpExpression expression)

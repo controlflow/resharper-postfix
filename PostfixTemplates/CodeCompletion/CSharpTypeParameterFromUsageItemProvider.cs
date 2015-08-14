@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
+using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Behaviors;
@@ -18,7 +19,6 @@ using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
-using JetBrains.ReSharper.Psi.ExpectedTypes;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.Text;
@@ -53,25 +53,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       if (!IsInsideSignatureWhereTypeUsageExpected(methodDeclaration, referenceName)) return false;
 
       var typeParameterName = GetTypeParameterName(methodDeclaration);
-      var postfixInfo = new PostfixTemplateInfo(typeParameterName, typeParameterName, context.BasicContext);
-      postfixInfo.Ranges = context.CompletionRanges;
+      var postfixInfo = new PostfixTemplateInfo(typeParameterName);
 
       var lookupItem = LookupItemFactory.CreateLookupItem(postfixInfo)
         .WithPresentation(item =>
         {
-          var presentation = new PostfixTemplatePresentation(item.Info);
+          var presentation = new PostfixTemplatePresentation(typeParameterName);
           var grayText = TextStyle.FromForeColor(Color.Gray);
           presentation.DisplayName.Append("*", grayText);
           presentation.DisplayTypeName = new RichText("(create type parameter)", grayText);
           return presentation;
         })
         .WithMatcher(item => new TextualMatcher<ILookupItemInfo>(item.Info, IdentifierMatchingStyle.Default))
-        .WithBehavior(item =>
-        {
-          var behavior = new TypeParameterFromUsageBehavior(item.Info);
-          behavior.InitializeRanges(context.CompletionRanges, context.BasicContext);
-          return behavior;
-        });
+        .WithBehavior(item => new TypeParameterFromUsageBehavior(item.Info));
 
       collector.Add(lookupItem);
       return true;
@@ -96,17 +90,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       return name;
     }
 
-    private sealed class TypeParameterFromUsageBehavior : TextualBehavior<PostfixTemplateInfo>
+    private sealed class TypeParameterFromUsageBehavior : PostfixTemplateBehavior
     {
       public TypeParameterFromUsageBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
-      protected override void OnAfterComplete(
-        ITextControl textControl, ref TextRange nameRange, ref TextRange decorationRange,
-        TailType tailType, ref Suffix suffix, ref IRangeMarker caretPositionRangeMarker)
+      public override void Accept(
+        ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType,
+        Suffix suffix, ISolution solution, bool keepCaretStill)
       {
-        base.OnAfterComplete(textControl, ref nameRange, ref decorationRange, tailType, ref suffix, ref caretPositionRangeMarker);
+        base.Accept(textControl, nameRange, lookupItemInsertType, suffix, solution, keepCaretStill);
 
-        var solution = Info.Context.Solution;
         var psiServices = solution.GetPsiServices();
         var startOffset = nameRange.StartOffset;
         var suffix1 = suffix;

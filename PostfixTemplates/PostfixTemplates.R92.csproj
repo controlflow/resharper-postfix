@@ -177,7 +177,9 @@
     <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItemBase.cs" />
+    <Compile Include="LookupItems\PostfixTemplateBehavior.cs" />
     <Compile Include="LookupItems\PostfixTemplateInfo.cs" />
+    <Compile Include="LookupItems\PostfixTemplateMatcher.cs" />
     <Compile Include="LookupItems\PostfixTemplatePresentation.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixExecutionContext.cs" />
