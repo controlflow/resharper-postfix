@@ -2,8 +2,13 @@
 using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
+using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Options;
 using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
@@ -26,7 +31,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   {
     private readonly bool myUseBraces;
 
-    protected StatementPostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
+    protected StatementPostfixLookupItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context)
       : base(shortcut, context)
     {
       Assertion.Assert(context.CanBeStatement, "context.CanBeStatement");
@@ -48,7 +53,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return "{" + CaretTemplate + "}"; }
     }
 
-    protected override TStatement ExpandPostfix(PrefixExpressionContext context)
+    protected override TStatement ExpandPostfix(CSharpPostfixExpressionContext context)
     {
       var psiModule = context.PostfixContext.PsiModule;
       var psiServices = psiModule.GetPsiServices();
@@ -135,8 +140,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
     [CanBeNull]
-    protected TStatement PutStatementCaret([NotNull] ITextControl textControl,
-                                           [NotNull] TStatement statement)
+    protected TStatement PutStatementCaret([NotNull] ITextControl textControl, [NotNull] TStatement statement)
     {
       foreach (var child in statement.Children())
       {
@@ -207,6 +211,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         Assertion.Assert(statement.IsValid(), "statement.IsValid()");
         Assertion.Assert(statement.IsPhysical(), "statement.IsPhysical()");
       }
+    }
+  }
+
+  public abstract class PostfixCSharpStatementTemplateBehavior : ILookupItemBehavior
+  {
+    public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
+    {
+      return false;
+    }
+
+    public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType, Suffix suffix, ISolution solution, bool keepCaretStill)
+    {
+      
     }
   }
 }

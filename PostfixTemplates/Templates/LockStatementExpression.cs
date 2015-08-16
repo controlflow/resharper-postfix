@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -35,7 +37,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class LockItem : StatementPostfixLookupItem<ILockStatement>
     {
-      public LockItem([NotNull] PrefixExpressionContext context) : base("lock", context) { }
+      public LockItem([NotNull] CSharpPostfixExpressionContext context) : base("lock", context) { }
 
       protected override ILockStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

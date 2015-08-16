@@ -5,6 +5,8 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -33,7 +35,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public CastItem([NotNull] PrefixExpressionContext[] contexts, [NotNull] PostfixTemplateContext postfixContext)
+      public CastItem([NotNull] CSharpPostfixExpressionContext[] contexts, [NotNull] PostfixTemplateContext postfixContext)
         : base("cast", contexts)
       {
         myTemplatesManager = postfixContext.ExecutionContext.LiveTemplatesManager;

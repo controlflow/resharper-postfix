@@ -12,6 +12,8 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
 using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -38,7 +40,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {
-      var contexts = new List<PrefixExpressionContext>();
+      var contexts = new List<CSharpPostfixExpressionContext>();
       foreach (var expressionContext in context.ExpressionsOrTypes)
       {
         var expression = expressionContext.Expression;
@@ -110,7 +112,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return false;
     }
 
-    private static bool MattersToShowVar([NotNull] PrefixExpressionContext context)
+    private static bool MattersToShowVar([NotNull] CSharpPostfixExpressionContext context)
     {
       if (context.CanBeStatement) return true;
 
@@ -135,7 +137,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       private readonly bool myIsConstructorCall;
 
-      public VarExpressionItem([NotNull] PrefixExpressionContext context, bool isConstructorCall)
+      public VarExpressionItem([NotNull] CSharpPostfixExpressionContext context, bool isConstructorCall)
         : base("var", context)
       {
         myIsConstructorCall = isConstructorCall;
@@ -176,7 +178,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       private readonly bool myIsConstructorCall;
 
-      public VarStatementItem([NotNull] PrefixExpressionContext context, bool isConstructorCall)
+      public VarStatementItem([NotNull] CSharpPostfixExpressionContext context, bool isConstructorCall)
         : base("var", context)
       {
         myIsConstructorCall = isConstructorCall;
@@ -202,7 +204,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       private readonly bool myHasRequiredArguments;
 
-      public VarByTypeItem([NotNull] PrefixExpressionContext context, [NotNull] IDeclaredType referencedType)
+      public VarByTypeItem([NotNull] CSharpPostfixExpressionContext context, [NotNull] IDeclaredType referencedType)
         : base("var", context)
       {
         myReferencedType = referencedType;

@@ -1,17 +1,16 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace JetBrains.ReSharper.PostfixTemplates
+namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
 {
-  public sealed class PrefixExpressionContext
+  public sealed class CSharpPostfixExpressionContext : PostfixExpressionContext
   {
-    public PrefixExpressionContext([NotNull] PostfixTemplateContext postfixContext, [NotNull] ICSharpExpression expression)
+    public CSharpPostfixExpressionContext(
+      [NotNull] CSharpPostfixTemplateContext postfixContext, [NotNull] ICSharpExpression expression)
+      : base(postfixContext, expression)
     {
-      PostfixContext = postfixContext;
-      Expression = expression;
       CanBeStatement = GetContainingStatement() != null;
 
       var brokenType = IsBrokenAsExpressionCase(expression, postfixContext.Reference)
@@ -57,10 +56,17 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return RazorUtil.CanBeStatement(expression);
     }
 
-    [NotNull] public PostfixTemplateContext PostfixContext { get; private set; }
+    [NotNull] public new CSharpPostfixTemplateContext PostfixContext
+    {
+      get { return (CSharpPostfixTemplateContext) base.PostfixContext; }
+    }
 
     // "lines.Any()" : Boolean
-    [NotNull] public ICSharpExpression Expression { get; private set; }
+    [NotNull] public new ICSharpExpression Expression
+    {
+      get { return (ICSharpExpression) base.Expression; }
+    }
+
     [NotNull] public IExpressionType ExpressionType { get; private set; }
     [NotNull] public IType Type { get; private set; }
 
@@ -76,11 +82,6 @@ namespace JetBrains.ReSharper.PostfixTemplates
         var reference = ReferenceExpressionNavigator.GetByQualifierExpression(Expression);
         return (reference == PostfixContext.Reference) ? reference : null;
       }
-    }
-
-    public DocumentRange ExpressionRange
-    {
-      get { return PostfixContext.ToDocumentRange(Expression); }
     }
 
     // A M(object o) { o as A.re| } - postfix reference breaks as-expression type

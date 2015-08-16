@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -74,7 +76,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class ReturnLookupItem : StatementPostfixLookupItem<IReturnStatement>
     {
-      public ReturnLookupItem([NotNull] PrefixExpressionContext context)
+      public ReturnLookupItem([NotNull] CSharpPostfixExpressionContext context)
         : base("return", context) { }
 
       protected override IReturnStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)

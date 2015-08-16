@@ -1,6 +1,8 @@
 using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -27,7 +29,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class SelectItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public SelectItem([NotNull] PrefixExpressionContext[] contexts)
+      public SelectItem([NotNull] CSharpPostfixExpressionContext[] contexts)
         : base("sel", contexts) { }
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)

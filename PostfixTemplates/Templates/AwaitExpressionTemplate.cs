@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -48,7 +50,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return false;
     }
 
-    private static bool IsAlreadyAwaited([NotNull] PrefixExpressionContext context)
+    private static bool IsAlreadyAwaited([NotNull] CSharpPostfixExpressionContext context)
     {
       var outerExpression = context.PostfixContext.GetOuterExpression(context.Expression);
       var expression = outerExpression.GetContainingParenthesizedExpression();
@@ -59,7 +61,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class AwaitItem : ExpressionPostfixLookupItem<IAwaitExpression>
     {
-      public AwaitItem([NotNull] PrefixExpressionContext context) : base("await", context) { }
+      public AwaitItem([NotNull] CSharpPostfixExpressionContext context) : base("await", context) { }
 
       protected override IAwaitExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {

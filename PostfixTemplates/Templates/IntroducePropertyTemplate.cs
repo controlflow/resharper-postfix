@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -16,14 +17,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "Property = expr;")]
   public class IntroducePropertyTemplate : IntroduceMemberTemplateBase
   {
-    protected override IntroduceMemberLookupItem CreateItem(PrefixExpressionContext expression, IType expressionType, bool isStatic)
+    protected override IntroduceMemberLookupItem CreateItem(CSharpPostfixExpressionContext expression, IType expressionType, bool isStatic)
     {
       return new IntroducePropertyLookupItem(expression, isStatic);
     }
 
     private sealed class IntroducePropertyLookupItem : IntroduceMemberLookupItem
     {
-      public IntroducePropertyLookupItem([NotNull] PrefixExpressionContext context, bool isStatic)
+      public IntroducePropertyLookupItem([NotNull] CSharpPostfixExpressionContext context, bool isStatic)
         : base("prop", context, context.Type, isStatic) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)

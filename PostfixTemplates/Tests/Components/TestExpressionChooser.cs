@@ -4,6 +4,7 @@ using JetBrains.ActionManagement;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.DataFlow;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.TextControl;
 using JetBrains.TextControl.DocumentMarkup;
@@ -24,7 +25,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Components
       : base(popupMenus, shellLocks, actionManager, threading, markupManager) { }
 
     public override void Execute(Lifetime lifetime, ITextControl textControl,
-                                 IList<PrefixExpressionContext> expressions, string postfixText,
+                                 IList<CSharpPostfixExpressionContext> expressions, string postfixText,
                                  string chooserTitle, Action<int> continuation)
     {
       continuation(0);

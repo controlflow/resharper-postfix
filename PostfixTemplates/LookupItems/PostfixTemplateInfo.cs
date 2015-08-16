@@ -37,6 +37,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       get { return myText; }
     }
 
+    public string ReparseString
+    {
+      get { return "aaa__"; }
+    }
+
+    public object Shortcut
+    {
+      get { return myText; }
+    }
+
     public LookupItemPlacement Placement
     {
       get { return new LookupItemPlacement(myText); }

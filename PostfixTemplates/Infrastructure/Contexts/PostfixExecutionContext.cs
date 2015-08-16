@@ -7,25 +7,25 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 
-namespace JetBrains.ReSharper.PostfixTemplates
+namespace JetBrains.ReSharper.PostfixTemplates.Contexts
 {
-  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+  [PublicAPI]
   public class PostfixExecutionContext
   {
-    public PostfixExecutionContext([NotNull] Lifetime lifetime,
-                                   [NotNull] ISolution solution,
-                                   [NotNull] ITextControl textControl,
-                                   [NotNull] ILookupItemsOwner lookupItemsOwner,
-                                   [NotNull] string reparseString,
-                                   bool isAutoCompletion)
+    [CanBeNull] private ILookupItemsOwner myLookupItemsOwner;
+    [CanBeNull] private LiveTemplatesManager myLiveTemplatesManager;
+
+    public PostfixExecutionContext(
+      [NotNull] Lifetime lifetime, [NotNull] ISolution solution, [NotNull] ITextControl textControl,
+      [NotNull] ILookupItemsOwner lookupItemsOwner, [NotNull] string reparseString, bool isAutoCompletion)
     {
       Lifetime = lifetime;
       Solution = solution;
       TextControl = textControl;
-      LookupItemsOwner = lookupItemsOwner;
+      myLookupItemsOwner = lookupItemsOwner;
       ReparseString = reparseString;
       IsAutoCompletion = isAutoCompletion;
-      LiveTemplatesManager = solution.GetComponent<LiveTemplatesManager>();
+      myLiveTemplatesManager = solution.GetComponent<LiveTemplatesManager>();
     }
 
     public bool IsAutoCompletion { get; internal set; }
@@ -33,10 +33,30 @@ namespace JetBrains.ReSharper.PostfixTemplates
     [NotNull] public Lifetime Lifetime { get; private set; }
     [NotNull] public ISolution Solution { get; private set; }
     [NotNull] public ITextControl TextControl { get; private set; }
-    [NotNull] public ILookupItemsOwner LookupItemsOwner { get; private set; }
+
+    [NotNull]
+    public ILookupItemsOwner LookupItemsOwner
+    {
+      get
+      {
+        if (myLookupItemsOwner != null) return myLookupItemsOwner;
+
+        var factory = Solution.GetComponent<LookupItemsOwnerFactory>();
+        return (myLookupItemsOwner = factory.CreateLookupItemsOwner(TextControl));
+      }
+    }
+
     [NotNull] public string ReparseString { get; private set; }
 
-    [NotNull] public LiveTemplatesManager LiveTemplatesManager { get; private set; }
+    [NotNull] public LiveTemplatesManager LiveTemplatesManager
+    {
+      get
+      {
+        if (myLiveTemplatesManager != null) return myLiveTemplatesManager;
+
+        return (myLiveTemplatesManager = Solution.GetComponent<LiveTemplatesManager>());
+      }
+    }
 
     public virtual DocumentRange GetDocumentRange(ITreeNode treeNode)
     {

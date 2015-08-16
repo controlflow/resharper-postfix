@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
@@ -11,13 +12,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   public abstract class ExpressionPostfixLookupItem<TExpression> : PostfixLookupItem<TExpression>
     where TExpression : class, ICSharpExpression
   {
-    protected ExpressionPostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
+    protected ExpressionPostfixLookupItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context)
       : base(shortcut, context) { }
 
-    protected ExpressionPostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext[] contexts)
+    protected ExpressionPostfixLookupItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext[] contexts)
       : base(shortcut, contexts) { }
 
-    protected override TExpression ExpandPostfix(PrefixExpressionContext context)
+    protected override TExpression ExpandPostfix(CSharpPostfixExpressionContext context)
     {
       var psiModule = context.PostfixContext.PsiModule;
       var expandedExpression = psiModule.GetPsiServices().DoTransaction(ExpandCommandName, () =>

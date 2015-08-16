@@ -8,6 +8,8 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -18,7 +20,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
-  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+  [PublicAPI]
   public static class CommonUtils
   {
     public static PredefinedType GetPredefinedType([NotNull] this ITreeNode node)
@@ -163,10 +165,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [NotNull]
-    public static PrefixExpressionContext[] FindExpressionWithValuesContexts(
+    public static CSharpPostfixExpressionContext[] FindExpressionWithValuesContexts(
       [NotNull] PostfixTemplateContext context, [CanBeNull] Predicate<ICSharpExpression> predicate = null)
     {
-      var results = new LocalList<PrefixExpressionContext>();
+      var results = new LocalList<CSharpPostfixExpressionContext>();
 
       foreach (var expressionContext in context.Expressions.Reverse())
       {

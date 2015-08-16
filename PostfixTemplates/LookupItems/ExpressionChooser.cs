@@ -7,6 +7,7 @@ using JetBrains.CommonControls;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.Resources;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.TextControl.DocumentMarkup;
@@ -44,7 +45,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
     public virtual void Execute([NotNull] Lifetime lifetime, [NotNull] ITextControl textControl,
-                                [NotNull] IList<PrefixExpressionContext> expressions,
+                                [NotNull] IList<CSharpPostfixExpressionContext> expressions,
                                 [NotNull] string postfixText, [NotNull] string chooserTitle,
                                 [NotNull] Action<int> continuation)
     {
@@ -59,8 +60,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       var popupMenu = myPopupMenus.CreateWithLifetime(lifetime);
 
       popupMenu.Caption.Value = WindowlessControl.Create(chooserTitle);
-      popupMenu.PopupWindowContext = new TextControlPopupWindowContext(
-        lifetime, textControl, myShellLocks, myActionManager);
+      popupMenu.PopupWindowContext = new TextControlPopupWindowContext(lifetime, textControl, myShellLocks, myActionManager);
 
       // advise selected element to highlight expression
       popupMenu.SelectedItemKey.Change.Advise(lifetime, args =>
@@ -110,7 +110,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     [NotNull]
     private static string PresentExpression(
-      [NotNull] PrefixExpressionContext context, [NotNull] string postfixText, out TextRange range)
+      [NotNull] CSharpPostfixExpressionContext context, [NotNull] string postfixText, out TextRange range)
     {
       var text = context.Expression.GetText();
       range = context.ExpressionRange.TextRange;
@@ -152,6 +152,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         using (ReadLockCookie.Create())
         {
           var documentMarkup = myMarkupManager.GetMarkupModel(textControl.Document);
+
           foreach (var highlighter in documentMarkup.GetHighlightersEnumerable(HighlightingKey))
           {
             documentMarkup.RemoveHighlighter(highlighter);
@@ -162,8 +163,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
           {
             documentMarkup.AddHighlighter(
               HighlightingKey, expressionRange, AreaType.LINES_IN_RANGE, 0,
-              HotspotSessionUi.CURRENT_HOTSPOT_HIGHLIGHTER,
-              ErrorStripeAttributes.Empty, null);
+              HotspotSessionUi.CURRENT_HOTSPOT_HIGHLIGHTER, ErrorStripeAttributes.Empty, null);
           }
         }
       });

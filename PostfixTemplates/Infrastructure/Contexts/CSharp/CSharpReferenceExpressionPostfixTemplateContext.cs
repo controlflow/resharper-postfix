@@ -2,19 +2,17 @@
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.PostfixTemplates
+namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
 {
-  public class ReferenceExpressionPostfixTemplateContext : PostfixTemplateContext
+  public class CSharpReferenceExpressionPostfixTemplateContext : CSharpPostfixTemplateContext
   {
-    public ReferenceExpressionPostfixTemplateContext([NotNull] IReferenceExpression reference,
-                                                     [NotNull] ICSharpExpression expression,
-                                                     [NotNull] PostfixExecutionContext executionContext)
+    public CSharpReferenceExpressionPostfixTemplateContext(
+      [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixExecutionContext executionContext)
       : base(reference, expression, executionContext) { }
 
-    private static readonly string FixCommandName =
-      typeof(ReferenceExpressionPostfixTemplateContext) + ".FixExpression";
+    private static readonly string FixCommandName = typeof(CSharpReferenceExpressionPostfixTemplateContext) + ".FixExpression";
 
-    public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
+    public override CSharpPostfixExpressionContext FixExpression(CSharpPostfixExpressionContext context)
     {
       var referenceExpression = (IReferenceExpression)Reference;
 
@@ -28,7 +26,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
         Assertion.AssertNotNull(newExpression, "newExpression != null");
         Assertion.Assert(newExpression.IsPhysical(), "newExpression.IsPhysical()");
 
-        return new PrefixExpressionContext(this, newExpression);
+        return new CSharpPostfixExpressionContext(this, newExpression);
       }
 
       if (expression.Contains(referenceExpression)) // boo > foo.bar => boo > foo

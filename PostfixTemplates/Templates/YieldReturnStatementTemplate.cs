@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -90,7 +92,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class YieldItem : StatementPostfixLookupItem<IYieldStatement>
     {
-      public YieldItem([NotNull] PrefixExpressionContext context) : base("yield", context) { }
+      public YieldItem([NotNull] CSharpPostfixExpressionContext context) : base("yield", context) { }
 
       protected override IYieldStatement CreateStatement(CSharpElementFactory factory,
                                                          ICSharpExpression expression)

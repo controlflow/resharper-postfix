@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -12,7 +13,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "if (expr)")]
   public sealed class IfStatementTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
-    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
+    protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext expression)
     {
       if (expression.CanBeStatement)
       {
@@ -24,7 +25,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class IfItem : StatementPostfixLookupItem<IIfStatement>
     {
-      public IfItem([NotNull] PrefixExpressionContext context) : base("if", context) { }
+      public IfItem([NotNull] CSharpPostfixExpressionContext context) : base("if", context) { }
 
       protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

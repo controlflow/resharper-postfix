@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
 using JetBrains.Application.Settings;
+using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
@@ -10,6 +11,7 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -30,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
       private readonly bool myIsTryParse;
 
-      public ParseItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context, bool isTryParse)
+      public ParseItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context, bool isTryParse)
         : base(shortcut, context)
       {
         myIsTryParse = isTryParse;
@@ -69,7 +71,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
         var settingsStore = expression.GetSettingsStore();
         var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
 
-        session.Closed.Advise(Lifetime, args =>
+        session.Closed.Advise(EternalLifetime.Instance, args =>
         {
           if (myIsTryParse)
           {

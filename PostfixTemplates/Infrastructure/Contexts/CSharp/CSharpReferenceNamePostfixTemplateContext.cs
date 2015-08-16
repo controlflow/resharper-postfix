@@ -2,19 +2,17 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 
-namespace JetBrains.ReSharper.PostfixTemplates
+namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
 {
-  public class ReferenceNamePostfixTemplateContext : PostfixTemplateContext
+  public class CSharpReferenceNamePostfixTemplateContext : CSharpPostfixTemplateContext
   {
-    public ReferenceNamePostfixTemplateContext([NotNull] IReferenceName reference,
-                                               [NotNull] ICSharpExpression expression,
-                                               [NotNull] PostfixExecutionContext executionContext)
+    public CSharpReferenceNamePostfixTemplateContext(
+      [NotNull] IReferenceName reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixExecutionContext executionContext)
       : base(reference, expression, executionContext) { }
 
-    private static readonly string FixCommandName =
-      typeof(ReferenceNamePostfixTemplateContext) + ".FixExpression";
+    private static readonly string FixCommandName = typeof(CSharpReferenceNamePostfixTemplateContext) + ".FixExpression";
 
-    public override PrefixExpressionContext FixExpression(PrefixExpressionContext context)
+    public override CSharpPostfixExpressionContext FixExpression(CSharpPostfixExpressionContext context)
     {
       var expression = context.Expression;
       if (expression.Contains(Reference)) // x is T.bar => x is T

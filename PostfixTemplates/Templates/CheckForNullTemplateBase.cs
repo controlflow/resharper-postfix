@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -15,7 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
   public abstract class CheckForNullTemplateBase
   {
     [ContractAnnotation("null => false")]
-    protected static bool IsNullable([CanBeNull] PrefixExpressionContext expressionContext)
+    protected static bool IsNullable([CanBeNull] CSharpPostfixExpressionContext expressionContext)
     {
       if (expressionContext == null) return false;
 
@@ -43,7 +44,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return true; // unknown or ref-type
     }
 
-    protected static bool MakeSenseToCheckInAuto(PrefixExpressionContext expressionContext)
+    protected static bool MakeSenseToCheckInAuto(CSharpPostfixExpressionContext expressionContext)
     {
       var expression = expressionContext.Expression.GetOperandThroughParenthesis();
       if (expression is IAssignmentExpression) return false;
@@ -58,7 +59,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullStatementItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context, [NotNull] string template)
+      public CheckForNullStatementItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context, [NotNull] string template)
         : base(shortcut, context)
       {
         myTemplate = template;
@@ -75,7 +76,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullExpressionItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext[] context, [NotNull] string template)
+      public CheckForNullExpressionItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext[] context, [NotNull] string template)
         : base(shortcut, context)
       {
         myTemplate = template;

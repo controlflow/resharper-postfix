@@ -3,6 +3,8 @@ using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -101,7 +103,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       private readonly bool myHasRequiredArguments;
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
 
-      public NewTypeItem([NotNull] PrefixExpressionContext context, bool hasRequiredArguments)
+      public NewTypeItem([NotNull] CSharpPostfixExpressionContext context, bool hasRequiredArguments)
         : base("new", context)
       {
         myHasRequiredArguments = hasRequiredArguments;
@@ -140,7 +142,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class NewExpressionItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
     {
-      public NewExpressionItem([NotNull] PrefixExpressionContext context)
+      public NewExpressionItem([NotNull] CSharpPostfixExpressionContext context)
         : base("new", context) { }
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)

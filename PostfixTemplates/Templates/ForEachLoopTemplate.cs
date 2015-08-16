@@ -12,6 +12,8 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -55,7 +57,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return new ForEachExpressionItem(expressionContext);
     }
 
-    private static bool IsEnumerable([NotNull] PrefixExpressionContext context)
+    private static bool IsEnumerable([NotNull] CSharpPostfixExpressionContext context)
     {
       if (!context.Type.IsResolved) return false;
 
@@ -79,7 +81,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public ForEachStatementItem([NotNull] PrefixExpressionContext context) : base("forEach", context)
+      public ForEachStatementItem([NotNull] CSharpPostfixExpressionContext context) : base("forEach", context)
       {
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
       }
@@ -114,7 +116,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
       private readonly bool myUseBraces;
 
-      public ForEachExpressionItem([NotNull] PrefixExpressionContext context) : base("forEach", context)
+      public ForEachExpressionItem([NotNull] CSharpPostfixExpressionContext context) : base("forEach", context)
       {
         var postfixContext = context.PostfixContext;
         var settingsStore = postfixContext.Reference.GetSettingsStore();

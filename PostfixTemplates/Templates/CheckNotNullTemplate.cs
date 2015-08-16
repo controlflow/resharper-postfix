@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
@@ -24,7 +26,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       }
       else if (!context.IsAutoCompletion)
       {
-        var nullableExpressions = new List<PrefixExpressionContext>();
+        var nullableExpressions = new List<CSharpPostfixExpressionContext>();
         foreach (var expressionContext in context.Expressions)
         {
           if (IsNullable(expressionContext))

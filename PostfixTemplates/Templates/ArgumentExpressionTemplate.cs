@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
+using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
@@ -12,6 +13,8 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -69,7 +72,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public ArgumentItem([NotNull] PrefixExpressionContext[] contexts, [NotNull] PostfixTemplateContext postfixContext)
+      public ArgumentItem([NotNull] CSharpPostfixExpressionContext[] contexts, [NotNull] PostfixTemplateContext postfixContext)
         : base("arg", contexts)
       {
         var executionContext = postfixContext.ExecutionContext;
@@ -108,7 +111,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
         textControl.PutData(PostfixArgTemplateExpansion, string.Empty);
 
-        session.Closed.Advise(Lifetime, _ =>
+        session.Closed.Advise(EternalLifetime.Instance, _ =>
         {
           textControl.PutData(PostfixArgTemplateExpansion, null);
 

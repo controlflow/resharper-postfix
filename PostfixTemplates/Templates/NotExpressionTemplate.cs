@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -15,12 +16,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     example: "!expr")]
   public class NotExpressionTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
   {
-    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext expression)
+    protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext expression)
     {
       throw new InvalidOperationException("Should not be called");
     }
 
-    protected override ILookupItem CreateBooleanItem(PrefixExpressionContext[] expressions)
+    protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext[] expressions)
     {
       if (expressions.Length > 1)
       {
@@ -30,7 +31,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return new NotItem(expressions);
     }
 
-    private static bool IsNotUnderUnaryNegation([NotNull] PrefixExpressionContext context)
+    private static bool IsNotUnderUnaryNegation([NotNull] CSharpPostfixExpressionContext context)
     {
       var unaryExpression = context.ExpressionWithReference as IUnaryExpression;
 
@@ -42,7 +43,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class NotItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public NotItem([NotNull] params PrefixExpressionContext[] contexts) : base("not", contexts) { }
+      public NotItem([NotNull] params CSharpPostfixExpressionContext[] contexts) : base("not", contexts) { }
 
       protected override string ExpressionSelectTitle
       {

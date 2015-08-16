@@ -12,6 +12,8 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Resources.Shell;
@@ -27,19 +29,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   {
     [NotNull] private readonly Lifetime myLifetime;
     [NotNull] private readonly string myShortcut, myIdentifier, myReparseString;
-    [NotNull] private readonly ExpressionContextImage[] myImages;
+    [NotNull] private readonly PostfixExpressionContextImage[] myImages;
     private int myExpressionIndex;
 
-    protected PostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
+    protected PostfixLookupItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context)
       : this(shortcut, new[] {context}) { }
 
-    protected PostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext[] contexts)
+    protected PostfixLookupItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext[] contexts)
     {
       Assertion.Assert(contexts.Length > 0, "contexts.Length > 0");
 
       myIdentifier = shortcut;
       myShortcut = shortcut.ToLowerInvariant();
-      myImages = Array.ConvertAll(contexts, x => new ExpressionContextImage(x));
+      myImages = Array.ConvertAll(contexts, x => new PostfixExpressionContextImage(x));
       myExpressionIndex = (contexts.Length > 1 ? -1 : 0);
 
       var executionContext = contexts[0].PostfixContext.ExecutionContext;
@@ -60,12 +62,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     protected virtual string ExpressionSelectTitle
     {
       get { return "Select expression"; }
-    }
-
-    // todo: drop this lifetime
-    [NotNull] protected Lifetime Lifetime
-    {
-      get { return myLifetime; }
     }
 
     public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
@@ -176,15 +172,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       return textRange;
     }
 
-    protected abstract TNode ExpandPostfix([NotNull] PrefixExpressionContext context);
+    protected abstract TNode ExpandPostfix([NotNull] CSharpPostfixExpressionContext context);
 
     protected virtual void AfterComplete([NotNull] ITextControl textControl, [NotNull] TNode node) { }
 
     [NotNull]
-    private IList<PrefixExpressionContext> FindOriginalContexts([NotNull] PostfixTemplateContext context)
+    private IList<CSharpPostfixExpressionContext> FindOriginalContexts([NotNull] PostfixTemplateContext context)
     {
-      var results = new LocalList<PrefixExpressionContext>();
-      var images = new List<ExpressionContextImage>(myImages);
+      var results = new LocalList<CSharpPostfixExpressionContext>();
+      var images = new List<PostfixExpressionContextImage>(myImages);
 
       for (var index = 0; index < images.Count; index++) // order is important
       {
@@ -248,30 +244,5 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
 #endif
 
-    private sealed class ExpressionContextImage
-    {
-      [NotNull] private readonly Type myExpressionType;
-      private readonly DocumentRange myExpressionRange;
-      private readonly int myContextIndex;
-
-      public ExpressionContextImage([NotNull] PrefixExpressionContext context)
-      {
-        myExpressionType = context.Expression.GetType();
-        myExpressionRange = context.ExpressionRange;
-        myContextIndex = context.PostfixContext.Expressions.IndexOf(context);
-      }
-
-      public int ContextIndex
-      {
-        get { return myContextIndex; }
-      }
-
-      public bool MatchesByRangeAndType([NotNull] PrefixExpressionContext context)
-      {
-        var startOffset = myExpressionRange.TextRange.StartOffset;
-        return context.Expression.GetType() == myExpressionType
-            && context.ExpressionRange.TextRange.StartOffset == startOffset;
-      }
-    }
   }
 }

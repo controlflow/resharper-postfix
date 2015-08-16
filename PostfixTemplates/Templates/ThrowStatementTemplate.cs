@@ -3,6 +3,8 @@ using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
@@ -54,7 +56,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return null;
     }
 
-    private static bool CheckExpressionType([NotNull] PrefixExpressionContext expressionContext, out bool needFixWithNew)
+    private static bool CheckExpressionType([NotNull] CSharpPostfixExpressionContext expressionContext, out bool needFixWithNew)
     {
       needFixWithNew = false;
 
@@ -102,7 +104,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       private readonly bool myInsertNewExpression;
 
-      public ThrowExpressionItem([NotNull] PrefixExpressionContext context, bool insertNewExpression)
+      public ThrowExpressionItem([NotNull] CSharpPostfixExpressionContext context, bool insertNewExpression)
         : base("throw", context)
       {
         myInsertNewExpression = insertNewExpression;
@@ -120,7 +122,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       private readonly bool myHasRequiredArguments;
 
-      public ThrowByTypeItem([NotNull] PrefixExpressionContext context, bool hasRequiredArguments)
+      public ThrowByTypeItem([NotNull] CSharpPostfixExpressionContext context, bool hasRequiredArguments)
         : base("throw", context)
       {
         var executionContext = context.PostfixContext.ExecutionContext;

@@ -4,6 +4,8 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -51,7 +53,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       return null;
     }
 
-    protected abstract IntroduceMemberLookupItem CreateItem([NotNull] PrefixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
+    protected abstract IntroduceMemberLookupItem CreateItem([NotNull] CSharpPostfixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
 
     protected abstract class IntroduceMemberLookupItem : StatementPostfixLookupItem<IExpressionStatement>
     {
@@ -63,7 +65,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [CanBeNull] private ITreeNodePointer<IClassMemberDeclaration> myMemberPointer;
 
       protected IntroduceMemberLookupItem([NotNull] string shortcut,
-                                          [NotNull] PrefixExpressionContext context,
+                                          [NotNull] CSharpPostfixExpressionContext context,
                                           [NotNull] IType expressionType, bool isStatic)
         : base(shortcut, context)
       {

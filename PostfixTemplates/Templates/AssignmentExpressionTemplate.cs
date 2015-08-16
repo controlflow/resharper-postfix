@@ -3,6 +3,8 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -42,7 +44,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public AssignmentItem([NotNull] PrefixExpressionContext context) : base("to", context)
+      public AssignmentItem([NotNull] CSharpPostfixExpressionContext context) : base("to", context)
       {
         var executionContext = context.PostfixContext.ExecutionContext;
         myTemplatesManager = executionContext.LiveTemplatesManager;

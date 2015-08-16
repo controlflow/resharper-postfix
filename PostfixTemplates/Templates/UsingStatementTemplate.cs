@@ -6,6 +6,8 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -92,7 +94,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
       private readonly bool myShouldCreateVariable;
 
-      public UsingItem([NotNull] PrefixExpressionContext context, bool shouldCreateVariable)
+      public UsingItem([NotNull] CSharpPostfixExpressionContext context, bool shouldCreateVariable)
         : base("using", context)
       {
         myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;

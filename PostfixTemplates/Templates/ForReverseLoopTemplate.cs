@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.Util;
@@ -31,7 +33,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class ReverseForLookupItem : ForLookupItemBase
     {
-      public ReverseForLookupItem([NotNull] PrefixExpressionContext context, [CanBeNull] string lengthName)
+      public ReverseForLookupItem([NotNull] CSharpPostfixExpressionContext context, [CanBeNull] string lengthName)
         : base("forR", context, lengthName) { }
 
       protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)

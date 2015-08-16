@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -40,7 +42,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class ParenthesesItem : ExpressionPostfixLookupItem<ICSharpExpression>
     {
-      public ParenthesesItem([NotNull] params PrefixExpressionContext[] contexts)
+      public ParenthesesItem([NotNull] params CSharpPostfixExpressionContext[] contexts)
         : base("par", contexts) { }
 
       protected override string ExpressionSelectTitle

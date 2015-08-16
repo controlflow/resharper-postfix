@@ -10,6 +10,7 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
@@ -148,7 +149,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       [CanBeNull]
       private IList<ILookupItem> TryReparseWith([NotNull] ISolution solution, [NotNull] ITextControl textControl,
-                                                       [NotNull] string templateName, [NotNull] string reparseString)
+                                                [NotNull] string templateName, [NotNull] string reparseString)
       {
         var offset = textControl.Caret.Offset();
         var document = textControl.Document;
@@ -158,9 +159,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           document.InsertText(offset, reparseString);
           solution.GetPsiServices().CommitAllDocuments();
 
-          var itemsOwner = myItemsOwnerFactory.CreateLookupItemsOwner(textControl);
-          var executionContext = new PostfixExecutionContext(
-            myLifetime, solution, textControl, itemsOwner, reparseString, false);
+          var executionContext = new PostfixExecutionContext(myLifetime, solution, textControl, reparseString, false);
 
           foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, document, offset))
           {

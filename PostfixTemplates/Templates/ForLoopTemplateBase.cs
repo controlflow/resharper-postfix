@@ -3,6 +3,8 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -72,7 +74,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
       protected ForLookupItemBase([NotNull] string shortcut,
-                                  [NotNull] PrefixExpressionContext context,
+                                  [NotNull] CSharpPostfixExpressionContext context,
                                   [CanBeNull] string lengthName)
         : base(shortcut, context)
       {

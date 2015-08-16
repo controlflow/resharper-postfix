@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -26,7 +28,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private class TypeOfItem : ExpressionPostfixLookupItem<ITypeofExpression>
     {
-      public TypeOfItem([NotNull] PrefixExpressionContext context) : base("typeOf", context) { }
+      public TypeOfItem([NotNull] CSharpPostfixExpressionContext context) : base("typeOf", context) { }
 
       protected override ITypeofExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {

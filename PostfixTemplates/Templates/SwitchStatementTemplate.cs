@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -46,7 +48,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates
 
     private sealed class SwitchItem : StatementPostfixLookupItem<ISwitchStatement>
     {
-      public SwitchItem([NotNull] PrefixExpressionContext context) : base("switch", context) { }
+      public SwitchItem([NotNull] CSharpPostfixExpressionContext context) : base("switch", context) { }
 
       // switch statement can't be without braces
       protected override ISwitchStatement CreateStatement(CSharpElementFactory factory,
