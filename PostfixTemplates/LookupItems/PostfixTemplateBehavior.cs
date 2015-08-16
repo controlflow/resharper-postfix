@@ -4,6 +4,7 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -26,7 +27,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       // todo: support insertion type
       // todo: what is 'keepCaretStill'?
 
-      textControl.Document.InsertText(nameRange.StartOffset, Info.Text, TextModificationSide.RightSide);
+
+      using (WriteLockCookie.Create())
+      {
+        textControl.Document.ReplaceText(nameRange, Info.Text);
+      }
+
+      var endOffset = nameRange.StartOffset + Info.Text.Length;
+      textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
       suffix.Playback(textControl);
     }

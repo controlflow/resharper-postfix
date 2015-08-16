@@ -10,6 +10,12 @@ namespace JetBrains.ReSharper.PostfixTemplates
     [CanBeNull] ILookupItem CreateItem([NotNull] PostfixTemplateContext context);
   }
 
+  //public interface IPostfixTemplateProvider<TContext>
+  //  where TContext : IPrefixExpressionContext
+  //{
+  //  void CreateItem([NotNull] PostfixTemplateContext context, IConsumer consumer);
+  //}
+
   [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]
   [BaseTypeRequired(typeof(IPostfixTemplate))]
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]

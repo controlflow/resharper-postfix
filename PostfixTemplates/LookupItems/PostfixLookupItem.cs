@@ -33,8 +33,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     protected PostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext context)
       : this(shortcut, new[] {context}) { }
 
-    protected PostfixLookupItem(
-      [NotNull] string shortcut, [NotNull] PrefixExpressionContext[] contexts)
+    protected PostfixLookupItem([NotNull] string shortcut, [NotNull] PrefixExpressionContext[] contexts)
     {
       Assertion.Assert(contexts.Length > 0, "contexts.Length > 0");
 

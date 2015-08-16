@@ -2,11 +2,9 @@
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
-using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Behaviors;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Matchers;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
@@ -125,8 +123,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
               var newTypeParameter = methodDeclaration.AddTypeParameterAfter(
                 factory.CreateTypeParameterOfMethodDeclaration(typeParameterName), anchor: lastTypeParameter);
 
-              var endOffset = referenceName.GetDocumentRange().TextRange.EndOffset;
-              textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
+              //var endOffset = referenceName.GetDocumentRange().TextRange.EndOffset;
+              //textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
               return new HotspotInfo(new TemplateField(typeParameterName, initialRange: 1),
                 documentRanges: new[] { newTypeParameter.GetDocumentRange(), referenceName.GetDocumentRange() });
@@ -138,8 +136,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           // do not provide hotspots when item is completed with spacebar
           if (suffix1.HasPresentation && suffix1.Presentation == ' ') return;
 
+          //var endRange = hotspotInfo.Ranges[1].EndOffsetRange().TextRange;
+          var endRange = TextRange.InvalidRange;
+
           var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
-            solution, TextRange.InvalidRange, textControl, LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
+            solution, endRange, textControl, LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
 
           session.Execute();
         });

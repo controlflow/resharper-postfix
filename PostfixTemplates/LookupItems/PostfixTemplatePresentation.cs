@@ -12,6 +12,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   public class PostfixTemplatePresentation : ILookupItemPresentation
   {
     [NotNull] private readonly RichText myDisplayName;
+    [CanBeNull] private RichText myDisplayTypeName;
 
     public PostfixTemplatePresentation([NotNull] RichText displayName)
     {
@@ -35,8 +36,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     public RichText DisplayTypeName
     {
-      get { return RichText.Empty; }
-      set { throw new InvalidOperationException(); }
+      get { return myDisplayTypeName ?? RichText.Empty; }
+      set { myDisplayTypeName = value; }
     }
 
     public bool CanShrink

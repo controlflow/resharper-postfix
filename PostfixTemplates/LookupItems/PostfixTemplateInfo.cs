@@ -21,7 +21,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     public EvaluationMode EvaluationMode
     {
       get { return EvaluationMode.Light; }
-      set { throw new InvalidOperationException(); }
+      set
+      {
+        if (value != EvaluationMode.Light)
+          throw new InvalidOperationException();
+      }
     }
 
     public bool IsDynamic { get { return false; } }
