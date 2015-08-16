@@ -7,6 +7,7 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -40,13 +41,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems)) return false;
 
       var unterminatedContext = context.UnterminatedContext;
-      var executionContext = new ReparsedPostfixExecutionContext(myLifetime, completionContext, unterminatedContext, "__");
+      var executionContext = new CodeCompletionPostfixExecutionContext(myLifetime, completionContext, unterminatedContext, "__");
       var postfixContext = myTemplatesManager.IsAvailable(unterminatedContext.TreeNode, executionContext);
 
       if (postfixContext == null) // try unterminated context if terminated sucks
       {
         var terminatedContext = context.TerminatedContext;
-        executionContext = new ReparsedPostfixExecutionContext(myLifetime, completionContext, terminatedContext, "__;");
+        executionContext = new CodeCompletionPostfixExecutionContext(myLifetime, completionContext, terminatedContext, "__;");
         postfixContext = myTemplatesManager.IsAvailable(terminatedContext.TreeNode, executionContext);
       }
 
