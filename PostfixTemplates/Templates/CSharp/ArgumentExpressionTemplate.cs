@@ -9,7 +9,6 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -31,18 +30,32 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "Method(expr)")]
   public class ArgumentExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public void PopulateTemplates(CSharpPostfixTemplateContext context, IPostfixTemplatesCollector collector)
+    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesMananger;
+    [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
+
+    public ArgumentExpressionTemplate([NotNull] LiveTemplatesManager liveTemplatesMananger, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
     {
-      if (context.IsAutoCompletion) return;
+      myLiveTemplatesMananger = liveTemplatesMananger;
+      myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
+    }
+
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    {
+      if (context.IsAutoCompletion) return null;
 
       // disable .arg template if .arg hotspot is enabled now
       var textControl = context.ExecutionContext.TextControl;
-      if (textControl.GetData(PostfixArgTemplateExpansion) != null) return;
+      if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
 
       var expressions = CommonUtils.FindExpressionWithValuesContexts(context, IsNiceArgument);
-      if (expressions.Length == 0) return;
+      if (expressions.Length == 0) return null;
 
-      collector.Consume(new PostfixTemplateInfo("arg"), x => new PostfixTemplateBehavior(x));
+      return new PostfixTemplateInfo("arg", expressions);
+    }
+
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
+    {
+      return new PostfixArgumentBehavior(info, myLiveTemplatesMananger, myLookupItemsOwnerFactory);
     }
 
     private static bool IsNiceArgument([NotNull] ICSharpExpression expression)
@@ -55,18 +68,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =
       new Key(typeof(ArgumentExpressionTemplate).FullName);
 
-    // todo: to behavior
-    private class ArgumentItem : ExpressionPostfixLookupItem<IInvocationExpression>
+    private class PostfixArgumentBehavior : CSharpExpressionPostfixTemplateBehavior<IInvocationExpression>
     {
-      [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
 
-      public ArgumentItem([NotNull] CSharpPostfixExpressionContext[] contexts, [NotNull] PostfixTemplateContext postfixContext)
-        : base("arg", contexts)
+      public PostfixArgumentBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager templatesManager, LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
       {
-        var executionContext = postfixContext.ExecutionContext;
-        myLookupItemsOwner = executionContext.LookupItemsOwner;
-        myTemplatesManager = executionContext.LiveTemplatesManager;
+        myTemplatesManager = templatesManager;
+        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
       }
 
       protected override string ExpressionSelectTitle
@@ -119,7 +129,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
             if (invokeParameterInfo)
             {
-              LookupUtil.ShowParameterInfo(solution, textControl, myLookupItemsOwner);
+              var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+              LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
             }
           }
         });

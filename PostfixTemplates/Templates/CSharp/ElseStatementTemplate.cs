@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -13,21 +13,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "else",
     description: "Checks boolean expression to be 'false'",
     example: "if (!expr)")]
-  public class ElseStatementTemplate : BooleanExpressionTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
+  public class ElseStatementTemplate : BooleanExpressionTemplateBase
   {
-    protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext expression)
+    protected override PostfixTemplateInfo TryCreateBooleanInfo(CSharpPostfixExpressionContext expression)
     {
       if (expression.CanBeStatement)
       {
-        return new ElseItem(expression);
+        return new PostfixTemplateInfo("else", expression);
       }
 
       return null;
     }
 
-    private sealed class ElseItem : StatementPostfixLookupItem<IIfStatement>
+    public override PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public ElseItem([NotNull] CSharpPostfixExpressionContext context) : base("else", context) { }
+      return new CSharpPostfixInvertedIfStatementBehavior(info);
+    }
+
+    private sealed class CSharpPostfixInvertedIfStatementBehavior : CSharpStatementPostfixTemplateBehavior<IIfStatement>
+    {
+      public CSharpPostfixInvertedIfStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IIfStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

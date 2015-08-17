@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
@@ -16,7 +15,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "await expr")]
   public class AwaitExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.InnerExpression;
       if (expressionContext == null) return null;
@@ -34,7 +33,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       if (IsAlreadyAwaited(expressionContext)) return null;
 
-      return new AwaitItem(expressionContext);
+      return new PostfixTemplateInfo("await", expressionContext);
     }
 
     private static bool IsAwaitableType(IType type)
@@ -59,9 +58,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return task != null;
     }
 
-    private sealed class AwaitItem : ExpressionPostfixLookupItem<IAwaitExpression>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public AwaitItem([NotNull] CSharpPostfixExpressionContext context) : base("await", context) { }
+      return new PostfixAwaitBehavior(info);
+    }
+
+    private sealed class PostfixAwaitBehavior : CSharpExpressionPostfixTemplateBehavior<IAwaitExpression>
+    {
+      public PostfixAwaitBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IAwaitExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
@@ -11,7 +13,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   {
     [NotNull] private readonly string myText;
 
-    public PostfixTemplateInfo([NotNull] string text)
+    public PostfixTemplateInfo([NotNull] string text, [NotNull] IEnumerable<PostfixExpressionContext> expressions)
+    {
+      myText = text;
+    }
+    
+    public PostfixTemplateInfo([NotNull] string text, [NotNull] PostfixExpressionContext expression)
     {
       myText = text;
     }

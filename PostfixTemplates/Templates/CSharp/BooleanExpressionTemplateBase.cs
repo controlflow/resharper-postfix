@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -8,9 +7,9 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
-  public abstract class BooleanExpressionTemplateBase
+  public abstract class BooleanExpressionTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem([NotNull] CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
       var booleanExpressions = new LocalList<CSharpPostfixExpressionContext>();
 
@@ -43,21 +42,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       if (booleanExpressions.Count > 0)
       {
-        return CreateBooleanItem(booleanExpressions.ToArray());
+        return TryCreateBooleanInfo(booleanExpressions.ToArray());
       }
 
       return null;
     }
 
-    [CanBeNull]
-    protected abstract ILookupItem CreateBooleanItem([NotNull] CSharpPostfixExpressionContext expression);
+    public abstract PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info);
 
     [CanBeNull]
-    protected virtual ILookupItem CreateBooleanItem([NotNull] CSharpPostfixExpressionContext[] expressions)
+    protected abstract PostfixTemplateInfo TryCreateBooleanInfo([NotNull] CSharpPostfixExpressionContext expression);
+
+    [CanBeNull]
+    protected virtual PostfixTemplateInfo TryCreateBooleanInfo([NotNull] CSharpPostfixExpressionContext[] expressions)
     {
       foreach (var expressionContext in expressions)
       {
-        var lookupItem = CreateBooleanItem(expressionContext);
+        var lookupItem = TryCreateBooleanInfo(expressionContext);
         if (lookupItem != null) return lookupItem;
       }
 

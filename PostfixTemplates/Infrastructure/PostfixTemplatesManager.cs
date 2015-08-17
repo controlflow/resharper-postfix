@@ -20,6 +20,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
     public PostfixTemplatesManager([NotNull] IEnumerable<IPostfixTemplate> providers, [NotNull] LanguageManager languageManager)
     {
       myLanguageManager = languageManager;
+
+
+
+
       var infos = new List<TemplateProviderInfo>();
       foreach (var provider in providers)
       {

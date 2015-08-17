@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -11,24 +11,28 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "while",
     description: "Iterating while boolean statement is 'true'",
     example: "while (expr)")]
-  public sealed class WhileLoopTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
+  public sealed class WhileLoopTemplate : BooleanExpressionTemplateBase
   {
-    protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext expression)
+    protected override PostfixTemplateInfo TryCreateBooleanInfo(CSharpPostfixExpressionContext expression)
     {
       if (expression.CanBeStatement)
       {
-        return new WhileItem(expression);
+        return new PostfixTemplateInfo("while", expression);
       }
 
       return null;
     }
 
-    private sealed class WhileItem : StatementPostfixLookupItem<IWhileStatement>
+    public override PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public WhileItem([NotNull] CSharpPostfixExpressionContext context) : base("while", context) { }
+      return new CSharpPostfixWhileStatementBehavior(info);
+    }
 
-      protected override IWhileStatement CreateStatement(
-        CSharpElementFactory factory, ICSharpExpression expression)
+    private sealed class CSharpPostfixWhileStatementBehavior : CSharpStatementPostfixTemplateBehavior<IWhileStatement>
+    {
+      public CSharpPostfixWhileStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
+
+      protected override IWhileStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = "while($0)" + EmbeddedStatementBracesTemplate;
         return (IWhileStatement) factory.CreateStatement(template, expression);

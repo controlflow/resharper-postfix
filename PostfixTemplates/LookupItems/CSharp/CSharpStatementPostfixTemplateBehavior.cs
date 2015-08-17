@@ -1,11 +1,11 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.Options;
 using JetBrains.ReSharper.Feature.Services.Util;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
-using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -22,18 +22,11 @@ using JetBrains.Util.Logging;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
-  public abstract class StatementPostfixLookupItem<TStatement> : PostfixLookupItem<TStatement>
+  public abstract class CSharpStatementPostfixTemplateBehavior<TStatement> : PostfixTemplateBehavior
     where TStatement : class, ICSharpStatement
   {
-    private readonly bool myUseBraces;
-
-    protected StatementPostfixLookupItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context)
-      : base(shortcut, context)
+    public CSharpStatementPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
     {
-      Assertion.Assert(context.CanBeStatement, "context.CanBeStatement");
-
-      var settingsStore = context.PostfixContext.Reference.GetSettingsStore();
-      myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
     }
 
     private const string CaretTemplate = "return unchecked(checked(\"If you see this - please report a bug :(\"))";

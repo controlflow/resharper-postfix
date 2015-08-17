@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
@@ -11,6 +12,7 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -37,7 +39,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "foreach (var x in expr)")]
   public class ForEachLoopTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.Expressions.LastOrDefault();
       if (expressionContext == null) return null;
@@ -74,6 +76,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
 
       return false;
+    }
+
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
+    {
+      throw new NotImplementedException();
     }
 
     private sealed class ForEachStatementItem : StatementPostfixLookupItem<IForeachStatement>
@@ -246,6 +253,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return collection.AllNames();
     }
 
+    // todo: eww
     [NotNull] private static string HackPrefix([NotNull] string prefix)
     {
       if (prefix.Length > 0 && prefix.Length <= 3 &&

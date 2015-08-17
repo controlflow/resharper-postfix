@@ -1,6 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -14,21 +14,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "not",
     description: "Negates boolean expression",
     example: "!expr")]
-  public class NotExpressionTemplate : BooleanExpressionTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
+  public class NotExpressionTemplate : BooleanExpressionTemplateBase
   {
-    protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext expression)
+    protected override PostfixTemplateInfo TryCreateBooleanInfo(CSharpPostfixExpressionContext expression)
     {
       throw new InvalidOperationException("Should not be called");
     }
 
-    protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext[] expressions)
+    protected override PostfixTemplateInfo TryCreateBooleanInfo(CSharpPostfixExpressionContext[] expressions)
     {
       if (expressions.Length > 1)
       {
         expressions = Array.FindAll(expressions, IsNotUnderUnaryNegation);
       }
 
-      return new NotItem(expressions);
+      return new PostfixTemplateInfo("not", expressions);
     }
 
     private static bool IsNotUnderUnaryNegation([NotNull] CSharpPostfixExpressionContext context)
@@ -41,9 +41,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return operatorExpression.UnaryOperatorType != UnaryOperatorType.EXCL;
     }
 
-    private sealed class NotItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    public override PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public NotItem([NotNull] params CSharpPostfixExpressionContext[] contexts) : base("not", contexts) { }
+      return new CSharpPostfixNegationBehavior(info);
+    }
+
+    private sealed class CSharpPostfixNegationBehavior : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
+    {
+      public CSharpPostfixNegationBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override string ExpressionSelectTitle
       {

@@ -22,14 +22,12 @@ using JetBrains.Util;
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   [SolutionComponent]
-  public sealed class PostfixTemplatesTracker
+  public sealed class PostfixTemplatesTabTracker
   {
-    public PostfixTemplatesTracker([NotNull] Lifetime lifetime,
-                                   [NotNull] IActionManager manager,
-                                   [NotNull] ICommandProcessor commandProcessor,
-                                   [NotNull] ILookupWindowManager lookupWindowManager,
-                                   [NotNull] PostfixTemplatesManager templatesManager,
-                                   [NotNull] TextControlChangeUnitFactory changeUnitFactory)
+    public PostfixTemplatesTabTracker(
+      [NotNull] Lifetime lifetime, [NotNull] IActionManager manager, [NotNull] ICommandProcessor commandProcessor,
+      [NotNull] ILookupWindowManager lookupWindowManager, [NotNull] PostfixTemplatesManager templatesManager,
+      [NotNull] TextControlChangeUnitFactory changeUnitFactory)
     {
       // override live templates expand action
       var expandAction = manager.Defs.TryGetActionDefById(TextControlActions.TAB_ACTION_ID);

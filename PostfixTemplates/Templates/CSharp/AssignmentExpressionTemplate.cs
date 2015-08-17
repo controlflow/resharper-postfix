@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -17,12 +18,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "lvalue = expr;")]
   public class AssignmentExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public void PopulateTemplates(CSharpPostfixTemplateContext context, IPostfixTemplatesCollector collector)
+    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+
+    public AssignmentExpressionTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
     {
-      if (context.IsAutoCompletion) return;
+      myLiveTemplatesManager = liveTemplatesManager;
+    }
+
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    {
+      if (context.IsAutoCompletion) return null;
 
       var outerExpression = context.OuterExpression;
-      if (outerExpression == null || !outerExpression.CanBeStatement) return;
+      if (outerExpression == null || !outerExpression.CanBeStatement) return null;
 
       for (ITreeNode node = outerExpression.Expression;;)
       {
@@ -30,22 +38,27 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (assignmentExpression == null) break;
 
         // disable 'here.to = "abc";'
-        if (assignmentExpression.Dest.Contains(node)) return;
+        if (assignmentExpression.Dest.Contains(node)) return null;
 
         node = assignmentExpression;
       }
 
-      collector.Consume(new AssignmentItem(outerExpression));
+      return new PostfixTemplateInfo("to", outerExpression);
     }
 
-    private class AssignmentItem : StatementPostfixLookupItem<IExpressionStatement>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      return new PostfixAssignmentBehavior(info, myLiveTemplatesManager);
+    }
 
-      public AssignmentItem([NotNull] CSharpPostfixExpressionContext context) : base("to", context)
+    private class PostfixAssignmentBehavior : CSharpStatementPostfixTemplateBehavior<IExpressionStatement>
+    {
+      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+
+      public PostfixAssignmentBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
+        : base(info)
       {
-        var executionContext = context.PostfixContext.ExecutionContext;
-        myTemplatesManager = executionContext.LiveTemplatesManager;
+        myLiveTemplatesManager = liveTemplatesManager;
       }
 
       protected override IExpressionStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
@@ -60,7 +73,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var hotspotInfo = new HotspotInfo(templateField, expression.Dest.GetDocumentRange());
 
         var endRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
-        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
 
