@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using JetBrains.ActionManagement;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.Application.Threading;
 using JetBrains.CommonControls;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.Resources;
-using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.TextControl.DocumentMarkup;
@@ -15,11 +16,8 @@ using JetBrains.TextControl.Layout;
 using JetBrains.Threading;
 using JetBrains.UI.PopupMenu;
 using JetBrains.Util;
-#if RESHARPER92
-using JetBrains.Application.Threading;
-#endif
 
-namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
+namespace JetBrains.ReSharper.PostfixTemplates
 {
   [ShellComponent]
   public class ExpressionChooser
@@ -45,7 +43,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     }
 
     public virtual void Execute([NotNull] Lifetime lifetime, [NotNull] ITextControl textControl,
-                                [NotNull] IList<CSharpPostfixExpressionContext> expressions,
+                                [NotNull] IList<PostfixExpressionContext> expressions,
                                 [NotNull] string postfixText, [NotNull] string chooserTitle,
                                 [NotNull] Action<int> continuation)
     {
@@ -110,7 +108,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     [NotNull]
     private static string PresentExpression(
-      [NotNull] CSharpPostfixExpressionContext context, [NotNull] string postfixText, out TextRange range)
+      [NotNull] PostfixExpressionContext context, [NotNull] string postfixText, out TextRange range)
     {
       var text = context.Expression.GetText();
       range = context.ExpressionRange.TextRange;

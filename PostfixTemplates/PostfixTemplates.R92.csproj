@@ -166,7 +166,7 @@
   <ItemGroup>
     <Compile Include="CodeCompletion\CSharp\CSharpEnumCaseItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\CSharpLengthCountItemProvider.cs" />
-    <Compile Include="CodeCompletion\CSharpPostfixTemplatesItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharp\CSharpPostfixTemplatesItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\CSharpStaticMethodsItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\CSharpTypeParameterFromUsageItemProvider.cs" />
     <Compile Include="CodeCompletion\PostfixTemplatesItemProviderBase.cs" />
@@ -237,7 +237,7 @@
     <Compile Include="Templates\WhileLoopTemplate.cs" />
     <Compile Include="Templates\YieldReturnStatementTemplate.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
-    <Compile Include="LookupItems\ExpressionChooser.cs" />
+    <Compile Include="Infrastructure\ExpressionChooser.cs" />
     <Compile Include="Utils\RazorUtil.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
     <Compile Include="ZoneMarker.cs" />
@@ -251,9 +251,7 @@
   <ItemGroup>
     <None Include="packages.PostfixTemplates.R92.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Infrastructure\CSharp\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets')" />
   <Import Project="..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets')" />
