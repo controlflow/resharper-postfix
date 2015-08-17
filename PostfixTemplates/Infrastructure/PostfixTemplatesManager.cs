@@ -8,7 +8,6 @@ using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
@@ -66,11 +65,13 @@ namespace JetBrains.ReSharper.PostfixTemplates
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      var innerExpression = context.InnerExpression; // shit happens
-      if (innerExpression != null && innerExpression.ReferencedElement is INamespace)
-      {
-        return EmptyList<ILookupItem>.InstanceList;
-      }
+      // todo: restore this?
+
+      //var innerExpression = context.InnerExpression; // shit happens
+      //if (innerExpression != null && innerExpression.ReferencedElement is INamespace)
+      //{
+      //  return EmptyList<ILookupItem>.InstanceList;
+      //}
 
       var lookupItems = new List<ILookupItem>();
       foreach (var info in myTemplateProvidersInfos)
@@ -112,7 +113,5 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       return contextFactory.TryCreate(position, executionContext);
     }
-
-    
   }
 }

@@ -166,9 +166,10 @@
   <ItemGroup>
     <Compile Include="CodeCompletion\CSharp\CSharpEnumCaseItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\CSharpLengthCountItemProvider.cs" />
-    <Compile Include="CodeCompletion\CSharpPostfixItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharpPostfixTemplatesItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\CSharpStaticMethodsItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\CSharpTypeParameterFromUsageItemProvider.cs" />
+    <Compile Include="CodeCompletion\PostfixTemplatesItemProviderBase.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplateContext.cs" />
     <Compile Include="CodeCompletion\CodeCompletionPostfixExecutionContext.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpBrokenStatementPostfixTemplateContext.cs" />

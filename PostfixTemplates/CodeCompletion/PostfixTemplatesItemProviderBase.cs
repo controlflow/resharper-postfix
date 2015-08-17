@@ -2,59 +2,43 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
-using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
-using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
-using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
-  [Language(typeof(CSharpLanguage))]
-  public class CSharpPostfixItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
+  public abstract class PostfixTemplatesItemProviderBase<TCodeCompletionContext> : ItemsProviderOfSpecificContext<TCodeCompletionContext>
+    where TCodeCompletionContext : class, ISpecificCodeCompletionContext
   {
-    [NotNull] private readonly Lifetime myLifetime;
     [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
 
-    public CSharpPostfixItemProvider([NotNull] Lifetime lifetime, [NotNull] PostfixTemplatesManager templatesManager)
+    protected PostfixTemplatesItemProviderBase([NotNull] PostfixTemplatesManager templatesManager)
     {
-      myLifetime = lifetime;
       myTemplatesManager = templatesManager;
     }
 
-    protected override bool IsAvailable(CSharpCodeCompletionContext context)
+    protected sealed override bool IsAvailable(TCodeCompletionContext context)
     {
       return context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion;
     }
 
-    protected override bool AddLookupItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
+    protected sealed override bool AddLookupItems(TCodeCompletionContext context, GroupedItemsCollector collector)
     {
       var completionContext = context.BasicContext;
 
       var settingsStore = completionContext.File.GetSettingsStore();
       if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems)) return false;
 
-      var unterminatedContext = context.UnterminatedContext;
-      var executionContext = new CodeCompletionPostfixExecutionContext(myLifetime, completionContext, unterminatedContext, "__");
-      var postfixContext = myTemplatesManager.IsAvailable(unterminatedContext.TreeNode, executionContext);
-
-      if (postfixContext == null) // try unterminated context if terminated sucks
-      {
-        var terminatedContext = context.TerminatedContext;
-        executionContext = new CodeCompletionPostfixExecutionContext(myLifetime, completionContext, terminatedContext, "__;");
-        postfixContext = myTemplatesManager.IsAvailable(terminatedContext.TreeNode, executionContext);
-      }
-
+      var postfixContext = TryCreate(context);
       if (postfixContext == null) return false;
 
       // nothing to check :(
-      if (postfixContext.Expressions.Count == 0 && postfixContext.TypeExpression == null) return false;
+      if (!postfixContext.HasExpressions) return false;
 
       var lookupItems = myTemplatesManager.CollectItems(postfixContext);
       if (lookupItems.Count == 0) return false;
@@ -65,12 +49,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       var parameters = completionContext.Parameters;
       var isDoubleCompletion = (parameters.CodeCompletionTypes.Length > 1);
 
-      if (!executionContext.IsAutoCompletion && isDoubleCompletion)
+      if (!parameters.IsAutomaticCompletion && isDoubleCompletion)
       {
         if (parameters.IsAutomaticCompletion) return false;
 
         // run postfix templates like we are in auto completion
-        executionContext.IsAutoCompletion = true;
+
+        // TODO: FIX THIS? what is this?
+        //executionContext.IsAutoCompletion = true;
 
         var automaticPostfixItems = myTemplatesManager.CollectItems(postfixContext);
         if (automaticPostfixItems.Count > 0)
@@ -98,5 +84,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       return (lookupItems.Count > 0);
     }
+
+    [CanBeNull]
+    protected abstract PostfixTemplateContext TryCreate([NotNull] TCodeCompletionContext codeCompletionContext);
   }
 }

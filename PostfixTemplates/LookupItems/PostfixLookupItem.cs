@@ -27,7 +27,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   public abstract class PostfixLookupItem<TNode> : PostfixLookupItemBase, ILookupItem
     where TNode : class, ITreeNode
   {
-    [NotNull] private readonly Lifetime myLifetime;
     [NotNull] private readonly string myShortcut, myIdentifier, myReparseString;
     [NotNull] private readonly PostfixExpressionContextImage[] myImages;
     private int myExpressionIndex;
@@ -46,7 +45,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       var executionContext = contexts[0].PostfixContext.ExecutionContext;
       myReparseString = executionContext.ReparseString;
-      myLifetime = executionContext.Lifetime;
     }
 
     public virtual MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
@@ -72,9 +70,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       solution.GetPsiServices().CommitAllDocuments();
 
-      var itemsOwnerFactory = solution.GetComponent<LookupItemsOwnerFactory>();
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
-      var lookupItemsOwner = itemsOwnerFactory.CreateLookupItemsOwner(textControl);
 
       PostfixTemplateContext postfixContext = null;
       var identifierOffset = (textControl.Caret.Offset() - myReparseString.Length);
@@ -82,8 +78,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       foreach (var position in TextControlToPsi
         .GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
       {
-        var executionContext = new PostfixExecutionContext(
-          myLifetime, solution, textControl, lookupItemsOwner, myReparseString, false);
+        var executionContext = new PostfixExecutionContext(solution, textControl, myReparseString, false);
 
         postfixContext = templatesManager.IsAvailable(position, executionContext);
         if (postfixContext != null) break;
@@ -106,8 +101,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         var postfixText = textControl.Document.GetText(postfixRange);
         textControl.Document.ReplaceText(postfixRange, string.Empty);
 
-        chooser.Execute(myLifetime, textControl, expressions,
-                        postfixText, ExpressionSelectTitle, index =>
+        chooser.Execute(EternalLifetime.Instance, textControl, expressions, postfixText, ExpressionSelectTitle, index =>
         {
           myExpressionIndex = index;
 

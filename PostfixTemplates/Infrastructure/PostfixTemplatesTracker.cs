@@ -29,7 +29,6 @@ namespace JetBrains.ReSharper.PostfixTemplates
                                    [NotNull] ICommandProcessor commandProcessor,
                                    [NotNull] ILookupWindowManager lookupWindowManager,
                                    [NotNull] PostfixTemplatesManager templatesManager,
-                                   [NotNull] LookupItemsOwnerFactory lookupItemsFactory,
                                    [NotNull] TextControlChangeUnitFactory changeUnitFactory)
     {
       // override live templates expand action
@@ -37,7 +36,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       if (expandAction != null)
       {
         var postfixHandler = new ExpandPostfixTemplateHandler(
-          lifetime, commandProcessor, lookupWindowManager, templatesManager, lookupItemsFactory, changeUnitFactory);
+          commandProcessor, lookupWindowManager, templatesManager, changeUnitFactory);
 
         lifetime.AddBracket(
           FOpening: () => manager.Handlers.AddHandler(expandAction, postfixHandler),
@@ -47,40 +46,35 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     private sealed class ExpandPostfixTemplateHandler : IExecutableAction
     {
-      [NotNull] private readonly Lifetime myLifetime;
       [NotNull] private readonly ICommandProcessor myCommandProcessor;
       [NotNull] private readonly ILookupWindowManager myLookupWindowManager;
       [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
-      [NotNull] private readonly LookupItemsOwnerFactory myItemsOwnerFactory;
       [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
 
-      public ExpandPostfixTemplateHandler([NotNull] Lifetime lifetime,
-                                          [NotNull] ICommandProcessor commandProcessor,
+      public ExpandPostfixTemplateHandler([NotNull] ICommandProcessor commandProcessor,
                                           [NotNull] ILookupWindowManager lookupWindowManager,
                                           [NotNull] PostfixTemplatesManager templatesManager,
-                                          [NotNull] LookupItemsOwnerFactory itemsOwnerFactory,
                                           [NotNull] TextControlChangeUnitFactory changeUnitFactory)
       {
-        myLifetime = lifetime;
         myChangeUnitFactory = changeUnitFactory;
         myLookupWindowManager = lookupWindowManager;
         myCommandProcessor = commandProcessor;
-        myItemsOwnerFactory = itemsOwnerFactory;
         myTemplatesManager = templatesManager;
       }
 
       public bool Update(IDataContext context, ActionPresentation presentation, DelegateUpdate nextUpdate)
       {
-        var solution = context.GetData(ProjectModel.DataContext.DataConstants.SOLUTION);
         var textControl = context.GetData(TextControl.DataContext.DataConstants.TEXT_CONTROL);
-        if (textControl != null && solution != null)
+        if (textControl == null) return nextUpdate();
+
+        var solution = context.GetData(ProjectModel.DataContext.DataConstants.SOLUTION);
+        if (solution == null) return nextUpdate();
+
+        var sourceFile = textControl.Document.GetPsiSourceFile(solution);
+        if (sourceFile != null)
         {
-          var sourceFile = textControl.Document.GetPsiSourceFile(solution);
-          if (sourceFile != null)
-          {
-            var template = GetTemplateFromTextControl(solution, textControl);
-            if (template != null) return true;
-          }
+          var template = GetTemplateFromTextControl(solution, textControl);
+          if (template != null) return true;
         }
 
         return nextUpdate();
@@ -138,6 +132,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         if (!TemplateWithNameExists(prefix)) return null;
 
+        // todo: this reparse is language-specific
         var postfixItems = TryReparseWith(solution, textControl, prefix, "__")
                         ?? TryReparseWith(solution, textControl, prefix, "__;");
 
@@ -159,7 +154,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           document.InsertText(offset, reparseString);
           solution.GetPsiServices().CommitAllDocuments();
 
-          var executionContext = new PostfixExecutionContext(myLifetime, solution, textControl, reparseString, false);
+          var executionContext = new PostfixExecutionContext(solution, textControl, reparseString, false);
 
           foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, document, offset))
           {

@@ -16,13 +16,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     [CanBeNull] private LiveTemplatesManager myLiveTemplatesManager;
 
     public PostfixExecutionContext(
-      [NotNull] Lifetime lifetime, [NotNull] ISolution solution, [NotNull] ITextControl textControl,
-      [NotNull] ILookupItemsOwner lookupItemsOwner, [NotNull] string reparseString, bool isAutoCompletion)
+      [NotNull] ISolution solution, [NotNull] ITextControl textControl, [NotNull] string reparseString, bool isAutoCompletion)
     {
-      Lifetime = lifetime;
       Solution = solution;
       TextControl = textControl;
-      myLookupItemsOwner = lookupItemsOwner;
       ReparseString = reparseString;
       IsAutoCompletion = isAutoCompletion;
       myLiveTemplatesManager = solution.GetComponent<LiveTemplatesManager>();
@@ -30,7 +27,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
 
     public bool IsAutoCompletion { get; internal set; }
 
-    [NotNull] public Lifetime Lifetime { get; private set; }
     [NotNull] public ISolution Solution { get; private set; }
     [NotNull] public ITextControl TextControl { get; private set; }
 

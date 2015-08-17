@@ -20,6 +20,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
 
     [NotNull] public PostfixExecutionContext ExecutionContext { get; private set; }
 
+    public abstract bool HasExpressions { get; }
+
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {
       return ExecutionContext.GetDocumentRange(node);

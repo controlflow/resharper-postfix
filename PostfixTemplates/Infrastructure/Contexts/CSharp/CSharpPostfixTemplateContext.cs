@@ -80,6 +80,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       return contexts.AsReadOnly();
     }
 
+    public override bool HasExpressions
+    {
+      get { return Expressions.Count > 0 || TypeExpression != null; }
+    }
+
     // Most inner expression: '0.var'
     [CanBeNull] public PostfixExpressionContext InnerExpression
     {
