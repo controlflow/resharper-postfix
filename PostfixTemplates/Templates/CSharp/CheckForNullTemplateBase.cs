@@ -76,7 +76,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullExpressionItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext[] context, [NotNull] string template)
+      public CheckForNullExpressionItem(
+        [NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext[] context, [NotNull] string template)
         : base(shortcut, context)
       {
         myTemplate = template;

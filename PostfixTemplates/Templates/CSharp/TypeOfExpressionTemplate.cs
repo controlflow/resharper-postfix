@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -15,20 +16,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "typeof(TExpr)")]
   public class TypeOfExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
-      if (typeExpression != null && typeExpression.ReferencedElement is ITypeElement)
-      {
-        return new TypeOfItem(typeExpression);
-      }
+      if (typeExpression == null) return null;
 
-      return null;
+      var typeElement = typeExpression.ReferencedElement as ITypeElement;
+      if (typeElement == null) return null;
+
+      return new PostfixTemplateInfo("typeof", typeExpression);
     }
 
-    private class TypeOfItem : ExpressionPostfixLookupItem<ITypeofExpression>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public TypeOfItem([NotNull] CSharpPostfixExpressionContext context) : base("typeOf", context) { }
+      return new CSharpPostfixTypeOfExpressionBehavior(info);
+    }
+
+    private sealed class CSharpPostfixTypeOfExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<ITypeofExpression>
+    {
+      public CSharpPostfixTypeOfExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override ITypeofExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {

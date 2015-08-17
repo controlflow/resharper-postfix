@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;

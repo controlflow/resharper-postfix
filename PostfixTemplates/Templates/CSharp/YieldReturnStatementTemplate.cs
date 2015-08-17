@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -12,55 +13,63 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
-  [PostfixTemplate(
+[PostfixTemplate(
     templateName: "yield",
     description: "Yields value from iterator method",
     example: "yield return expr;")]
   public class YieldReturnStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
-      if (expressionContext == null || !expressionContext.CanBeStatement) return null;
+      if (expressionContext == null) return null;
 
-      if (context.IsAutoCompletion)
-      {
-        var declaration = context.ContainingFunction;
-        if (declaration == null) return null;
+      if (!expressionContext.CanBeStatement) return null;
 
-        var function = declaration.DeclaredElement;
-        if (function == null) return null;
+      if (context.IsPreciseMode && !IsWorthShowingInPreciseMode(expressionContext)) return null;
 
-        var returnType = function.ReturnType;
-        if (returnType.IsVoid()) return null;
-
-        if (!IsOrCanBecameIterator(declaration, returnType)) return null;
-
-        var elementType = GetIteratorElementType(returnType, declaration);
-
-        var conversionRule = expressionContext.Expression.GetTypeConversionRule();
-        if (!expressionContext.ExpressionType.IsImplicitlyConvertibleTo(elementType, conversionRule))
-          return null;
-      }
-
-      return new YieldItem(expressionContext);
+      return new PostfixTemplateInfo("yield", expressionContext);
     }
 
-    private static bool IsOrCanBecameIterator([NotNull] ICSharpFunctionDeclaration declaration,
-                                              [NotNull] IType returnType)
+    private static bool IsWorthShowingInPreciseMode([NotNull] CSharpPostfixExpressionContext expressionContext)
+    {
+      var declaration = expressionContext.PostfixContext.ContainingFunction;
+      if (declaration == null) return false;
+
+      var function = declaration.DeclaredElement;
+      if (function == null) return false;
+
+      var returnType = function.ReturnType;
+      if (returnType.IsVoid()) return false;
+
+      if (!IsAlreadyOrCanBecameIterator(declaration, returnType)) return false;
+
+      var elementType = GetIteratorElementType(returnType, declaration);
+      // todo: allow if type is unknown?
+
+      var conversionRule = expressionContext.Expression.GetTypeConversionRule();
+      return expressionContext.ExpressionType.IsImplicitlyConvertibleTo(elementType, conversionRule);
+    }
+
+    private static bool IsAlreadyOrCanBecameIterator([NotNull] ICSharpFunctionDeclaration declaration, [NotNull] IType returnType)
     {
       if (declaration.IsIterator) return true;
       if (declaration.IsAsync) return false;
 
-      if (returnType.IsGenericIEnumerable() || returnType.IsIEnumerable() ||
-          returnType.IsGenericIEnumerator() || returnType.IsIEnumerator())
+      if (returnType.IsGenericIEnumerable()
+          || returnType.IsGenericIEnumerator()
+          || returnType.IsIEnumerable()
+          || returnType.IsIEnumerator())
       {
-        var collector = new RecursiveElementCollector<IReturnStatement>();
-        collector.ProcessElement(declaration);
-        return (collector.GetResults().Count == 0);
+        return !declaration.Descendants<IReturnStatement>().Any();
       }
 
       return false;
+    }
+
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
+    {
+      return new CSharpPostfixYieldStatementBehavior(info);
     }
 
     [NotNull]
@@ -90,9 +99,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return returnType;
     }
 
-    private sealed class YieldItem : StatementPostfixLookupItem<IYieldStatement>
+    private sealed class CSharpPostfixYieldStatementBehavior : CSharpStatementPostfixTemplateBehavior<IYieldStatement>
     {
-      public YieldItem([NotNull] CSharpPostfixExpressionContext context) : base("yield", context) { }
+      public CSharpPostfixYieldStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IYieldStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

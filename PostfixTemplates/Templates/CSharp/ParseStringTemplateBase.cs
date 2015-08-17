@@ -11,6 +11,8 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -24,22 +26,35 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
-  public abstract class ParseStringTemplateBase
+  public abstract class ParseStringTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    protected sealed class ParseItem : ExpressionPostfixLookupItem<IInvocationExpression>
+    public abstract PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context);
+
+    public abstract PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info);
+
+    protected class PostfixParseTemplateInfo : PostfixTemplateInfo
+    {
+      public PostfixParseTemplateInfo([NotNull] string text, [NotNull] PostfixExpressionContext expression, bool isTryParse)
+        : base(text, expression)
+      {
+        IsTryParse = isTryParse;
+      }
+
+      public bool IsTryParse { get; private set; }
+    }
+
+    private sealed class ParseItem : CSharpExpressionPostfixTemplateBehavior<IInvocationExpression>
     {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
       private readonly bool myIsTryParse;
 
+
+
       public ParseItem([NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context, bool isTryParse)
-        : base(shortcut, context)
+        : base(shortcut, context, )
       {
         myIsTryParse = isTryParse;
-
-        var executionContext = context.PostfixContext.ExecutionContext;
-        myTemplatesManager = executionContext.LiveTemplatesManager;
-        myLookupItemsOwner = executionContext.LookupItemsOwner;
       }
 
       protected override IInvocationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)

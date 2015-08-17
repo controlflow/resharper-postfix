@@ -28,7 +28,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var classLikeDeclaration = functionDeclaration.GetContainingNode<IClassLikeDeclaration>();
       if (classLikeDeclaration == null || classLikeDeclaration is IInterfaceDeclaration) return null;
 
-      if (!context.IsAutoCompletion || functionDeclaration.DeclaredElement is IConstructor)
+      if (!context.IsPreciseMode || functionDeclaration.DeclaredElement is IConstructor)
       {
         foreach (var expression in context.Expressions)
         {
@@ -53,7 +53,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return null;
     }
 
-    protected abstract IntroduceMemberLookupItem CreateItem([NotNull] CSharpPostfixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
+    protected abstract IntroduceMemberLookupItem CreateItem(
+      [NotNull] CSharpPostfixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
 
     protected abstract class IntroduceMemberLookupItem : StatementPostfixLookupItem<IExpressionStatement>
     {
@@ -124,7 +125,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (memberDeclaration == null) return;
 
         var assignment = (IAssignmentExpression) statement.Expression;
-        var memberIdentifier = ((IReferenceExpression) assignment.Dest).NameIdentifier;
+        var destination = (IReferenceExpression) assignment.Dest;
+        var memberIdentifier = destination.NameIdentifier;
 
         var hotspotInfo = new HotspotInfo(
           new TemplateField("memberName", new NameSuggestionsExpression(myMemberNames), 0),

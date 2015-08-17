@@ -27,9 +27,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
       return ExecutionContext.GetDocumentRange(node);
     }
 
-    public bool IsAutoCompletion
+    public bool IsPreciseMode
     {
-      get { return ExecutionContext.IsAutoCompletion; }
+      get { return ExecutionContext.IsPreciseMode; }
     }
   }
 

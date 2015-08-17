@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;
 
-      if (context.IsAutoCompletion)
+      if (context.IsPreciseMode)
       {
         var declaration = context.ContainingFunction;
         if (declaration == null) return null;

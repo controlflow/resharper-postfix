@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       var expressionType = expressionContext.Type;
 
-      if (context.IsAutoCompletion)
+      if (context.IsPreciseMode)
       {
         if (expressionType.IsUnknown) return null;
         if (!expressionType.IsObject()) return null;

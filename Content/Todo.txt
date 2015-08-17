@@ -5,3 +5,5 @@ TODO: New .push/.pull templates?
 TODO: C# 6.0 .nameof template
 TODO: 9.0 lookup items refactor
 TODO: ArgumentException.throw
+
+TODO: rename 'auto completion' into 'precise mode'

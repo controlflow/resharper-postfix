@@ -56,7 +56,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         // run postfix templates like we are in auto completion
 
         // TODO: FIX THIS? what is this?
-        //executionContext.IsAutoCompletion = true;
+        //executionContext.IsPreciseMode = true;
 
         var automaticPostfixItems = myTemplatesManager.CollectItems(postfixContext);
         if (automaticPostfixItems.Count > 0)

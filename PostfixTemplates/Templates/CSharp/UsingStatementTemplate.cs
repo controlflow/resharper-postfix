@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -28,7 +28,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "using (expr)")]
   public class UsingStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+
+    public UsingStatementTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
+    {
+      myLiveTemplatesManager = liveTemplatesManager;
+    }
+
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;
@@ -42,7 +49,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var conversionRule = expression.GetTypeConversionRule();
       var expressionType = expressionContext.ExpressionType;
 
-      if (context.IsAutoCompletion)
+      if (context.IsPreciseMode)
       {
         if (!expressionType.IsResolved)
           return null;
@@ -62,7 +69,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         shouldCreateVariable = false;
       }
 
-      for (ITreeNode node = expression; context.IsAutoCompletion;)
+      for (ITreeNode node = expression; context.IsPreciseMode;)
       {
         // inspect containing using statements
         var usingStatement = node.GetContainingNode<IUsingStatement>();
@@ -73,40 +80,58 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (resourceVariable is ILocalVariable && declaration != null)
         {
           foreach (var member in declaration.DeclaratorsEnumerable)
+          {
             if (Equals(member.DeclaredElement, resourceVariable)) return null;
+          }
         }
 
         // check expression is already in using statement expression
         if (declaration == null)
         {
           foreach (var expr in usingStatement.ExpressionsEnumerable)
+          {
             if (MiscUtil.AreExpressionsEquivalent(expr, expression)) return null;
+          }
         }
 
         node = usingStatement;
       }
 
-      return new UsingItem(expressionContext, shouldCreateVariable);
+      return new PostfixUsingTemplateInfo("using", expressionContext, shouldCreateVariable);
     }
 
-    private sealed class UsingItem : StatementPostfixLookupItem<IUsingStatement>
+    private sealed class PostfixUsingTemplateInfo : PostfixTemplateInfo
     {
-      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-      private readonly bool myShouldCreateVariable;
-
-      public UsingItem([NotNull] CSharpPostfixExpressionContext context, bool shouldCreateVariable)
-        : base("using", context)
+      public PostfixUsingTemplateInfo([NotNull] string text, [NotNull] PostfixExpressionContext expression, bool shouldCreateVariable)
+        : base(text, expression)
       {
-        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
-        myShouldCreateVariable = shouldCreateVariable;
+        ShouldCreateVariable = shouldCreateVariable;
       }
 
-      protected override IUsingStatement CreateStatement(CSharpElementFactory factory,
-                                                         ICSharpExpression expression)
+      public bool ShouldCreateVariable { get; private set; }
+    }
+
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
+    {
+      return new CSharpPostfixUsingStatementBehavior((PostfixUsingTemplateInfo) info, myLiveTemplatesManager);
+    }
+
+    private sealed class CSharpPostfixUsingStatementBehavior : CSharpStatementPostfixTemplateBehavior<IUsingStatement>
+    {
+      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+      private readonly bool myShouldCreateVariable;
+
+      public CSharpPostfixUsingStatementBehavior([NotNull] PostfixUsingTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
+        : base(info)
+      {
+        myLiveTemplatesManager = liveTemplatesManager;
+        myShouldCreateVariable = info.ShouldCreateVariable;
+      }
+
+      protected override IUsingStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = (myShouldCreateVariable ? "using(T x=$0)" : "using($0)");
-        return (IUsingStatement) factory.CreateStatement(
-          template + EmbeddedStatementBracesTemplate, expression);
+        return (IUsingStatement) factory.CreateStatement(template + EmbeddedStatementBracesTemplate, expression);
       }
 
       protected override void AfterComplete(ITextControl textControl, IUsingStatement statement)
@@ -124,22 +149,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var nameExpression = new NameSuggestionsExpression(variableNames);
 
         var typeSpot = new HotspotInfo(
-          new TemplateField("type", typeExpression, 0),
-          declaration.TypeUsage.GetDocumentRange());
-
+          new TemplateField("type", typeExpression, 0), declaration.TypeUsage.GetDocumentRange());
         var nameSpot = new HotspotInfo(
-          new TemplateField("name", nameExpression, 0),
-          declaration.NameIdentifier.GetDocumentRange());
+          new TemplateField("name", nameExpression, 0), declaration.NameIdentifier.GetDocumentRange());
 
-        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
-          newStatement.GetSolution(), new TextRange(textControl.Caret.Offset()), textControl,
+        var endSelectionRange = new TextRange(textControl.Caret.Offset());
+        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
+          newStatement.GetSolution(), endSelectionRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, typeSpot, nameSpot);
 
         session.Execute();
       }
 
-      [NotNull]
-      private static IList<string> SuggestResourceVariableNames([NotNull] IUsingStatement statement)
+      [NotNull] private static IList<string> SuggestResourceVariableNames([NotNull] IUsingStatement statement)
       {
         var variableDeclaration = statement.Declaration;
         if (variableDeclaration == null) return EmptyList<string>.InstanceList;

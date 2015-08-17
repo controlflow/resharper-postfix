@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 
-// TODO: C# 6.0 auto-properties support
+// TODO: C# 6.0 get-only auto-properties support
 // TODO: emit private setter in C# 5.0
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp

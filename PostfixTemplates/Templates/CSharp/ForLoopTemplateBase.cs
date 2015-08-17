@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -19,9 +20,11 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
-  public abstract class ForLoopTemplateBase
+  public abstract class ForLoopTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    protected bool CreateForItem([NotNull] CSharpPostfixTemplateContext context, [CanBeNull] out string lengthName)
+    public abstract PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context);
+
+    protected bool CanBeLoopedOver([NotNull] CSharpPostfixTemplateContext context, [CanBeNull] out string lengthName)
     {
       lengthName = null;
 
@@ -29,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       if (expressionContext == null || !expressionContext.CanBeStatement) return false;
 
       var expression = expressionContext.Expression;
-      if (context.IsAutoCompletion && !expression.IsPure()) return false;
+      if (context.IsPreciseMode && !expression.IsPure()) return false;
 
       if (expressionContext.Type is IArrayType)
       {
@@ -47,12 +50,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           new AccessRightsFilter(new ElementAccessContext(expression)));
 
         const string countPropertyName = "Count";
-        var result = publicProperties.GetResolveResult(countPropertyName);
-        var resolveResult = result.DeclaredElement as IProperty;
-        if (resolveResult != null)
+
+        var resolveResult = publicProperties.GetResolveResult(countPropertyName);
+
+        var property = resolveResult.DeclaredElement as IProperty;
+        if (property != null)
         {
-          if (resolveResult.IsStatic) return false;
-          if (!resolveResult.Type.IsInt()) return false;
+          if (property.IsStatic) return false;
+          if (!property.Type.IsInt()) return false;
 
           lengthName = countPropertyName;
         }
@@ -68,19 +73,35 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     [NotNull] private readonly DeclaredElementTypeFilter myPropertyFilter =
       new DeclaredElementTypeFilter(ResolveErrorType.NOT_RESOLVED, CLRDeclaredElementType.PROPERTY);
 
-    protected abstract class ForLookupItemBase : StatementPostfixLookupItem<IForStatement>
+    protected class ForLoopPostfixTemplateInfo : PostfixTemplateInfo
     {
-      [CanBeNull] private readonly string myLengthName;
-      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-      protected ForLookupItemBase([NotNull] string shortcut,
-                                  [NotNull] CSharpPostfixExpressionContext context,
-                                  [CanBeNull] string lengthName)
-        : base(shortcut, context)
+      public ForLoopPostfixTemplateInfo(
+        [NotNull] string text, [NotNull] PostfixExpressionContext expression, [CanBeNull] string lengthPropertyName)
+        : base(text, expression)
       {
-        var executionContext = context.PostfixContext.ExecutionContext;
-        myTemplatesManager = executionContext.LiveTemplatesManager;
-        myLengthName = lengthName;
+        LengthPropertyName = lengthPropertyName;
+      }
+
+      [CanBeNull] public string LengthPropertyName { get; private set; }
+    }
+
+    PostfixTemplateBehavior IPostfixTemplate<CSharpPostfixTemplateContext>.CreateBehavior(PostfixTemplateInfo info)
+    {
+      return CreateBehavior((ForLoopPostfixTemplateInfo) info);
+    }
+
+    [NotNull] protected abstract PostfixTemplateBehavior CreateBehavior([NotNull] ForLoopPostfixTemplateInfo info);
+
+    protected abstract class CSharpForLoopStatementBehaviorBase : CSharpStatementPostfixTemplateBehavior<IForStatement>
+    {
+      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+      [CanBeNull] private readonly string myLengthName;
+
+      protected CSharpForLoopStatementBehaviorBase(
+        [NotNull] ForLoopPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager) : base(info)
+      {
+        myLengthName = info.LengthPropertyName;
+        myLiveTemplatesManager = liveTemplatesManager;
       }
 
       [CanBeNull] protected string LengthName { get { return myLengthName; } }
@@ -103,7 +124,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           iterator.Operand.GetDocumentRange());
 
         var endRange = new TextRange(textControl.Caret.Offset());
-        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
           newStatement.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, variableNameInfo);
 
@@ -137,6 +158,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
         return collection.AllNames();
       }
+
+      
     }
   }
 }

@@ -18,13 +18,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       {
         if (IsNullable(outerExpression))
         {
-          if (context.IsAutoCompletion && !MakeSenseToCheckInAuto(outerExpression))
+          if (context.IsPreciseMode && !MakeSenseToCheckInAuto(outerExpression))
             return null; // reduce noise
 
           return new CheckForNullStatementItem("null", outerExpression, "if($0==null)");
         }
       }
-      else if (!context.IsAutoCompletion)
+      else if (!context.IsPreciseMode)
       {
         var nullableExpressions = new List<CSharpPostfixExpressionContext>();
         foreach (var expressionContext in context.Expressions)

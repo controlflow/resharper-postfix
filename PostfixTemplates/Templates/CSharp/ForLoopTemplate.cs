@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -8,33 +8,42 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
-  // todo: apply code style in R# 9.0
+  // todo: apply var code style in R# 9.0
 
   [PostfixTemplate(
     templateName: "for",
     description: "Iterates over collection with index",
     example: "for (var i = 0; i < xs.Length; i++)")]
-  public class ForLoopTemplate : ForLoopTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
+  public class ForLoopTemplate : ForLoopTemplateBase
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
-    {
-      string lengthName;
-      if (CreateForItem(context, out lengthName))
-      {
-        var expressionContext = context.InnerExpression;
-        if (expressionContext != null)
-        {
-          return new ForLookupItem(expressionContext, lengthName);
-        }
-      }
+    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
 
-      return null;
+    public ForLoopTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
+    {
+      myLiveTemplatesManager = liveTemplatesManager;
     }
 
-    private sealed class ForLookupItem : ForLookupItemBase
+    public override PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
-      public ForLookupItem([NotNull] CSharpPostfixExpressionContext context, [CanBeNull] string lengthName)
-        : base("for", context, lengthName) { }
+      string lengthName;
+      if (!CanBeLoopedOver(context, out lengthName)) return null;
+
+      var expressionContext = context.InnerExpression;
+      if (expressionContext == null) return null;
+
+      return new ForLoopPostfixTemplateInfo("for", expressionContext, lengthName);
+    }
+
+    protected override PostfixTemplateBehavior CreateBehavior(ForLoopPostfixTemplateInfo info)
+    {
+      return new CSharpForLoopStatementBehavior(info, myLiveTemplatesManager);
+    }
+
+    private sealed class CSharpForLoopStatementBehavior : CSharpForLoopStatementBehaviorBase
+    {
+      public CSharpForLoopStatementBehavior(
+        [NotNull] ForLoopPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
+        : base(info, liveTemplatesManager) { }
 
       protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
   {
     public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
-      var isAutoCompletion = context.ExecutionContext.IsAutoCompletion;
+      var isAutoCompletion = context.ExecutionContext.IsPreciseMode;
       foreach (var expressionContext in context.Expressions)
       {
         if (!expressionContext.CanBeStatement) continue;

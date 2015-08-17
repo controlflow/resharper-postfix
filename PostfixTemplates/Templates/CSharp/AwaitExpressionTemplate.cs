@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var containingFunction = context.ContainingFunction;
       if (containingFunction == null) return null;
 
-      if (context.IsAutoCompletion)
+      if (context.IsPreciseMode)
       {
         if (!containingFunction.IsAsync) return null;
 

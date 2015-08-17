@@ -35,7 +35,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         }
       }
 
-      if (!context.IsAutoCompletion && booleanExpressions.Count == 0)
+      if (!context.IsPreciseMode && booleanExpressions.Count == 0)
       {
         booleanExpressions.AddRange(context.Expressions);
       }

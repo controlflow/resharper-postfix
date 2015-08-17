@@ -32,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var typeElement = typeExpression.ReferencedElement as ITypeElement;
       if (typeElement == null) return null;
 
-      if (context.IsAutoCompletion)
+      if (context.IsPreciseMode)
       {
         if (!TypeUtils.IsUsefulToCreateWithNew(typeElement)) return null;
       }
@@ -61,7 +61,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         {
           var declaredElement = reference.Reference.Resolve().DeclaredElement;
 
-          if (context.IsAutoCompletion)
+          if (context.IsPreciseMode)
           {
             var typeElement = declaredElement as ITypeElement;
             if (typeElement != null && TypeUtils.IsUsefulToCreateWithNew(typeElement))
@@ -82,7 +82,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           }
         }
       }
-      else if (!context.IsAutoCompletion) // UnresolvedType.new
+      else if (!context.IsPreciseMode) // UnresolvedType.new
       {
         var reference = expressionContext.Expression as IReferenceExpression;
         if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))

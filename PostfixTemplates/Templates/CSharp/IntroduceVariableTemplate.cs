@@ -50,12 +50,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           var target = expressionContext.ReferencedElement;
           if (target is IParameter || target is ILocalVariable)
           {
-            if (context.IsAutoCompletion) continue;
+            if (context.IsPreciseMode) continue;
           }
         }
         else if (expression is IAssignmentExpression)
         {
-          if (context.IsAutoCompletion) continue;
+          if (context.IsPreciseMode) continue;
         }
 
         if (expressionContext.Type.IsVoid()) continue;
@@ -63,7 +63,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var referencedType = expressionContext.ReferencedType;
         if (referencedType != null)
         {
-          if (context.IsAutoCompletion)
+          if (context.IsPreciseMode)
           {
             if (TypeUtils.CanInstantiateType(referencedType, expression) == 0) break;
             if (!TypeUtils.IsUsefulToCreateWithNew(referencedType.GetTypeElement())) break;
@@ -79,7 +79,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var bestContext = contexts.FirstOrDefault(MattersToShowVar) ?? contexts.LastOrDefault();
       if (bestContext == null) return null;
 
-      if (MattersToShowVar(bestContext) || !context.IsAutoCompletion)
+      if (MattersToShowVar(bestContext) || !context.IsPreciseMode)
       {
         var referencedType = bestContext.ReferencedType;
         if (referencedType != null)
@@ -95,6 +95,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       return null;
     }
+
+
 
     private static bool IsConstructorInvocation([NotNull] ICSharpExpression expression)
     {
@@ -255,8 +257,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
     }
 
-    private static void ExecuteRefactoring([NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression,
-                                           [CanBeNull] Action executeAfter = null)
+    private static void ExecuteRefactoring(
+      [NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression, [CanBeNull] Action executeAfter = null)
     {
       const string actionId = IntroVariableAction.ACTION_ID;
 

@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
-      if (context.IsAutoCompletion) return null;
+      if (context.IsPreciseMode) return null;
 
       var outerExpression = context.OuterExpression;
       if (outerExpression == null || !outerExpression.CanBeStatement) return null;

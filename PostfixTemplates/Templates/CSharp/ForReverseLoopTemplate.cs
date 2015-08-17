@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -8,40 +8,48 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
-  // todo: apply code style in R# 9.0
+  // todo: apply var code style in R# 9.0
 
   [PostfixTemplate(
     templateName: "forr",
     description: "Iterates over collection in reverse with index",
     example: "for (var i = xs.Length-1; i >= 0; i--)")]
-  public class ForReverseLoopTemplate : ForLoopTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
+  public class ForReverseLoopTemplate : ForLoopTemplateBase
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
-    {
-      string lengthName;
-      if (CreateForItem(context, out lengthName))
-      {
-        var expressionContext = context.InnerExpression;
-        if (expressionContext != null)
-        {
-          return new ReverseForLookupItem(expressionContext, lengthName);
-        }
-      }
+    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
 
-      return null;
+    public ForReverseLoopTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
+    {
+      myLiveTemplatesManager = liveTemplatesManager;
     }
 
-    private sealed class ReverseForLookupItem : ForLookupItemBase
+    public override PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
-      public ReverseForLookupItem([NotNull] CSharpPostfixExpressionContext context, [CanBeNull] string lengthName)
-        : base("forR", context, lengthName) { }
+      string lengthName;
+      if (!CanBeLoopedOver(context, out lengthName)) return null;
+
+      var expressionContext = context.InnerExpression;
+      if (expressionContext == null) return null;
+
+      return new ForLoopPostfixTemplateInfo("forr", expressionContext, lengthName);
+    }
+
+    protected override PostfixTemplateBehavior CreateBehavior(ForLoopPostfixTemplateInfo info)
+    {
+      return new CSharpRevereForLoopStatementBehavior(info, myLiveTemplatesManager);
+    }
+
+    private sealed class CSharpRevereForLoopStatementBehavior : CSharpForLoopStatementBehaviorBase
+    {
+      public CSharpRevereForLoopStatementBehavior(
+        [NotNull] ForLoopPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
+        : base(info, liveTemplatesManager) { }
 
       protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var hasLength = (LengthName != null);
         var template = hasLength ? "for(var x=$0;x>=0;x--)" : "for(var x=$0;x>0;x--)";
-        var forStatement = (IForStatement) factory.CreateStatement(
-          template + EmbeddedStatementBracesTemplate, expression);
+        var forStatement = (IForStatement) factory.CreateStatement(template + EmbeddedStatementBracesTemplate, expression);
 
         var variable = (ILocalVariableDeclaration) forStatement.Initializer.Declaration.Declarators[0];
         var initializer = (IExpressionInitializer) variable.Initial;

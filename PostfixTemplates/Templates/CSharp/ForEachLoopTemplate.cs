@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
@@ -13,10 +10,8 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
@@ -32,6 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
   // todo: hide from auto for string type?
   // todo: apply var code style in 9.0
   // todo: .from template?
+  // todo: detect type by indexer return type, like F# do?
 
   [PostfixTemplate(
     templateName: "forEach",
@@ -39,23 +35,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "foreach (var x in expr)")]
   public class ForEachLoopTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
+    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+
+    public ForEachLoopTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
+    {
+      myLiveTemplatesManager = liveTemplatesManager;
+    }
+
     public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.Expressions.LastOrDefault();
       if (expressionContext == null) return null;
 
-      if (context.IsAutoCompletion)
+      if (context.IsPreciseMode)
       {
         if (!expressionContext.CanBeStatement) return null;
         if (!IsEnumerable(expressionContext)) return null;
       }
 
-      if (expressionContext.CanBeStatement)
-      {
-        return new ForEachStatementItem(expressionContext);
-      }
-
-      return new ForEachExpressionItem(expressionContext);
+      return new PostfixTemplateInfo("foreach", expressionContext, isStatement: expressionContext.CanBeStatement);
     }
 
     private static bool IsEnumerable([NotNull] CSharpPostfixExpressionContext context)
@@ -80,25 +78,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      throw new NotImplementedException();
+      if (info.IsStatement)
+        return new CSharpPostfixForEachStatementBehavior(info, myLiveTemplatesManager);
+
+      return new CSharpPostfixForEachExpressionBehavior(info, myLiveTemplatesManager);
     }
 
-    private sealed class ForEachStatementItem : StatementPostfixLookupItem<IForeachStatement>
+    private sealed class CSharpPostfixForEachStatementBehavior : CSharpStatementPostfixTemplateBehavior<IForeachStatement>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
 
-      public ForEachStatementItem([NotNull] CSharpPostfixExpressionContext context) : base("forEach", context)
+      public CSharpPostfixForEachStatementBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager templatesManager)
+        : base(info)
       {
-        myTemplatesManager = context.PostfixContext.ExecutionContext.LiveTemplatesManager;
+        myTemplatesManager = templatesManager;
       }
 
-      public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
-      {
-        var coolMatcher = prefixMatcher.Factory.CreatePrefixMatcher(
-          HackPrefix(prefixMatcher.Prefix), prefixMatcher.IdentifierMatchingStyle);
-
-        return base.Match(coolMatcher, textControl);
-      }
+      //public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
+      //{
+      //  var coolMatcher = prefixMatcher.Factory.CreatePrefixMatcher(
+      //    HackPrefix(prefixMatcher.Prefix), prefixMatcher.IdentifierMatchingStyle);
+      //
+      //  return base.Match(coolMatcher, textControl);
+      //}
 
       protected override IForeachStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
@@ -117,26 +119,33 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
     }
 
-    private sealed class ForEachExpressionItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    private sealed class CSharpPostfixForEachExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
     {
-      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
       private readonly bool myUseBraces;
 
-      public ForEachExpressionItem([NotNull] CSharpPostfixExpressionContext context) : base("forEach", context)
+      public CSharpPostfixForEachExpressionBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
+        : base(info)
       {
-        var postfixContext = context.PostfixContext;
-        var settingsStore = postfixContext.Reference.GetSettingsStore();
-        myTemplatesManager = postfixContext.ExecutionContext.LiveTemplatesManager;
-        myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
+        myLiveTemplatesManager = liveTemplatesManager;
       }
 
-      public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
-      {
-        var coolMatcher = prefixMatcher.Factory.CreatePrefixMatcher(
-          HackPrefix(prefixMatcher.Prefix), prefixMatcher.IdentifierMatchingStyle);
+      //{
+      //  var postfixContext = context.PostfixContext;
+      //  var settingsStore = postfixContext.Reference.GetSettingsStore();
+      //
+      //
+      //  myTemplatesManager = postfixContext.ExecutionContext.LiveTemplatesManager;
+      //  myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
+      //}
 
-        return base.Match(coolMatcher, textControl);
-      }
+      //public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
+      //{
+      //  var coolMatcher = prefixMatcher.Factory.CreatePrefixMatcher(
+      //    HackPrefix(prefixMatcher.Prefix), prefixMatcher.IdentifierMatchingStyle);
+      //
+      //  return base.Match(coolMatcher, textControl);
+      //}
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
@@ -178,7 +187,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
         var namesCollection = SuggestIteratorVariableNames(resultStatement);
         ApplyRenameHotspots(
-          myTemplatesManager, textControl, resultStatement, namesCollection, iteratorReference);
+          myLiveTemplatesManager, textControl, resultStatement, namesCollection, iteratorReference);
       }
     }
 
@@ -254,6 +263,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     }
 
     // todo: eww
+    // todo: how to port this into 9.0? 'for' is really rare, I think
     [NotNull] private static string HackPrefix([NotNull] string prefix)
     {
       if (prefix.Length > 0 && prefix.Length <= 3 &&

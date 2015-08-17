@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     public CodeCompletionPostfixExecutionContext(
       [NotNull] CodeCompletionContext context, [NotNull] ReparsedCodeCompletionContext reparsedContext, [NotNull] string reparseString)
-      : base(context.Solution, context.TextControl, reparseString, isAutoCompletion: context.Parameters.IsAutomaticCompletion)
+      : base(context.Solution, context.TextControl, reparseString, isPreciseMode: context.Parameters.IsAutomaticCompletion)
     {
       myReparsedContext = reparsedContext;
     }

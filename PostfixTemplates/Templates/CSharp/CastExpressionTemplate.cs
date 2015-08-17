@@ -1,11 +1,10 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -21,24 +20,35 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "((SomeType) expr)")]
   public class CastExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+
+    public CastExpressionTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
     {
-      if (context.IsAutoCompletion) return null;
+      myLiveTemplatesManager = liveTemplatesManager;
+    }
+
+    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    {
+      if (context.IsPreciseMode) return null;
 
       var expressions = CommonUtils.FindExpressionWithValuesContexts(context);
       if (expressions.Length == 0) return null;
 
-      return new CastItem(expressions, context);
+      return new PostfixTemplateInfo("cast", expressions);
     }
 
-    private sealed class CastItem : ExpressionPostfixLookupItem<IParenthesizedExpression>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      return new CSharpPostfixCastExpressionBehavior(info);
+    }
 
-      public CastItem([NotNull] CSharpPostfixExpressionContext[] contexts, [NotNull] PostfixTemplateContext postfixContext)
-        : base("cast", contexts)
+    private sealed class CSharpPostfixCastExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<IParenthesizedExpression>
+    {
+      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+
+      public CSharpPostfixCastExpressionBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager) : base(info)
       {
-        myTemplatesManager = postfixContext.ExecutionContext.LiveTemplatesManager;
+        myLiveTemplatesManager = liveTemplatesManager;
       }
 
       protected override string ExpressionSelectTitle
@@ -61,7 +71,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           castExpression.TargetType.GetDocumentRange());
 
         var endRange = expression.GetDocumentRange().EndOffsetRange().TextRange;
-        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 

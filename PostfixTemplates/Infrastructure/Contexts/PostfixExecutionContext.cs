@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
@@ -16,16 +15,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     [CanBeNull] private LiveTemplatesManager myLiveTemplatesManager;
 
     public PostfixExecutionContext(
-      [NotNull] ISolution solution, [NotNull] ITextControl textControl, [NotNull] string reparseString, bool isAutoCompletion)
+      [NotNull] ISolution solution, [NotNull] ITextControl textControl, [NotNull] string reparseString, bool isPreciseMode)
     {
       Solution = solution;
       TextControl = textControl;
       ReparseString = reparseString;
-      IsAutoCompletion = isAutoCompletion;
+      IsPreciseMode = isPreciseMode;
       myLiveTemplatesManager = solution.GetComponent<LiveTemplatesManager>();
     }
 
-    public bool IsAutoCompletion { get; internal set; }
+    public bool IsPreciseMode { get; internal set; }
 
     [NotNull] public ISolution Solution { get; private set; }
     [NotNull] public ITextControl TextControl { get; private set; }

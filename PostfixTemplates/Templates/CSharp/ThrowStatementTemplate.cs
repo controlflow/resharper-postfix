@@ -32,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var referencedType = expressionContext.ReferencedType;
       if (referencedType != null) // 'Exception.throw' case
       {
-        if (context.IsAutoCompletion && !IsInstantiableExceptionType(referencedType, expression))
+        if (context.IsPreciseMode && !IsInstantiableExceptionType(referencedType, expression))
           return null;
 
         var canInstantiate = TypeUtils.CanInstantiateType(referencedType, expression);
@@ -42,7 +42,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
 
       bool needFixWithNew;
-      if (CheckExpressionType(expressionContext, out needFixWithNew) || !context.IsAutoCompletion)
+      if (CheckExpressionType(expressionContext, out needFixWithNew) || !context.IsPreciseMode)
       {
         var reference = expressionContext.Expression as IReferenceExpression;
         if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))

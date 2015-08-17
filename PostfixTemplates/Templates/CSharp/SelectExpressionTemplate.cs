@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
   {
     public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
-      if (context.IsAutoCompletion) return null;
+      if (context.IsPreciseMode) return null;
 
       var expressions = context.Expressions.Reverse().ToArray();
       if (expressions.Length == 0) return null;
