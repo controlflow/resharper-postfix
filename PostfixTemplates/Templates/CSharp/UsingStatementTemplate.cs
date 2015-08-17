@@ -25,9 +25,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "using",
     description: "Wraps resource with using statement",
     example: "using (expr)")]
-  public class UsingStatementTemplate : IPostfixTemplate
+  public class UsingStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

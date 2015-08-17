@@ -13,9 +13,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "lock",
     description: "Surrounds expression with lock block",
     example: "lock (expr)")]
-  public class LockStatementExpression : IPostfixTemplate
+  public class LockStatementExpression : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

@@ -36,9 +36,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "var",
     description: "Introduces variable for expression",
     example: "var x = expr;")]
-  public sealed class IntroduceVariableTemplate : IPostfixTemplate
+  public sealed class IntroduceVariableTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var contexts = new List<CSharpPostfixExpressionContext>();
       foreach (var expressionContext in context.ExpressionsOrTypes)

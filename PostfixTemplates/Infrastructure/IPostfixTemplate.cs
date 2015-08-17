@@ -1,11 +1,18 @@
-﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+﻿using System;
+using JetBrains.Annotations;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
-  public interface IPostfixTemplate
+  public interface IPostfixTemplate<in TPostfixTemplateContext>
+    where TPostfixTemplateContext : PostfixTemplateContext
   {
-    [CanBeNull] ILookupItem CreateItem([NotNull] PostfixTemplateContext context);
+    void PopulateTemplates([NotNull] TPostfixTemplateContext context, [NotNull] IPostfixTemplatesCollector collector);
+  }
+
+  public interface IPostfixTemplatesCollector
+  {
+    void Consume([NotNull] PostfixTemplateInfo info, [NotNull] Func<PostfixTemplateInfo, PostfixTemplateBehavior> behaviorFactory);
   }
 }

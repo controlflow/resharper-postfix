@@ -1,3 +1,4 @@
+using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
@@ -14,9 +15,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "sel",
     description: "Selects expression in editor",
     example: "|selected + expression|")]
-  public class SelectExpressionTemplate : IPostfixTemplate
+  public class SelectExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       if (context.IsAutoCompletion) return null;
 

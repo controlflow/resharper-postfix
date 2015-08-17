@@ -20,9 +20,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "throw",
     description: "Throws expression of 'Exception' type",
     example: "throw expr;")]
-  public class ThrowStatementTemplate : IPostfixTemplate
+  public class ThrowStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.TypeExpression ?? context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

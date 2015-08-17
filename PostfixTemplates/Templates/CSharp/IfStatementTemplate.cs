@@ -11,7 +11,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "if",
     description: "Checks boolean expression to be 'true'",
     example: "if (expr)")]
-  public sealed class IfStatementTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
+  public sealed class IfStatementTemplate : BooleanExpressionTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext expression)
     {

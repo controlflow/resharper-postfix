@@ -1,9 +1,7 @@
 using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -17,14 +15,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "to",
     description: "Assigns current expression to some variable",
     example: "lvalue = expr;")]
-  public class AssignmentExpressionTemplate : IPostfixTemplate
+  public class AssignmentExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public void PopulateTemplates(CSharpPostfixTemplateContext context, IPostfixTemplatesCollector collector)
     {
-      if (context.IsAutoCompletion) return null;
+      if (context.IsAutoCompletion) return;
 
       var outerExpression = context.OuterExpression;
-      if (outerExpression == null || !outerExpression.CanBeStatement) return null;
+      if (outerExpression == null || !outerExpression.CanBeStatement) return;
 
       for (ITreeNode node = outerExpression.Expression;;)
       {
@@ -32,12 +30,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (assignmentExpression == null) break;
 
         // disable 'here.to = "abc";'
-        if (assignmentExpression.Dest.Contains(node)) return null;
+        if (assignmentExpression.Dest.Contains(node)) return;
 
         node = assignmentExpression;
       }
 
-      return new AssignmentItem(outerExpression);
+      collector.Consume(new AssignmentItem(outerExpression));
     }
 
     private class AssignmentItem : StatementPostfixLookupItem<IExpressionStatement>

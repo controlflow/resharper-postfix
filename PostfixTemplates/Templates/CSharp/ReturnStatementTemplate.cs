@@ -5,6 +5,7 @@ using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.TextControl;
 
@@ -14,9 +15,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "return",
     description: "Returns expression from current function",
     example: "return expr;")]
-  public class ReturnStatementTemplate : IPostfixTemplate
+  public class ReturnStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;

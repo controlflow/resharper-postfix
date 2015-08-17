@@ -20,7 +20,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
     }
 
     [NotNull]
-    public IEnumerable<PostfixExpressionContext> ExpressionsOrTypes
+    public IEnumerable<CSharpPostfixExpressionContext> ExpressionsOrTypes
     {
       get
       {
@@ -86,7 +86,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
     }
 
     // Most inner expression: '0.var'
-    [CanBeNull] public PostfixExpressionContext InnerExpression
+    [CanBeNull] public CSharpPostfixExpressionContext InnerExpression
     {
       get
       {

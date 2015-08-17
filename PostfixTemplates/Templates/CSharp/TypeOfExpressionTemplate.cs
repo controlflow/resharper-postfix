@@ -13,9 +13,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "typeof",
     description: "Wraps type usage with typeof() expression",
     example: "typeof(TExpr)")]
-  public class TypeOfExpressionTemplate : IPostfixTemplate
+  public class TypeOfExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
       if (typeExpression != null && typeExpression.ReferencedElement is ITypeElement)

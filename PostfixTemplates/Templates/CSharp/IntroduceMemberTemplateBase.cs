@@ -18,9 +18,9 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
-  public abstract class IntroduceMemberTemplateBase : IPostfixTemplate
+  public abstract class IntroduceMemberTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var functionDeclaration = context.ContainingFunction;
       if (functionDeclaration == null) return null;
@@ -64,10 +64,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
       [CanBeNull] private ITreeNodePointer<IClassMemberDeclaration> myMemberPointer;
 
-      protected IntroduceMemberLookupItem([NotNull] string shortcut,
-                                          [NotNull] CSharpPostfixExpressionContext context,
-                                          [NotNull] IType expressionType, bool isStatic)
-        : base(shortcut, context)
+      protected IntroduceMemberLookupItem(
+        [NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context,
+        [NotNull] IType expressionType, bool isStatic) : base(shortcut, context)
       {
         IsStatic = isStatic;
         ExpressionType = expressionType;

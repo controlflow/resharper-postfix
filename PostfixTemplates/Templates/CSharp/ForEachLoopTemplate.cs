@@ -35,7 +35,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "forEach",
     description: "Iterates over enumerable collection",
     example: "foreach (var x in expr)")]
-  public class ForEachLoopTemplate : IPostfixTemplate
+  public class ForEachLoopTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {

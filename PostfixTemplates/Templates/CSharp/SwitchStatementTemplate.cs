@@ -3,8 +3,10 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
@@ -12,9 +14,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "switch",
     description: "Produces switch over integral/string type",
     example: "switch (expr)")]
-  public class SwitchStatementTemplate : IPostfixTemplate
+  public class SwitchStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var isAutoCompletion = context.ExecutionContext.IsAutoCompletion;
       foreach (var expressionContext in context.Expressions)

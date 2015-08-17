@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "await",
     description: "Awaits expressions of 'Task' type",
     example: "await expr")]
-  public class AwaitExpressionTemplate : IPostfixTemplate
+  public class AwaitExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {

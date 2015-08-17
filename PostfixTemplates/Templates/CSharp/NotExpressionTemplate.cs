@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "not",
     description: "Negates boolean expression",
     example: "!expr")]
-  public class NotExpressionTemplate : BooleanExpressionTemplateBase, IPostfixTemplate
+  public class NotExpressionTemplate : BooleanExpressionTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     protected override ILookupItem CreateBooleanItem(CSharpPostfixExpressionContext expression)
     {

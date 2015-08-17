@@ -9,7 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "notnull",
     description: "Checks expression to be not-null",
     example: "if (expr != null)")]
-  public class CheckNotNullTemplate : CheckForNullTemplateBase, IPostfixTemplate
+  public class CheckNotNullTemplate : CheckForNullTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {

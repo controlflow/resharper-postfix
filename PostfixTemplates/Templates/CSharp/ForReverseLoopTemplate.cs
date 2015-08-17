@@ -14,7 +14,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "forr",
     description: "Iterates over collection in reverse with index",
     example: "for (var i = xs.Length-1; i >= 0; i--)")]
-  public class ForReverseLoopTemplate : ForLoopTemplateBase, IPostfixTemplate
+  public class ForReverseLoopTemplate : ForLoopTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {

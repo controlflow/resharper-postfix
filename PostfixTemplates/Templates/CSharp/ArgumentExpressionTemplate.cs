@@ -3,8 +3,6 @@ using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
@@ -31,27 +29,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "arg",
     description: "Surrounds expression with invocation",
     example: "Method(expr)")]
-  public class ArgumentExpressionTemplate : IPostfixTemplate
+  public class ArgumentExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public void PopulateTemplates(CSharpPostfixTemplateContext context, IPostfixTemplatesCollector collector)
     {
-      if (context.IsAutoCompletion) return null;
+      if (context.IsAutoCompletion) return;
 
       // disable .arg template if .arg hotspot is enabled now
       var textControl = context.ExecutionContext.TextControl;
-      if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
+      if (textControl.GetData(PostfixArgTemplateExpansion) != null) return;
 
       var expressions = CommonUtils.FindExpressionWithValuesContexts(context, IsNiceArgument);
-      if (expressions.Length == 0) return null;
+      if (expressions.Length == 0) return;
 
-      var lookupItem = LookupItemFactory.CreateLookupItem(new PostfixTemplateInfo("arg"))
-        .WithPresentation(item => new PostfixTemplatePresentation(item.Info.Text))
-        .WithMatcher(item => new PostfixTemplateMatcher(item.Info))
-        .WithBehavior(item => new PostfixTemplateBehavior(item.Info));
-
-      return lookupItem;
-
-      //return new ArgumentItem(expressions, context);
+      collector.Consume(new PostfixTemplateInfo("arg"), x => new PostfixTemplateBehavior(x));
     }
 
     private static bool IsNiceArgument([NotNull] ICSharpExpression expression)
@@ -64,6 +55,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =
       new Key(typeof(ArgumentExpressionTemplate).FullName);
 
+    // todo: to behavior
     private class ArgumentItem : ExpressionPostfixLookupItem<IInvocationExpression>
     {
       [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;

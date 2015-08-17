@@ -13,6 +13,7 @@ using JetBrains.ReSharper.Psi.Naming.Extentions;
 using JetBrains.ReSharper.Psi.Naming.Impl;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Psi.Util;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -20,7 +21,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
   public abstract class ForLoopTemplateBase
   {
-    protected bool CreateForItem([NotNull] PostfixTemplateContext context, [CanBeNull] out string lengthName)
+    protected bool CreateForItem([NotNull] CSharpPostfixTemplateContext context, [CanBeNull] out string lengthName)
     {
       lengthName = null;
 

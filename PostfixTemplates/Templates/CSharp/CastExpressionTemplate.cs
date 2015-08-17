@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "cast",
     description: "Surrounds expression with cast",
     example: "((SomeType) expr)")]
-  public class CastExpressionTemplate : IPostfixTemplate
+  public class CastExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     public ILookupItem CreateItem(PostfixTemplateContext context)
     {

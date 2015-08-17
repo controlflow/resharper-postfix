@@ -19,9 +19,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "new",
     description: "Produces instantiation expression for type",
     example: "new SomeType()")]
-  public class ObjectCreationTypeTemplate : IPostfixTemplate
+  public class ObjectCreationTypeTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
       if (typeExpression == null)

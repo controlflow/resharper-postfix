@@ -5,6 +5,7 @@ using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
@@ -15,9 +16,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "yield",
     description: "Yields value from iterator method",
     example: "yield return expr;")]
-  public class YieldReturnStatementTemplate : IPostfixTemplate
+  public class YieldReturnStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;
@@ -93,8 +94,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     {
       public YieldItem([NotNull] CSharpPostfixExpressionContext context) : base("yield", context) { }
 
-      protected override IYieldStatement CreateStatement(CSharpElementFactory factory,
-                                                         ICSharpExpression expression)
+      protected override IYieldStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         return (IYieldStatement) factory.CreateStatement("yield return $0;", expression);
       }
