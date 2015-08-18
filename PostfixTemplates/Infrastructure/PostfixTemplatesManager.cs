@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.Application.Components;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.ReSharper.Resources.Shell;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
@@ -21,6 +23,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     {
       myLanguageManager = languageManager;
 
+      
 
 
 
