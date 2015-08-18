@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
+using JetBrains.Annotations;using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -20,7 +19,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
   public abstract class IntroduceMemberTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var functionDeclaration = context.ContainingFunction;
       if (functionDeclaration == null) return null;
@@ -46,35 +45,55 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
             if (target == null || target is IField || target is IProperty) continue;
           }
 
-          return CreateItem(expression, expression.Type, functionDeclaration.IsStatic);
+          return new IntroduceMemberPostfixTemplateInfo(
+            TemplateName, expression, expression.Type, functionDeclaration.IsStatic);
         }
       }
 
       return null;
     }
 
-    protected abstract IntroduceMemberLookupItem CreateItem(
-      [NotNull] CSharpPostfixExpressionContext expression, [NotNull] IType expressionType, bool isStatic);
+    [NotNull] public abstract string TemplateName { get; }
 
-    protected abstract class IntroduceMemberLookupItem : StatementPostfixLookupItem<IExpressionStatement>
+    protected class IntroduceMemberPostfixTemplateInfo : PostfixTemplateInfo
+    {
+      [NotNull] public IType ExpressionType { get; private set; }
+      public bool IsStatic { get; private set; }
+
+      public IntroduceMemberPostfixTemplateInfo(
+        [NotNull] string text, [NotNull] PostfixExpressionContext expression, IType expressionType, bool isStatic)
+        : base(text, expression)
+      {
+        ExpressionType = expressionType;
+        IsStatic = isStatic;
+      }
+    }
+
+    PostfixTemplateBehavior IPostfixTemplate<CSharpPostfixTemplateContext>.CreateBehavior(PostfixTemplateInfo info)
+    {
+      return CreateBehavior((IntroduceMemberPostfixTemplateInfo) info);
+    }
+
+    [NotNull]
+    protected abstract PostfixTemplateBehavior CreateBehavior([NotNull] IntroduceMemberPostfixTemplateInfo info);
+
+    protected abstract class CSharpPostfixIntroduceMemberBehaviorBase : CSharpStatementPostfixTemplateBehavior<IExpressionStatement>
     {
       [NotNull] protected readonly IType ExpressionType;
       protected readonly bool IsStatic;
 
-      [NotNull] private ICollection<string> myMemberNames;
-      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
+      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+
+      [NotNull] private ICollection<string> myMemberNames = EmptyList<string>.InstanceList;
       [CanBeNull] private ITreeNodePointer<IClassMemberDeclaration> myMemberPointer;
 
-      protected IntroduceMemberLookupItem(
-        [NotNull] string shortcut, [NotNull] CSharpPostfixExpressionContext context,
-        [NotNull] IType expressionType, bool isStatic) : base(shortcut, context)
+      protected CSharpPostfixIntroduceMemberBehaviorBase(
+        [NotNull] IntroduceMemberPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager) : base(info)
       {
-        IsStatic = isStatic;
-        ExpressionType = expressionType;
+        myLiveTemplatesManager = liveTemplatesManager;
 
-        var executionContext = context.PostfixContext.ExecutionContext;
-        myTemplatesManager = executionContext.LiveTemplatesManager;
-        myMemberNames = EmptyList<string>.InstanceList;
+        ExpressionType = info.ExpressionType;
+        IsStatic = info.IsStatic;
       }
 
       protected override IExpressionStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
@@ -133,7 +152,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           memberIdentifier.GetDocumentRange(), memberDeclaration.GetNameDocumentRange());
 
         var endRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
-        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 

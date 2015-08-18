@@ -223,7 +223,7 @@
     <Compile Include="Templates\CSharp\IntroduceMemberTemplateBase.cs" />
     <Compile Include="Templates\CSharp\IntroducePropertyTemplate.cs" />
     <Compile Include="Templates\CSharp\IntroduceVariableTemplate.cs" />
-    <Compile Include="Templates\CSharp\LockStatementExpression.cs" />
+    <Compile Include="Templates\CSharp\LockStatementTemplate.cs" />
     <Compile Include="Templates\CSharp\NotExpressionTemplate.cs" />
     <Compile Include="Templates\CSharp\ObjectCreationTypeTemplate.cs" />
     <Compile Include="Templates\CSharp\ParenthesizedExpressionTemplate.cs" />

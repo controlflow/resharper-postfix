@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -14,15 +15,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "_field = expr;")]
   public class IntroduceFieldTemplate : IntroduceMemberTemplateBase
   {
-    protected override IntroduceMemberLookupItem CreateItem(CSharpPostfixExpressionContext expression, IType expressionType, bool isStatic)
+    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
+
+    public IntroduceFieldTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
     {
-      return new IntroduceFieldLookupItem(expression, expressionType, isStatic);
+      myLiveTemplatesManager = liveTemplatesManager;
     }
 
-    private sealed class IntroduceFieldLookupItem : IntroduceMemberLookupItem
+    public override string TemplateName { get { return "field"; } }
+
+    protected override PostfixTemplateBehavior CreateBehavior(IntroduceMemberPostfixTemplateInfo info)
     {
-      public IntroduceFieldLookupItem([NotNull] CSharpPostfixExpressionContext context, [NotNull] IType expressionType, bool isStatic)
-        : base("field", context, expressionType, isStatic) { }
+      return new CSharpPostfixIntroduceFieldBehaviorBase(info, myLiveTemplatesManager);
+    }
+
+    private sealed class CSharpPostfixIntroduceFieldBehaviorBase : CSharpPostfixIntroduceMemberBehaviorBase
+    {
+      public CSharpPostfixIntroduceFieldBehaviorBase(
+        [NotNull] IntroduceMemberPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
+        : base(info, liveTemplatesManager) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {
