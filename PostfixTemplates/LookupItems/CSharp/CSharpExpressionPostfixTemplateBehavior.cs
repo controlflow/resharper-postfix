@@ -11,21 +11,22 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
-  public class CSharpExpressionPostfixTemplateBehavior<TExpression> : PostfixTemplateBehavior
+  public abstract class CSharpExpressionPostfixTemplateBehavior<TExpression> : PostfixTemplateBehavior
     where TExpression : class, ICSharpExpression
   {
-    protected CSharpExpressionPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
-    {
-      //Assertion.Assert(info.Target == PostfixTemplateTarget.Expression, "info.Target == PostfixTemplateTarget.Expression");
-    }
+    protected CSharpExpressionPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
-    protected override TExpression ExpandPostfix(CSharpPostfixExpressionContext context)
+    protected override ITreeNode ExpandPostfix(PostfixExpressionContext context)
     {
-      var psiModule = context.PostfixContext.PsiModule;
+      var csharpContext = (CSharpPostfixExpressionContext) context;
+      var psiModule = csharpContext.PostfixContext.PsiModule;
+
       var expandedExpression = psiModule.GetPsiServices().DoTransaction(ExpandCommandName, () =>
       {
         var factory = CSharpElementFactory.GetInstance(psiModule);
-        var expression = context.Expression;
+        var expression = csharpContext.Expression;
+
+        // todo: get rid of this xtra behavior?
         var operand = expression.GetOperandThroughParenthesis().NotNull("operand != null");
 
         var newExpression = CreateExpression(factory, operand);
@@ -36,10 +37,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       return expandedExpression;
     }
 
-    [NotNull]
+    [NotNull] // todo: pass postfix expression context
     protected abstract TExpression CreateExpression([NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
 
-    protected override void AfterComplete(ITextControl textControl, TExpression expression)
+    protected override void AfterComplete(ITextControl textControl, ITreeNode node)
+    {
+      AfterComplete(textControl, (TExpression) node);
+    }
+
+    protected virtual void AfterComplete(ITextControl textControl, TExpression expression)
     {
       var endOffset = expression.GetDocumentRange().TextRange.EndOffset;
       textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);

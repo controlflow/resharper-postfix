@@ -8,6 +8,8 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Contexts
 {
+  // todo: IContextBoundSettingsStore here
+
   [PublicAPI]
   public class PostfixExecutionContext
   {

@@ -20,6 +20,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "new SomeType()")]
   public class ObjectCreationTypeTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
+    [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
+
+    public ObjectCreationTypeTemplate([NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
+    {
+      myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
+    }
+
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
@@ -39,9 +46,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var canInstantiate = TypeUtils.CanInstantiateType(typeElement, typeExpression.Expression);
       if (canInstantiate != CanInstantiate.No)
       {
-        var hasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
-        // todo: pass this?
-
         return new PostfixTemplateInfo("new", typeExpression, PostfixTemplateTarget.TypeUsage);
       }
 
@@ -109,21 +113,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
       if (info.Target == PostfixTemplateTarget.TypeUsage)
-        return new CSharpPostfixObjectCreationTypeUsageBehavior(info);
+        return new CSharpPostfixObjectCreationTypeUsageBehavior(info, myLookupItemsOwnerFactory);
 
       return new CSharpPostfixObjectCreationExpressionBehavior(info);
     }
 
     private sealed class CSharpPostfixObjectCreationTypeUsageBehavior : CSharpExpressionPostfixTemplateBehavior<IObjectCreationExpression>
     {
-      private readonly bool myHasRequiredArguments;
-      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwner;
+      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
 
-      public CSharpPostfixObjectCreationTypeUsageBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
+      public CSharpPostfixObjectCreationTypeUsageBehavior(
+        [NotNull] PostfixTemplateInfo info, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
+      {
+        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
+      }
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var settingsStore = expression.GetSettingsStore();
+        var settingsStore = expression.GetSettingsStore(); // todo: execution context?
         var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
 
         var template = string.Format("new {0}{1}", expression.GetText(), parenthesesType.GetParenthesesTemplate());
@@ -137,15 +144,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
         if (parenthesesType == ParenthesesInsertType.None) return;
 
-        var caretNode = myHasRequiredArguments ? expression.LPar : (ITreeNode) expression;
+        var canInstantiate = TypeUtils.CanInstantiateType(expression.Type(), expression);
+        var hasRequiredArguments = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
+
+        var caretNode = hasRequiredArguments ? expression.LPar : (ITreeNode) expression;
         var endOffset = caretNode.GetDocumentRange().TextRange.EndOffset;
 
         textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
-        if (myHasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
+        if (hasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
         {
           var solution = expression.GetSolution();
-          LookupUtil.ShowParameterInfo(solution, textControl, myLookupItemsOwner);
+          var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+
+          LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
         }
       }
     }

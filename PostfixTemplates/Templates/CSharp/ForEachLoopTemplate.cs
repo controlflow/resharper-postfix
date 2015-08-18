@@ -53,7 +53,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (!IsEnumerable(expressionContext)) return null;
       }
 
-      return new PostfixTemplateInfo("foreach", expressionContext, isStatement: expressionContext.CanBeStatement);
+      var target = expressionContext.CanBeStatement ? PostfixTemplateTarget.Statement : PostfixTemplateTarget.Expression;
+      return new PostfixTemplateInfo("foreach", expressionContext, target: target);
     }
 
     private static bool IsEnumerable([NotNull] CSharpPostfixExpressionContext context)
@@ -62,23 +63,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       var predefined = context.Expression.GetPredefinedType();
       var conversionRule = context.Expression.GetTypeConversionRule();
-      if (conversionRule.IsImplicitlyConvertibleTo(context.Type, predefined.IEnumerable))
-        return true;
+      if (conversionRule.IsImplicitlyConvertibleTo(context.Type, predefined.IEnumerable)) return true;
 
       var declaredType = context.Type as IDeclaredType;
-      if (declaredType != null && !declaredType.IsUnknown)
-      {
-        var typeElement = declaredType.GetTypeElement();
-        if (typeElement != null && typeElement.IsForeachEnumeratorPatternType())
-          return true;
-      }
+      if (declaredType == null || declaredType.IsUnknown) return false;
 
-      return false;
+      var typeElement = declaredType.GetTypeElement();
+      return typeElement != null && typeElement.IsForeachEnumeratorPatternType();
     }
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      if (info.IsStatement)
+      if (info.Target == PostfixTemplateTarget.Statement)
         return new CSharpPostfixForEachStatementBehavior(info, myLiveTemplatesManager);
 
       return new CSharpPostfixForEachExpressionBehavior(info, myLiveTemplatesManager);
@@ -186,15 +182,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (resultStatement == null) return;
 
         var namesCollection = SuggestIteratorVariableNames(resultStatement);
-        ApplyRenameHotspots(
-          myLiveTemplatesManager, textControl, resultStatement, namesCollection, iteratorReference);
+        ApplyRenameHotspots(myLiveTemplatesManager, textControl, resultStatement, namesCollection, iteratorReference);
       }
     }
 
     private static void ApplyRenameHotspots(
-      [NotNull] LiveTemplatesManager liveTemplatesManager, [NotNull] ITextControl textControl,
-      [NotNull] IForeachStatement statement, [NotNull] IList<string> namesCollection,
-      [CanBeNull] IReferenceExpression extraReference = null)
+      [NotNull] LiveTemplatesManager liveTemplatesManager, [NotNull] ITextControl textControl, [NotNull] IForeachStatement statement,
+      [NotNull] IList<string> namesCollection, [CanBeNull] IReferenceExpression extraReference = null)
     {
       var variableDeclaration = statement.IteratorDeclaration;
       var endSelectionRange = new TextRange(textControl.Caret.Offset());
@@ -215,8 +209,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
 
       var variableNameInfo = new HotspotInfo(
-        new TemplateField("name", new NameSuggestionsExpression(namesCollection), 0),
-        nameRanges.ToArray());
+        new TemplateField("name", new NameSuggestionsExpression(namesCollection), 0), nameRanges.ToArray());
 
       var session = liveTemplatesManager.CreateHotspotSessionAtopExistingText(
         statement.GetSolution(), endSelectionRange, textControl,

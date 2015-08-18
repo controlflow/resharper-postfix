@@ -6,7 +6,7 @@ using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
-  internal sealed class PostfixExpressionContextImage
+  public sealed class PostfixExpressionContextImage
   {
     [NotNull] private readonly Type myExpressionType;
     private readonly DocumentRange myExpressionRange;

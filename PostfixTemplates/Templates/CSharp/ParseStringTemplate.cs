@@ -1,5 +1,4 @@
-﻿using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
+﻿using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi;
 

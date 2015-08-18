@@ -39,7 +39,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new CSharpPostfixCastExpressionBehavior(info);
+      return new CSharpPostfixCastExpressionBehavior(info, myLiveTemplatesManager);
     }
 
     private sealed class CSharpPostfixCastExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<IParenthesizedExpression>

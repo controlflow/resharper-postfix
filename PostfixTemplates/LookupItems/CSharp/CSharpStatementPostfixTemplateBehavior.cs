@@ -5,6 +5,7 @@ using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.Options;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
+using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CodeStyle;
@@ -25,6 +26,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   public abstract class CSharpStatementPostfixTemplateBehavior<TStatement> : PostfixTemplateBehavior
     where TStatement : class, ICSharpStatement
   {
+    private bool myUseBraces;
+
     protected CSharpStatementPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
     {
       //Assertion.Assert(info.Target == PostfixTemplateTarget.Statement, "Invalid taget");
@@ -42,21 +45,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return "{" + CaretTemplate + "}"; }
     }
 
-    protected override TStatement ExpandPostfix(CSharpPostfixExpressionContext context)
+    protected override ITreeNode ExpandPostfix(PostfixExpressionContext context)
     {
-      var psiModule = context.PostfixContext.PsiModule;
+      var csharpContext = (CSharpPostfixExpressionContext) context;
+      var psiModule = csharpContext.PostfixContext.PsiModule;
       var psiServices = psiModule.GetPsiServices();
       var factory = CSharpElementFactory.GetInstance(psiModule);
 
-      var targetStatement = context.GetContainingStatement();
-      var expressionRange = context.Expression.GetDocumentRange();
+      var targetStatement = csharpContext.GetContainingStatement();
+      var expressionRange = csharpContext.Expression.GetDocumentRange();
 
       // Razor issue - hard to convert expression to statement
       if (!targetStatement.GetDocumentRange().IsValid())
       {
         var newStatement = psiServices.DoTransaction(ExpandCommandName, () =>
         {
-          var expression = context.Expression.GetOperandThroughParenthesis().NotNull();
+          // todo: pass original context?
+          var expression = csharpContext.Expression.GetOperandThroughParenthesis().NotNull();
           return CreateStatement(factory, expression);
         });
 
@@ -82,7 +87,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       return psiServices.DoTransaction(ExpandCommandName, () =>
       {
-        var expression = context.Expression.GetOperandThroughParenthesis().NotNull();
+        var expression = csharpContext.Expression.GetOperandThroughParenthesis().NotNull();
         var newStatement = CreateStatement(factory, expression);
 
         Assertion.AssertNotNull(targetStatement, "targetStatement != null");
@@ -123,7 +128,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       return (statements.Count == 1) ? statements[0] : null;
     }
 
-    protected override void AfterComplete(ITextControl textControl, TStatement statement)
+    protected override void AfterComplete(ITextControl textControl, ITreeNode node)
+    {
+      AfterComplete(textControl, (TStatement) node);
+    }
+
+    protected virtual void AfterComplete(ITextControl textControl, TStatement statement)
     {
       PutStatementCaret(textControl, statement);
     }
