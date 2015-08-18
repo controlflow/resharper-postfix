@@ -183,7 +183,6 @@
     <Compile Include="Infrastructure\PostfixTemplateAttribute.cs" />
     <Compile Include="LookupItems\CSharp\CSharpExpressionPostfixTemplateBehavior.cs" />
     <Compile Include="LookupItems\CSharp\CSharpStatementPostfixTemplateBehavior.cs" />
-    <Compile Include="LookupItems\ExpressionPostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItem.cs" />
     <Compile Include="LookupItems\PostfixLookupItemBase.cs" />
     <Compile Include="LookupItems\PostfixTemplateBehavior.cs" />

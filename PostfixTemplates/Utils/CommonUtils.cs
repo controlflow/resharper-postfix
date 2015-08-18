@@ -200,6 +200,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return treeNode.GetPsiServices().Pointers.CreateTreeElementPointer(treeNode);
     }
 
+    // todo: [C#6] what about conditional access?
     public static bool IsReferenceExpressionsChain([CanBeNull] ICSharpExpression expression)
     {
       do

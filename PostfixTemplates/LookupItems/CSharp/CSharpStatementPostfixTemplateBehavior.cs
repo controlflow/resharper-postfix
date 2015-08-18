@@ -25,8 +25,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   public abstract class CSharpStatementPostfixTemplateBehavior<TStatement> : PostfixTemplateBehavior
     where TStatement : class, ICSharpStatement
   {
-    public CSharpStatementPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
+    protected CSharpStatementPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
     {
+      Assertion.Assert(info.Target == PostfixTemplateTarget.Expression, "info.Target == PostfixTemplateTarget.Expression");
     }
 
     private const string CaretTemplate = "return unchecked(checked(\"If you see this - please report a bug :(\"))";

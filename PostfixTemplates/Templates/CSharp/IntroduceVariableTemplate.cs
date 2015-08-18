@@ -8,11 +8,10 @@ using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
 using JetBrains.ReSharper.Feature.Services.Util;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -24,9 +23,8 @@ using JetBrains.ReSharper.Refactorings.IntroduceVariable;
 using JetBrains.ReSharper.Refactorings.IntroduceVariable.Impl;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
+using JetBrains.Util;
 using JetBrains.Util.EventBus;
-
-#pragma warning disable 618
 
 // todo: think about cases like F(this.var), F(42.var). disable in auto?
 
@@ -38,7 +36,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "var x = expr;")]
   public sealed class IntroduceVariableTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
+
+    public IntroduceVariableTemplate([NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
+    {
+      myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
+    }
+
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var contexts = new List<CSharpPostfixExpressionContext>();
       foreach (var expressionContext in context.ExpressionsOrTypes)
@@ -76,45 +81,42 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         contexts.Add(expressionContext);
       }
 
-      var bestContext = contexts.FirstOrDefault(MattersToShowVar) ?? contexts.LastOrDefault();
-      if (bestContext == null) return null;
-
-      if (MattersToShowVar(bestContext) || !context.IsPreciseMode)
+      var bestContext = contexts.FirstOrDefault(IsItMattersToShowVar) ?? contexts.LastOrDefault();
+      if (bestContext != null)
       {
-        var referencedType = bestContext.ReferencedType;
-        if (referencedType != null)
-          return new VarByTypeItem(bestContext, referencedType);
+        if (IsItMattersToShowVar(bestContext) || !context.IsPreciseMode)
+        {
+          var referencedType = bestContext.ReferencedType;
+          if (referencedType != null)
+            return new PostfixTemplateInfo("var", bestContext, target: PostfixTemplateTarget.TypeUsage);
 
-        var isConstructorCall = IsConstructorInvocation(bestContext.Expression);
+          if (bestContext.CanBeStatement)
+            return new PostfixTemplateInfo("var", bestContext, target: PostfixTemplateTarget.Statement);
 
-        if (bestContext.CanBeStatement)
-          return new VarStatementItem(bestContext, isConstructorCall);
-
-        return new VarExpressionItem(bestContext, isConstructorCall);
+          return new PostfixTemplateInfo("var", bestContext);
+        }
       }
 
       return null;
     }
 
-
-
     private static bool IsConstructorInvocation([NotNull] ICSharpExpression expression)
     {
+      // check for expressions like 'StringBuilder().new'
       var invocationExpression = expression as IInvocationExpression;
-      if (invocationExpression != null) // StringBuilder().new
+      if (invocationExpression == null) return false;
+
+      var reference = invocationExpression.InvokedExpression as IReferenceExpression;
+      if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))
       {
-        var reference = invocationExpression.InvokedExpression as IReferenceExpression;
-        if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))
-        {
-          var resolveResult = reference.Reference.Resolve().Result;
-          return resolveResult.DeclaredElement is ITypeElement;
-        }
+        var resolveResult = reference.Reference.Resolve().Result;
+        return resolveResult.DeclaredElement is ITypeElement;
       }
 
       return false;
     }
 
-    private static bool MattersToShowVar([NotNull] CSharpPostfixExpressionContext context)
+    private static bool IsItMattersToShowVar([NotNull] CSharpPostfixExpressionContext context)
     {
       if (context.CanBeStatement) return true;
 
@@ -131,24 +133,40 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
 
       // note: what about F(arg.var)?
-
       return false;
     }
 
-    private sealed class VarExpressionItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      private readonly bool myIsConstructorCall;
-
-      public VarExpressionItem([NotNull] CSharpPostfixExpressionContext context, bool isConstructorCall)
-        : base("var", context)
+      switch (info.Target)
       {
-        myIsConstructorCall = isConstructorCall;
+        case PostfixTemplateTarget.TypeUsage:
+          return new CSharpPostfixIntroduceVariableFromTypeUsageBehavior(info, myLookupItemsOwnerFactory);
+
+        case PostfixTemplateTarget.Statement:
+          return new CSharpPostfixIntroduceVariableIsStatementBehavior(info);
+
+        case PostfixTemplateTarget.Expression:
+          return new CSharpPostfixIntroduceVariableInExpressionBehavior(info);
+
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+    }
+
+    private sealed class CSharpPostfixIntroduceVariableInExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
+    {
+      public CSharpPostfixIntroduceVariableInExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info)
+      {
       }
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        if (myIsConstructorCall)
+        if (IsConstructorInvocation(expression))
+        {
+          // note: reinterpret constructor call as object creation expression
           return factory.CreateExpression("new $0", expression.GetText());
+        }
 
         return expression;
       }
@@ -164,8 +182,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           var referenceRange = expressionMarker.Range;
           if (!referenceRange.IsValid) return;
 
-          var reference = TextControlToPsi.GetElement<IReferenceExpression>(
-            solution, textControl.Document, referenceRange.EndOffset);
+          var reference = TextControlToPsi.GetElement<IReferenceExpression>(solution, textControl.Document, referenceRange.EndOffset);
 
           if (reference != null && reference.QualifierExpression == null)
           {
@@ -176,20 +193,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
     }
 
-    private sealed class VarStatementItem : StatementPostfixLookupItem<IExpressionStatement>
+    private sealed class CSharpPostfixIntroduceVariableIsStatementBehavior : CSharpStatementPostfixTemplateBehavior<IExpressionStatement>
     {
-      private readonly bool myIsConstructorCall;
-
-      public VarStatementItem([NotNull] CSharpPostfixExpressionContext context, bool isConstructorCall)
-        : base("var", context)
+      public CSharpPostfixIntroduceVariableIsStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info)
       {
-        myIsConstructorCall = isConstructorCall;
       }
 
       protected override IExpressionStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        if (myIsConstructorCall)
+        if (IsConstructorInvocation(expression))
+        {
+          // note: reinterpret constructor call as object creation expression
           expression = factory.CreateExpression("new $0", expression.GetText());
+        }
 
         return (IExpressionStatement) factory.CreateStatement("$0;", expression);
       }
@@ -200,30 +216,34 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
     }
 
-    private sealed class VarByTypeItem : ExpressionPostfixLookupItem<IObjectCreationExpression>
+    private sealed class CSharpPostfixIntroduceVariableFromTypeUsageBehavior : CSharpExpressionPostfixTemplateBehavior<IObjectCreationExpression>
     {
-      [NotNull] private readonly IDeclaredType myReferencedType;
-      [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
-      private readonly bool myHasRequiredArguments;
+      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
 
-      public VarByTypeItem([NotNull] CSharpPostfixExpressionContext context, [NotNull] IDeclaredType referencedType)
-        : base("var", context)
+      public CSharpPostfixIntroduceVariableFromTypeUsageBehavior(
+        [NotNull] PostfixTemplateInfo info, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
       {
-        myReferencedType = referencedType;
-        myLookupItemsOwner = context.PostfixContext.ExecutionContext.LookupItemsOwner;
-
-        var canInstantiate = TypeUtils.CanInstantiateType(referencedType, context.Expression);
-        myHasRequiredArguments = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
+        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
       }
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        return (IObjectCreationExpression) factory.CreateExpression("new $0()", myReferencedType);
+        // todo: not sure it will always work, let's make it safier
+        var referenceExpression = (IReferenceExpression) expression.NotNull("referenceExpression != null");
+        var resolveResult = referenceExpression.Reference.Resolve().Result;
+
+        var typeElement = (ITypeElement) resolveResult.DeclaredElement.NotNull("typeElement != null");
+        var referencedType = TypeFactory.CreateType(typeElement, resolveResult.Substitution);
+
+        return (IObjectCreationExpression) factory.CreateExpression("new $0()", referencedType);
       }
 
       protected override void AfterComplete(ITextControl textControl, IObjectCreationExpression expression)
       {
-        if (myHasRequiredArguments)
+        var referencedType = CSharpTypeFactory.CreateDeclaredType(expression.CreatedTypeUsage);
+
+        var canInstantiate = TypeUtils.CanInstantiateType(referencedType, expression);
+        if ((canInstantiate & CanInstantiate.ConstructorWithParameters) != 0)
         {
           var lparRange = expression.LPar.GetDocumentRange();
           var rparRange = expression.RPar.GetDocumentRange();
@@ -241,12 +261,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
             var argumentsRange = argumentsMarker.Range;
             if (!argumentsRange.IsValid) return;
 
-            var offset = argumentsRange.StartOffset + argumentsRange.Length / 2; // EWW
+            var offset = argumentsRange.StartOffset + argumentsRange.Length/2; // EWW
             textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
 
             if (invokeParameterInfo)
             {
-              LookupUtil.ShowParameterInfo(solution, textControl, myLookupItemsOwner);
+              var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+              LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
             }
           });
         }
@@ -257,8 +278,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
     }
 
-    private static void ExecuteRefactoring(
-      [NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression, [CanBeNull] Action executeAfter = null)
+    private static void ExecuteRefactoring([NotNull] ITextControl textControl, [NotNull] ICSharpExpression expression, [CanBeNull] Action executeAfter = null)
     {
       const string actionId = IntroVariableAction.ACTION_ID;
 
@@ -282,6 +302,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var dataContexts = solution.GetComponent<DataContexts>();
         var dataContext = dataContexts.CreateWithDataRules(definition.Lifetime, rules);
 
+        // todo: introduce normal way to execute refactorings with occurences search
         if (multipleOccurrences && !Shell.Instance.IsTestShell)
         {
           var introduceAction = new IntroVariableAction();
@@ -320,7 +341,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         try
         {
           if (id.Title == "Introduce Variable") // :((
+          {
             action();
+          }
         }
         finally
         {

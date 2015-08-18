@@ -85,7 +85,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return true; // unknown or ref-type
     }
 
-    protected static bool MakeSenseToCheckInAuto(CSharpPostfixExpressionContext expressionContext)
+    protected static bool MakeSenseToCheckInPreciseMode(CSharpPostfixExpressionContext expressionContext)
     {
       var expression = expressionContext.Expression.GetOperandThroughParenthesis();
       if (expression is IAssignmentExpression) return false;

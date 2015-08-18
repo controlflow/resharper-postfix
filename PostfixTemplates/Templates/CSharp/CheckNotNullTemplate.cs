@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       {
         if (IsNullable(outerExpression))
         {
-          if (context.IsPreciseMode && !MakeSenseToCheckInAuto(outerExpression))
+          if (context.IsPreciseMode && !MakeSenseToCheckInPreciseMode(outerExpression))
             return null; // reduce noise
 
           return new CheckForNullPostfixTemplateInfo(
