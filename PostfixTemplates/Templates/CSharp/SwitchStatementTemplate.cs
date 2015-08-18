@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -16,43 +17,50 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "switch (expr)")]
   public class SwitchStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
-      var isAutoCompletion = context.ExecutionContext.IsPreciseMode;
+      var isPreciseMode = context.ExecutionContext.IsPreciseMode;
+
       foreach (var expressionContext in context.Expressions)
       {
         if (!expressionContext.CanBeStatement) continue;
 
-        if (isAutoCompletion)
+        if (isPreciseMode)
         {
+          // todo: decompose
+
           // disable for constant expressions
           if (!expressionContext.Expression.ConstantValue.IsBadValue()) continue;
 
           var expressionType = expressionContext.Type;
           if (!expressionType.IsResolved) continue;
+
           if (expressionType.IsNullable())
           {
             expressionType = expressionType.GetNullableUnderlyingType();
             if (expressionType == null || !expressionType.IsResolved) continue;
           }
 
-          if (!expressionType.IsPredefinedIntegral() &&
-              !expressionType.IsEnumType()) continue;
+          if (!expressionType.IsPredefinedIntegral() && !expressionType.IsEnumType()) continue;
         }
 
-        return new SwitchItem(expressionContext);
+        return new PostfixTemplateInfo("switch", expressionContext);
       }
 
       return null;
     }
 
-    private sealed class SwitchItem : StatementPostfixLookupItem<ISwitchStatement>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public SwitchItem([NotNull] CSharpPostfixExpressionContext context) : base("switch", context) { }
+      return new CSharpPostfixSwitchStatementBehavior(info);
+    }
+
+    private sealed class CSharpPostfixSwitchStatementBehavior : CSharpStatementPostfixTemplateBehavior<ISwitchStatement>
+    {
+      public CSharpPostfixSwitchStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       // switch statement can't be without braces
-      protected override ISwitchStatement CreateStatement(CSharpElementFactory factory,
-                                                          ICSharpExpression expression)
+      protected override ISwitchStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
         var template = "switch($0)" + RequiredBracesTemplate;
         return (ISwitchStatement) factory.CreateStatement(template, expression);

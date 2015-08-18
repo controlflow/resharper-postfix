@@ -27,7 +27,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   {
     protected CSharpStatementPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
     {
-      Assertion.Assert(info.Target == PostfixTemplateTarget.Expression, "info.Target == PostfixTemplateTarget.Expression");
+      //Assertion.Assert(info.Target == PostfixTemplateTarget.Statement, "Invalid taget");
     }
 
     private const string CaretTemplate = "return unchecked(checked(\"If you see this - please report a bug :(\"))";

@@ -16,7 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
   {
     protected CSharpExpressionPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
     {
-      Assertion.Assert(info.Target == PostfixTemplateTarget.Expression, "info.Target == PostfixTemplateTarget.Expression");
+      //Assertion.Assert(info.Target == PostfixTemplateTarget.Expression, "info.Target == PostfixTemplateTarget.Expression");
     }
 
     protected override TExpression ExpandPostfix(CSharpPostfixExpressionContext context)

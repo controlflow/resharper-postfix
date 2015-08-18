@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
@@ -13,9 +12,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "lock",
     description: "Surrounds expression with lock block",
     example: "lock (expr)")]
-  public class LockStatementExpression : IPostfixTemplate<CSharpPostfixTemplateContext>
+  public class LockStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;
@@ -24,20 +23,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       if (context.IsPreciseMode)
       {
-        if (expressionType.IsUnknown) return null;
-        if (!expressionType.IsObject()) return null;
+        if (expressionType.IsUnknown || !expressionType.IsObject()) return null;
       }
       else
       {
         if (expressionType.Classify == TypeClassification.VALUE_TYPE) return null;
       }
 
-      return new LockItem(expressionContext);
+      return new PostfixTemplateInfo("lock", expressionContext);
     }
 
-    private sealed class LockItem : StatementPostfixLookupItem<ILockStatement>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public LockItem([NotNull] CSharpPostfixExpressionContext context) : base("lock", context) { }
+      return new CSharpPostfixLockStatementBehavior(info);
+    }
+
+    private sealed class CSharpPostfixLockStatementBehavior : CSharpStatementPostfixTemplateBehavior<ILockStatement>
+    {
+      public CSharpPostfixLockStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override ILockStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

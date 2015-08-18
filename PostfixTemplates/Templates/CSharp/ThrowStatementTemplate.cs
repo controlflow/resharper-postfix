@@ -1,9 +1,8 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -22,7 +21,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "throw expr;")]
   public class ThrowStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
+
+    public ThrowStatementTemplate([NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
+    {
+      myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
+    }
+
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.TypeExpression ?? context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;
@@ -35,10 +41,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (context.IsPreciseMode && !IsInstantiableExceptionType(referencedType, expression))
           return null;
 
-        var canInstantiate = TypeUtils.CanInstantiateType(referencedType, expression);
-        var hasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
+        //var canInstantiate = TypeUtils.CanInstantiateType(referencedType, expression);
+        //var hasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
 
-        return new ThrowByTypeItem(expressionContext, hasParameters);
+        return new PostfixTemplateInfo("throw", expressionContext, target: PostfixTemplateTarget.TypeUsage);
+        //return new ThrowByTypeItem(expressionContext, hasParameters);
       }
 
       bool needFixWithNew;
@@ -47,10 +54,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var reference = expressionContext.Expression as IReferenceExpression;
         if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))
         {
-          return new ThrowByTypeItem(expressionContext, hasRequiredArguments: true);
+          return new PostfixTemplateInfo("throw", expressionContext, target: PostfixTemplateTarget.TypeUsage);
+          //return new ThrowByTypeItem(expressionContext, hasRequiredArguments: true);
         }
 
-        return new ThrowExpressionItem(expressionContext, needFixWithNew);
+        return new PostfixTemplateInfo("throw", expressionContext);
+        //return new ThrowExpressionItem(expressionContext, needFixWithNew);
       }
 
       return null;
@@ -100,34 +109,35 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           && TypeUtils.CanInstantiateType(declaredType, context) != CanInstantiate.No;
     }
 
-    private sealed class ThrowExpressionItem : StatementPostfixLookupItem<IThrowStatement>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      private readonly bool myInsertNewExpression;
+      if (info.Target == PostfixTemplateTarget.TypeUsage)
+        return new CSharpPostfixThrowStatementByTypeUsageBehavior(info, myLookupItemsOwnerFactory);
 
-      public ThrowExpressionItem([NotNull] CSharpPostfixExpressionContext context, bool insertNewExpression)
-        : base("throw", context)
-      {
-        myInsertNewExpression = insertNewExpression;
-      }
+      return new CSharpPostfixThrowStatementBehavior(info);
+    }
+
+    private sealed class CSharpPostfixThrowStatementBehavior : CSharpStatementPostfixTemplateBehavior<IThrowStatement>
+    {
+      public CSharpPostfixThrowStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IThrowStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
+        // todo: fix this
+        var myInsertNewExpression = false;
+
         var template = myInsertNewExpression ? "throw new $0;" : "throw $0;";
         return (IThrowStatement) factory.CreateStatement(template, expression.GetText());
       }
     }
 
-    private sealed class ThrowByTypeItem : StatementPostfixLookupItem<IThrowStatement>
+    private sealed class CSharpPostfixThrowStatementByTypeUsageBehavior : CSharpStatementPostfixTemplateBehavior<IThrowStatement>
     {
-      [NotNull] private readonly ILookupItemsOwner myLookupItemsOwner;
-      private readonly bool myHasRequiredArguments;
+      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
 
-      public ThrowByTypeItem([NotNull] CSharpPostfixExpressionContext context, bool hasRequiredArguments)
-        : base("throw", context)
+      public CSharpPostfixThrowStatementByTypeUsageBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
       {
-        var executionContext = context.PostfixContext.ExecutionContext;
-        myLookupItemsOwner = executionContext.LookupItemsOwner;
-        myHasRequiredArguments = hasRequiredArguments;
+        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
       }
 
       protected override IThrowStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
@@ -155,14 +165,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         }
         else
         {
-          var caretNode = myHasRequiredArguments ? expression.LPar : (statement.Semicolon ?? (ITreeNode) expression);
+          var canInstantiate = TypeUtils.CanInstantiateType(statement.Exception.Type(), statement);
+          var hasRequiredArguments = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
+
+          var caretNode = hasRequiredArguments ? expression.LPar : (statement.Semicolon ?? (ITreeNode) expression);
           var endOffset = caretNode.GetDocumentRange().TextRange.EndOffset;
 
           textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
-          if (myHasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
+          if (hasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
           {
-            LookupUtil.ShowParameterInfo(statement.GetSolution(), textControl, myLookupItemsOwner);
+            var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+            LookupUtil.ShowParameterInfo(statement.GetSolution(), textControl, lookupItemsOwner);
           }
         }
       }
