@@ -7,8 +7,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
   public interface IPostfixTemplate<in TPostfixTemplateContext>
     where TPostfixTemplateContext : PostfixTemplateContext
   {
-    // todo: 'TryCreateInfo'
-    [CanBeNull] PostfixTemplateInfo CreateItem([NotNull] TPostfixTemplateContext context);
+    [CanBeNull] PostfixTemplateInfo TryCreateInfo([NotNull] TPostfixTemplateContext context);
     [NotNull] PostfixTemplateBehavior CreateBehavior([NotNull] PostfixTemplateInfo info);
   }
 }

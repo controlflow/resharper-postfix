@@ -191,6 +191,7 @@
     <Compile Include="LookupItems\PostfixTemplateInfo.cs" />
     <Compile Include="LookupItems\PostfixTemplateMatcher.cs" />
     <Compile Include="LookupItems\PostfixTemplatePresentation.cs" />
+    <Compile Include="LookupItems\PostfixTemplateTarget.cs" />
     <Compile Include="LookupItems\StatementPostfixLookupItem.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixExecutionContext.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixTemplateContext.cs" />

@@ -16,7 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "typeof(TExpr)")]
   public class TypeOfExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var typeExpression = context.TypeExpression;
       if (typeExpression == null) return null;

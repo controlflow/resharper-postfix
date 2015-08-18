@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
   public abstract class ForLoopTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public abstract PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context);
+    public abstract PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context);
 
     protected bool CanBeLoopedOver([NotNull] CSharpPostfixTemplateContext context, [CanBeNull] out string lengthName)
     {

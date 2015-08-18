@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -16,7 +15,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "(expr)")]
   public class ParenthesizedExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       if (context.IsPreciseMode)
       {
@@ -28,22 +27,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           var expression = ParenthesizedExpressionNavigator.GetByExpression(castExpression);
           if (expression != null) continue; // not already parenthesized
 
-          return new ParenthesesItem(expressionContext);
+          return new PostfixTemplateInfo("par", expressionContext);
         }
 
         return null;
       }
 
-      var contexts = CommonUtils.FindExpressionWithValuesContexts(context);
-      if (contexts.Length == 0) return null;
+      var expressions = CommonUtils.FindExpressionWithValuesContexts(context);
+      if (expressions.Length != 0)
+      {
+        return new PostfixTemplateInfo("par", expressions);
+      }
 
-      return new ParenthesesItem(contexts);
+      return null;
     }
 
-    private sealed class ParenthesesItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public ParenthesesItem([NotNull] params CSharpPostfixExpressionContext[] contexts)
-        : base("par", contexts) { }
+      return new ParenthesesItem(info);
+    }
+
+    private sealed class ParenthesesItem : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
+    {
+      public ParenthesesItem([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override string ExpressionSelectTitle
       {

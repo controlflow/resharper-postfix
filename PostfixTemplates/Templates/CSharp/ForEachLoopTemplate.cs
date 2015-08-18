@@ -42,7 +42,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       myLiveTemplatesManager = liveTemplatesManager;
     }
 
-    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.Expressions.LastOrDefault();
       if (expressionContext == null) return null;

@@ -12,15 +12,35 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   public class PostfixTemplateInfo : UserDataHolder, ILookupItemInfo
   {
     [NotNull] private readonly string myText;
+    private readonly PostfixTemplateTarget myTarget;
 
-    public PostfixTemplateInfo([NotNull] string text, [NotNull] IEnumerable<PostfixExpressionContext> expressions)
+    // todo: store expressions
+
+    public PostfixTemplateInfo([NotNull] string text, [NotNull] IEnumerable<PostfixExpressionContext> expressions, PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
     {
       myText = text;
+      myTarget = target;
     }
-    
-    public PostfixTemplateInfo([NotNull] string text, [NotNull] PostfixExpressionContext expression)
+
+    public PostfixTemplateInfo([NotNull] string text, [NotNull] PostfixExpressionContext expression, PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
     {
       myText = text;
+      myTarget = target;
+    }
+
+    public string Text
+    {
+      get { return myText; }
+    }
+
+    public string ReparseString
+    {
+      get { return "aaa__"; }
+    }
+
+    public PostfixTemplateTarget Target
+    {
+      get { return myTarget; }
     }
 
     public int Multiplier { get { return 0; } }
@@ -38,16 +58,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     public bool IsDynamic { get { return false; } }
 
     public int Identity { get { return 0; } }
-
-    public string Text
-    {
-      get { return myText; }
-    }
-
-    public string ReparseString
-    {
-      get { return "aaa__"; }
-    }
 
     public object Shortcut
     {

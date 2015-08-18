@@ -1,7 +1,6 @@
 using System.Linq;
 using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -17,20 +16,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "|selected + expression|")]
   public class SelectExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public ILookupItem CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       if (context.IsPreciseMode) return null;
 
       var expressions = context.Expressions.Reverse().ToArray();
       if (expressions.Length == 0) return null;
 
-      return new SelectItem(expressions);
+      return new PostfixTemplateInfo("sel", expressions);
     }
 
-    private sealed class SelectItem : ExpressionPostfixLookupItem<ICSharpExpression>
+    public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      public SelectItem([NotNull] CSharpPostfixExpressionContext[] contexts)
-        : base("sel", contexts) { }
+      return new CSharpPostfixSelectExpressionBehavior(info);
+    }
+
+    private sealed class CSharpPostfixSelectExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
+    {
+      public CSharpPostfixSelectExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {

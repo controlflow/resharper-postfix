@@ -28,7 +28,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
   public abstract class ParseStringTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public abstract PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context);
+    public abstract PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context);
 
     public abstract PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info);
 

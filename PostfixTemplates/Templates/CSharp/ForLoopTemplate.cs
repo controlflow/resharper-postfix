@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       myLiveTemplatesManager = liveTemplatesManager;
     }
 
-    public override PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    public override PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       string lengthName;
       if (!CanBeLoopedOver(context, out lengthName)) return null;

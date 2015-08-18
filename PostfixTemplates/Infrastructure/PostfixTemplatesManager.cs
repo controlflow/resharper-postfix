@@ -97,7 +97,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           if (!string.Equals(templateName, name, StringComparison.Ordinal)) continue;
         }
 
-        var lookupItem = info.Provider.CreateItem(context);
+        var lookupItem = info.Provider.TryCreateInfo(context);
         if (lookupItem != null)
         {
           lookupItems.Add(lookupItem);

@@ -11,7 +11,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "int.Parse(expr)")]
   public class ParseStringTemplate : ParseStringTemplateBase
   {
-    public override PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    public override PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       foreach (var expressionContext in context.Expressions)
       {

@@ -39,7 +39,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
     }
 
-    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       if (context.IsPreciseMode) return null;
 
@@ -65,8 +65,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return true;
     }
 
-    [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion =
-      new Key(typeof(ArgumentExpressionTemplate).FullName);
+    [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion = new Key(typeof(ArgumentExpressionTemplate).FullName);
 
     private class PostfixArgumentBehavior : CSharpExpressionPostfixTemplateBehavior<IInvocationExpression>
     {

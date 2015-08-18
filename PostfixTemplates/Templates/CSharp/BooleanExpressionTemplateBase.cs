@@ -9,7 +9,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
   public abstract class BooleanExpressionTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var booleanExpressions = new LocalList<CSharpPostfixExpressionContext>();
 

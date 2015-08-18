@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
@@ -9,9 +8,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "null",
     description: "Checks expression to be null",
     example: "if (expr == null)")]
-  public class CheckIsNullTemplate : CheckForNullTemplateBase, IPostfixTemplate<CSharpPostfixTemplateContext>
+  public class CheckIsNullTemplate : CheckForNullTemplateBase
   {
-    public ILookupItem CreateItem(PostfixTemplateContext context)
+    protected override CheckForNullPostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var outerExpression = context.OuterExpression;
       if (outerExpression != null && outerExpression.CanBeStatement)
@@ -21,7 +20,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           if (context.IsPreciseMode && !MakeSenseToCheckInAuto(outerExpression))
             return null; // reduce noise
 
-          return new CheckForNullStatementItem("null", outerExpression, "if($0==null)");
+          return new CheckForNullPostfixTemplateInfo(
+            "null", outerExpression, checkNotNull: false, target: PostfixTemplateTarget.Statement);
         }
       }
       else if (!context.IsPreciseMode)
@@ -36,7 +36,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (nullableExpressions.Count > 0)
         {
           nullableExpressions.Reverse();
-          return new CheckForNullExpressionItem("null", nullableExpressions.ToArray(), "$0==null");
+
+          return new CheckForNullPostfixTemplateInfo(
+            "null", nullableExpressions, checkNotNull: false, target: PostfixTemplateTarget.Expression);
         }
       }
 

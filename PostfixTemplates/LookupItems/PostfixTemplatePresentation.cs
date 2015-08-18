@@ -9,6 +9,9 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
+  // todo: maybe do text.ToLowerCase() here, to support 'notNull' and 'forEach'
+  // todo: aspect?
+
   public class PostfixTemplatePresentation : ILookupItemPresentation
   {
     [NotNull] private readonly RichText myDisplayName;

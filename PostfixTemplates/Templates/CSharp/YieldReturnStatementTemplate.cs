@@ -19,7 +19,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "yield return expr;")]
   public class YieldReturnStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    public PostfixTemplateInfo CreateItem(CSharpPostfixTemplateContext context)
+    public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
       if (expressionContext == null) return null;
