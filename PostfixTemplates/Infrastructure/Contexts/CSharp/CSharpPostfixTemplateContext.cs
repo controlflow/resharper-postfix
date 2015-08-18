@@ -59,14 +59,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
         previousStartOffset = expressionRange.TextRange.StartOffset;
 
         // skip relational expressions like this: 'List<int.{here}>'
-        if (CommonUtils.IsRelationalExpressionWithTypeOperand(expression))
+        if (CSharpPostfixUtis.IsRelationalExpressionWithTypeOperand(expression))
           continue;
 
         var expressionContext = new CSharpPostfixExpressionContext(this, expression);
         if (expressionContext.ReferencedElement is ITypeElement)
         {
           // skip types that are parts of 'List<T.>'-like expressions
-          if (!CommonUtils.CanTypeBecameExpression(myInnerExpression)) continue;
+          if (!CSharpPostfixUtis.CanTypeBecameExpression(myInnerExpression)) continue;
           if (myTypeExpression != null) break; // should never happens
 
           myTypeExpression = expressionContext;

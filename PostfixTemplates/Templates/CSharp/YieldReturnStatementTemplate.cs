@@ -1,7 +1,5 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
@@ -13,7 +11,7 @@ using JetBrains.TextControl;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
-[PostfixTemplate(
+  [PostfixTemplate(
     templateName: "yield",
     description: "Yields value from iterator method",
     example: "yield return expr;")]

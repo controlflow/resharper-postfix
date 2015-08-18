@@ -52,7 +52,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       if (CheckExpressionType(expressionContext, out needFixWithNew) || !context.IsPreciseMode)
       {
         var reference = expressionContext.Expression as IReferenceExpression;
-        if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))
+        if (reference != null && CSharpPostfixUtis.IsReferenceExpressionsChain(reference))
         {
           return new PostfixTemplateInfo("throw", expressionContext, target: PostfixTemplateTarget.TypeUsage);
           //return new ThrowByTypeItem(expressionContext, hasRequiredArguments: true);
@@ -83,7 +83,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       if (invocationExpression != null)
       {
         var reference = invocationExpression.InvokedExpression as IReferenceExpression;
-        if (reference == null || !CommonUtils.IsReferenceExpressionsChain(reference)) return false;
+        if (reference == null || !CSharpPostfixUtis.IsReferenceExpressionsChain(reference)) return false;
 
         var resolveResult = reference.Reference.Resolve().Result;
         var typeElement = resolveResult.DeclaredElement as ITypeElement;

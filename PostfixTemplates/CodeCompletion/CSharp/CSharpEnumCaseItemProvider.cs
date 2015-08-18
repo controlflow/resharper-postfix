@@ -237,7 +237,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         textControl.Document.ReplaceText(nameRange, "E()");
 
         var psiServices = solution.GetPsiServices();
-        psiServices.CommitAllDocuments();
+        psiServices.Files.CommitAllDocuments();
 
         var enumMember = myPointer.Resolve();
         if (enumMember == null) return;

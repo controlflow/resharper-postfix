@@ -61,7 +61,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           razorRange.Document.ReplaceText(razorRange.TextRange, "@using(null){}");
         }
 
-        solution.GetPsiServices().CommitAllDocuments();
+        solution.GetPsiServices().Files.CommitAllDocuments();
 
         var statements = TextControlToPsi.GetElements<IUsingStatement>(solution, document, offset);
         foreach (var razorStatement in statements)

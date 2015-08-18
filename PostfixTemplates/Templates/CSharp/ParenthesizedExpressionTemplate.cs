@@ -33,7 +33,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         return null;
       }
 
-      var expressions = CommonUtils.FindExpressionWithValuesContexts(context);
+      var expressions = CSharpPostfixUtis.FindExpressionWithValuesContexts(context);
       if (expressions.Length != 0)
       {
         return new PostfixTemplateInfo("par", expressions);

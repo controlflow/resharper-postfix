@@ -81,7 +81,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           }
           else if (declaredElement == null || declaredElement is ITypeElement)
           {
-            if (CommonUtils.IsReferenceExpressionsChain(reference))
+            if (CSharpPostfixUtis.IsReferenceExpressionsChain(reference))
             {
               return new PostfixTemplateInfo("new", expressionContext);
             }
@@ -94,7 +94,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       if (!context.IsPreciseMode) // UnresolvedType.new
       {
         var reference = expressionContext.Expression as IReferenceExpression;
-        if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))
+        if (reference != null && CSharpPostfixUtis.IsReferenceExpressionsChain(reference))
         {
           var resolveResult = reference.Reference.Resolve();
 

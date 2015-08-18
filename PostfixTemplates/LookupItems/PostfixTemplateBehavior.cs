@@ -54,7 +54,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       textControl.Document.InsertText(nameRange.EndOffset, reparseString, TextModificationSide.RightSide);
 
-      solution.GetPsiServices().CommitAllDocuments();
+      solution.GetPsiServices().Files.CommitAllDocuments();
 
       var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
 

@@ -164,7 +164,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
           textControl.Caret.MoveTo(caretRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
           textControl.Document.DeleteText(caretRange);
 
-          psiServices.CommitAllDocuments();
+          psiServices.Files.CommitAllDocuments();
 
           var fixedStatement = pointer.GetTreeNode();
           if (fixedStatement != null) return fixedStatement;

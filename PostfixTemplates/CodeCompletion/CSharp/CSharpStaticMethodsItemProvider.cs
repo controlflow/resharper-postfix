@@ -128,7 +128,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
               TailType tailType, ref Suffix suffix, ref IRangeMarker caretMarker) =>
       {
         var psiServices = solution.GetPsiServices();
-        psiServices.CommitAllDocuments();
+        psiServices.Files.CommitAllDocuments();
 
         var allMethods = GetAllTargetMethods(lookupItem);
         if (allMethods.Count == 0) return;
@@ -170,7 +170,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var ownerType = allMethods[0].GetContainingType().NotNull("ownerType != null");
         FixQualifierExpression(textControl, qualifierExpression, ownerType);
 
-        psiServices.CommitAllDocuments();
+        psiServices.Files.CommitAllDocuments();
 
         var newReference = referencePointer.GetTreeNode();
         if (newReference != null)

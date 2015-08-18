@@ -237,6 +237,7 @@
     <Compile Include="Templates\CSharp\YieldReturnStatementTemplate.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Infrastructure\ExpressionChooser.cs" />
+    <Compile Include="Utils\CSharpPostfixUtis.cs" />
     <Compile Include="Utils\RazorUtil.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
     <Compile Include="ZoneMarker.cs" />

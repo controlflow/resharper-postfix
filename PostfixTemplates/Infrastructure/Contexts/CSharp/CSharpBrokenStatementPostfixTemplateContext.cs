@@ -38,7 +38,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
         document.InsertText(expressionRange.TextRange.StartOffset, "unchecked(");
       }
 
-      psiServices.CommitAllDocuments();
+      psiServices.Files.CommitAllDocuments();
 
       var uncheckedExpression = TextControlToPsi.GetElement<IUncheckedExpression>(psiServices.Solution, document, expressionRange.TextRange.StartOffset + 1);
       if (uncheckedExpression == null) return context;

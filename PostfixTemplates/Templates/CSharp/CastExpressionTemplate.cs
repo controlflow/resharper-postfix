@@ -31,7 +31,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     {
       if (context.IsPreciseMode) return null;
 
-      var expressions = CommonUtils.FindExpressionWithValuesContexts(context);
+      var expressions = CSharpPostfixUtis.FindExpressionWithValuesContexts(context);
       if (expressions.Length == 0) return null;
 
       return new PostfixTemplateInfo("cast", expressions);

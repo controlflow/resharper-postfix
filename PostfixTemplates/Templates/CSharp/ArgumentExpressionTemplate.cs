@@ -47,7 +47,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var textControl = context.ExecutionContext.TextControl;
       if (textControl.GetData(PostfixArgTemplateExpansion) != null) return null;
 
-      var expressions = CommonUtils.FindExpressionWithValuesContexts(context, IsNiceArgument);
+      var expressions = CSharpPostfixUtis.FindExpressionWithValuesContexts(context, IsNiceArgument);
       if (expressions.Length == 0) return null;
 
       return new PostfixTemplateInfo("arg", expressions);
@@ -118,7 +118,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
             var hotspotRange = session.Hotspots[0].RangeMarker.Range;
             if (!hotspotRange.IsValid) return;
 
-            solution.GetPsiServices().CommitAllDocuments();
+            solution.GetPsiServices().Files.CommitAllDocuments();
 
             if (TryPlaceCaretSmart(solution, textControl, languageType, hotspotRange))
               return;

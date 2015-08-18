@@ -5,7 +5,7 @@ using JetBrains.Application;
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   [AttributeUsage(AttributeTargets.Class), MeansImplicitUse]
-  [BaseTypeRequired(typeof(IPostfixTemplate))]
+  [BaseTypeRequired(typeof(IPostfixTemplate<>))]
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public sealed class PostfixTemplateAttribute : ShellComponentAttribute
   {

@@ -150,7 +150,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
         try
         {
           document.InsertText(offset, reparseString);
-          solution.GetPsiServices().CommitAllDocuments();
+          solution.GetPsiServices().Files.CommitAllDocuments();
 
           var executionContext = new PostfixExecutionContext(solution, textControl, reparseString, false);
 

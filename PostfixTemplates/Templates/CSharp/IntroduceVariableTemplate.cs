@@ -107,7 +107,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       if (invocationExpression == null) return false;
 
       var reference = invocationExpression.InvokedExpression as IReferenceExpression;
-      if (reference != null && CommonUtils.IsReferenceExpressionsChain(reference))
+      if (reference != null && CSharpPostfixUtis.IsReferenceExpressionsChain(reference))
       {
         var resolveResult = reference.Reference.Resolve().Result;
         return resolveResult.DeclaredElement is ITypeElement;

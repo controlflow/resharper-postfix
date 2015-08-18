@@ -1,6 +1,6 @@
-﻿using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
-using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
-using JetBrains.ReSharper.Psi;
+﻿using JetBrains.Annotations;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
+using JetBrains.ReSharper.Feature.Services.Lookup;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
@@ -10,18 +10,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "int.Parse(expr)")]
   public class ParseStringTemplate : ParseStringTemplateBase
   {
-    public override PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
-    {
-      foreach (var expressionContext in context.Expressions)
-      {
-        var expressionType = expressionContext.Type;
-        if (expressionType.IsResolved && expressionType.IsString())
-        {
-          return new PostfixParseTemplateInfo("parse", expressionContext, isTryParse: false);
-        }
-      }
+    public ParseStringTemplate(
+      [NotNull] LiveTemplatesManager liveTemplatesManager, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
+      : base(liveTemplatesManager, lookupItemsOwnerFactory) { }
 
-      return null;
-    }
+    public override string TemplateName { get { return "parse"; } }
+    public override bool IsTryParse { get { return false; } }
   }
 }
