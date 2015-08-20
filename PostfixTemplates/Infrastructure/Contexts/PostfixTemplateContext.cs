@@ -33,6 +33,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     }
   }
 
+  // todo: remove this, move .Expressions to C#
   public abstract class PostfixTemplateContext<TPostfixExpressionContext> : PostfixTemplateContext
     where TPostfixExpressionContext : PostfixExpressionContext
   {

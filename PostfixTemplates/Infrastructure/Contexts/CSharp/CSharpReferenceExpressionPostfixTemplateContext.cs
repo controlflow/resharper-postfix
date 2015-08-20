@@ -19,9 +19,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       var expression = context.Expression;
       if (expression.Parent == referenceExpression) // foo.bar => foo
       {
-        ICSharpExpression newExpression = null;
-        expression.GetPsiServices().DoTransaction(FixCommandName,
-          () => newExpression = referenceExpression.ReplaceBy(expression));
+        var psiServices = expression.GetPsiServices();
+
+        var newExpression = psiServices.DoTransaction(FixCommandName, () =>
+        {
+          return referenceExpression.ReplaceBy(expression);
+        });
 
         Assertion.AssertNotNull(newExpression, "newExpression != null");
         Assertion.Assert(newExpression.IsPhysical(), "newExpression.IsPhysical()");
@@ -32,9 +35,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       if (expression.Contains(referenceExpression)) // boo > foo.bar => boo > foo
       {
         var qualifier = referenceExpression.QualifierExpression;
-        expression.GetPsiServices().DoTransaction(FixCommandName,
-          () => referenceExpression.ReplaceBy(qualifier.NotNull()));
+        var psiServices = expression.GetPsiServices();
 
+        var newExpression = psiServices.DoTransaction(FixCommandName, () =>
+        {
+          return referenceExpression.ReplaceBy(qualifier.NotNull());
+        });
+
+        Assertion.AssertNotNull(newExpression, "newExpression != null");
         Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
       }
 

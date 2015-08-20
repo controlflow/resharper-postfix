@@ -17,7 +17,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       var expression = context.Expression;
       if (expression.Contains(Reference)) // x is T.bar => x is T
       {
-        expression.GetPsiServices().DoTransaction(FixCommandName, () => {
+        expression.GetPsiServices().DoTransaction(FixCommandName, () =>
+        {
           var referenceName = (IReferenceName) Reference;
           var qualifier = referenceName.Qualifier;
 

@@ -19,6 +19,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
     [NotNull] private readonly LanguageManager myLanguageManager;
     [NotNull] private readonly IList<TemplateProviderInfo> myTemplateProvidersInfos;
 
+    
+
     public PostfixTemplatesManager([NotNull] IEnumerable<IPostfixTemplate> providers, [NotNull] LanguageManager languageManager)
     {
       myLanguageManager = languageManager;
