@@ -18,7 +18,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     {
       Solution = solution;
       TextControl = textControl;
-      Settings = settingsStore;
+      SettingsStore = settingsStore;
       ReparseString = reparseString;
       IsPreciseMode = isPreciseMode;
     }
@@ -28,7 +28,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     [NotNull] public ISolution Solution { get; private set; }
     [NotNull] public ITextControl TextControl { get; private set; }
 
-    [NotNull] public IContextBoundSettingsStore Settings { get; private set; }
+    [NotNull] public IContextBoundSettingsStore SettingsStore { get; private set; }
 
     [NotNull] public LiveTemplatesManager LiveTemplatesManager
     {

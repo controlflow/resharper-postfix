@@ -52,7 +52,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
 
       Assertion.Assert(operand.IsPhysical(), "operand.IsPhysical()");
 
-      return new CSharpPostfixExpressionContext(this, operand, context.Index);
+      return new CSharpPostfixExpressionContext(this, operand);
     }
   }
 }

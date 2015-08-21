@@ -176,7 +176,7 @@
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpReferenceExpressionPostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpReferenceNamePostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplateContextFactory.cs" />
-    <Compile Include="Infrastructure\CSharpPostfixTemplatesManager.cs" />
+    <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplatesManager.cs" />
     <Compile Include="Infrastructure\IPostfixTemplate.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixExpressionContext.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateContextFactory.cs" />

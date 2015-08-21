@@ -27,7 +27,7 @@ public class ReSharperTestEnvironmentAssembly : TestEnvironmentAssembly<IPostfix
   [NotNull]
   private static IEnumerable<Assembly> GetAssembliesToLoad()
   {
-    yield return typeof(PostfixTemplatesManager).Assembly;
+    yield return typeof(PostfixTemplatesManager<>).Assembly;
     yield return Assembly.GetExecutingAssembly();
   }
 

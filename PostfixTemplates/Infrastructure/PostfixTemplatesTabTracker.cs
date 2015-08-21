@@ -21,12 +21,15 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
+  // todo: no lookup items here!
+
   [SolutionComponent]
   public sealed class PostfixTemplatesTabTracker
   {
     public PostfixTemplatesTabTracker(
       [NotNull] Lifetime lifetime, [NotNull] IActionManager manager, [NotNull] ICommandProcessor commandProcessor,
-      [NotNull] ILookupWindowManager lookupWindowManager, [NotNull] PostfixTemplatesManager templatesManager,
+      [NotNull] ILookupWindowManager lookupWindowManager,
+      [NotNull] LanguageManager languageManager,
       [NotNull] TextControlChangeUnitFactory changeUnitFactory)
     {
       // override live templates expand action
@@ -34,7 +37,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       if (expandAction != null)
       {
         var postfixHandler = new ExpandPostfixTemplateHandler(
-          commandProcessor, lookupWindowManager, templatesManager, changeUnitFactory);
+          commandProcessor, lookupWindowManager, languageManager, changeUnitFactory);
 
         lifetime.AddBracket(
           FOpening: () => manager.Handlers.AddHandler(expandAction, postfixHandler),
@@ -46,18 +49,18 @@ namespace JetBrains.ReSharper.PostfixTemplates
     {
       [NotNull] private readonly ICommandProcessor myCommandProcessor;
       [NotNull] private readonly ILookupWindowManager myLookupWindowManager;
-      [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
+      [NotNull] private readonly LanguageManager myLanguageManager;
       [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
 
       public ExpandPostfixTemplateHandler([NotNull] ICommandProcessor commandProcessor,
                                           [NotNull] ILookupWindowManager lookupWindowManager,
-                                          [NotNull] PostfixTemplatesManager templatesManager,
+                                          [NotNull] LanguageManager languageManager,
                                           [NotNull] TextControlChangeUnitFactory changeUnitFactory)
       {
-        myChangeUnitFactory = changeUnitFactory;
-        myLookupWindowManager = lookupWindowManager;
         myCommandProcessor = commandProcessor;
-        myTemplatesManager = templatesManager;
+        myLookupWindowManager = lookupWindowManager;
+        myLanguageManager = languageManager;
+        myChangeUnitFactory = changeUnitFactory;
       }
 
       public bool Update(IDataContext context, ActionPresentation presentation, DelegateUpdate nextUpdate)
@@ -130,7 +133,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         if (!TemplateWithNameExists(prefix)) return null;
 
-        // todo: this reparse is language-specific
+        // todo: this reparse is language-specific!
         var postfixItems = TryReparseWith(solution, textControl, prefix, "__")
                         ?? TryReparseWith(solution, textControl, prefix, "__;");
 
