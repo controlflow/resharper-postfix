@@ -16,7 +16,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     {
       myExpressionType = context.Expression.GetType();
       myExpressionRange = context.ExpressionRange;
-      myContextIndex = context.PostfixContext.Expressions.IndexOf(context);
+      myContextIndex = context.PostfixContext.AllExpressions.IndexOf(context);
     }
 
     public int ContextIndex { get { return myContextIndex; } }

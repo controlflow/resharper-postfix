@@ -6,7 +6,7 @@ using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
-  internal sealed class CodeCompletionPostfixExecutionContext : PostfixExecutionContext
+  internal sealed class CodeCompletionPostfixExecutionContext : PostfixTemplateExecutionContext
   {
     [NotNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 

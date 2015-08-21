@@ -7,7 +7,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
   public class CSharpReferenceExpressionPostfixTemplateContext : CSharpPostfixTemplateContext
   {
     public CSharpReferenceExpressionPostfixTemplateContext(
-      [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixExecutionContext executionContext)
+      [NotNull] IReferenceExpression reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixTemplateExecutionContext executionContext)
       : base(reference, expression, executionContext) { }
 
     private static readonly string FixCommandName = typeof(CSharpReferenceExpressionPostfixTemplateContext) + ".FixExpression";

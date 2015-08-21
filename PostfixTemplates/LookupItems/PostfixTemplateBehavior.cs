@@ -63,7 +63,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
       {
-        var executionContext = new PostfixExecutionContext(solution, textControl, reparseString, false);
+        var executionContext = new PostfixTemplateExecutionContext(solution, textControl, reparseString, false);
 
         postfixContext = templatesManager.IsAvailable(position, executionContext);
         if (postfixContext != null) break;
@@ -185,7 +185,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       if (results.Count == 0)
       {
-        var expressions = context.Expressions;
+        var expressions = context.AllExpressions;
 
         foreach (var image in images)
         {

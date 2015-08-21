@@ -175,7 +175,7 @@
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpBrokenStatementPostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpReferenceExpressionPostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpReferenceNamePostfixTemplateContext.cs" />
-    <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplatesContextFactory.cs" />
+    <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplateContextFactory.cs" />
     <Compile Include="Infrastructure\IPostfixTemplate.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixExpressionContext.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateContextFactory.cs" />
@@ -189,11 +189,11 @@
     <Compile Include="LookupItems\PostfixTemplateMatcher.cs" />
     <Compile Include="LookupItems\PostfixTemplatePresentation.cs" />
     <Compile Include="LookupItems\PostfixTemplateTarget.cs" />
-    <Compile Include="Infrastructure\Contexts\PostfixExecutionContext.cs" />
+    <Compile Include="Infrastructure\Contexts\PostfixTemplateExecutionContext.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\PostfixTemplatesManager.cs" />
     <Compile Include="Infrastructure\PostfixTemplatesTabTracker.cs" />
-    <Compile Include="Infrastructure\Contexts\CSharp\CSharpPrefixExpressionContext.cs" />
+    <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixExpressionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\CodeCompletionSettingsAccessor.cs" />
     <Compile Include="Settings\PostfixOptionsPage.xaml.cs">

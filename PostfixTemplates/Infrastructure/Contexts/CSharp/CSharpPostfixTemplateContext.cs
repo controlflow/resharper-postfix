@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
@@ -7,19 +8,20 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
 {
-  public class CSharpPostfixTemplateContext : PostfixTemplateContext<CSharpPostfixExpressionContext>
+  public class CSharpPostfixTemplateContext : PostfixTemplateContext
   {
     [NotNull] private readonly ICSharpExpression myInnerExpression;
+    [CanBeNull] private IList<CSharpPostfixExpressionContext> myExpressions;
     [CanBeNull] private CSharpPostfixExpressionContext myTypeExpression;
 
     protected CSharpPostfixTemplateContext(
-      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixExecutionContext executionContext)
+      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixTemplateExecutionContext executionContext)
       : base(reference, executionContext)
     {
       myInnerExpression = expression;
     }
 
-    [NotNull]
+    [NotNull] // todo: do we need it?
     public IEnumerable<CSharpPostfixExpressionContext> ExpressionsOrTypes
     {
       get
@@ -31,12 +33,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       }
     }
 
-    protected override IList<CSharpPostfixExpressionContext> BuildExpressions()
+    [NotNull, ItemNotNull]
+    public IList<CSharpPostfixExpressionContext> Expressions
+    {
+      get
+      {
+        GC.KeepAlive(AllExpressions); // todo: hate this
+
+        return myExpressions ?? EmptyList<CSharpPostfixExpressionContext>.InstanceList;
+      }
+    }
+
+    protected override IList<PostfixExpressionContext> BuildAllExpressions()
     {
       var reference = Reference;
 
       // build expression contexts
-      var contexts = new List<CSharpPostfixExpressionContext>();
+      var expressionContexts = new List<CSharpPostfixExpressionContext>();
       var endOffset = ToDocumentRange(reference).TextRange.EndOffset;
       var previousStartOffset = -1;
 
@@ -69,20 +82,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
           if (!CSharpPostfixUtis.CanTypeBecameExpression(myInnerExpression)) continue;
           if (myTypeExpression != null) break; // should never happens
 
-          myTypeExpression = expressionContext;
-          return EmptyList<CSharpPostfixExpressionContext>.InstanceList; // yeah, time to stop
+          myTypeExpression = expressionContext; // yeah, time to stop
+          myExpressions = EmptyList<CSharpPostfixExpressionContext>.InstanceList;
+          return EmptyList<PostfixExpressionContext>.InstanceList;
         }
 
-        contexts.Add(expressionContext);
+        expressionContexts.Add(expressionContext);
+
         if (expressionContext.CanBeStatement) break;
       }
 
-      return contexts.AsReadOnly();
-    }
-
-    public override bool HasExpressions
-    {
-      get { return Expressions.Count > 0 || TypeExpression != null; }
+      myExpressions = expressionContexts.AsReadOnly();
+      return expressionContexts.ConvertAll(x => (PostfixExpressionContext) x).AsReadOnly();
     }
 
     // Most inner expression: '0.var'
@@ -113,6 +124,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {
       get { return myInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
+    }
+
+    public override PostfixExpressionContext FixExpression(PostfixExpressionContext context)
+    {
+      return FixExpression((CSharpPostfixExpressionContext) context);
+    }
+
+    [NotNull]
+    public virtual CSharpPostfixExpressionContext FixExpression([NotNull] CSharpPostfixExpressionContext context)
+    {
+      return context;
     }
 
     [NotNull] public virtual ICSharpExpression GetOuterExpression([NotNull] ICSharpExpression expression)

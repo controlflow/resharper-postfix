@@ -13,7 +13,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     }
 
     [NotNull] public PostfixTemplateContext PostfixContext { get; private set; }
-
     [NotNull] public ITreeNode Expression { get; private set; }
 
     public DocumentRange ExpressionRange

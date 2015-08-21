@@ -2,40 +2,40 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application;
-using JetBrains.Application.Components;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
-using JetBrains.ReSharper.Resources.Shell;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   [ShellComponent]
-  public class PostfixTemplatesManager
+  public class CSharpPostfixTemlatesManager : PostfixTemplatesManager<CSharpPostfixTemplateContext>
+  {
+    public CSharpPostfixTemlatesManager(
+      [NotNull] IEnumerable<IPostfixTemplate<CSharpPostfixTemplateContext>> providers, [NotNull] LanguageManager languageManager)
+      : base(providers, languageManager) { }
+  }
+
+  public abstract class PostfixTemplatesManager<TPostfixTemplateContext>
+    where TPostfixTemplateContext : PostfixTemplateContext
   {
     [NotNull] private readonly LanguageManager myLanguageManager;
     [NotNull] private readonly IList<TemplateProviderInfo> myTemplateProvidersInfos;
 
-    
-
-    public PostfixTemplatesManager([NotNull] IEnumerable<IPostfixTemplate> providers, [NotNull] LanguageManager languageManager)
+    public PostfixTemplatesManager(
+      [NotNull] IEnumerable<IPostfixTemplate<TPostfixTemplateContext>> providers, [NotNull] LanguageManager languageManager)
     {
       myLanguageManager = languageManager;
-
-      
-
-
 
       var infos = new List<TemplateProviderInfo>();
       foreach (var provider in providers)
       {
         var providerType = provider.GetType();
-        var attributes = (PostfixTemplateAttribute[])
-          providerType.GetCustomAttributes(typeof(PostfixTemplateAttribute), inherit: false);
-
+        var attributes = (PostfixTemplateAttribute[]) providerType.GetCustomAttributes(typeof(PostfixTemplateAttribute), inherit: false);
         if (attributes.Length == 1)
         {
           var info = new TemplateProviderInfo(provider, attributes[0], providerType.FullName);
@@ -48,16 +48,16 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
     public sealed class TemplateProviderInfo
     {
-      public TemplateProviderInfo([NotNull] IPostfixTemplate provider,
+      public TemplateProviderInfo([NotNull] IPostfixTemplate<TPostfixTemplateContext> template,
                                   [NotNull] PostfixTemplateAttribute metadata,
                                   [NotNull] string providerKey)
       {
-        Provider = provider;
+        Template = template;
         Metadata = metadata;
         SettingsKey = providerKey;
       }
 
-      [NotNull] public IPostfixTemplate Provider { get; private set; }
+      [NotNull] public IPostfixTemplate<TPostfixTemplateContext> Template { get; private set; }
       [NotNull] public PostfixTemplateAttribute Metadata { get; private set; }
       [NotNull] public string SettingsKey { get; private set; }
     }
@@ -102,7 +102,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           if (!string.Equals(templateName, name, StringComparison.Ordinal)) continue;
         }
 
-        var lookupItem = info.Provider.TryCreateInfo(context);
+        var lookupItem = info.Template.TryCreateInfo(context);
         if (lookupItem != null)
         {
           lookupItems.Add(lookupItem);
@@ -113,7 +113,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
     }
 
     [CanBeNull]
-    public PostfixTemplateContext IsAvailable([CanBeNull] ITreeNode position, [NotNull] PostfixExecutionContext executionContext)
+    public PostfixTemplateContext IsAvailable([CanBeNull] ITreeNode position, [NotNull] PostfixTemplateExecutionContext executionContext)
     {
       if (position == null) return null;
 

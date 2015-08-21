@@ -11,12 +11,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
   // todo: IContextBoundSettingsStore here
 
   [PublicAPI]
-  public class PostfixExecutionContext
+  public class PostfixTemplateExecutionContext
   {
     [CanBeNull] private ILookupItemsOwner myLookupItemsOwner;
     [CanBeNull] private LiveTemplatesManager myLiveTemplatesManager;
 
-    public PostfixExecutionContext(
+    public PostfixTemplateExecutionContext(
       [NotNull] ISolution solution, [NotNull] ITextControl textControl, [NotNull] string reparseString, bool isPreciseMode)
     {
       Solution = solution;

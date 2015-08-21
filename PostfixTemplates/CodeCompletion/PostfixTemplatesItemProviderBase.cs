@@ -38,7 +38,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       if (postfixContext == null) return false;
 
       // nothing to check :(
-      if (!postfixContext.HasExpressions) return false;
+      if (postfixContext.AllExpressions.Count > 0) return false;
 
       var lookupItems = myTemplatesManager.CollectItems(postfixContext);
       if (lookupItems.Count == 0) return false;

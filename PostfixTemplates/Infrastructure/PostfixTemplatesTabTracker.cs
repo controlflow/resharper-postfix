@@ -152,7 +152,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
           document.InsertText(offset, reparseString);
           solution.GetPsiServices().Files.CommitAllDocuments();
 
-          var executionContext = new PostfixExecutionContext(solution, textControl, reparseString, false);
+          var executionContext = new PostfixTemplateExecutionContext(solution, textControl, reparseString, false);
 
           foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, document, offset))
           {

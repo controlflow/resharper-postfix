@@ -8,7 +8,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
 {
   public abstract class PostfixTemplateContext
   {
-    protected PostfixTemplateContext([NotNull] ITreeNode reference, [NotNull] PostfixExecutionContext executionContext)
+    [CanBeNull] private IList<PostfixExpressionContext> myAllExpressions;
+
+    protected PostfixTemplateContext([NotNull] ITreeNode reference, [NotNull] PostfixTemplateExecutionContext executionContext)
     {
       Reference = reference;
       PsiModule = reference.GetPsiModule();
@@ -18,9 +20,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     [NotNull] public ITreeNode Reference { get; private set; }
     [NotNull] public IPsiModule PsiModule { get; private set; }
 
-    [NotNull] public PostfixExecutionContext ExecutionContext { get; private set; }
+    [NotNull] public PostfixTemplateExecutionContext ExecutionContext { get; private set; }
 
-    public abstract bool HasExpressions { get; }
+    // Expressions: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
+    [NotNull, ItemNotNull]
+    public IList<PostfixExpressionContext> AllExpressions
+    {
+      get { return myAllExpressions ?? (myAllExpressions = BuildAllExpressions()); }
+    }
+
+    [NotNull, ItemNotNull]
+    protected abstract IList<PostfixExpressionContext> BuildAllExpressions();
 
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {
@@ -31,28 +41,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     {
       get { return ExecutionContext.IsPreciseMode; }
     }
-  }
-
-  // todo: remove this, move .Expressions to C#
-  public abstract class PostfixTemplateContext<TPostfixExpressionContext> : PostfixTemplateContext
-    where TPostfixExpressionContext : PostfixExpressionContext
-  {
-    [CanBeNull] private IList<TPostfixExpressionContext> myExpressions;
-
-    protected PostfixTemplateContext([NotNull] ITreeNode reference, [NotNull] PostfixExecutionContext executionContext)
-      : base(reference, executionContext) { }
-
-    [NotNull, ItemNotNull]
-    protected abstract IList<TPostfixExpressionContext> BuildExpressions();
-
-    // Expressions: 'a', 'a + b.Length', '(a + b.Length)', '(a + b.Length) > 0.var'
-    [NotNull] public IList<TPostfixExpressionContext> Expressions
-    {
-      get { return myExpressions ?? (myExpressions = BuildExpressions()); }
-    }
 
     [NotNull]
-    public virtual TPostfixExpressionContext FixExpression([NotNull] TPostfixExpressionContext context)
+    public virtual PostfixExpressionContext FixExpression([NotNull] PostfixExpressionContext context)
     {
       return context;
     }

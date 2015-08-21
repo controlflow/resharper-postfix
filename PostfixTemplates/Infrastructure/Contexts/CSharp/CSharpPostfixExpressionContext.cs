@@ -7,8 +7,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
 {
   public sealed class CSharpPostfixExpressionContext : PostfixExpressionContext
   {
-    public CSharpPostfixExpressionContext(
-      [NotNull] CSharpPostfixTemplateContext postfixContext, [NotNull] ICSharpExpression expression)
+    public CSharpPostfixExpressionContext([NotNull] CSharpPostfixTemplateContext postfixContext, [NotNull] ICSharpExpression expression)
       : base(postfixContext, expression)
     {
       CanBeStatement = GetContainingStatement() != null;

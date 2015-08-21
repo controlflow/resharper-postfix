@@ -12,7 +12,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
   public class CSharpBrokenStatementPostfixTemplateContext : CSharpPostfixTemplateContext
   {
     public CSharpBrokenStatementPostfixTemplateContext(
-      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixExecutionContext executionContext)
+      [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixTemplateExecutionContext executionContext)
       : base(reference, expression, executionContext) { }
 
     private static readonly string FixCommandName =
@@ -52,7 +52,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
 
       Assertion.Assert(operand.IsPhysical(), "operand.IsPhysical()");
 
-      return new CSharpPostfixExpressionContext(this, operand);
+      return new CSharpPostfixExpressionContext(this, operand, context.Index);
     }
   }
 }

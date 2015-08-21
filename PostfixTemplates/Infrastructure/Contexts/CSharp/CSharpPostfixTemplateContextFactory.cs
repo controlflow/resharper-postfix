@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using JetBrains.Annotations;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
@@ -10,7 +12,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
   [Language(typeof(CSharpLanguage))]
   public class CSharpPostfixTemplateContextFactory : IPostfixTemplateContextFactory
   {
-    public PostfixTemplateContext TryCreate(ITreeNode position, PostfixExecutionContext executionContext)
+    [NotNull] private IEnumerable<IPostfixTemplate<CSharpPostfixTemplateContext>> myTemplates;
+
+    public CSharpPostfixTemplateContextFactory([NotNull] IEnumerable<IPostfixTemplate<CSharpPostfixTemplateContext>> templates)
+    {
+      foreach (var postfixTemplate in templates)
+      {
+        new Te
+      }
+
+      myTemplates = templates;
+    }
+
+
+    public PostfixTemplateContext TryCreate(ITreeNode position, PostfixTemplateExecutionContext executionContext)
     {
       if (!(position is ICSharpIdentifier)) return null;
 
