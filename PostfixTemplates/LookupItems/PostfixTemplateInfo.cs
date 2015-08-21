@@ -5,11 +5,11 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
-using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.Util;
 
-namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
+namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
   public class PostfixTemplateInfo : UserDataHolder, ILookupItemInfo
   {
@@ -17,8 +17,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     [NotNull] private readonly IList<PostfixExpressionContextImage> myImages;
     [NotNull] private readonly PostfixTemplateExecutionContext myExecutionContext;
     private readonly PostfixTemplateTarget myTarget;
-
-    // todo: store expressions
 
     public PostfixTemplateInfo([NotNull] string text, [NotNull] IEnumerable<PostfixExpressionContext> expressions, PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
     {
@@ -41,6 +39,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       get { return myText; }
     }
 
+    // todo: expose ExecutionContext?
     public string ReparseString
     {
       get { return myExecutionContext.ReparseString; }
@@ -67,21 +66,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     public int Identity { get { return 0; } }
 
-    public object Shortcut
+    [NotNull, ItemNotNull]
+    public IList<PostfixExpressionContextImage> Images
     {
-      get { return myText; }
+      get { return myImages; }
     }
+
+    //public object Shortcut
+    //{
+    //  get { return myText; }
+    //}
 
     public LookupItemPlacement Placement
     {
       get { return new LookupItemPlacement(myText); }
       set { throw new InvalidOperationException(); }
-    }
-
-    [NotNull, ItemNotNull]
-    public IList<PostfixExpressionContextImage> Images
-    {
-      get { return myImages; }
     }
 
     public event Action<string> TextChanged
