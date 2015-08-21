@@ -11,7 +11,6 @@ using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
-using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
@@ -56,7 +55,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       solution.GetPsiServices().Files.CommitAllDocuments();
 
-      var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
+      //var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
 
       PostfixTemplateContext postfixContext = null;
       var identifierOffset = (textControl.Caret.Offset() - reparseString.Length);
@@ -124,6 +123,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       var expressionContext = expressions[myExpressionIndex];
 
+      ITreeNode newNode;
       using (WriteLockCookie.Create())
       {
         var fixedContext = postfixContext.FixExpression(expressionContext);
@@ -171,7 +171,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       for (var index = 0; index < images.Count; index++) // order is important
       {
-        foreach (var expressionContext in context.ExpressionsOrTypes)
+        foreach (var expressionContext in context.AllExpressions)
         {
           if (images[index].MatchesByRangeAndType(expressionContext))
           {

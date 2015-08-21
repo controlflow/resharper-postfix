@@ -2,7 +2,6 @@ using System;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
-using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
@@ -21,7 +20,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     public int ContextIndex { get { return myContextIndex; } }
 
-    public bool MatchesByRangeAndType([NotNull] CSharpPostfixExpressionContext context)
+    public bool MatchesByRangeAndType([NotNull] PostfixExpressionContext context)
     {
       var startOffset = myExpressionRange.TextRange.StartOffset;
       return context.Expression.GetType() == myExpressionType

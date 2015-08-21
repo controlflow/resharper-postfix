@@ -5,6 +5,7 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
+using JetBrains.ReSharper.Psi;
 using JetBrains.UI.Extensions.Commands;
 using JetBrains.UI.Options;
 
@@ -13,14 +14,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
   public sealed class PostfixOptionsViewModel
   {
     [NotNull] private readonly OptionsSettingsSmartContext mySettingsStore;
-    [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
 
     public PostfixOptionsViewModel([NotNull] Lifetime lifetime,
                                    [NotNull] OptionsSettingsSmartContext settings,
-                                   [NotNull] PostfixTemplatesManager templatesManager)
+                                   [NotNull] LanguageManager languageManager)
     {
       mySettingsStore = settings;
-      myTemplatesManager = templatesManager;
+
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
 
       ShowPostfixTemplates = new Property<bool>(lifetime, "ShowPostfixTemplates");
@@ -59,6 +59,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
     private void FillTemplates()
     {
+      
+
       var settings = mySettingsStore.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
@@ -76,19 +78,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
         }
       };
 
-      var infos = myTemplatesManager.TemplateProvidersInfos;
-      foreach (var providerInfo in infos.OrderBy(providerInfo => providerInfo.Metadata.TemplateName))
+      var managers = LanguageManager.Instance.GetServicesFromAll<IPostfixTemplatesManager>();
+      foreach (var manager in managers)
       {
-        var metadata = providerInfo.Metadata;
-        // ReSharper disable once SuggestUseVarKeywordEverywhere
-        bool isEnabled = (!settings.DisabledProviders.TryGet(providerInfo.SettingsKey, out isEnabled)
-                       && !metadata.DisabledByDefault) || isEnabled;
+        var infos = manager.AvailableTemplates;
 
-        var itemViewModel = new PostfixTemplateViewModel(
-          metadata: metadata, settingsKey: providerInfo.SettingsKey, isChecked: isEnabled);
 
-        itemViewModel.PropertyChanged += handler;
-        Templates.Add(itemViewModel);
+        foreach (var providerInfo in infos.OrderBy(providerInfo => providerInfo.Metadata.TemplateName))
+        {
+          var metadata = providerInfo.Metadata;
+          // ReSharper disable once SuggestUseVarKeywordEverywhere
+          bool isEnabled = (!settings.DisabledProviders.TryGet(providerInfo.SettingsKey, out isEnabled)
+                            && !metadata.DisabledByDefault) || isEnabled;
+
+          var itemViewModel = new PostfixTemplateViewModel(
+            metadata: metadata, settingsKey: providerInfo.SettingsKey, isChecked: isEnabled);
+
+          itemViewModel.PropertyChanged += handler;
+          Templates.Add(itemViewModel);
+        }
       }
     }
 

@@ -15,6 +15,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   {
     [NotNull] private readonly string myText;
     [NotNull] private readonly IList<PostfixExpressionContextImage> myImages;
+    [NotNull] private readonly PostfixTemplateExecutionContext myExecutionContext;
     private readonly PostfixTemplateTarget myTarget;
 
     // todo: store expressions
@@ -24,6 +25,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       myText = text;
       myTarget = target;
       myImages = expressions.ToList(x => new PostfixExpressionContextImage(x));
+      myExecutionContext = expressions.First().PostfixContext.ExecutionContext; // ewww
     }
 
     public PostfixTemplateInfo([NotNull] string text, [NotNull] PostfixExpressionContext expression, PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
@@ -31,6 +33,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       myText = text;
       myTarget = target;
       myImages = new[] {new PostfixExpressionContextImage(expression)};
+      myExecutionContext = expression.PostfixContext.ExecutionContext;
     }
 
     public string Text
@@ -40,7 +43,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     public string ReparseString
     {
-      get { return "aaa__"; }
+      get { return myExecutionContext.ReparseString; }
     }
 
     public PostfixTemplateTarget Target

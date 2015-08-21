@@ -5,42 +5,37 @@ using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
-using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
-  public abstract class PostfixTemplatesManager<TPostfixTemplateContext>
+  public abstract class PostfixTemplatesManager<TPostfixTemplateContext> : IPostfixTemplatesManager
     where TPostfixTemplateContext : PostfixTemplateContext
   {
-    [NotNull] private readonly LanguageManager myLanguageManager;
-    [NotNull] private readonly IList<TemplateProviderInfo> myTemplateProvidersInfos;
+    [NotNull] private readonly IList<PostfixTemplateRegistration> myTemplateInfos;
 
-    public PostfixTemplatesManager(
-      [NotNull] IEnumerable<IPostfixTemplate<TPostfixTemplateContext>> providers, [NotNull] LanguageManager languageManager)
+    protected PostfixTemplatesManager([NotNull] IEnumerable<IPostfixTemplate<TPostfixTemplateContext>> templates)
     {
-      myLanguageManager = languageManager;
+      var infos = new List<PostfixTemplateRegistration>();
 
-      var infos = new List<TemplateProviderInfo>();
-      foreach (var provider in providers)
+      foreach (var provider in templates)
       {
         var providerType = provider.GetType();
         var attributes = (PostfixTemplateAttribute[]) providerType.GetCustomAttributes(typeof(PostfixTemplateAttribute), inherit: false);
         if (attributes.Length == 1)
         {
-          var info = new TemplateProviderInfo(provider, attributes[0], providerType.FullName);
+          var info = new PostfixTemplateRegistration(provider, attributes[0], providerType.FullName);
           infos.Add(info);
         }
       }
 
-      myTemplateProvidersInfos = infos.AsReadOnly();
+      myTemplateInfos = infos.AsReadOnly();
     }
 
-    public sealed class TemplateProviderInfo
+    private sealed class PostfixTemplateRegistration : IPostfixTemplateMetadata
     {
-      public TemplateProviderInfo([NotNull] IPostfixTemplate<TPostfixTemplateContext> template,
-                                  [NotNull] PostfixTemplateAttribute metadata,
-                                  [NotNull] string providerKey)
+      public PostfixTemplateRegistration(
+        [NotNull] IPostfixTemplate<TPostfixTemplateContext> template, [NotNull] PostfixTemplateAttribute metadata, [NotNull] string providerKey)
       {
         Template = template;
         Metadata = metadata;
@@ -48,32 +43,21 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       [NotNull] public IPostfixTemplate<TPostfixTemplateContext> Template { get; private set; }
-      [NotNull] public PostfixTemplateAttribute Metadata { get; private set; }
-      [NotNull] public string SettingsKey { get; private set; }
+      public PostfixTemplateAttribute Metadata { get; private set; }
+      public string SettingsKey { get; private set; }
     }
 
-    [NotNull] public IList<TemplateProviderInfo> TemplateProvidersInfos
-    {
-      get { return myTemplateProvidersInfos; }
-    }
+    public IEnumerable<IPostfixTemplateMetadata> AvailableTemplates { get { return myTemplateInfos; } }
 
     [NotNull]
-    public IList<ILookupItem> CollectItems([NotNull] PostfixTemplateContext context, [CanBeNull] string templateName = null)
+    public IList<ILookupItem> CollectItems([NotNull] TPostfixTemplateContext context, [CanBeNull] string templateName = null)
     {
       var store = context.Reference.GetSettingsStore();
       var settings = store.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
       settings.DisabledProviders.SnapshotAndFreeze();
 
-      // todo: restore this?
-
-      //var innerExpression = context.InnerExpression; // shit happens
-      //if (innerExpression != null && innerExpression.ReferencedElement is INamespace)
-      //{
-      //  return EmptyList<ILookupItem>.InstanceList;
-      //}
-
       var lookupItems = new List<ILookupItem>();
-      foreach (var info in myTemplateProvidersInfos)
+      foreach (var info in myTemplateInfos)
       {
         // check disabled providers
         {

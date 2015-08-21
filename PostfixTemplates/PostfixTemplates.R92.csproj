@@ -180,6 +180,8 @@
     <Compile Include="Infrastructure\IPostfixTemplate.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixExpressionContext.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateContextFactory.cs" />
+    <Compile Include="Infrastructure\IPostfixTemplateMetadata.cs" />
+    <Compile Include="Infrastructure\IPostfixTemplatesManager.cs" />
     <Compile Include="Infrastructure\PostfixExpressionContextImage.cs" />
     <Compile Include="Infrastructure\PostfixTemplateAttribute.cs" />
     <Compile Include="LookupItems\CSharp\CSharpExpressionPostfixTemplateBehavior.cs" />
