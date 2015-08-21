@@ -44,12 +44,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new ParenthesesItem(info);
+      return new CSharpPostfixParenthsizedExpressionBehavior(info);
     }
 
-    private sealed class ParenthesesItem : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
+    private sealed class CSharpPostfixParenthsizedExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
     {
-      public ParenthesesItem([NotNull] PostfixTemplateInfo info) : base(info) { }
+      public CSharpPostfixParenthsizedExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override string ExpressionSelectTitle
       {

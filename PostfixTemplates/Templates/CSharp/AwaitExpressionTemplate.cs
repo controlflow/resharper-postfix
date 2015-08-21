@@ -60,12 +60,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new PostfixAwaitBehavior(info);
+      return new CSharpPostfixAwaitExpressionBehavior(info);
     }
 
-    private sealed class PostfixAwaitBehavior : CSharpExpressionPostfixTemplateBehavior<IAwaitExpression>
+    private sealed class CSharpPostfixAwaitExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<IAwaitExpression>
     {
-      public PostfixAwaitBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
+      public CSharpPostfixAwaitExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IAwaitExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {

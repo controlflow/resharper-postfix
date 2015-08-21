@@ -22,7 +22,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
   public abstract class PostfixTemplateBehavior : LookupItemAspect<PostfixTemplateInfo>, ILookupItemBehavior
   {
-    public PostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
+    protected PostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
     {
 
     }

@@ -55,7 +55,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new PostfixArgumentBehavior(info, myLiveTemplatesMananger, myLookupItemsOwnerFactory);
+      return new CSharpPostfixArgumentExpressionBehavior(info, myLiveTemplatesMananger, myLookupItemsOwnerFactory);
     }
 
     private static bool IsNiceArgument([NotNull] ICSharpExpression expression)
@@ -67,12 +67,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     [NotNull] private static readonly Key<object> PostfixArgTemplateExpansion = new Key(typeof(ArgumentExpressionTemplate).FullName);
 
-    private class PostfixArgumentBehavior : CSharpExpressionPostfixTemplateBehavior<IInvocationExpression>
+    private class CSharpPostfixArgumentExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<IInvocationExpression>
     {
       [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
       [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
 
-      public PostfixArgumentBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager templatesManager, LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
+      public CSharpPostfixArgumentExpressionBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager templatesManager, LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
       {
         myTemplatesManager = templatesManager;
         myLookupItemsOwnerFactory = lookupItemsOwnerFactory;

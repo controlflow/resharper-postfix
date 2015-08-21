@@ -5,6 +5,7 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
+  // todo: to be removed
   public abstract class PostfixLookupItemBase
   {
     public bool CanShrink { get { return false; } }

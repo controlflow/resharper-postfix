@@ -50,10 +50,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var checkForNullInfo = (CheckForNullPostfixTemplateInfo) info;
       if (checkForNullInfo.Target == PostfixTemplateTarget.Statement)
       {
-        return new CheckForNullStatementItem(checkForNullInfo);
+        return new CSharpPostfixCheckForNullStatementBehavior(checkForNullInfo);
       }
 
-      return new CheckForNullExpressionItem(checkForNullInfo);
+      return new CSharpPostfixCheckForNullExpressionBehavior(checkForNullInfo);
     }
 
     [ContractAnnotation("null => false")]
@@ -96,11 +96,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return true;
     }
 
-    private sealed class CheckForNullStatementItem : CSharpStatementPostfixTemplateBehavior<IIfStatement>
+    private sealed class CSharpPostfixCheckForNullStatementBehavior : CSharpStatementPostfixTemplateBehavior<IIfStatement>
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullStatementItem([NotNull] CheckForNullPostfixTemplateInfo info) : base(info)
+      public CSharpPostfixCheckForNullStatementBehavior([NotNull] CheckForNullPostfixTemplateInfo info) : base(info)
       {
         myTemplate = info.CheckNotNull ? "if($0!=null)" : "if($0==null)";
       }
@@ -112,11 +112,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
     }
 
-    private sealed class CheckForNullExpressionItem : CSharpExpressionPostfixTemplateBehavior<IEqualityExpression>
+    private sealed class CSharpPostfixCheckForNullExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<IEqualityExpression>
     {
       [NotNull] private readonly string myTemplate;
 
-      public CheckForNullExpressionItem([NotNull] CheckForNullPostfixTemplateInfo info) : base(info)
+      public CSharpPostfixCheckForNullExpressionBehavior([NotNull] CheckForNullPostfixTemplateInfo info) : base(info)
       {
         myTemplate = info.CheckNotNull ? "$0!=null" : "$0==null";
       }

@@ -48,14 +48,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new PostfixAssignmentBehavior(info, myLiveTemplatesManager);
+      return new CSharpPostfixAssignmentStatementBehavior(info, myLiveTemplatesManager);
     }
 
-    private class PostfixAssignmentBehavior : CSharpStatementPostfixTemplateBehavior<IExpressionStatement>
+    private class CSharpPostfixAssignmentStatementBehavior : CSharpStatementPostfixTemplateBehavior<IExpressionStatement>
     {
       [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
 
-      public PostfixAssignmentBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
+      public CSharpPostfixAssignmentStatementBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
         : base(info)
       {
         myLiveTemplatesManager = liveTemplatesManager;
