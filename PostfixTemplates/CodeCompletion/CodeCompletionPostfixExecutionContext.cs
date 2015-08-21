@@ -6,13 +6,17 @@ using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
-  internal sealed class CodeCompletionPostfixExecutionContext : PostfixTemplateExecutionContext
+  public class CodeCompletionPostfixExecutionContext : PostfixTemplateExecutionContext
   {
     [NotNull] private readonly ReparsedCodeCompletionContext myReparsedContext;
 
     public CodeCompletionPostfixExecutionContext(
       [NotNull] CodeCompletionContext context, [NotNull] ReparsedCodeCompletionContext reparsedContext, [NotNull] string reparseString)
-      : base(context.Solution, context.TextControl, reparseString, isPreciseMode: context.Parameters.IsAutomaticCompletion)
+      : base(solution: context.Solution,
+             textControl: context.TextControl,
+             settingsStore: context.ContextBoundSettingsStore,
+             reparseString: reparseString,
+             isPreciseMode: context.Parameters.IsAutomaticCompletion)
     {
       myReparsedContext = reparsedContext;
     }

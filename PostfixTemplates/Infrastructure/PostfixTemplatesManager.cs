@@ -1,25 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using JetBrains.Application;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
-using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {
-  [ShellComponent]
-  public class CSharpPostfixTemlatesManager : PostfixTemplatesManager<CSharpPostfixTemplateContext>
-  {
-    public CSharpPostfixTemlatesManager(
-      [NotNull] IEnumerable<IPostfixTemplate<CSharpPostfixTemplateContext>> providers, [NotNull] LanguageManager languageManager)
-      : base(providers, languageManager) { }
-  }
-
   public abstract class PostfixTemplatesManager<TPostfixTemplateContext>
     where TPostfixTemplateContext : PostfixTemplateContext
   {

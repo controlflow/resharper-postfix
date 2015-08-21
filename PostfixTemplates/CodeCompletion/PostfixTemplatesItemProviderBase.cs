@@ -12,15 +12,18 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
-  public abstract class PostfixTemplatesItemProviderBase<TCodeCompletionContext> : ItemsProviderOfSpecificContext<TCodeCompletionContext>
+  public abstract class PostfixTemplatesItemProviderBase<TCodeCompletionContext, TPostfixTemplateContext> : ItemsProviderOfSpecificContext<TCodeCompletionContext>
     where TCodeCompletionContext : class, ISpecificCodeCompletionContext
+    where TPostfixTemplateContext : PostfixTemplateContext
   {
-    [NotNull] private readonly PostfixTemplatesManager myTemplatesManager;
+    [NotNull] private readonly PostfixTemplatesManager<TPostfixTemplateContext> myTemplatesManager;
 
-    protected PostfixTemplatesItemProviderBase([NotNull] PostfixTemplatesManager templatesManager)
+    protected PostfixTemplatesItemProviderBase([NotNull] PostfixTemplatesManager<TPostfixTemplateContext> templatesManager)
     {
       myTemplatesManager = templatesManager;
     }
+
+    [CanBeNull] protected abstract PostfixTemplateContext TryCreatePostfixContext([NotNull] TCodeCompletionContext codeCompletionContext);
 
     protected sealed override bool IsAvailable(TCodeCompletionContext context)
     {
@@ -31,10 +34,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     {
       var completionContext = context.BasicContext;
 
-      var settingsStore = completionContext.File.GetSettingsStore();
+      // check postfix is disabled for code completion
+      var settingsStore = completionContext.ContextBoundSettingsStore;
       if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems)) return false;
 
-      var postfixContext = TryCreate(context);
+      var postfixContext = TryCreatePostfixContext(context);
       if (postfixContext == null) return false;
 
       // nothing to check :(
@@ -42,6 +46,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       var lookupItems = myTemplatesManager.CollectItems(postfixContext);
       if (lookupItems.Count == 0) return false;
+
+
+
 
       ICollection<string> toRemove = EmptyList<string>.InstanceList;
 
@@ -55,8 +62,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
         // run postfix templates like we are in auto completion
 
-        // TODO: FIX THIS? what is this?
-        //executionContext.IsPreciseMode = true;
 
         var automaticPostfixItems = myTemplatesManager.CollectItems(postfixContext);
         if (automaticPostfixItems.Count > 0)
@@ -84,8 +89,5 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       return (lookupItems.Count > 0);
     }
-
-    [CanBeNull]
-    protected abstract PostfixTemplateContext TryCreate([NotNull] TCodeCompletionContext codeCompletionContext);
   }
 }

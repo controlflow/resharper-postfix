@@ -5,6 +5,8 @@ using JetBrains.Annotations;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Behaviors;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Matchers;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
@@ -51,7 +53,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       if (!IsInsideSignatureWhereTypeUsageExpected(methodDeclaration, referenceName)) return false;
 
       var typeParameterName = GetTypeParameterName(methodDeclaration);
-      var postfixInfo = new PostfixTemplateInfo(typeParameterName);
+      var postfixInfo = new TextualInfo(typeParameterName, typeParameterName, context.BasicContext);
 
       var lookupItem = LookupItemFactory.CreateLookupItem(postfixInfo)
         .WithPresentation(item =>
@@ -88,9 +90,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return name;
     }
 
-    private sealed class TypeParameterFromUsageBehavior : PostfixTemplateBehavior
+    private sealed class TypeParameterFromUsageBehavior : TextualBehavior<TextualInfo>
     {
-      public TypeParameterFromUsageBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
+      public TypeParameterFromUsageBehavior([NotNull] TextualInfo info) : base(info) { }
 
       public override void Accept(
         ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType,

@@ -164,11 +164,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeCompletion\CSharp\CSharpEnumCaseItemProvider.cs" />
-    <Compile Include="CodeCompletion\CSharp\CSharpLengthCountItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharp\Extras\CSharpEnumCaseItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharp\Extras\CSharpLengthCountItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\CSharpPostfixTemplatesItemProvider.cs" />
-    <Compile Include="CodeCompletion\CSharp\CSharpStaticMethodsItemProvider.cs" />
-    <Compile Include="CodeCompletion\CSharp\CSharpTypeParameterFromUsageItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharp\Extras\CSharpStaticMethodsItemProvider.cs" />
+    <Compile Include="CodeCompletion\CSharp\Extras\CSharpTypeParameterFromUsageItemProvider.cs" />
     <Compile Include="CodeCompletion\PostfixTemplatesItemProviderBase.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplateContext.cs" />
     <Compile Include="CodeCompletion\CodeCompletionPostfixExecutionContext.cs" />
@@ -176,6 +176,7 @@
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpReferenceExpressionPostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpReferenceNamePostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplateContextFactory.cs" />
+    <Compile Include="Infrastructure\CSharpPostfixTemplatesManager.cs" />
     <Compile Include="Infrastructure\IPostfixTemplate.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixExpressionContext.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateContextFactory.cs" />
