@@ -189,9 +189,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
         foreach (var image in images)
         {
-          if (image != null && image.ContextIndex < expressions.Count)
+          if (image != null && image.ExpressionIndex < expressions.Count)
           {
-            results.Add(expressions[image.ContextIndex]);
+            results.Add(expressions[image.ExpressionIndex]);
           }
         }
       }

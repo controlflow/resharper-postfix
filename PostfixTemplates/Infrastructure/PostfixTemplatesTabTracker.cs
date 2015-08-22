@@ -22,7 +22,7 @@ using JetBrains.Util;
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   // todo: no lookup items here!
-
+  /*
   [SolutionComponent]
   public sealed class PostfixTemplatesTabTracker
   {
@@ -185,4 +185,5 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
     }
   }
+  */
 }

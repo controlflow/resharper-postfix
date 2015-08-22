@@ -37,14 +37,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
   public static class PostfixSettingsAccessor
   {
     [NotNull] public static readonly Expression<Func<PostfixTemplatesSettings, IIndexedEntry<string, bool>>>
-      DisabledProviders = x => x.DisabledProviders;
+      DisabledProviders    = settings => settings.DisabledProviders;
+
     [NotNull] public static readonly Expression<Func<PostfixTemplatesSettings, bool>>
-      ShowPostfixItems = x => x.ShowPostfixItemsInCodeCompletion,
-      ShowStaticMethods = x => x.ShowStaticMethodsInCodeCompletion,
-      ShowEnumHelpers = x => x.ShowEnumHelpersInCodeCompletion,
-      ShowLengthCountItems = x => x.ShowLengthCountItemsInCodeCompletion,
-      BracesForStatements = x => x.UseBracesForEmbeddedStatements,
-      InvokeParameterInfo = x => x.InvokeParameterInfoFromTemplates,
-      SearchVarOccurrences = x => x.SearchOccurrencesFromIntroduceVarTemplates;
+      ShowPostfixItems     = settings => settings.ShowPostfixItemsInCodeCompletion,
+      ShowStaticMethods    = settings => settings.ShowStaticMethodsInCodeCompletion,
+      ShowEnumHelpers      = settings => settings.ShowEnumHelpersInCodeCompletion,
+      ShowLengthCountItems = settings => settings.ShowLengthCountItemsInCodeCompletion,
+      BracesForStatements  = settings => settings.UseBracesForEmbeddedStatements,
+      InvokeParameterInfo  = settings => settings.InvokeParameterInfoFromTemplates,
+      SearchVarOccurrences = settings => settings.SearchOccurrencesFromIntroduceVarTemplates;
   }
 }

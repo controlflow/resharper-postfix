@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using JetBrains.Application;
+using JetBrains.ReSharper.PostfixTemplates.Templates;
 
 namespace JetBrains.ReSharper.PostfixTemplates
 {

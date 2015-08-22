@@ -1,24 +1,23 @@
 using System;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
 
-namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
+namespace JetBrains.ReSharper.PostfixTemplates.Contexts
 {
   public sealed class PostfixExpressionContextImage
   {
     [NotNull] private readonly Type myExpressionType;
     private readonly DocumentRange myExpressionRange;
-    private readonly int myContextIndex;
+    private readonly int myExpressionIndex;
 
     public PostfixExpressionContextImage([NotNull] PostfixExpressionContext context)
     {
       myExpressionType = context.Expression.GetType();
       myExpressionRange = context.ExpressionRange;
-      myContextIndex = context.PostfixContext.AllExpressions.IndexOf(context);
+      myExpressionIndex = context.PostfixContext.AllExpressions.IndexOf(context);
     }
 
-    public int ContextIndex { get { return myContextIndex; } }
+    public int ExpressionIndex { get { return myExpressionIndex; } }
 
     public bool MatchesByRangeAndType([NotNull] PostfixExpressionContext context)
     {

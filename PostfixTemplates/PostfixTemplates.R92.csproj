@@ -177,17 +177,17 @@
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpReferenceNamePostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplateContextFactory.cs" />
     <Compile Include="Infrastructure\Contexts\CSharp\CSharpPostfixTemplatesManager.cs" />
-    <Compile Include="Infrastructure\IPostfixTemplate.cs" />
+    <Compile Include="Templates\IPostfixTemplate.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixExpressionContext.cs" />
-    <Compile Include="Infrastructure\IPostfixTemplateContextFactory.cs" />
+    <Compile Include="Infrastructure\Contexts\IPostfixTemplateContextFactory.cs" />
     <Compile Include="Infrastructure\IPostfixTemplateMetadata.cs" />
     <Compile Include="Infrastructure\IPostfixTemplatesManager.cs" />
-    <Compile Include="Infrastructure\PostfixExpressionContextImage.cs" />
+    <Compile Include="Infrastructure\Contexts\PostfixExpressionContextImage.cs" />
     <Compile Include="Infrastructure\PostfixTemplateAttribute.cs" />
-    <Compile Include="LookupItems\CSharp\CSharpExpressionPostfixTemplateBehavior.cs" />
-    <Compile Include="LookupItems\CSharp\CSharpStatementPostfixTemplateBehavior.cs" />
+    <Compile Include="Infrastructure\Behaviors\CSharp\CSharpExpressionPostfixTemplateBehavior.cs" />
+    <Compile Include="Infrastructure\Behaviors\CSharp\CSharpStatementPostfixTemplateBehavior.cs" />
     <Compile Include="LookupItems\PostfixLookupItemBase.cs" />
-    <Compile Include="LookupItems\PostfixTemplateBehavior.cs" />
+    <Compile Include="Infrastructure\Behaviors\PostfixTemplateBehavior.cs" />
     <Compile Include="LookupItems\PostfixTemplateInfo.cs" />
     <Compile Include="LookupItems\PostfixTemplateMatcher.cs" />
     <Compile Include="LookupItems\PostfixTemplatePresentation.cs" />
@@ -254,7 +254,9 @@
   <ItemGroup>
     <None Include="packages.PostfixTemplates.R92.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="LookupItems\CSharp\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets')" />
   <Import Project="..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets')" />

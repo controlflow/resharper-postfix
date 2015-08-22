@@ -1,8 +1,7 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.Psi.Tree;
 
-namespace JetBrains.ReSharper.PostfixTemplates
+namespace JetBrains.ReSharper.PostfixTemplates.Contexts
 {
   public interface IPostfixTemplateContextFactory
   {

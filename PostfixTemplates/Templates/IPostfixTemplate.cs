@@ -1,9 +1,8 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 
-namespace JetBrains.ReSharper.PostfixTemplates
+namespace JetBrains.ReSharper.PostfixTemplates.Templates
 {
   public interface IPostfixTemplate<in TPostfixTemplateContext>
     where TPostfixTemplateContext : PostfixTemplateContext
