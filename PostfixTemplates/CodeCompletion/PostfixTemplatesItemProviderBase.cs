@@ -46,19 +46,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       // check if there is no expression detected and do nothing if so
       if (postfixContext.AllExpressions.Count == 0) return false;
 
-
-      
-
-
-
-
-
-
       var lookupItems = BuildLookupItems(postfixContext).ToList();
       if (lookupItems.Count == 0) return false;
-
-
-
 
       ICollection<string> toRemove = EmptyList<string>.InstanceList;
 
