@@ -188,10 +188,10 @@
     <Compile Include="Infrastructure\Behaviors\CSharp\CSharpStatementPostfixTemplateBehavior.cs" />
     <Compile Include="LookupItems\PostfixLookupItemBase.cs" />
     <Compile Include="Infrastructure\Behaviors\PostfixTemplateBehavior.cs" />
-    <Compile Include="LookupItems\PostfixTemplateInfo.cs" />
+    <Compile Include="Infrastructure\PostfixTemplateInfo.cs" />
     <Compile Include="LookupItems\PostfixTemplateMatcher.cs" />
     <Compile Include="LookupItems\PostfixTemplatePresentation.cs" />
-    <Compile Include="LookupItems\PostfixTemplateTarget.cs" />
+    <Compile Include="Infrastructure\PostfixTemplateTarget.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixTemplateExecutionContext.cs" />
     <Compile Include="Infrastructure\Contexts\PostfixTemplateContext.cs" />
     <Compile Include="Infrastructure\PostfixTemplatesManager.cs" />
@@ -254,9 +254,7 @@
   <ItemGroup>
     <None Include="packages.PostfixTemplates.R92.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="LookupItems\CSharp\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Shell.103.0.20150811.112905-RC2\build\JetBrains.Platform.Core.Shell.Targets')" />
   <Import Project="..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets" Condition="Exists('..\packages\JetBrains.Platform.Core.Text.103.0.20150811.113821-RC2\build\JetBrains.Platform.Core.Text.Targets')" />

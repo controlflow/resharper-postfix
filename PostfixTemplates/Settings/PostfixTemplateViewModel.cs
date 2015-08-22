@@ -25,7 +25,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       myIsChecked = (!isConfigured && !metadata.Metadata.DisabledByDefault) || isEnabled;
     }
 
-    [NotNull] public string Name { get { return "." + myTemplateAttribute.TemplateName.ToLowerInvariant(); } }
+    [NotNull] public string TemplateName { get { return "." + myTemplateAttribute.TemplateName.ToLowerInvariant(); } }
     [NotNull] public string Description { get { return myTemplateAttribute.Description; } }
     [NotNull] public string Example { get { return myTemplateAttribute.Example; } }
 
@@ -39,10 +39,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
         myIsChecked = value;
         OnPropertyChanged("IsChecked");
 
+        var settingsKey = myMetadata.SettingsKey;
+        var disabledProviders = PostfixSettingsAccessor.DisabledProviders;
+
         if (myIsChecked == myTemplateAttribute.DisabledByDefault)
-          mySettingsStore.SetIndexedValue(PostfixSettingsAccessor.DisabledProviders, myMetadata.SettingsKey, myIsChecked);
+          mySettingsStore.SetIndexedValue(disabledProviders, settingsKey, myIsChecked);
         else
-          mySettingsStore.RemoveIndexedValue(PostfixSettingsAccessor.DisabledProviders, myMetadata.SettingsKey);
+          mySettingsStore.RemoveIndexedValue(disabledProviders, settingsKey);
       }
     }
   }

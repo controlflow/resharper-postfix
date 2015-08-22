@@ -18,15 +18,13 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <TextBlock Text="Postfix templates:" FontWeight="SemiBold"
-               Margin="{StaticResource LabelMargin}" />
+    <TextBlock Text="Postfix templates:" FontWeight="SemiBold" Margin="{StaticResource LabelMargin}" />
     <TextBlock Grid.Row="0" TextAlignment="Right" Margin="{StaticResource LabelMargin}">
       <Hyperlink Command="{Binding Reset}">Reset</Hyperlink>
     </TextBlock>
 
     <Border Grid.Row="1" Margin="2" BorderThickness="1" BorderBrush="Silver">
-      <tgv:TreeGridView ItemsSource="{Binding Templates}" BorderThickness="1"
-                        BorderBrush="Gray" SelectionMode="Single">
+      <tgv:TreeGridView ItemsSource="{Binding Templates}" BorderThickness="1" BorderBrush="Gray" SelectionMode="Single">
         <tgv:TreeGridView.RowStyle>
           <Style TargetType="tgv:TreeGridRow">
             <EventSetter Event="MouseDoubleClick" Handler="DoubleClickCheck" />
@@ -45,10 +43,8 @@
             <tgv:TreeGridColumnDefinition.CellTemplate>
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                  <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                            Margin="4,1,0,1" Focusable="False" VerticalAlignment="Center" />
-                  <TextBlock Text="{Binding Path=Name, Mode=OneTime}"
-                             FontWeight="SemiBold" Margin="4,1" />
+                  <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Margin="4,1,0,1" Focusable="False" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding Path=TemplateName, Mode=OneTime}" FontWeight="SemiBold" Margin="4,1" />
                 </StackPanel>
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
@@ -65,8 +61,7 @@
           <tgv:TreeGridColumnDefinition Header="Example" Width="*">
             <tgv:TreeGridColumnDefinition.CellTemplate>
               <DataTemplate DataType="vm:PostfixTemplateViewModel">
-                <TextBlock Text="{Binding Example, Mode=OneTime}"
-                           FontFamily="Consolas" Margin="4,1" />
+                <TextBlock Text="{Binding Example, Mode=OneTime}" FontFamily="Consolas" Margin="4,1" />
               </DataTemplate>
             </tgv:TreeGridColumnDefinition.CellTemplate>
           </tgv:TreeGridColumnDefinition>
@@ -89,15 +84,11 @@
         </Style>
       </Grid.Resources>
 
-      <TextBlock Grid.Row="0" Grid.Column="0" Text="Code completion:"
-                 FontWeight="SemiBold" Margin="2,4" />
+      <TextBlock Grid.Row="0" Grid.Column="0" Text="Code completion:" FontWeight="SemiBold" Margin="2,4" />
       <StackPanel Grid.Row="1" Grid.Column="0">
-        <CheckBox IsChecked="{Binding ShowPostfixTemplates.Value, Mode=TwoWay}"
-                  Content="Show postfix templates" />
-        <CheckBox IsChecked="{Binding ShowStaticMembers.Value, Mode=TwoWay}"
-                  Content="Show static methods as instance"/>
-        <CheckBox IsChecked="{Binding ShowEnumHelpers.Value, Mode=TwoWay}"
-                  Content="Show enumeration members"/>
+        <CheckBox IsChecked="{Binding ShowPostfixTemplates.Value, Mode=TwoWay}" Content="Show postfix templates" />
+        <CheckBox IsChecked="{Binding ShowStaticMembers.Value, Mode=TwoWay}" Content="Show static methods as instance"/>
+        <CheckBox IsChecked="{Binding ShowEnumHelpers.Value, Mode=TwoWay}" Content="Show enumeration members"/>
         <CheckBox IsChecked="{Binding ShowLengthCountItems.Value, Mode=TwoWay}">
           <TextBlock>
             Alias <Run FontWeight="SemiBold" Text=".Length" /> property on arrays/strings<LineBreak/>
@@ -109,13 +100,11 @@
       <TextBlock Grid.Row="0" Grid.Column="1" Margin="2,4" Text="Other options:" FontWeight="SemiBold" />
 
       <StackPanel Grid.Row="1" Grid.Column="1">
-        <CheckBox IsChecked="{Binding UseBracesForStatements.Value, Mode=TwoWay}"
-                  Content="Put braces after statement templates"/>
+        <CheckBox IsChecked="{Binding UseBracesForStatements.Value, Mode=TwoWay}" Content="Put braces after statement templates"/>
         <CheckBox IsChecked="{Binding SearchVarOccurrences.Value, Mode=TwoWay}">
           <TextBlock>Search for occurrences in <Run FontWeight="SemiBold" Text=".var" /> template</TextBlock>
         </CheckBox>
-        <CheckBox IsChecked="{Binding InvokeParameterInfo.Value, Mode=TwoWay}"
-                  Content="Invoke parameter info from templates" />
+        <CheckBox IsChecked="{Binding InvokeParameterInfo.Value, Mode=TwoWay}" Content="Invoke parameter info from templates" />
       </StackPanel>
     </Grid>
   </Grid>

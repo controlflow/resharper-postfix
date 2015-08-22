@@ -10,13 +10,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
   public class PostfixTemplateMatcher : LookupItemAspect<PostfixTemplateInfo>, ILookupItemMatcher
   {
+    public PostfixTemplateMatcher([NotNull] PostfixTemplateInfo info) : base(info) { }
+
     public bool IgnoreSoftOnSpace
     {
       get { return false; }
       set { throw new InvalidOperationException(); }
     }
-
-    public PostfixTemplateMatcher([NotNull] PostfixTemplateInfo info) : base(info) { }
 
     public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
     {

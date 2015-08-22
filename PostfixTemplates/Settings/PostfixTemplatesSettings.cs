@@ -18,9 +18,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     [SettingsEntry(true, "Show static methods as instance members in code completion")]
     public bool ShowStaticMethodsInCodeCompletion;
 
+    // todo: [R#] drop
     [SettingsEntry(true, "Show enumeration types helpers in code completion")]
     public bool ShowEnumHelpersInCodeCompletion;
 
+    // todo: [R#] drop
     [SettingsEntry(true, "Alias .Count property as .Length in code completion and vice versa")]
     public bool ShowLengthCountItemsInCodeCompletion;
 

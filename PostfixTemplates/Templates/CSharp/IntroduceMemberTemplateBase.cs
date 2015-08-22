@@ -11,6 +11,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Naming.Extentions;
 using JetBrains.ReSharper.Psi.Naming.Impl;
+using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.Util;
@@ -126,7 +127,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var newMember = classDeclaration.AddClassMemberDeclarationAfter(
           newDeclaration, (IClassMemberDeclaration) memberAnchor);
 
-        myMemberPointer = newMember.CreatePointer();
+        myMemberPointer = newMember.CreateTreeElementPointer();
         return statement;
       }
 

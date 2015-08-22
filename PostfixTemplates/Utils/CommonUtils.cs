@@ -17,12 +17,14 @@ namespace JetBrains.ReSharper.PostfixTemplates
   [PublicAPI]
   public static class CommonUtils
   {
+    // todo: [R#] get rid of this
     public static void DoTransaction(
       [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull, InstantHandle] Action action)
     {
       services.Transactions.Execute(commandName, action);
     }
 
+    // todo: [R#] get rid of this
     public static T DoTransaction<T>(
       [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull, InstantHandle] Func<T> func)
     {
@@ -60,13 +62,6 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         return originalDocRange;
       }
-    }
-
-    [NotNull]
-    public static ITreeNodePointer<T> CreatePointer<T>([NotNull] this T treeNode)
-      where T : class, ITreeNode
-    {
-      return treeNode.GetPsiServices().Pointers.CreateTreeElementPointer(treeNode);
     }
 
     [NotNull]

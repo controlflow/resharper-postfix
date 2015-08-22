@@ -260,7 +260,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           using (WriteLockCookie.Create())
           {
             var memberCheck = invocation.ReplaceBy(enumMemberCheck);
-            return memberCheck.CreatePointer();
+            return memberCheck.CreateTreeElementPointer();
           }
         });
 

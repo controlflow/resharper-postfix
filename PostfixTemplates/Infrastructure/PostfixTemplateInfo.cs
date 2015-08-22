@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.Util;
 
@@ -37,6 +36,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     public string Text
     {
       get { return myText; }
+    }
+
+    [NotNull] public PostfixTemplateExecutionContext ExecutionContext
+    {
+      get { return myExecutionContext; }
     }
 
     // todo: expose ExecutionContext?
@@ -72,11 +76,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return myImages; }
     }
 
-    //public object Shortcut
-    //{
-    //  get { return myText; }
-    //}
-
     public LookupItemPlacement Placement
     {
       get { return new LookupItemPlacement(myText); }
@@ -88,5 +87,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       add { }
       remove { }
     }
+  }
+
+  public enum PostfixTemplateTarget
+  {
+    Expression,
+    Statement,
+    TypeUsage
   }
 }
