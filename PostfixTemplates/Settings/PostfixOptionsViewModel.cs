@@ -10,7 +10,7 @@ using JetBrains.UI.Options;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
-  // todo: tabs for 
+  // todo: tabs for languages
   public sealed class PostfixOptionsViewModel
   {
     [NotNull] private readonly OptionsSettingsSmartContext mySettingsStore;
@@ -49,9 +49,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     [NotNull] public ObservableCollection<PostfixTemplateViewModel> Templates { get; private set; }
 
     [NotNull] public IProperty<bool> ShowPostfixTemplates { get; private set; }
+    // todo: [R#] public IProperty<bool> ShowSourceTemplates { get; private set; }
+
     [NotNull] public IProperty<bool> ShowStaticMembers { get; private set; }
+
+    // todo: [R#] drop this two, enable always:
     [NotNull] public IProperty<bool> ShowEnumHelpers { get; private set; }
     [NotNull] public IProperty<bool> ShowLengthCountItems { get; private set; }
+
     [NotNull] public IProperty<bool> UseBracesForStatements { get; private set; }
     [NotNull] public IProperty<bool> InvokeParameterInfo { get; private set; }
     [NotNull] public IProperty<bool> SearchVarOccurrences { get; private set; }
@@ -85,7 +90,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       }
 
       Templates.Clear();
-      FillTemplates();
+      FillTemplates(); // todo: should not affect current page
     }
   }
 }
