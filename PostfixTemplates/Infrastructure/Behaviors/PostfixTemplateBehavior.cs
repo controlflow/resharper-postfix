@@ -10,7 +10,6 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupI
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Feature.Services.Util;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
@@ -52,23 +51,45 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       // todo: carefully review and document all of this :\
       var reparseString = Info.ReparseString;
 
+      // so we inserted '.__' and get '2 + 2.__' just like in code completion reparse
       textControl.Document.InsertText(nameRange.EndOffset, reparseString, TextModificationSide.RightSide);
 
       solution.GetPsiServices().Files.CommitAllDocuments();
 
-      //var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
+      var offset = nameRange.EndOffset + reparseString.Length;
+      var execContext = new PostfixTemplateExecutionContext(
+        solution, textControl, Info.ExecutionContext.SettingsStore, Info.ReparseString, Info.ExecutionContext.IsPreciseMode);
 
       PostfixTemplateContext postfixContext = null;
-      var identifierOffset = (textControl.Caret.Offset() - reparseString.Length);
 
-      foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
+      foreach (var element in TextControlToPsi.GetElements<ITreeNode>(solution, textControl.Document, offset))
       {
-        var executionContext = new PostfixTemplateExecutionContext(solution, textControl, reparseString, false);
+        var contextFactory = LanguageManager.Instance.TryGetService<IPostfixTemplateContextFactory>(element.Language);
+        if (contextFactory == null) continue;
 
-        postfixContext = templatesManager.IsAvailable(position, executionContext);
-        if (postfixContext != null) break;
+        postfixContext = contextFactory.TryCreate(element, execContext);
+        if (postfixContext == null) continue;
       }
 
+      //Assertion.AssertNotNull(postfixContext, "postfixContext != null");
+
+      //var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
+
+      //PostfixTemplateContext postfixContext = null;
+      //
+      //var identifierOffset = (
+      //  textControl.Caret.Offset() // very weird! do not use caret offset here
+      //  - reparseString.Length);
+
+      //foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
+      //{
+      //  var executionContext = new PostfixTemplateExecutionContext(solution, textControl, reparseString, false);
+      //
+      //  postfixContext = templatesManager.IsAvailable(position, executionContext);
+      //  if (postfixContext != null) break;
+      //}
+
+      // todo: [R#] good feature id, looks at source templates 'Accept()'
       TipsManager.Instance.FeatureIsUsed(
         "Plugin.ControlFlow.PostfixTemplates." + Info.Text, textControl.Document, solution);
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
+using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
