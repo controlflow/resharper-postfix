@@ -62,14 +62,10 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       foreach (var templateRegistration in myTemplateInfos)
       {
-        // filter out disabled providers
-        bool isEnabled;
-        if (!settingsKey.DisabledProviders.TryGet(templateRegistration.SettingsKey, out isEnabled))
-        {
-          isEnabled = !templateRegistration.Metadata.DisabledByDefault;
-        }
+        var isEnabled = settingsKey.DisabledProviders.GetIndexedValue(
+          templateRegistration.SettingsKey, !templateRegistration.Metadata.DisabledByDefault);
 
-        if (!isEnabled) continue;
+        if (!isEnabled) continue; // filter out disabled providers
 
         yield return templateRegistration;
       }

@@ -49,5 +49,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       BracesForStatements  = settings => settings.UseBracesForEmbeddedStatements,
       InvokeParameterInfo  = settings => settings.InvokeParameterInfoFromTemplates,
       SearchVarOccurrences = settings => settings.SearchOccurrencesFromIntroduceVarTemplates;
+
+    public static TValue GetIndexedValue<TKey, TValue>(
+      [NotNull] this IIndexedEntry<TKey, TValue> settings, [NotNull] TKey key, TValue defaultValue)
+    {
+      TValue value;
+      if (settings.TryGet(key, out value)) return value;
+      return defaultValue;
+    }
   }
 }

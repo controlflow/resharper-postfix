@@ -19,10 +19,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       myTemplateAttribute = myMetadata.Metadata;
 
       var settings = mySettingsStore.GetKey<PostfixTemplatesSettings>(SettingsOptimization.OptimizeDefault);
-
-      bool isEnabled;
-      var isConfigured = settings.DisabledProviders.TryGet(metadata.SettingsKey, out isEnabled);
-      myIsChecked = (!isConfigured && !metadata.Metadata.DisabledByDefault) || isEnabled;
+      myIsChecked = settings.DisabledProviders.GetIndexedValue(metadata.SettingsKey, !metadata.Metadata.DisabledByDefault);
     }
 
     [NotNull] public string TemplateName { get { return "." + myTemplateAttribute.TemplateName.ToLowerInvariant(); } }

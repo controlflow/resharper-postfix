@@ -21,13 +21,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
   public abstract class PostfixTemplateBehavior : LookupItemAspect<PostfixTemplateInfo>, ILookupItemBehavior
   {
+    private int myExpressionIndex;
+
     protected PostfixTemplateBehavior([NotNull] PostfixTemplateInfo info)
       : base(info)
     {
-
+      myExpressionIndex = (info.Images.Count > 1 ? -1 : 0);
     }
-
-    private int myExpressionIndex = -1;
 
     protected string ExpandCommandName
     {
@@ -68,26 +68,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         if (contextFactory == null) continue;
 
         postfixContext = contextFactory.TryCreate(element, execContext);
-        if (postfixContext == null) continue;
+        if (postfixContext != null) break;
       }
-
-      //Assertion.AssertNotNull(postfixContext, "postfixContext != null");
-
-      //var templatesManager = solution.GetComponent<PostfixTemplatesManager>();
-
-      //PostfixTemplateContext postfixContext = null;
-      //
-      //var identifierOffset = (
-      //  textControl.Caret.Offset() // very weird! do not use caret offset here
-      //  - reparseString.Length);
-
-      //foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, textControl.Document, identifierOffset))
-      //{
-      //  var executionContext = new PostfixTemplateExecutionContext(solution, textControl, reparseString, false);
-      //
-      //  postfixContext = templatesManager.IsAvailable(position, executionContext);
-      //  if (postfixContext != null) break;
-      //}
 
       // todo: [R#] good feature id, looks at source templates 'Accept()'
       TipsManager.Instance.FeatureIsUsed(

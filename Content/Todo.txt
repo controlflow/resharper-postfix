@@ -1,3 +1,7 @@
+TODO: fix tab expansion
+TODO: fix double completion
+
+
 TODO: Fix razor?
 TODO: Support code style var setting in 9.0 build;
 TODO: New .cw template for Console.WriteLine() invocation;
@@ -5,5 +9,6 @@ TODO: New .push/.pull templates?
 TODO: C# 6.0 .nameof template
 TODO: 9.0 lookup items refactor
 TODO: ArgumentException.throw
+TODO: snap to device pixels in settings UI
 
 TODO: rename 'auto completion' into 'precise mode'

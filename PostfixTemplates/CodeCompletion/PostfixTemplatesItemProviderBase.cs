@@ -101,6 +101,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var postfixTemplateInfo = templateProvider.TryCreateInfo(context);
         if (postfixTemplateInfo == null) continue;
 
+        // todo: enforce
         Assertion.Assert(templateRegistration.Metadata.TemplateName == postfixTemplateInfo.Text, "TODO: AAAA");
 
         yield return LookupItemFactory
