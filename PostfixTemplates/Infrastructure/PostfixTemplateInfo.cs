@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
@@ -68,7 +69,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     public bool IsDynamic { get { return false; } }
 
-    public int Identity { get { return 0; } }
+    #region Crazy shit down here, do not expand this regions for your own safety
+
+#if RESHARPER92
+
+    public int Identity { get { return 0 /* no fucking idea why! */; } }
+
+#else
+
+    public StringBuilder Identity { get { return new StringBuilder(myText); } }
+
+#endif
+
+    #endregion
 
     [NotNull, ItemNotNull]
     public IList<PostfixExpressionContextImage> Images
