@@ -102,7 +102,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         if (postfixTemplateInfo == null) continue;
 
         // todo: enforce
-        Assertion.Assert(templateRegistration.Metadata.TemplateName == postfixTemplateInfo.Text, "TODO: AAAA");
+        //Assertion.Assert(templateRegistration.Metadata.TemplateName == postfixTemplateInfo.Text, "TODO: AAAA");
 
         yield return LookupItemFactory
           .CreateLookupItem(postfixTemplateInfo)

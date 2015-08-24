@@ -10,6 +10,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
   [Language(typeof(CSharpLanguage))]
   public class CSharpPostfixTemplateContextFactory : IPostfixTemplateContextFactory
   {
+    public string[] GetReparseStrings()
+    {
+      return new[] {"__", "__;"};
+    }
+
     public PostfixTemplateContext TryCreate(ITreeNode position, PostfixTemplateExecutionContext executionContext)
     {
       if (!(position is ICSharpIdentifier)) return null;

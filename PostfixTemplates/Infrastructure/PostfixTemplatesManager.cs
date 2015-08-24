@@ -5,6 +5,7 @@ using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
+using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.PostfixTemplates.Templates;
 using JetBrains.TextControl;
@@ -71,20 +72,39 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
     }
 
-    public void GetTemplateByName([NotNull] TPostfixTemplateContext context, [NotNull] string templateName)
+    public bool IsTemplateAvailableByName(PostfixTemplateContext context, string templateName)
     {
-      foreach (var templateRegistration in GetEnabledTemplates(context))
+      var specificContext = (TPostfixTemplateContext) context;
+
+      foreach (var templateRegistration in GetEnabledTemplates(specificContext))
       {
         if (string.Equals(templateRegistration.Metadata.TemplateName, templateName, StringComparison.Ordinal))
         {
-          var postfixTemplateInfo = templateRegistration.Template.TryCreateInfo(context);
+          var templateInfo = templateRegistration.Template.TryCreateInfo(specificContext);
+          if (templateInfo != null)
+          {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    public void ExecuteTemplateByName(PostfixTemplateContext context, string templateName, ITextControl textControl, TextRange nameRange)
+    {
+      var specificContext = (TPostfixTemplateContext) context;
+
+      foreach (var templateRegistration in GetEnabledTemplates(specificContext))
+      {
+        if (string.Equals(templateRegistration.Metadata.TemplateName, templateName, StringComparison.Ordinal))
+        {
+          var postfixTemplateInfo = templateRegistration.Template.TryCreateInfo(specificContext);
           if (postfixTemplateInfo != null)
           {
             var behavior = templateRegistration.Template.CreateBehavior(postfixTemplateInfo);
-
-            // todo: return or execute smth like :\
-            Action<ITextControl, TextRange, ISolution> a = (tc, r, solution) =>
-              behavior.Accept(tc, r, LookupItemInsertType.Replace, Suffix.Empty, solution, false);
+            behavior.Accept(
+              textControl, nameRange, LookupItemInsertType.Insert, Suffix.Empty, context.ExecutionContext.Solution, false);
           }
         }
       }

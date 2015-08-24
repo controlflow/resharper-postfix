@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using JetBrains.ActionManagement;
 using JetBrains.Annotations;
 using JetBrains.Application.CommandProcessing;
 using JetBrains.Application.DataContext;
 using JetBrains.DataFlow;
 using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.Files;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.TextControl.Util;
@@ -22,12 +21,17 @@ using JetBrains.Util;
 namespace JetBrains.ReSharper.PostfixTemplates
 {
   // todo: no lookup items here!
-  /*
+  // todo: [R#] press Tab to expand postfix template hint
+  // todo: [R#] availability check without commit like in live templates
+  // todo: [R#] merge with live templates availability check?
+
   [SolutionComponent]
   public sealed class PostfixTemplatesTabTracker
   {
     public PostfixTemplatesTabTracker(
-      [NotNull] Lifetime lifetime, [NotNull] IActionManager manager, [NotNull] ICommandProcessor commandProcessor,
+      [NotNull] Lifetime lifetime,
+      [NotNull] IActionManager manager,
+      [NotNull] ICommandProcessor commandProcessor,
       [NotNull] ILookupWindowManager lookupWindowManager,
       [NotNull] LanguageManager languageManager,
       [NotNull] TextControlChangeUnitFactory changeUnitFactory)
@@ -52,10 +56,9 @@ namespace JetBrains.ReSharper.PostfixTemplates
       [NotNull] private readonly LanguageManager myLanguageManager;
       [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
 
-      public ExpandPostfixTemplateHandler([NotNull] ICommandProcessor commandProcessor,
-                                          [NotNull] ILookupWindowManager lookupWindowManager,
-                                          [NotNull] LanguageManager languageManager,
-                                          [NotNull] TextControlChangeUnitFactory changeUnitFactory)
+      public ExpandPostfixTemplateHandler(
+        [NotNull] ICommandProcessor commandProcessor, [NotNull] ILookupWindowManager lookupWindowManager,
+        [NotNull] LanguageManager languageManager, [NotNull] TextControlChangeUnitFactory changeUnitFactory)
       {
         myCommandProcessor = commandProcessor;
         myLookupWindowManager = lookupWindowManager;
@@ -63,22 +66,36 @@ namespace JetBrains.ReSharper.PostfixTemplates
         myChangeUnitFactory = changeUnitFactory;
       }
 
-      public bool Update(IDataContext context, ActionPresentation presentation, DelegateUpdate nextUpdate)
+      /*
+      IActionRequirement IActionWithExecuteRequirement.GetRequirement(IDataContext dataContext)
       {
-        var textControl = context.GetData(TextControl.DataContext.DataConstants.TEXT_CONTROL);
-        if (textControl == null) return nextUpdate();
+        if (!FastCheckAvailable(dataContext))
+          return EmptyRequirement.Instance;
 
-        var solution = context.GetData(ProjectModel.DataContext.DataConstants.SOLUTION);
+        return CurrentPsiFileRequirement.FromDataContext(dataContext);
+      }
+
+      private bool FastCheckAvailable(IDataContext dataContext)
+      {
+        var solution = dataContext.GetData(ProjectModel.DataContext.DataConstants.SOLUTION);
+        if (solution == null) return false;
+
+        var textControl = dataContext.GetData(TextControl.DataContext.DataConstants.TEXT_CONTROL);
+        if (textControl == null) return false;
+
+        return TODO;
+      }
+      */
+
+      public bool Update(IDataContext dataContext, ActionPresentation presentation, DelegateUpdate nextUpdate)
+      {
+        var solution = dataContext.GetData(ProjectModel.DataContext.DataConstants.SOLUTION);
         if (solution == null) return nextUpdate();
 
-        var sourceFile = textControl.Document.GetPsiSourceFile(solution);
-        if (sourceFile != null)
-        {
-          var template = GetTemplateFromTextControl(solution, textControl);
-          if (template != null) return true;
-        }
+        var textControl = dataContext.GetData(TextControl.DataContext.DataConstants.TEXT_CONTROL);
+        if (textControl == null) return nextUpdate();
 
-        return nextUpdate();
+        return IsAvailableOrExecuteEww(solution, textControl, execute: false) || nextUpdate();
       }
 
       public void Execute(IDataContext context, DelegateExecute nextExecute)
@@ -92,28 +109,14 @@ namespace JetBrains.ReSharper.PostfixTemplates
         if (myLookupWindowManager.CurrentLookup != null) return;
 
         const string commandName = "Expanding postfix template with [Tab]";
+
         var updateCookie = myChangeUnitFactory.CreateChangeUnit(textControl, commandName);
+
         try
         {
           using (myCommandProcessor.UsingCommand(commandName))
           {
-            var postfixItem = GetTemplateFromTextControl(solution, textControl);
-            if (postfixItem != null)
-            {
-              TipsManager.Instance.FeatureIsUsed(
-                "Plugin.ControlFlow.PostfixTemplates.<tab>", textControl.Document, solution);
-
-              var nameLength = postfixItem.Placement.OrderString.Length;
-              var offset = textControl.Caret.Offset() - nameLength;
-
-              postfixItem.Accept(
-                textControl, TextRange.FromLength(offset, nameLength),
-                LookupItemInsertType.Insert, Suffix.Empty, solution, keepCaretStill: false);
-
-              return;
-            }
-
-            updateCookie.Dispose();
+            IsAvailableOrExecuteEww(solution, textControl, execute: true);
           }
         }
         catch
@@ -125,27 +128,45 @@ namespace JetBrains.ReSharper.PostfixTemplates
         nextExecute();
       }
 
-      [CanBeNull]
-      private ILookupItem GetTemplateFromTextControl([NotNull] ISolution solution, [NotNull] ITextControl textControl)
+      private bool IsAvailableOrExecuteEww([NotNull] ISolution solution, [NotNull] ITextControl textControl, bool execute)
       {
         var offset = textControl.Caret.Offset();
         var prefix = LiveTemplatesManager.GetPrefix(textControl.Document, offset);
 
-        if (!TemplateWithNameExists(prefix)) return null;
+        if (!TemplateWithNameExists(prefix)) return false;
 
-        // todo: this reparse is language-specific!
-        var postfixItems = TryReparseWith(solution, textControl, prefix, "__")
-                        ?? TryReparseWith(solution, textControl, prefix, "__;");
+        var files = textControl.Document.GetPsiSourceFiles(solution);
+        var allLanguages = files.SelectMany(file => file.GetPsiServices().Files.GetLanguages(file, PsiLanguageCategories.Primary)).Distinct();
 
-        if (postfixItems == null) return null;
-        if (postfixItems.Count != 1) return null;
+        foreach (var psiLanguageType in allLanguages)
+        {
+          var contextFactory = myLanguageManager.TryGetService<IPostfixTemplateContextFactory>(psiLanguageType);
+          if (contextFactory == null) continue;
 
-        return postfixItems[0];
+          foreach (var reparseString in contextFactory.GetReparseStrings())
+          {
+            var templateContext = TryReparseWith(solution, textControl, reparseString);
+            if (templateContext != null)
+            {
+              var templatesManager = myLanguageManager.GetService<IPostfixTemplatesManager>(psiLanguageType);
+
+              if (execute)
+              {
+                var nameRange = TextRange.FromLength(offset - prefix.Length, prefix.Length);
+                templatesManager.ExecuteTemplateByName(templateContext, prefix, textControl, nameRange);
+                return true;
+              }
+
+              return templatesManager.IsTemplateAvailableByName(templateContext, prefix);
+            }
+          }
+        }
+
+        return false;
       }
 
       [CanBeNull]
-      private IList<ILookupItem> TryReparseWith([NotNull] ISolution solution, [NotNull] ITextControl textControl,
-                                                [NotNull] string templateName, [NotNull] string reparseString)
+      private PostfixTemplateContext TryReparseWith([NotNull] ISolution solution, [NotNull] ITextControl textControl, [NotNull] string reparseString)
       {
         var offset = textControl.Caret.Offset();
         var document = textControl.Document;
@@ -153,16 +174,19 @@ namespace JetBrains.ReSharper.PostfixTemplates
         try
         {
           document.InsertText(offset, reparseString);
+
           solution.GetPsiServices().Files.CommitAllDocuments();
 
-          var executionContext = new PostfixTemplateExecutionContext(solution, textControl, reparseString, false);
-
-          foreach (var position in TextControlToPsi.GetElements<ITokenNode>(solution, document, offset))
+          foreach (var position in TextControlToPsi.GetElements<ITreeNode>(solution, document, offset))
           {
-            var postfixContext = myTemplatesManager.IsAvailable(position, executionContext);
-            if (postfixContext == null) continue;
+            var templateContextFactory = myLanguageManager.TryGetService<IPostfixTemplateContextFactory>(position.Language);
+            if (templateContextFactory != null)
+            {
+              var executionContext = new PostfixTemplateExecutionContext(
+                solution, textControl, position.GetSettingsStore(), reparseString, false);
 
-            return myTemplatesManager.CollectItems(postfixContext, templateName: templateName);
+              return templateContextFactory.TryCreate(position, executionContext);
+            }
           }
 
           return null;
@@ -176,14 +200,16 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       private bool TemplateWithNameExists([NotNull] string prefix)
       {
-        foreach (var providerInfo in myTemplatesManager.TemplateProvidersInfos)
+        foreach (var manager in myLanguageManager.GetServicesFromAll<IPostfixTemplatesManager>())
         {
-          if (providerInfo.Metadata.TemplateName == prefix) return true;
+          foreach (var providerInfo in manager.AvailableTemplates)
+          {
+            if (providerInfo.Metadata.TemplateName == prefix) return true;
+          }
         }
 
         return false;
       }
     }
   }
-  */
 }
