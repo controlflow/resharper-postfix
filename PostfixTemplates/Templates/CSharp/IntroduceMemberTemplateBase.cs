@@ -83,16 +83,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       [NotNull] protected readonly IType ExpressionType;
       protected readonly bool IsStatic;
 
-      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
       [NotNull] private ICollection<string> myMemberNames = EmptyList<string>.InstanceList;
       [CanBeNull] private ITreeNodePointer<IClassMemberDeclaration> myMemberPointer;
 
-      protected CSharpPostfixIntroduceMemberBehaviorBase(
-        [NotNull] IntroduceMemberPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager) : base(info)
+      protected CSharpPostfixIntroduceMemberBehaviorBase([NotNull] IntroduceMemberPostfixTemplateInfo info) : base(info)
       {
-        myLiveTemplatesManager = liveTemplatesManager;
-
         ExpressionType = info.ExpressionType;
         IsStatic = info.IsStatic;
       }
@@ -153,7 +148,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           memberIdentifier.GetDocumentRange(), memberDeclaration.GetNameDocumentRange());
 
         var endRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
-        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var liveTemplatesManager = Info.ExecutionContext.LiveTemplatesManager;
+        var session = liveTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 

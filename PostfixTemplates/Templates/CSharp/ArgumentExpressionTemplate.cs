@@ -29,13 +29,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "Method(expr)")]
   public class ArgumentExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesMananger;
-
-    public ArgumentExpressionTemplate([NotNull] LiveTemplatesManager liveTemplatesMananger)
-    {
-      myLiveTemplatesMananger = liveTemplatesMananger;
-    }
-
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       if (context.IsPreciseMode) return null;

@@ -1,6 +1,4 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -17,13 +15,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "for (var i = xs.Length-1; i >= 0; i--)")]
   public class ForReverseLoopTemplate : ForLoopTemplateBase
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-    public ForReverseLoopTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-    }
-
     public override PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       string lengthName;
@@ -37,14 +28,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     protected override PostfixTemplateBehavior CreateBehavior(ForLoopPostfixTemplateInfo info)
     {
-      return new CSharpRevereForLoopStatementBehavior(info, myLiveTemplatesManager);
+      return new CSharpRevereForLoopStatementBehavior(info);
     }
 
     private sealed class CSharpRevereForLoopStatementBehavior : CSharpForLoopStatementBehaviorBase
     {
-      public CSharpRevereForLoopStatementBehavior(
-        [NotNull] ForLoopPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
-        : base(info, liveTemplatesManager) { }
+      public CSharpRevereForLoopStatementBehavior([NotNull] ForLoopPostfixTemplateInfo info) : base(info) { }
 
       protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

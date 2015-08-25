@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -16,25 +14,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "_field = expr;")]
   public class IntroduceFieldTemplate : IntroduceMemberTemplateBase
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-    public IntroduceFieldTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-    }
-
     public override string TemplateName { get { return "field"; } }
 
     protected override PostfixTemplateBehavior CreateBehavior(IntroduceMemberPostfixTemplateInfo info)
     {
-      return new CSharpPostfixIntroduceFieldBehaviorBase(info, myLiveTemplatesManager);
+      return new CSharpPostfixIntroduceFieldBehaviorBase(info);
     }
 
     private sealed class CSharpPostfixIntroduceFieldBehaviorBase : CSharpPostfixIntroduceMemberBehaviorBase
     {
-      public CSharpPostfixIntroduceFieldBehaviorBase(
-        [NotNull] IntroduceMemberPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
-        : base(info, liveTemplatesManager) { }
+      public CSharpPostfixIntroduceFieldBehaviorBase([NotNull] IntroduceMemberPostfixTemplateInfo info) : base(info) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {

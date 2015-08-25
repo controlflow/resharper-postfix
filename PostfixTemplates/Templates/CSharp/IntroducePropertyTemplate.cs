@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -19,25 +17,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "Property = expr;")]
   public class IntroducePropertyTemplate : IntroduceMemberTemplateBase
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-    public IntroducePropertyTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-    }
-
     public override string TemplateName { get { return "prop"; } }
 
     protected override PostfixTemplateBehavior CreateBehavior(IntroduceMemberPostfixTemplateInfo info)
     {
-      return new CSharpPostfixIntroducePropertyBehaviorBase(info, myLiveTemplatesManager);
+      return new CSharpPostfixIntroducePropertyBehaviorBase(info);
     }
 
     private sealed class CSharpPostfixIntroducePropertyBehaviorBase : CSharpPostfixIntroduceMemberBehaviorBase
     {
-      public CSharpPostfixIntroducePropertyBehaviorBase(
-        [NotNull] IntroduceMemberPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
-        : base(info, liveTemplatesManager) { }
+      public CSharpPostfixIntroducePropertyBehaviorBase([NotNull] IntroduceMemberPostfixTemplateInfo info) : base(info) { }
 
       protected override IClassMemberDeclaration CreateMemberDeclaration(CSharpElementFactory factory)
       {

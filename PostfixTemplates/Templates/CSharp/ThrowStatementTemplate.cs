@@ -105,7 +105,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
       if (info.Target == PostfixTemplateTarget.TypeUsage)
-        return new CSharpPostfixThrowStatementByTypeUsageBehavior(info, myLookupItemsOwnerFactory);
+        return new CSharpPostfixThrowStatementByTypeUsageBehavior(info);
 
       return new CSharpPostfixThrowStatementBehavior(info);
     }

@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -94,14 +93,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     protected abstract class CSharpForLoopStatementBehaviorBase : CSharpStatementPostfixTemplateBehavior<IForStatement>
     {
-      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
       [CanBeNull] private readonly string myLengthName;
 
-      protected CSharpForLoopStatementBehaviorBase(
-        [NotNull] ForLoopPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager) : base(info)
+      protected CSharpForLoopStatementBehaviorBase([NotNull] ForLoopPostfixTemplateInfo info) : base(info)
       {
         myLengthName = info.LengthPropertyName;
-        myLiveTemplatesManager = liveTemplatesManager;
       }
 
       [CanBeNull] protected string LengthName { get { return myLengthName; } }
@@ -124,7 +120,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           iterator.Operand.GetDocumentRange());
 
         var endRange = new TextRange(textControl.Caret.Offset());
-        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var liveTemplatesManager = Info.ExecutionContext.LiveTemplatesManager;
+        var session = liveTemplatesManager.CreateHotspotSessionAtopExistingText(
           newStatement.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, variableNameInfo);
 
@@ -158,8 +155,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
         return collection.AllNames();
       }
-
-      
     }
   }
 }

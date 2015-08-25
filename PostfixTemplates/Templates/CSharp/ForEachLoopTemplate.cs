@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
@@ -12,6 +13,7 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
+using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
@@ -35,13 +37,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "foreach (var x in expr)")]
   public class ForEachLoopTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-    public ForEachLoopTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-    }
-
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.Expressions.LastOrDefault();
@@ -75,20 +70,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
       if (info.Target == PostfixTemplateTarget.Statement)
-        return new CSharpPostfixForEachStatementBehavior(info, myLiveTemplatesManager);
+        return new CSharpPostfixForEachStatementBehavior(info);
 
-      return new CSharpPostfixForEachExpressionBehavior(info, myLiveTemplatesManager);
+      return new CSharpPostfixForEachExpressionBehavior(info);
     }
 
     private sealed class CSharpPostfixForEachStatementBehavior : CSharpStatementPostfixTemplateBehavior<IForeachStatement>
     {
-      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-
-      public CSharpPostfixForEachStatementBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager templatesManager)
-        : base(info)
-      {
-        myTemplatesManager = templatesManager;
-      }
+      public CSharpPostfixForEachStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       //public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       //{
@@ -111,29 +100,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var newStatement = PutStatementCaret(textControl, statement);
         if (newStatement == null) return;
 
-        ApplyRenameHotspots(myTemplatesManager, textControl, newStatement, namesCollection);
+        var liveTemplatesManager = Info.ExecutionContext.LiveTemplatesManager;
+        ApplyRenameHotspots(liveTemplatesManager, textControl, newStatement, namesCollection);
       }
     }
 
     private sealed class CSharpPostfixForEachExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
     {
-      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
       private readonly bool myUseBraces;
 
-      public CSharpPostfixForEachExpressionBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
-        : base(info)
+      public CSharpPostfixForEachExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info)
       {
-        myLiveTemplatesManager = liveTemplatesManager;
+        myUseBraces = info.ExecutionContext.SettingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
       }
-
-      //{
-      //  var postfixContext = context.PostfixContext;
-      //  var settingsStore = postfixContext.Reference.GetSettingsStore();
-      //
-      //
-      //  myTemplatesManager = postfixContext.ExecutionContext.LiveTemplatesManager;
-      //  myUseBraces = settingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
-      //}
 
       //public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       //{
@@ -182,7 +161,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (resultStatement == null) return;
 
         var namesCollection = SuggestIteratorVariableNames(resultStatement);
-        ApplyRenameHotspots(myLiveTemplatesManager, textControl, resultStatement, namesCollection, iteratorReference);
+        var liveTemplatesManager = Info.ExecutionContext.LiveTemplatesManager;
+
+        ApplyRenameHotspots(liveTemplatesManager, textControl, resultStatement, namesCollection, iteratorReference);
       }
     }
 

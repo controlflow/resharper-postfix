@@ -5,7 +5,6 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -28,13 +27,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "using (expr)")]
   public class UsingStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-    public UsingStatementTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-    }
-
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.OuterExpression;
@@ -113,18 +105,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new CSharpPostfixUsingStatementBehavior((PostfixUsingTemplateInfo) info, myLiveTemplatesManager);
+      return new CSharpPostfixUsingStatementBehavior((PostfixUsingTemplateInfo) info);
     }
 
     private sealed class CSharpPostfixUsingStatementBehavior : CSharpStatementPostfixTemplateBehavior<IUsingStatement>
     {
-      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
       private readonly bool myShouldCreateVariable;
 
-      public CSharpPostfixUsingStatementBehavior([NotNull] PostfixUsingTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
-        : base(info)
+      public CSharpPostfixUsingStatementBehavior([NotNull] PostfixUsingTemplateInfo info) : base(info)
       {
-        myLiveTemplatesManager = liveTemplatesManager;
         myShouldCreateVariable = info.ShouldCreateVariable;
       }
 
@@ -154,7 +143,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           new TemplateField("name", nameExpression, 0), declaration.NameIdentifier.GetDocumentRange());
 
         var endSelectionRange = new TextRange(textControl.Caret.Offset());
-        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var liveTemplatesManager = Info.ExecutionContext.LiveTemplatesManager;
+        var session = liveTemplatesManager.CreateHotspotSessionAtopExistingText(
           newStatement.GetSolution(), endSelectionRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, typeSpot, nameSpot);
 

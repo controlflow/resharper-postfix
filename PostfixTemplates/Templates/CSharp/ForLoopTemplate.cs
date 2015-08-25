@@ -17,13 +17,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "for (var i = 0; i < xs.Length; i++)")]
   public class ForLoopTemplate : ForLoopTemplateBase
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-    public ForLoopTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-    }
-
     public override PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       string lengthName;
@@ -37,14 +30,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     protected override PostfixTemplateBehavior CreateBehavior(ForLoopPostfixTemplateInfo info)
     {
-      return new CSharpForLoopStatementBehavior(info, myLiveTemplatesManager);
+      return new CSharpForLoopStatementBehavior(info);
     }
 
     private sealed class CSharpForLoopStatementBehavior : CSharpForLoopStatementBehaviorBase
     {
-      public CSharpForLoopStatementBehavior(
-        [NotNull] ForLoopPostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
-        : base(info, liveTemplatesManager) { }
+      public CSharpForLoopStatementBehavior([NotNull] ForLoopPostfixTemplateInfo info) : base(info) { }
 
       protected override IForStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {

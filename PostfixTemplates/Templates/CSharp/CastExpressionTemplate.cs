@@ -4,7 +4,6 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi.CSharp;
@@ -20,13 +19,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "((SomeType) expr)")]
   public class CastExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-    public CastExpressionTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-    }
-
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       if (context.IsPreciseMode) return null;
@@ -39,17 +31,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new CSharpPostfixCastExpressionBehavior(info, myLiveTemplatesManager);
+      return new CSharpPostfixCastExpressionBehavior(info);
     }
 
     private sealed class CSharpPostfixCastExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<IParenthesizedExpression>
     {
-      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-      public CSharpPostfixCastExpressionBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager) : base(info)
-      {
-        myLiveTemplatesManager = liveTemplatesManager;
-      }
+      public CSharpPostfixCastExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override string ExpressionSelectTitle
       {
@@ -71,7 +58,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           castExpression.TargetType.GetDocumentRange());
 
         var endRange = expression.GetDocumentRange().EndOffsetRange().TextRange;
-        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var session = Info.ExecutionContext.LiveTemplatesManager.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 

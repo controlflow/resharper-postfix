@@ -18,13 +18,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "lvalue = expr;")]
   public class AssignmentExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-    public AssignmentExpressionTemplate([NotNull] LiveTemplatesManager liveTemplatesManager)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-    }
-
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       if (context.IsPreciseMode) return null;
@@ -48,18 +41,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new CSharpPostfixAssignmentStatementBehavior(info, myLiveTemplatesManager);
+      return new CSharpPostfixAssignmentStatementBehavior(info);
     }
 
     private class CSharpPostfixAssignmentStatementBehavior : CSharpStatementPostfixTemplateBehavior<IExpressionStatement>
     {
-      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-
-      public CSharpPostfixAssignmentStatementBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager)
-        : base(info)
-      {
-        myLiveTemplatesManager = liveTemplatesManager;
-      }
+      public CSharpPostfixAssignmentStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IExpressionStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
@@ -73,7 +60,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var hotspotInfo = new HotspotInfo(templateField, expression.Dest.GetDocumentRange());
 
         var endRange = statement.GetDocumentRange().EndOffsetRange().TextRange;
-        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var session = Info.ExecutionContext.LiveTemplatesManager.CreateHotspotSessionAtopExistingText(
           statement.GetSolution(), endRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
 
