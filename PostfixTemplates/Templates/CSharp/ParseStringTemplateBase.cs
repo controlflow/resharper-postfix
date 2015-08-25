@@ -11,7 +11,6 @@ using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Macros.Implementations;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Templates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -27,15 +26,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
   public abstract class ParseStringTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-    [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
-
-    protected ParseStringTemplateBase([NotNull] LiveTemplatesManager liveTemplatesManager, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
-    {
-      myLiveTemplatesManager = liveTemplatesManager;
-      myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
-    }
-
     [NotNull] public abstract string TemplateName { get; }
     public abstract bool IsTryParse { get; }
 
@@ -55,21 +45,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new CSharpPostfixParseExpressionBehavior(info, myLiveTemplatesManager, myLookupItemsOwnerFactory, IsTryParse);
+      return new CSharpPostfixParseExpressionBehavior(info, IsTryParse);
     }
 
     private sealed class CSharpPostfixParseExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<IInvocationExpression>
     {
-      [NotNull] private readonly LiveTemplatesManager myLiveTemplatesManager;
-      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
       private readonly bool myIsTryParse;
 
-      public CSharpPostfixParseExpressionBehavior(
-        [NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager liveTemplatesManager,
-        [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory, bool isTryParse) : base(info)
+      public CSharpPostfixParseExpressionBehavior([NotNull] PostfixTemplateInfo info, bool isTryParse) : base(info)
       {
-        myLiveTemplatesManager = liveTemplatesManager;
-        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
         myIsTryParse = isTryParse;
       }
 
@@ -96,7 +80,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var argumentsRange = expression.ArgumentList.GetDocumentRange();
 
         var endSelectionRange = argumentsRange.EndOffsetRange().TextRange;
-        var session = myLiveTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var session = Info.ExecutionContext.LiveTemplatesManager.CreateHotspotSessionAtopExistingText(
           solution, endSelectionRange, textControl, LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
         var settingsStore = expression.GetSettingsStore();
@@ -121,7 +105,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           {
             using (ReadLockCookie.Create())
             {
-              var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+              var lookupItemsOwner = Info.ExecutionContext.LookupItemsOwner;
               LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
             }
           }

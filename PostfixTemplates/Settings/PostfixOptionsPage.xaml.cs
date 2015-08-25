@@ -3,13 +3,14 @@ using System.Windows.Input;
 using JetBrains.Annotations;
 using JetBrains.DataFlow;
 using JetBrains.ReSharper.Feature.Services.Resources;
-using JetBrains.ReSharper.Psi;
 using JetBrains.UI.CrossFramework;
 using JetBrains.UI.Options;
 using JetBrains.UI.Options.OptionPages;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
+  // todo: [R#] support settings page search somehow :\
+
   [OptionsPage(
     id: PID, name: "Postfix Templates",
     typeofIcon: typeof(ServicesThemedIcons.SurroundTemplate),
@@ -19,12 +20,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
     // ReSharper disable once InconsistentNaming
     private const string PID = "PostfixTemplates";
 
-    public PostfixOptionsPage(
-      [NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext settingsSmart, [NotNull] LanguageManager languageManager)
+    public PostfixOptionsPage([NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext settingsSmart)
     {
       InitializeComponent();
 
-      DataContext = new PostfixOptionsViewModel(lifetime, settingsSmart, languageManager);
+      DataContext = new PostfixOptionsViewModel(lifetime, settingsSmart);
       Control = this;
     }
 

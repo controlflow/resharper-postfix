@@ -14,13 +14,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
   public sealed class PostfixOptionsViewModel
   {
     [NotNull] private readonly OptionsSettingsSmartContext mySettingsStore;
-    [NotNull] private readonly LanguageManager myLanguageManager;
 
     public PostfixOptionsViewModel(
-      [NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext settingsStore, [NotNull] LanguageManager languageManager)
+      [NotNull] Lifetime lifetime, [NotNull] OptionsSettingsSmartContext settingsStore)
     {
       mySettingsStore = settingsStore;
-      myLanguageManager = languageManager;
 
       Templates = new ObservableCollection<PostfixTemplateViewModel>();
 
@@ -65,7 +63,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
     private void FillTemplates()
     {
-      var templatesManagers = myLanguageManager.GetServicesFromAll<IPostfixTemplatesManager>();
+      var templatesManagers = LanguageManager.Instance.GetServicesFromAll<IPostfixTemplatesManager>();
 
       // todo: PostfixTemplatesForLanguageViewModel
       foreach (var specificTemplatesManager in templatesManagers)

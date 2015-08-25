@@ -30,12 +30,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
   public class ArgumentExpressionTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     [NotNull] private readonly LiveTemplatesManager myLiveTemplatesMananger;
-    [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
 
-    public ArgumentExpressionTemplate([NotNull] LiveTemplatesManager liveTemplatesMananger, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
+    public ArgumentExpressionTemplate([NotNull] LiveTemplatesManager liveTemplatesMananger)
     {
       myLiveTemplatesMananger = liveTemplatesMananger;
-      myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
     }
 
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
@@ -54,7 +52,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     public PostfixTemplateBehavior CreateBehavior(PostfixTemplateInfo info)
     {
-      return new CSharpPostfixArgumentExpressionBehavior(info, myLiveTemplatesMananger, myLookupItemsOwnerFactory);
+      return new CSharpPostfixArgumentExpressionBehavior(info);
     }
 
     private static bool IsNiceArgument([NotNull] ICSharpExpression expression)
@@ -68,14 +66,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     private class CSharpPostfixArgumentExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<IInvocationExpression>
     {
-      [NotNull] private readonly LiveTemplatesManager myTemplatesManager;
-      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
-
-      public CSharpPostfixArgumentExpressionBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LiveTemplatesManager templatesManager, LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
-      {
-        myTemplatesManager = templatesManager;
-        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
-      }
+      public CSharpPostfixArgumentExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override string ExpressionSelectTitle
       {
@@ -99,7 +90,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var marker = argumentRange.EndOffsetRange().CreateRangeMarker();
         var length = (marker.Range.EndOffset - invocationRange.TextRange.EndOffset);
 
-        var session = myTemplatesManager.CreateHotspotSessionAtopExistingText(
+        var liveTemplatesManager = Info.ExecutionContext.LiveTemplatesManager;
+        var session = liveTemplatesManager.CreateHotspotSessionAtopExistingText(
           expression.GetSolution(), TextRange.InvalidRange, textControl,
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
 
@@ -127,7 +119,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
             if (invokeParameterInfo)
             {
-              var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+              var lookupItemsOwner = Info.ExecutionContext.LookupItemsOwner;
               LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
             }
           }

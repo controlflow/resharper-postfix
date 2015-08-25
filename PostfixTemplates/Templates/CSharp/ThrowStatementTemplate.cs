@@ -21,13 +21,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "throw expr;")]
   public class ThrowStatementTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
-
-    public ThrowStatementTemplate([NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
-    {
-      myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
-    }
-
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var expressionContext = context.TypeExpression ?? context.OuterExpression;
@@ -133,12 +126,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     private sealed class CSharpPostfixThrowStatementByTypeUsageBehavior : CSharpStatementPostfixTemplateBehavior<IThrowStatement>
     {
-      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
-
-      public CSharpPostfixThrowStatementByTypeUsageBehavior([NotNull] PostfixTemplateInfo info, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
-      {
-        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
-      }
+      public CSharpPostfixThrowStatementByTypeUsageBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IThrowStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
@@ -175,7 +163,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
           if (hasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
           {
-            var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+            var lookupItemsOwner = Info.ExecutionContext.LookupItemsOwner;
             LookupUtil.ShowParameterInfo(statement.GetSolution(), textControl, lookupItemsOwner);
           }
         }

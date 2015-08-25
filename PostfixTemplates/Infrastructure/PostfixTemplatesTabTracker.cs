@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using JetBrains.ActionManagement;
 using JetBrains.Annotations;
+using JetBrains.Application;
 using JetBrains.Application.CommandProcessing;
 using JetBrains.Application.DataContext;
 using JetBrains.DataFlow;
@@ -25,23 +26,20 @@ namespace JetBrains.ReSharper.PostfixTemplates
   // todo: [R#] availability check without commit like in live templates
   // todo: [R#] merge with live templates availability check?
 
-  [SolutionComponent]
+  [ShellComponent]
   public sealed class PostfixTemplatesTabTracker
   {
     public PostfixTemplatesTabTracker(
       [NotNull] Lifetime lifetime,
       [NotNull] IActionManager manager,
       [NotNull] ICommandProcessor commandProcessor,
-      [NotNull] ILookupWindowManager lookupWindowManager,
-      [NotNull] LanguageManager languageManager,
       [NotNull] TextControlChangeUnitFactory changeUnitFactory)
     {
       // override live templates expand action
       var expandAction = manager.Defs.TryGetActionDefById(TextControlActions.TAB_ACTION_ID);
       if (expandAction != null)
       {
-        var postfixHandler = new ExpandPostfixTemplateHandler(
-          commandProcessor, lookupWindowManager, languageManager, changeUnitFactory);
+        var postfixHandler = new ExpandPostfixTemplateHandler(commandProcessor, changeUnitFactory);
 
         lifetime.AddBracket(
           FOpening: () => manager.Handlers.AddHandler(expandAction, postfixHandler),
@@ -52,17 +50,12 @@ namespace JetBrains.ReSharper.PostfixTemplates
     private sealed class ExpandPostfixTemplateHandler : IExecutableAction
     {
       [NotNull] private readonly ICommandProcessor myCommandProcessor;
-      [NotNull] private readonly ILookupWindowManager myLookupWindowManager;
-      [NotNull] private readonly LanguageManager myLanguageManager;
       [NotNull] private readonly TextControlChangeUnitFactory myChangeUnitFactory;
 
       public ExpandPostfixTemplateHandler(
-        [NotNull] ICommandProcessor commandProcessor, [NotNull] ILookupWindowManager lookupWindowManager,
-        [NotNull] LanguageManager languageManager, [NotNull] TextControlChangeUnitFactory changeUnitFactory)
+        [NotNull] ICommandProcessor commandProcessor, [NotNull] TextControlChangeUnitFactory changeUnitFactory)
       {
         myCommandProcessor = commandProcessor;
-        myLookupWindowManager = lookupWindowManager;
-        myLanguageManager = languageManager;
         myChangeUnitFactory = changeUnitFactory;
       }
 
@@ -106,7 +99,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
         var textControl = context.GetData(TextControl.DataContext.DataConstants.TEXT_CONTROL);
         if (textControl == null) return;
 
-        if (myLookupWindowManager.CurrentLookup != null) return;
+        var lookupWindowManager = solution.TryGetComponent<ILookupWindowManager>();
+        if (lookupWindowManager != null && lookupWindowManager.CurrentLookup != null) return;
 
         const string commandName = "Expanding postfix template with [Tab]";
 
@@ -140,7 +134,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
         foreach (var psiLanguageType in allLanguages)
         {
-          var contextFactory = myLanguageManager.TryGetService<IPostfixTemplateContextFactory>(psiLanguageType);
+          var contextFactory = LanguageManager.Instance.TryGetService<IPostfixTemplateContextFactory>(psiLanguageType);
           if (contextFactory == null) continue;
 
           foreach (var reparseString in contextFactory.GetReparseStrings())
@@ -148,7 +142,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
             var templateContext = TryReparseWith(solution, textControl, reparseString);
             if (templateContext != null)
             {
-              var templatesManager = myLanguageManager.GetService<IPostfixTemplatesManager>(psiLanguageType);
+              var templatesManager = LanguageManager.Instance.GetService<IPostfixTemplatesManager>(psiLanguageType);
 
               if (execute)
               {
@@ -179,7 +173,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
           foreach (var position in TextControlToPsi.GetElements<ITreeNode>(solution, document, offset))
           {
-            var templateContextFactory = myLanguageManager.TryGetService<IPostfixTemplateContextFactory>(position.Language);
+            var templateContextFactory = LanguageManager.Instance.TryGetService<IPostfixTemplateContextFactory>(position.Language);
             if (templateContextFactory != null)
             {
               var executionContext = new PostfixTemplateExecutionContext(
@@ -200,7 +194,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
 
       private bool TemplateWithNameExists([NotNull] string prefix)
       {
-        foreach (var manager in myLanguageManager.GetServicesFromAll<IPostfixTemplatesManager>())
+        foreach (var manager in LanguageManager.Instance.GetServicesFromAll<IPostfixTemplatesManager>())
         {
           foreach (var providerInfo in manager.AvailableTemplates)
           {

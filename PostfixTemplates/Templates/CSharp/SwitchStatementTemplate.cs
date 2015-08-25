@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
@@ -9,6 +8,8 @@ using JetBrains.ReSharper.Psi.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
+  // todo: emit case label and put hotspot over value?
+
   [PostfixTemplate(
     templateName: "switch",
     description: "Produces switch over integral/string type",

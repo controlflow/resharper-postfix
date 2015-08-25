@@ -22,32 +22,32 @@ public class IPostfixTestEnvironmentZone : ITestsZone, IRequire<PsiFeatureTestZo
 }
 
 [SetUpFixture]
-public class ReSharperTestEnvironmentAssembly : TestEnvironmentAssembly<IPostfixTestEnvironmentZone>
+public class ReSharperTestEnvironmentAssembly : ExtensionTestEnvironmentAssembly<IPostfixTestEnvironmentZone>
 {
-  [NotNull]
-  private static IEnumerable<Assembly> GetAssembliesToLoad()
-  {
-    yield return typeof(PostfixTemplatesManager<>).Assembly;
-    yield return Assembly.GetExecutingAssembly();
-  }
-
-  public override void SetUp()
-  {
-    base.SetUp();
-
-    ReentrancyGuard.Current.Execute("LoadAssemblies", () => {
-      var assemblyManager = Shell.Instance.GetComponent<AssemblyManager>();
-      assemblyManager.LoadAssemblies(GetType().Name, GetAssembliesToLoad());
-    });
-  }
-
-  public override void TearDown()
-  {
-    ReentrancyGuard.Current.Execute("UnloadAssemblies", () => {
-      var assemblyManager = Shell.Instance.GetComponent<AssemblyManager>();
-      assemblyManager.UnloadAssemblies(GetType().Name, GetAssembliesToLoad());
-    });
-
-    base.TearDown();
-  }
+  //[NotNull]
+  //private static IEnumerable<Assembly> GetAssembliesToLoad()
+  //{
+  //  yield return typeof(PostfixTemplatesManager<>).Assembly;
+  //  yield return Assembly.GetExecutingAssembly();
+  //}
+  //
+  //public override void SetUp()
+  //{
+  //  base.SetUp();
+  //
+  //  ReentrancyGuard.Current.Execute("LoadAssemblies", () => {
+  //    var assemblyManager = Shell.Instance.GetComponent<AssemblyManager>();
+  //    assemblyManager.LoadAssemblies(GetType().Name, GetAssembliesToLoad());
+  //  });
+  //}
+  //
+  //public override void TearDown()
+  //{
+  //  ReentrancyGuard.Current.Execute("UnloadAssemblies", () => {
+  //    var assemblyManager = Shell.Instance.GetComponent<AssemblyManager>();
+  //    assemblyManager.UnloadAssemblies(GetType().Name, GetAssembliesToLoad());
+  //  });
+  //
+  //  base.TearDown();
+  //}
 }

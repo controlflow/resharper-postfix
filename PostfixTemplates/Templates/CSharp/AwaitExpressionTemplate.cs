@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.Psi;
@@ -9,6 +8,8 @@ using JetBrains.ReSharper.Psi.CSharp.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
+  // todo: make it work over anything awaitable?
+
   [PostfixTemplate(
     templateName: "await",
     description: "Awaits expressions of 'Task' type",

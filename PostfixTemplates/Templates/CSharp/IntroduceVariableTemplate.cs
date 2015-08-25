@@ -36,13 +36,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "var x = expr;")]
   public sealed class IntroduceVariableTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
-    [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
-
-    public IntroduceVariableTemplate([NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory)
-    {
-      myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
-    }
-
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var contexts = new List<CSharpPostfixExpressionContext>();
@@ -141,7 +134,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       switch (info.Target)
       {
         case PostfixTemplateTarget.TypeUsage:
-          return new CSharpPostfixIntroduceVariableFromTypeUsageBehavior(info, myLookupItemsOwnerFactory);
+          return new CSharpPostfixIntroduceVariableFromTypeUsageBehavior(info);
 
         case PostfixTemplateTarget.Statement:
           return new CSharpPostfixIntroduceVariableIsStatementBehavior(info);
@@ -218,13 +211,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     private sealed class CSharpPostfixIntroduceVariableFromTypeUsageBehavior : CSharpExpressionPostfixTemplateBehavior<IObjectCreationExpression>
     {
-      [NotNull] private readonly LookupItemsOwnerFactory myLookupItemsOwnerFactory;
-
-      public CSharpPostfixIntroduceVariableFromTypeUsageBehavior(
-        [NotNull] PostfixTemplateInfo info, [NotNull] LookupItemsOwnerFactory lookupItemsOwnerFactory) : base(info)
-      {
-        myLookupItemsOwnerFactory = lookupItemsOwnerFactory;
-      }
+      public CSharpPostfixIntroduceVariableFromTypeUsageBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
@@ -266,7 +253,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
             if (invokeParameterInfo)
             {
-              var lookupItemsOwner = myLookupItemsOwnerFactory.CreateLookupItemsOwner(textControl);
+              var lookupItemsOwner = Info.ExecutionContext.LookupItemsOwner;
               LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
             }
           });
