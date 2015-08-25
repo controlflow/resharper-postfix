@@ -81,6 +81,7 @@ ipch/
 _ReSharper*
 
 packages/*
+PostfixTemplates/Tests/packages/*
 
 # Installshield output folder
 [Ee]xpress
@@ -165,7 +166,3 @@ pip-log.txt
 # Mac crap
 .DS_Store
 .nuget/
-
-# Dear Roslyn, Y R U doing this?
-
-*.ide
