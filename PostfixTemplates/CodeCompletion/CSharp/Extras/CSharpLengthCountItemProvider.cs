@@ -1,22 +1,18 @@
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
-using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Feature.Services.Resources;
-using JetBrains.ReSharper.Feature.Services.Tips;
+using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.AspectLookupItems;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
-using JetBrains.UI.Icons;
-using JetBrains.UI.RichText;
-using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
@@ -28,7 +24,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion;
     }
 
-    private const string Length = "Length", Count = "Count";
+    private const string LENGTH = "Length", COUNT = "Count";
 
     protected override void TransformItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
@@ -39,123 +35,72 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       var settingsStore = referenceExpression.GetSettingsStore();
       if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowLengthCountItems)) return;
 
-      var interestingItems = new LocalList<ILookupItem>();
 
-      foreach (var item in collector.Items)
+      IAspectLookupItem<CSharpDeclaredElementInfo> existingItem = null;
+
+      foreach (var lookupItem in collector.Items)
       {
-        switch (item.Placement.OrderString)
+        var aspectLookupItem = lookupItem as IAspectLookupItem<CSharpDeclaredElementInfo>;
+        if (aspectLookupItem != null && IsLengthOrCountProperty(aspectLookupItem.Info))
         {
-          case Length: break;
-          case Count: break;
-          default: continue;
-        }
+          // do nothing if both 'Length' and 'Count' or multiple 'Length'/'Count' items exists
+          if (existingItem != null) return;
 
-        var instance = item.GetDeclaredElement();
-        if (instance == null) continue;
-
-        var property = instance.Element as IProperty;
-        if (property != null && property.Type.IsResolved && property.Type.IsInt())
-        {
-          interestingItems.Add(item);
+          existingItem = aspectLookupItem;
         }
       }
 
-      if (interestingItems.Count == 1)
+      if (existingItem != null)
       {
-        var lookupItem = interestingItems[0];
-        var text = (lookupItem.Placement.OrderString == Count) ? Length : Count;
+        var invertedItem = LookupItemFactory
+          .CreateLookupItem(existingItem.Info)
+          .WithBehavior(item => existingItem.Behavior)
+          .WithMatcher(item => new SimpleTextualMatcher(InvertName(item.Info)))
+          .WithPresentation(item => new PostfixTemplatePresentation(InvertName(item.Info)));
 
-        collector.Add(new FakeLookupElement(text, lookupItem));
+        collector.Add(invertedItem);
       }
     }
 
-    private sealed class FakeLookupElement : ILookupItem
+    private static bool IsLengthOrCountProperty([NotNull] DeclaredElementInfo declaredElementInfo)
     {
-      [NotNull] private readonly string myFakeText;
-      [NotNull] private readonly ILookupItem myRealItem;
-
-      public FakeLookupElement([NotNull] string fakeText, [NotNull] ILookupItem realItem)
+      switch (declaredElementInfo.ShortName)
       {
-        myRealItem = realItem;
-        myFakeText = fakeText;
+        case LENGTH:
+        case COUNT:
+          break;
+
+        default:
+          return false;
       }
 
-      public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
-      {
-        return myRealItem.AcceptIfOnlyMatched(itemAcceptanceContext);
-      }
+      var preferredElement = declaredElementInfo.PreferredDeclaredElement;
+      if (preferredElement == null) return false;
+
+      var property = preferredElement.Element as IProperty;
+      if (property == null) return false;
+
+      var propertyType = property.Type;
+      return propertyType.IsResolved && propertyType.IsInt();
+    }
+
+    [NotNull]
+    private static string InvertName([NotNull] DeclaredElementInfo info)
+    {
+      return (info.ShortName == COUNT) ? LENGTH : COUNT;
+    }
+
+    private sealed class SimpleTextualMatcher : ILookupItemMatcher
+    {
+      [NotNull] private readonly string myText;
+
+      public SimpleTextualMatcher([NotNull] string text) { myText = text; }
+
+      public bool IgnoreSoftOnSpace { get; set; }
 
       public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       {
-        return prefixMatcher.Matcher(myFakeText);
-      }
-
-      public IconId Image
-      {
-        get { return ServicesThemedIcons.LiveTemplate.Id; }
-      }
-
-      public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
-                         Suffix suffix, ISolution solution, bool keepCaretStill)
-      {
-        const string template = "Plugin.ControlFlow.PostfixTemplates.<{0}>";
-        var featureId = string.Format(template, myFakeText.ToLowerInvariant());
-        TipsManager.Instance.FeatureIsUsed(featureId, textControl.Document, solution);
-
-        myRealItem.Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
-      }
-
-      public TextRange GetVisualReplaceRange(ITextControl textControl, TextRange nameRange)
-      {
-        return myRealItem.GetVisualReplaceRange(textControl, nameRange);
-      }
-
-      public RichText DisplayName { get { return myFakeText; } }
-      public RichText DisplayTypeName { get { return myRealItem.DisplayTypeName; } }
-
-      public bool IsDynamic { get { return myRealItem.IsDynamic; } }
-
-#if RESHARPER92
-      public int Identity { get { return 0; } }
-#else
-      public string Identity { get { return myFakeText; } }
-#endif
-
-      public bool CanShrink { get { return false; } }
-
-      public bool Shrink() { return myRealItem.Shrink(); }
-      public void Unshrink() { myRealItem.Unshrink(); }
-
-      public int Multiplier
-      {
-        get { return myRealItem.Multiplier; }
-        set { myRealItem.Multiplier = value; }
-      }
-
-      public bool IgnoreSoftOnSpace
-      {
-        get { return myRealItem.IgnoreSoftOnSpace; }
-        set { myRealItem.IgnoreSoftOnSpace = value; }
-      }
-
-      public bool IsStable
-      {
-        get { return true; }
-        set { }
-      }
-
-      public EvaluationMode Mode
-      {
-        get { return EvaluationMode.Light; }
-        set { }
-      }
-
-      private LookupItemPlacement myPlacement;
-
-      public LookupItemPlacement Placement
-      {
-        get { return myPlacement ?? (myPlacement = new LookupItemPlacement(myFakeText)); }
-        set { myPlacement = value; }
+        return prefixMatcher.Matcher(myText);
       }
     }
   }
