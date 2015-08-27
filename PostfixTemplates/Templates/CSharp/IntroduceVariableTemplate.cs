@@ -239,7 +239,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           var argumentsMarker = documentRange.CreateRangeMarker();
 
           var settingsStore = expression.GetSettingsStore();
-          var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+          var invokeParameterInfo = settingsStore.GetValue(PostfixTemplatesSettingsAccessor.InvokeParameterInfo);
 
           var solution = expression.GetSolution();
 
@@ -281,7 +281,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         .AddRule(actionId, TextControl.DataContext.DataConstants.TEXT_CONTROL, textControl);
 
       var settingsStore = expression.GetSettingsStore();
-      var multipleOccurrences = settingsStore.GetValue(PostfixSettingsAccessor.SearchVarOccurrences);
+      var multipleOccurrences = settingsStore.GetValue(PostfixTemplatesSettingsAccessor.SearchVarOccurrences);
 
       var definition = Lifetimes.Define(EternalLifetime.Instance, actionId);
       try // note: uber ugly code down here

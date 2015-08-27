@@ -89,7 +89,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
 
         var settings = expression.GetSettingsStore();
-        var invokeParameterInfo = settings.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+        var invokeParameterInfo = settings.GetValue(PostfixTemplatesSettingsAccessor.InvokeParameterInfo);
 
         textControl.PutData(PostfixArgTemplateExpansion, string.Empty);
 

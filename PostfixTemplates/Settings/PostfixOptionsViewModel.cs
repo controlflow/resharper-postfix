@@ -32,13 +32,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
       Reset = new DelegateCommand(ResetExecute);
 
-      settingsStore.SetBinding(lifetime, PostfixSettingsAccessor.ShowPostfixItems, ShowPostfixTemplates);
-      settingsStore.SetBinding(lifetime, PostfixSettingsAccessor.ShowStaticMethods, ShowStaticMembers);
-      settingsStore.SetBinding(lifetime, PostfixSettingsAccessor.ShowEnumHelpers, ShowEnumHelpers);
-      settingsStore.SetBinding(lifetime, PostfixSettingsAccessor.BracesForStatements, UseBracesForStatements);
-      settingsStore.SetBinding(lifetime, PostfixSettingsAccessor.InvokeParameterInfo, InvokeParameterInfo);
-      settingsStore.SetBinding(lifetime, PostfixSettingsAccessor.ShowLengthCountItems, ShowLengthCountItems);
-      settingsStore.SetBinding(lifetime, PostfixSettingsAccessor.SearchVarOccurrences, SearchVarOccurrences);
+      settingsStore.SetBinding(lifetime, PostfixTemplatesSettingsAccessor.ShowPostfixItems, ShowPostfixTemplates);
+      settingsStore.SetBinding(lifetime, PostfixTemplatesSettingsAccessor.ShowStaticMethods, ShowStaticMembers);
+      settingsStore.SetBinding(lifetime, PostfixTemplatesSettingsAccessor.ShowEnumHelpers, ShowEnumHelpers);
+      settingsStore.SetBinding(lifetime, PostfixTemplatesSettingsAccessor.BracesForStatements, UseBracesForStatements);
+      settingsStore.SetBinding(lifetime, PostfixTemplatesSettingsAccessor.InvokeParameterInfo, InvokeParameterInfo);
+      settingsStore.SetBinding(lifetime, PostfixTemplatesSettingsAccessor.ShowLengthCountItems, ShowLengthCountItems);
+      settingsStore.SetBinding(lifetime, PostfixTemplatesSettingsAccessor.SearchVarOccurrences, SearchVarOccurrences);
 
       FillTemplates();
     }
@@ -84,7 +84,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
       foreach (var provider in settings.DisabledProviders.EnumIndexedValues())
       {
-        mySettingsStore.RemoveIndexedValue(PostfixSettingsAccessor.DisabledProviders, provider.Key);
+        mySettingsStore.RemoveIndexedValue(PostfixTemplatesSettingsAccessor.DisabledProviders, provider.Key);
       }
 
       Templates.Clear();

@@ -38,7 +38,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
       // check postfix is disabled for code completion
       var settingsStore = completionContext.ContextBoundSettingsStore;
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowPostfixItems)) return false;
+      if (!settingsStore.GetValue(PostfixTemplatesSettingsAccessor.ShowPostfixItems)) return false;
 
       var postfixContext = TryCreatePostfixContext(context) as TPostfixTemplateContext;
       if (postfixContext == null) return false;
@@ -92,7 +92,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     }
 
     [NotNull]
-    public IEnumerable<LookupItem<PostfixTemplateInfo>> BuildLookupItems([NotNull] TPostfixTemplateContext context)
+    private IEnumerable<LookupItem<PostfixTemplateInfo>> BuildLookupItems([NotNull] TPostfixTemplateContext context)
     {
       foreach (var templateRegistration in myTemplatesManager.GetEnabledTemplates(context))
       {

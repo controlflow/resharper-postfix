@@ -30,7 +30,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     protected CSharpStatementPostfixTemplateBehavior([NotNull] PostfixTemplateInfo info) : base(info)
     {
-      myUseBraces = info.ExecutionContext.SettingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
+      myUseBraces = info.ExecutionContext.SettingsStore.GetValue(PostfixTemplatesSettingsAccessor.BracesForStatements);
     }
 
     private const string CaretTemplate = "return unchecked(checked(\"If you see this - please report a bug :(\"))";

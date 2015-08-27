@@ -161,7 +161,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
           textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
-          if (hasRequiredArguments && settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo))
+          if (hasRequiredArguments && settingsStore.GetValue(PostfixTemplatesSettingsAccessor.InvokeParameterInfo))
           {
             var lookupItemsOwner = Info.ExecutionContext.LookupItemsOwner;
             LookupUtil.ShowParameterInfo(statement.GetSolution(), textControl, lookupItemsOwner);

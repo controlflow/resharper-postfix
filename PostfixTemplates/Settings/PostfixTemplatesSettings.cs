@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.Application.Settings.Store;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Filters;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Settings
 {
@@ -34,9 +35,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
 
     [SettingsEntry(true, "Search for occurrences in .var template")]
     public bool SearchOccurrencesFromIntroduceVarTemplates;
+
+    [SettingsEntry(CompletionListFilterState.Off, "Postfix template code completion filter")]
+    public CompletionListFilterState PostfixTemplatesCodeCompletionFilter;
   }
 
-  public static class PostfixSettingsAccessor
+  public static class PostfixTemplatesSettingsAccessor
   {
     [NotNull] public static readonly Expression<Func<PostfixTemplatesSettings, IIndexedEntry<string, bool>>>
       DisabledProviders    = settings => settings.DisabledProviders;
@@ -49,6 +53,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
       BracesForStatements  = settings => settings.UseBracesForEmbeddedStatements,
       InvokeParameterInfo  = settings => settings.InvokeParameterInfoFromTemplates,
       SearchVarOccurrences = settings => settings.SearchOccurrencesFromIntroduceVarTemplates;
+
+    public static readonly Expression<Func<PostfixTemplatesSettings, CompletionListFilterState>>
+      PostfixTemplatesCodeCompletionFilter = settings => settings.PostfixTemplatesCodeCompletionFilter;
 
     public static TValue GetIndexedValue<TKey, TValue>(
       [NotNull] this IIndexedEntry<TKey, TValue> settings, [NotNull] TKey key, TValue defaultValue)

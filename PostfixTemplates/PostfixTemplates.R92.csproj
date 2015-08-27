@@ -164,6 +164,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeCompletion\PostfixTemplatesFilter.cs" />
     <Compile Include="CodeCompletion\CSharp\Extras\CSharpEnumCaseItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\Extras\CSharpLengthCountItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\CSharpPostfixTemplatesItemProvider.cs" />

@@ -84,7 +84,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           solution, endSelectionRange, textControl, LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, hotspotInfo);
 
         var settingsStore = expression.GetSettingsStore();
-        var invokeParameterInfo = settingsStore.GetValue(PostfixSettingsAccessor.InvokeParameterInfo);
+        var invokeParameterInfo = settingsStore.GetValue(PostfixTemplatesSettingsAccessor.InvokeParameterInfo);
 
         session.Closed.Advise(EternalLifetime.Instance, args =>
         {

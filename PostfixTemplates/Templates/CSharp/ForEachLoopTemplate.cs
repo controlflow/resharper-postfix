@@ -111,7 +111,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       public CSharpPostfixForEachExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info)
       {
-        myUseBraces = info.ExecutionContext.SettingsStore.GetValue(PostfixSettingsAccessor.BracesForStatements);
+        myUseBraces = info.ExecutionContext.SettingsStore.GetValue(PostfixTemplatesSettingsAccessor.BracesForStatements);
       }
 
       //public override MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)

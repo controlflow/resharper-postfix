@@ -37,7 +37,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Settings
         OnPropertyChanged("IsChecked");
 
         var settingsKey = myMetadata.SettingsKey;
-        var disabledProviders = PostfixSettingsAccessor.DisabledProviders;
+        var disabledProviders = PostfixTemplatesSettingsAccessor.DisabledProviders;
 
         if (myIsChecked == myTemplateAttribute.DisabledByDefault)
           mySettingsStore.SetIndexedValue(disabledProviders, settingsKey, myIsChecked);
