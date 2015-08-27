@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>$PackageId$</id>
-    <version>2.2</version>
+    <version>2.2-beta</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>Postfix Templates</title>
     <authors>Alexander Shvedov</authors>
@@ -15,7 +15,11 @@
     </description>
     <releaseNotes>
 &#8226; ReSharper 9.2 support;
+&#8226; New feature: create method type parameter from usage in a postfix way;
 &#8226; Drop support of ReSharper 8.0, 8.1, 8.2 and 9.0;
+&#8226; Refactoring: make use of R# 9.0 new code completion model with lazy behavior and presentation;
+&#8226; Refactoring: code infrastructure abstracted away from C# specific infrastructure (prepare for JS templates);
+&#8226; Support for ReSharper 9.0 code completion filters;
     </releaseNotes>
     <dependencies>
       <dependency id="$ReSharperDep$" version="$ReSharperVer$" />

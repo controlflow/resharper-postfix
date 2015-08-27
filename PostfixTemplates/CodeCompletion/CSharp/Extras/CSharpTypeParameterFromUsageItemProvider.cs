@@ -53,9 +53,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       if (!IsInsideSignatureWhereTypeUsageExpected(methodDeclaration, referenceName)) return false;
 
       var typeParameterName = GetTypeParameterName(methodDeclaration);
-      var postfixInfo = new TextualInfo(typeParameterName, typeParameterName, context.BasicContext);
+      var textualInfo = new TextualInfo(typeParameterName, typeParameterName, context.BasicContext);
 
-      var lookupItem = LookupItemFactory.CreateLookupItem(postfixInfo)
+      var lookupItem = LookupItemFactory
+        .CreateLookupItem(textualInfo)
         .WithPresentation(item =>
         {
           var presentation = new PostfixTemplatePresentation(typeParameterName);

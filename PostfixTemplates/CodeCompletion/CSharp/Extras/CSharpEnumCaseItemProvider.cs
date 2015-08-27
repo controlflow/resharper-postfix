@@ -49,31 +49,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
                                 context.TerminatedContext.ToReferenceExpression();
       if (referenceExpression == null) return false;
 
-      var qualifier = referenceExpression.QualifierExpression;
-      if (qualifier == null) return false;
+      var qualifierExpression = referenceExpression.QualifierExpression;
+      if (qualifierExpression == null) return false;
 
-      var settingsStore = qualifier.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixTemplatesSettingsAccessor.ShowEnumHelpers))
-        return false;
+      var settingsStore = qualifierExpression.GetSettingsStore();
+      if (!settingsStore.GetValue(PostfixTemplatesSettingsAccessor.ShowEnumHelpers)) return false;
 
-      // only on qualifiers of enumeration types
-      var qualifierType = qualifier.Type() as IDeclaredType;
-      if (qualifierType == null || !qualifierType.IsResolved) return false;
-
-      if (qualifierType.IsNullable()) // unwrap from nullable type
-      {
-        qualifierType = qualifierType.GetNullableUnderlyingType() as IDeclaredType;
-        if (qualifierType == null || !qualifierType.IsResolved) return false;
-      }
-
-      if (!qualifierType.IsEnumType()) return false;
+      var qualifierType = GetEnumerationExpressionType(qualifierExpression);
+      if (qualifierType == null) return false;
 
       // disable helpers on constants and enumeration members itself
-      var sourceReference = qualifier as IReferenceExpression;
+      var sourceReference = qualifierExpression as IReferenceExpression;
       if (sourceReference != null)
       {
-        var field = sourceReference.Reference.Resolve().DeclaredElement as IField;
-        if (field != null && (field.IsConstant || field.IsEnumMember)) return false;
+        var resolveResult = sourceReference.Reference.Resolve();
+
+        var field = resolveResult.DeclaredElement as IField;
+        if (field != null)
+        {
+          if (field.IsConstant || field.IsEnumMember) return false;
+        }
 
         // value member can clash with enum type name
         if (sourceReference.QualifierExpression == null &&
@@ -94,8 +89,22 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return AddEnumerationMembers(context, collector, qualifierType, referenceExpression);
     }
 
-    [NotNull] private static readonly IClrTypeName FlagsAttributeClrName =
-      new ClrTypeName(typeof(FlagsAttribute).FullName);
+    [CanBeNull]
+    private static IDeclaredType GetEnumerationExpressionType([NotNull] ICSharpExpression expression)
+    {
+      var qualifierType = expression.Type() as IDeclaredType;
+      if (qualifierType == null) return null;
+      if (!qualifierType.IsResolved) return null;
+
+      if (qualifierType.IsNullable()) // unwrap from nullable type
+      {
+        qualifierType = qualifierType.GetNullableUnderlyingType() as IDeclaredType;
+        if (qualifierType == null) return null;
+        if (!qualifierType.IsResolved) return null;
+      }
+
+      return qualifierType.IsEnumType() ? qualifierType : null;
+    }
 
     private static bool AddEnumerationMembers(
       [NotNull] CSharpCodeCompletionContext context, [NotNull] GroupedItemsCollector collector,
@@ -105,30 +114,31 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       var substitution = qualifierType.GetSubstitution();
       var memberValues = new List<Pair<IField, string>>();
 
-      var isFlagsEnum = enumerationType.HasAttributeInstance(FlagsAttributeClrName, false);
+      // todo: delay this to presentation!
+      var isFlagsEnum = enumerationType.HasAttributeInstance(PredefinedType.FLAGS_ATTRIBUTE_CLASS, false);
       if (!isFlagsEnum)
       {
-        foreach (var member in enumerationType.EnumMembers)
+        foreach (var enumMember in enumerationType.EnumMembers)
         {
-          var formattable = member.ConstantValue.Value as IFormattable;
-          var memberValue = (formattable != null)
-            ? formattable.ToString("D", CultureInfo.InvariantCulture) : string.Empty;
-          memberValues.Add(Pair.Of(member, memberValue));
+          var formattable = enumMember.ConstantValue.Value as IFormattable;
+          var memberValue = (formattable != null) ? formattable.ToString("D", CultureInfo.InvariantCulture) : string.Empty;
+          memberValues.Add(Pair.Of(enumMember, memberValue));
         }
       }
       else
       {
-        foreach (var member in enumerationType.EnumMembers)
+        foreach (var enumMember in enumerationType.EnumMembers)
         {
-          var convertible = member.ConstantValue.Value as IConvertible;
+          var convertible = enumMember.ConstantValue.Value as IConvertible;
           var memberValue = (convertible != null) ? GetBinaryRepresentation(convertible) : string.Empty;
-          memberValues.Add(Pair.Of(member, memberValue));
+          memberValues.Add(Pair.Of(enumMember, memberValue));
         }
       }
 
       if (memberValues.Count == 0) return false;
 
       // create pointer to . in reference expression
+      // todo: check with C# 6.0 ?.
       var maxLength = memberValues.Max(x => x.Second.Length);
       var reparsedDotRange = referenceExpression.Delimiter.GetTreeTextRange();
       var originalDotRange = context.UnterminatedContext.ToOriginalTreeRange(reparsedDotRange);

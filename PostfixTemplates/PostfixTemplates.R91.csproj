@@ -165,6 +165,7 @@
     <Compile Include="CodeCompletion\CSharp\Extras\CSharpLengthCountItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\Extras\CSharpStaticMethodsItemProvider.cs" />
     <Compile Include="CodeCompletion\CSharp\Extras\CSharpTypeParameterFromUsageItemProvider.cs" />
+    <Compile Include="CodeCompletion\PostfixTemplatesFilter.cs" />
     <Compile Include="CodeCompletion\PostfixTemplatesItemProviderBase.cs" />
     <Compile Include="Infrastructure\Behaviors\CSharp\CSharpExpressionPostfixTemplateBehavior.cs" />
     <Compile Include="Infrastructure\Behaviors\CSharp\CSharpStatementPostfixTemplateBehavior.cs" />
