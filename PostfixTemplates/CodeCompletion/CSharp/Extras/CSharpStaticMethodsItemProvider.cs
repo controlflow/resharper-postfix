@@ -54,7 +54,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       if (qualifier == null) return false;
 
       var settingsStore = qualifier.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowStaticMethods)) return false;
+      if (!settingsStore.GetValue(PostfixTemplatesSettingsAccessor.ShowStaticMethods)) return false;
 
       IType filterType;
       var qualifierType = GetQualifierType(qualifier, out filterType);

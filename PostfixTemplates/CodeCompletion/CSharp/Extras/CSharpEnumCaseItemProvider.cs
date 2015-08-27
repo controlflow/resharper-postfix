@@ -53,7 +53,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       if (qualifier == null) return false;
 
       var settingsStore = qualifier.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowEnumHelpers))
+      if (!settingsStore.GetValue(PostfixTemplatesSettingsAccessor.ShowEnumHelpers))
         return false;
 
       // only on qualifiers of enumeration types

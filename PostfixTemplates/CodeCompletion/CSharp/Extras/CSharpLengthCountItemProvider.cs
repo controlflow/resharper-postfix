@@ -3,9 +3,11 @@ using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Presentations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
+using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.AspectLookupItems;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -13,6 +15,7 @@ using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
+using JetBrains.UI.Icons;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
@@ -24,7 +27,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion;
     }
 
-    private const string LENGTH = "Length", COUNT = "Count";
+    private const string LENGTH = "Length";
+    private const string COUNT = "Count";
 
     protected override void TransformItems(CSharpCodeCompletionContext context, GroupedItemsCollector collector)
     {
@@ -33,8 +37,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       if (referenceExpression == null) return;
 
       var settingsStore = referenceExpression.GetSettingsStore();
-      if (!settingsStore.GetValue(PostfixSettingsAccessor.ShowLengthCountItems)) return;
-
+      if (!settingsStore.GetValue(PostfixTemplatesSettingsAccessor.ShowLengthCountItems)) return;
 
       IAspectLookupItem<CSharpDeclaredElementInfo> existingItem = null;
 
@@ -56,7 +59,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           .CreateLookupItem(existingItem.Info)
           .WithBehavior(item => existingItem.Behavior)
           .WithMatcher(item => new SimpleTextualMatcher(InvertName(item.Info)))
-          .WithPresentation(item => new PostfixTemplatePresentation(InvertName(item.Info)));
+          .WithPresentation(item => new SimplePresentation(item.Info));
 
         collector.Add(invertedItem);
       }
@@ -101,6 +104,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
       {
         return prefixMatcher.Matcher(myText);
+      }
+    }
+
+    private sealed class SimplePresentation : DeclaredElementPresentation<CSharpDeclaredElementInfo>
+    {
+      public SimplePresentation(CSharpDeclaredElementInfo info) : base(InvertName(info), info) { }
+
+      public override IconId Image
+      {
+        get { return ServicesThemedIcons.LiveTemplate.Id; }
       }
     }
   }
