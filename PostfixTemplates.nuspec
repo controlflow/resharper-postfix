@@ -20,6 +20,7 @@
 &#8226; Refactoring: make use of R# 9.0 new code completion model with lazy behavior and presentation;
 &#8226; Refactoring: code infrastructure abstracted away from C# specific infrastructure (prepare for JS templates);
 &#8226; Support for ReSharper 9.0 code completion filters;
+&#8226; Support for ReSharper 9.0 code completion filters (use [Alt]+[L] to trigger it);
     </releaseNotes>
     <dependencies>
       <dependency id="$ReSharperDep$" version="$ReSharperVer$" />
