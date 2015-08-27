@@ -6,7 +6,6 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Filters;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Filters.CLRFilters;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Lookup;
 using JetBrains.ReSharper.Feature.Services.Resources;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
@@ -24,7 +23,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     protected override SettingsScalarEntry GetSettingsEntryInternal(ISettingsStore store)
     {
-      // todo: [R#] hm? return store.Schema.GetScalarEntry((CSharpFilterStateSettingsKey key) => key.Keywords);
+      // todo: [R#] look at CSharpFilterStateSettingsKey
       return store.Schema.GetScalarEntry(PostfixTemplatesSettingsAccessor.PostfixTemplatesCodeCompletionFilter);
     }
 
@@ -54,9 +53,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   [Action(
     actionId: PostfixFilterIds.Postfix,
     text: "Filter Postfix Templates",
-    IdeaShortcuts = new[] { "Alt+O" },
-    VsShortcuts = new[] { "Alt+O" },
-    ShortcutScope = ShortcutScope.TextEditor)]
+    IdeaShortcuts = new[] { "Alt+L" },
+    VsShortcuts = new[] { "Alt+L" },
+    ShortcutScope = ShortcutScope.TextEditor,
+    Id = 534645)]
   public class FilterAggregateAction : FilterActionBase
   {
     public override string FilterId
@@ -68,9 +68,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   [Action(
     actionId: PostfixFilterIds.PostfixInvert,
     text: "Filter Postfix Templates Invert",
-    IdeaShortcuts = new[] { "Alt+I O", "Alt+I Alt+O" },
-    VsShortcuts = new[] { "Alt+I O", "Alt+I Alt+O" },
-    ShortcutScope = ShortcutScope.TextEditor)]
+    IdeaShortcuts = new[] { "Alt+I L", "Alt+I Alt+L" },
+    VsShortcuts = new[] { "Alt+I L", "Alt+I Alt+L" },
+    ShortcutScope = ShortcutScope.TextEditor,
+    Id = 534646)]
   public class FilterAggregateInvertAction : FilterActionBase
   {
     public override string FilterId
