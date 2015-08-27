@@ -52,22 +52,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
       if (!IsInsideSignatureWhereTypeUsageExpected(methodDeclaration, referenceName)) return false;
 
-      var typeParameterName = GetTypeParameterName(methodDeclaration);
-      var textualInfo = new TextualInfo(typeParameterName, typeParameterName, context.BasicContext);
-      textualInfo.Ranges = context.CompletionRanges;
-
-      var lookupItem = LookupItemFactory.CreateLookupItem(textualInfo)
-        .WithPresentation(item =>
-        {
-          var presentation = new PostfixTemplatePresentation(typeParameterName);
-          var grayText = TextStyle.FromForeColor(Color.Gray);
-          presentation.DisplayName.Append("*", grayText);
-          presentation.DisplayTypeName = new RichText("(create type parameter)", grayText);
-          return presentation;
-        })
-        .WithMatcher(item => new TextualMatcher<TextualInfo>(item.Info, IdentifierMatchingStyle.Default))
-        .WithBehavior(item => new TypeParameterFromUsageBehavior(item.Info));
-
+      var lookupItem = CreateLookupItem(methodDeclaration, context);
       collector.Add(lookupItem);
       return true;
     }
@@ -89,6 +74,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       }
 
       return name;
+    }
+
+    [NotNull]
+    private static LookupItem<TextualInfo> CreateLookupItem([NotNull] IMethodDeclaration methodDeclaration, [NotNull] CSharpCodeCompletionContext context)
+    {
+      var typeParameterName = GetTypeParameterName(methodDeclaration);
+      var textualInfo = new TextualInfo(typeParameterName, typeParameterName, context.BasicContext) {
+        Ranges = context.CompletionRanges
+      };
+
+      var lookupItem = LookupItemFactory.CreateLookupItem(textualInfo)
+        .WithPresentation(item =>
+        {
+          var presentation = new PostfixTemplatePresentation(typeParameterName);
+          var grayText = TextStyle.FromForeColor(Color.Gray);
+          presentation.DisplayName.Append("*", grayText);
+          presentation.DisplayTypeName = new RichText("(create type parameter)", grayText);
+          return presentation;
+        })
+        .WithMatcher(item => new TextualMatcher<TextualInfo>(item.Info, IdentifierMatchingStyle.Default))
+        .WithBehavior(item => new TypeParameterFromUsageBehavior(item.Info));
+
+      return lookupItem;
     }
 
     private sealed class TypeParameterFromUsageBehavior : TextualBehavior<TextualInfo>
@@ -128,10 +136,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
               var newTypeParameter = methodDeclaration.AddTypeParameterAfter(
                 factory.CreateTypeParameterOfMethodDeclaration(typeParameterName), anchor: lastTypeParameter);
 
-              //var endOffset = referenceName.GetDocumentRange().TextRange.EndOffset;
-              //textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
-
-              return new HotspotInfo(new TemplateField(typeParameterName, initialRange: 1),
+              return new HotspotInfo(
+                templateField: new TemplateField(typeParameterName, initialRange: 0),
                 documentRanges: new[] {newTypeParameter.GetDocumentRange(), referenceName.GetDocumentRange()});
             }
           });
@@ -141,8 +147,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         // do not provide hotspots when item is completed with spacebar
         if (suffix1.HasPresentation && suffix1.Presentation == ' ') return;
 
-        //var endRange = hotspotInfo.Ranges[1].EndOffsetRange().TextRange;
-        var endRange = TextRange.InvalidRange;
+        var endRange = hotspotInfo.Ranges[1].EndOffsetRange().TextRange;
 
         var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
           solution, endRange, textControl, LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
