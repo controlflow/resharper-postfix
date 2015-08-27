@@ -54,9 +54,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
       var typeParameterName = GetTypeParameterName(methodDeclaration);
       var textualInfo = new TextualInfo(typeParameterName, typeParameterName, context.BasicContext);
+      textualInfo.Ranges = context.CompletionRanges;
 
-      var lookupItem = LookupItemFactory
-        .CreateLookupItem(textualInfo)
+      var lookupItem = LookupItemFactory.CreateLookupItem(textualInfo)
         .WithPresentation(item =>
         {
           var presentation = new PostfixTemplatePresentation(typeParameterName);
@@ -65,7 +65,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           presentation.DisplayTypeName = new RichText("(create type parameter)", grayText);
           return presentation;
         })
-        .WithMatcher(item => new TextualMatcher<ILookupItemInfo>(item.Info, IdentifierMatchingStyle.Default))
+        .WithMatcher(item => new TextualMatcher<TextualInfo>(item.Info, IdentifierMatchingStyle.Default))
         .WithBehavior(item => new TypeParameterFromUsageBehavior(item.Info));
 
       collector.Add(lookupItem);
@@ -105,9 +105,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var startOffset = nameRange.StartOffset;
         var suffix1 = suffix;
 
-        psiServices.Files.CommitAllDocumentsAsync(() =>
-        {
-          var hotspotInfo = psiServices.DoTransaction(typeof(CSharpTypeParameterFromUsageItemProvider).FullName, () =>
+        psiServices.Files.CommitAllDocuments();
+
+        var hotspotInfo = psiServices.DoTransaction(
+          commandName: typeof(CSharpTypeParameterFromUsageItemProvider).FullName,
+          func: () =>
           {
             using (WriteLockCookie.Create(true))
             {
@@ -130,23 +132,22 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
               //textControl.Caret.MoveTo(endOffset, CaretVisualPlacement.DontScrollIfVisible);
 
               return new HotspotInfo(new TemplateField(typeParameterName, initialRange: 1),
-                documentRanges: new[] { newTypeParameter.GetDocumentRange(), referenceName.GetDocumentRange() });
+                documentRanges: new[] {newTypeParameter.GetDocumentRange(), referenceName.GetDocumentRange()});
             }
           });
 
-          if (hotspotInfo == null) return;
+        if (hotspotInfo == null) return;
 
-          // do not provide hotspots when item is completed with spacebar
-          if (suffix1.HasPresentation && suffix1.Presentation == ' ') return;
+        // do not provide hotspots when item is completed with spacebar
+        if (suffix1.HasPresentation && suffix1.Presentation == ' ') return;
 
-          //var endRange = hotspotInfo.Ranges[1].EndOffsetRange().TextRange;
-          var endRange = TextRange.InvalidRange;
+        //var endRange = hotspotInfo.Ranges[1].EndOffsetRange().TextRange;
+        var endRange = TextRange.InvalidRange;
 
-          var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
-            solution, endRange, textControl, LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
+        var session = LiveTemplatesManager.Instance.CreateHotspotSessionAtopExistingText(
+          solution, endRange, textControl, LiveTemplatesManager.EscapeAction.RestoreToOriginalText, hotspotInfo);
 
-          session.Execute();
-        });
+        session.Execute();
       }
     }
 

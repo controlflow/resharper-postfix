@@ -10,6 +10,8 @@ using JetBrains.Metadata.Reader.API;
 using JetBrains.Metadata.Reader.Impl;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
@@ -58,30 +60,26 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       var qualifierType = GetEnumerationExpressionType(qualifierExpression);
       if (qualifierType == null) return false;
 
-      // disable helpers on constants and enumeration members itself
       var sourceReference = qualifierExpression as IReferenceExpression;
       if (sourceReference != null)
       {
-        var resolveResult = sourceReference.Reference.Resolve();
-
-        var field = resolveResult.DeclaredElement as IField;
-        if (field != null)
-        {
-          if (field.IsConstant || field.IsEnumMember) return false;
-        }
+        if (IsInvokedOverContantValue(sourceReference)) return false;
 
         // value member can clash with enum type name
         if (sourceReference.QualifierExpression == null &&
             sourceReference.NameIdentifier.Name == qualifierType.GetClrName().ShortName)
         {
+          // todo: order is undefined :/
           foreach (var lookupItem in collector.Items)
           {
-            var elementInstance = lookupItem.GetDeclaredElement();
+            var aspectLookupItem = lookupItem as IAspectLookupItem<DeclaredElementInfo>;
+            if (aspectLookupItem == null) continue;
+
+            var elementInstance = aspectLookupItem.Info.PreferredDeclaredElement;
             if (elementInstance == null) continue;
 
             var enumMember = elementInstance.Element as IField;
-            if (enumMember != null && enumMember.IsEnumMember)
-              return false;
+            if (enumMember != null && enumMember.IsEnumMember) return false;
           }
         }
       }
@@ -94,22 +92,36 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
     {
       var qualifierType = expression.Type() as IDeclaredType;
       if (qualifierType == null) return null;
+
       if (!qualifierType.IsResolved) return null;
 
       if (qualifierType.IsNullable()) // unwrap from nullable type
       {
         qualifierType = qualifierType.GetNullableUnderlyingType() as IDeclaredType;
         if (qualifierType == null) return null;
+
         if (!qualifierType.IsResolved) return null;
       }
 
       return qualifierType.IsEnumType() ? qualifierType : null;
     }
 
+    private static bool IsInvokedOverContantValue([NotNull] IReferenceExpression reference)
+    {
+      var resolveResult = reference.Reference.Resolve();
+
+      var field = resolveResult.DeclaredElement as IField;
+      if (field == null) return false;
+
+      return field.IsConstant || field.IsEnumMember;
+    }
+
     private static bool AddEnumerationMembers(
       [NotNull] CSharpCodeCompletionContext context, [NotNull] GroupedItemsCollector collector,
       [NotNull] IDeclaredType qualifierType, [NotNull] IReferenceExpression referenceExpression)
     {
+      // todo: missing substitutions!
+
       var enumerationType = (IEnum) qualifierType.GetTypeElement().NotNull();
       var substitution = qualifierType.GetSubstitution();
       var memberValues = new List<Pair<IField, string>>();
