@@ -6,12 +6,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
-using JetBrains.Metadata.Reader.API;
-using JetBrains.Metadata.Reader.Impl;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
@@ -23,8 +19,10 @@ using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Psi.CSharp.Impl.Resolve;
 using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Managed;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resources;
 using JetBrains.ReSharper.Psi.Tree;
@@ -65,23 +63,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       {
         if (IsInvokedOverContantValue(sourceReference)) return false;
 
-        // value member can clash with enum type name
         if (sourceReference.QualifierExpression == null &&
-            sourceReference.NameIdentifier.Name == qualifierType.GetClrName().ShortName)
-        {
-          // todo: order is undefined :/
-          foreach (var lookupItem in collector.Items)
-          {
-            var aspectLookupItem = lookupItem as IAspectLookupItem<DeclaredElementInfo>;
-            if (aspectLookupItem == null) continue;
-
-            var elementInstance = aspectLookupItem.Info.PreferredDeclaredElement;
-            if (elementInstance == null) continue;
-
-            var enumMember = elementInstance.Element as IField;
-            if (enumMember != null && enumMember.IsEnumMember) return false;
-          }
-        }
+            IsInvokedOverPropertyOrClassReference(sourceReference)) return false;
       }
 
       return AddEnumerationMembers(context, collector, qualifierType, referenceExpression);
@@ -114,6 +97,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       if (field == null) return false;
 
       return field.IsConstant || field.IsEnumMember;
+    }
+
+    private static bool IsInvokedOverPropertyOrClassReference([NotNull] IReferenceExpression expression)
+    {
+      var managedTwoPhaseReference = expression.Reference as IManagedTwoPhaseReferenceImpl;
+      if (managedTwoPhaseReference == null) return false;
+
+      var preResolveResult = managedTwoPhaseReference.CurrentPreResolveResult; // ewww
+      if (preResolveResult == null) return false;
+
+      return preResolveResult.Result is PropertyOrClassPartialResult;
     }
 
     private static bool AddEnumerationMembers(

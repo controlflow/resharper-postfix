@@ -53,8 +53,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   [Action(
     actionId: PostfixFilterIds.Postfix,
     text: "Filter Postfix Templates",
-    IdeaShortcuts = new[] { "Alt+L" },
-    VsShortcuts = new[] { "Alt+L" },
+    IdeaShortcuts = new[] { "Alt+O" },
+    VsShortcuts = new[] { "Alt+O" },
     ShortcutScope = ShortcutScope.TextEditor,
     Id = 534645)]
   public class FilterAggregateAction : FilterActionBase
@@ -68,8 +68,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
   [Action(
     actionId: PostfixFilterIds.PostfixInvert,
     text: "Filter Postfix Templates Invert",
-    IdeaShortcuts = new[] { "Alt+I L", "Alt+I Alt+L" },
-    VsShortcuts = new[] { "Alt+I L", "Alt+I Alt+L" },
+    IdeaShortcuts = new[] { "Alt+I L", "Alt+I Alt+O" },
+    VsShortcuts = new[] { "Alt+I L", "Alt+I Alt+O" },
     ShortcutScope = ShortcutScope.TextEditor,
     Id = 534646)]
   public class FilterAggregateInvertAction : FilterActionBase
