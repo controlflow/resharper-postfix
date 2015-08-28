@@ -8,6 +8,7 @@ using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Matchers;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Presentations;
@@ -34,13 +35,15 @@ using JetBrains.ReSharper.Psi.Util;
 using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.Text;
 using JetBrains.TextControl;
-using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
   // todo: test with generic enums
+  // todo: test with C# 6.0 ?.
+  // todo: test with ?.
+  // todo: ordering in enum members ordering
 
   [Language(typeof(CSharpLanguage))]
   public class CSharpEnumCaseItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
@@ -74,7 +77,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
             IsInvokedOverPropertyOrClassReference(sourceReference)) return false;
       }
 
-      return AddEnumerationMembers(context, collector, qualifierType, referenceExpression);
+      return AddEnumerationMembers(context, qualifierType, collector);
     }
 
     [CanBeNull]
@@ -120,8 +123,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
     private static readonly TextStyle EnumValueStyle = new TextStyle(FontStyle.Regular, SystemColors.GrayText);
 
     private static bool AddEnumerationMembers(
-      [NotNull] CSharpCodeCompletionContext context, [NotNull] GroupedItemsCollector collector,
-      [NotNull] IDeclaredType enumerationType, [NotNull] IReferenceExpression referenceExpression)
+      [NotNull] CSharpCodeCompletionContext context, [NotNull] IDeclaredType enumerationType, [NotNull] GroupedItemsCollector collector)
     {
       var enumTypeElement = enumerationType.GetTypeElement() as IEnum;
       if (enumTypeElement == null) return false;
@@ -152,42 +154,27 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
       if (enumMembersWithValues.Count == 0) return false;
 
-
       var maxLength = enumMembersWithValues.Max(x => x.Second.Length);
-
-      // create pointer to . in reference expression
-      // todo: check with C# 6.0 ?.
-
-      //var reparsedDotRange = referenceExpression.Delimiter.GetTreeTextRange();
-      //var originalDotRange = context.UnterminatedContext.ToOriginalTreeRange(reparsedDotRange);
-      //var file = context.BasicContext.File;
-      //var dotMarker = file.GetDocumentRange(originalDotRange).CreateRangeMarker();
+      var completionContext = context.BasicContext;
 
       foreach (var member in enumMembersWithValues)
       {
-        var normalizedValue = member.Second.PadLeft(maxLength, '0');
-        var value = isFlagsEnum ? normalizedValue : member.Second;
-
         var elementInstance = member.First;
+        var elementValue = isFlagsEnum ? member.Second.PadLeft(maxLength, '0') : member.Second;
 
         var info = new CSharpDeclaredElementInfo(
-          elementInstance.Element.ShortName, elementInstance,
-          context.BasicContext.LookupItemsOwner, context, context.BasicContext);
-
+          elementInstance.Element.ShortName, elementInstance, completionContext.LookupItemsOwner, context, completionContext);
         info.Ranges = context.CompletionRanges;
 
         var lookupItem = LookupItemFactory.CreateLookupItem(info)
           .WithPresentation(item =>
           {
-            var presentation = new DeclaredElementPresentation<CSharpDeclaredElementInfo>(
-              item.Info, PresenterStyles.DefaultPresenterStyle);
-            presentation.DisplayTypeName = new RichText("= " + value, EnumValueStyle);
-
+            var presentation = new DeclaredElementPresentation<CSharpDeclaredElementInfo>(item.Info, PresenterStyles.DefaultPresenterStyle);
+            presentation.DisplayTypeName = new RichText("= " + elementValue, EnumValueStyle);
             return presentation;
           })
           .WithMatcher(item => new DeclaredElementMatcher(item.Info, IdentifierMatchingStyle.Default))
-          .WithBehavior(item => new EnumCaseCheckBehavior(item.Info, isFlagsEnum))
-          ;
+          .WithBehavior(item => new EnumCaseCheckBehavior(item.Info, isFlagsEnum));
 
         collector.Add(lookupItem);
       }
@@ -281,139 +268,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
         return null;
       }
-    }
-
-    private sealed class EnumMemberLookupItem : PostfixLookupItemBase, ILookupItem
-    {
-      [NotNull] private readonly string myIdentity;
-      [NotNull] private readonly IRangeMarker myDotRangeMarker;
-      [NotNull] private readonly IElementInstancePointer<IField> myPointer;
-      [NotNull] private readonly string myShortName;
-      private readonly bool myIsFlags;
-
-      public EnumMemberLookupItem([NotNull] IRangeMarker dotRangeMarker,
-                                  [NotNull] DeclaredElementInstance<IField> enumMember,
-                                  [NotNull] string normalizedValue,
-                                  [NotNull] string value, bool isFlags)
-      {
-        myDotRangeMarker = dotRangeMarker;
-        myPointer = enumMember.CreateElementInstancePointer();
-        myShortName = enumMember.Element.ShortName;
-        myIsFlags = isFlags && normalizedValue.Any(x => x != '0'); // ugh :(
-        myIdentity = "   ENUM_MEMBER_" + normalizedValue;
-
-        DisplayName = new RichText(myShortName, new TextStyle(FontStyle.Bold));
-
-        if (value.Length <= 32) // protect from too heavy values
-        {
-          DisplayTypeName = new RichText("= " + value, EnumValueStyle);
-        }
-      }
-
-#if RESHARPER92
-
-      public int Identity
-      {
-        get { return 0; }
-      }
-
-      private LookupItemPlacement myPlacement;
-
-      public LookupItemPlacement Placement
-      {
-        get { return myPlacement ?? (myPlacement = new LookupItemPlacement(myIdentity)); }
-        set { myPlacement = value; }
-      }
-
-#else
-
-      public string Identity
-      {
-        get { return myIdentity; }
-      }
-
-      private LookupItemPlacement myPlacement;
-
-      public LookupItemPlacement Placement
-      {
-        get { return myPlacement ?? (myPlacement = new LookupItemPlacement(Identity)); }
-        set { myPlacement = value; }
-      }
-
-#endif
-
-      public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
-      {
-        return prefixMatcher.Matcher(myShortName);
-      }
-
-      public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,
-                         Suffix suffix, ISolution solution, bool keepCaretStill)
-      {
-        textControl.Document.ReplaceText(nameRange, "E()");
-
-        var psiServices = solution.GetPsiServices();
-        psiServices.Files.CommitAllDocuments();
-
-        var enumMember = myPointer.Resolve();
-        if (enumMember == null) return;
-
-        var referenceExpression = FindReferenceExpression(textControl, solution);
-        var invocation = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
-        if (invocation == null) return;
-
-        TipsManager.Instance.FeatureIsUsed(
-          "Plugin.ControlFlow.PostfixTemplates.<enum>", textControl.Document, solution);
-
-        var factory = CSharpElementFactory.GetInstance(referenceExpression);
-        var template = myIsFlags ? "($0 & $1) != 0" : "$0 == $1";
-        var enumMemberCheck = factory.CreateExpression(
-          template, referenceExpression.QualifierExpression, enumMember);
-
-        var commandName = typeof(CSharpEnumCaseItemProvider).FullName;
-        var caretPointer = psiServices.DoTransaction(commandName, () =>
-        {
-          using (WriteLockCookie.Create())
-          {
-            var memberCheck = invocation.ReplaceBy(enumMemberCheck);
-            return memberCheck.CreateTreeElementPointer();
-          }
-        });
-
-        var checkExpression = caretPointer.GetTreeNode();
-        if (checkExpression != null)
-        {
-          var offset = checkExpression.GetDocumentRange().TextRange.EndOffset;
-          textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
-        }
-      }
-
-      [CanBeNull]
-      private IReferenceExpression FindReferenceExpression([NotNull] ITextControl textControl, [NotNull] ISolution solution)
-      {
-        var dotRange = myDotRangeMarker.DocumentRange;
-        if (!dotRange.IsValid()) return null;
-
-        var tokenOffset = dotRange.TextRange.StartOffset;
-        foreach (var token in TextControlToPsi.GetElements<ITokenNode>(solution, textControl.Document, tokenOffset))
-        {
-          if (token.GetTokenType() == CSharpTokenType.DOT)
-          {
-            var expression = token.Parent as IReferenceExpression;
-            if (expression != null) return expression;
-          }
-        }
-
-        return null;
-      }
-
-      public IconId Image
-      {
-        get { return PsiSymbolsThemedIcons.EnumMember.Id; }
-      }
-
-      public RichText DisplayName { get; private set; }
-      public RichText DisplayTypeName { get; private set; }
     }
   }
 }
