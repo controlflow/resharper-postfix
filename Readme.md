@@ -63,7 +63,7 @@ Also Postfix Templates including two features sharing the same idea:
 * You can use ReSharper 8 **double completion** feature to list and invoke all the templates are not normally available in current context
 * **Options page** allows to enable/disable specific templates and control braces insertion:
 ![options](https://github.com/controlflow/resharper-postfix/blob/master/Content/options.png)
-* You may also try out similar [postfix completion](http://blog.jetbrains.com/webstorm/2014/08/javascript-postfix-completion/) feature in **IntelliJ IDEA** 14
+* You may also try out similar [postfix completion](http://blog.jetbrains.com/idea/2014/03/postfix-completion/) feature in **IntelliJ IDEA** 14 (later supported in [WebStorm 9](http://blog.jetbrains.com/webstorm/2014/08/javascript-postfix-completion/) and [PHPStorm 9](http://blog.jetbrains.com/phpstorm/2015/05/postfix-code-completion-for-php-in-phpstorm-9-eap/))
 
 #### Feedback
 
