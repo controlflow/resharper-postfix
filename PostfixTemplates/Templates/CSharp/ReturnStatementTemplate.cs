@@ -21,7 +21,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var expressionContext = context.OuterExpression;
       if (expressionContext == null || !expressionContext.CanBeStatement) return null;
 
-      if (context.IsPreciseMode && IsWorthShowingInPreciseMode(expressionContext)) return null;
+      if (context.IsPreciseMode && !IsWorthShowingInPreciseMode(expressionContext)) return null;
 
       return new PostfixTemplateInfo("return", expressionContext);
     }
