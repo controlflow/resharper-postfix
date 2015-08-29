@@ -1,7 +1,5 @@
-﻿+ None
-+ Foo
-+ Bar
-+ Boo
+﻿# 30 ITEMS #
+
 + Equals
 + GetHashCode
 + GetType
@@ -9,6 +7,10 @@
 + HasValue
 + ToString
 + Value
++ None
++ Foo
++ Bar
++ Boo
 + arg
 + await
 + cast
@@ -29,10 +31,8 @@
 + while
 + yield
 # AUTOMATIC #
-+ None
-+ Foo
-+ Bar
-+ Boo
+# 15 ITEMS #
+
 + Equals
 + GetHashCode
 + GetType
@@ -40,6 +40,10 @@
 + HasValue
 + ToString
 + Value
++ None
++ Foo
++ Bar
++ Boo
 + notnull
 + null
 + switch

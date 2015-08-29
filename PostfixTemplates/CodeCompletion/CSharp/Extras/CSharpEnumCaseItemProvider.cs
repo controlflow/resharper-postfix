@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
-using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
@@ -13,23 +12,19 @@ using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectL
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Matchers;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Presentations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
 using JetBrains.ReSharper.Feature.Services.CSharp.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.Feature.Services.Tips;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.AspectLookupItems;
 using JetBrains.ReSharper.Features.Intellisense.CodeCompletion.CSharp.Rules;
-using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Impl.Resolve;
-using JetBrains.ReSharper.Psi.CSharp.Parsing;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Managed;
 using JetBrains.ReSharper.Psi.Pointers;
-using JetBrains.ReSharper.Psi.Resources;
+using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.ReSharper.Resources.Shell;
@@ -141,40 +136,44 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (isFlagsEnum)
         {
           var convertible = enumValue as IConvertible;
-          if (convertible != null)
-            enumMembersWithValues.Add(enumCase, GetBinaryRepresentation(convertible));
+          if (convertible != null) enumMembersWithValues.Add(enumCase, GetBinaryRepresentation(convertible));
         }
         else
         {
           var formattable = enumValue as IFormattable;
-          if (formattable != null)
-            enumMembersWithValues.Add(enumCase, formattable.ToString("D", CultureInfo.InvariantCulture));
+          if (formattable != null) enumMembersWithValues.Add(enumCase, formattable.ToString("D", CultureInfo.InvariantCulture));
         }
       }
 
       if (enumMembersWithValues.Count == 0) return false;
 
       var maxLength = enumMembersWithValues.Max(x => x.Second.Length);
-      var completionContext = context.BasicContext;
+      var index = 0;
 
-      foreach (var member in enumMembersWithValues)
+      foreach (var enumMember in enumMembersWithValues)
       {
-        var elementInstance = member.First;
-        var elementValue = isFlagsEnum ? member.Second.PadLeft(maxLength, '0') : member.Second;
+        var elementInstance = enumMember.First;
+        var elementValue = isFlagsEnum ? enumMember.Second.PadLeft(maxLength, '0') : enumMember.Second;
 
-        var info = new CSharpDeclaredElementInfo(
-          elementInstance.Element.ShortName, elementInstance, completionContext.LookupItemsOwner, context, completionContext);
+        var info = new EnumCaseInfo(elementInstance, context, isFlagsEnum, elementValue);
+        info.Placement.OrderString = "___ENUM_MEMBER_" + index.ToString("D16");
         info.Ranges = context.CompletionRanges;
+
+        index++;
 
         var lookupItem = LookupItemFactory.CreateLookupItem(info)
           .WithPresentation(item =>
           {
             var presentation = new DeclaredElementPresentation<CSharpDeclaredElementInfo>(item.Info, PresenterStyles.DefaultPresenterStyle);
-            presentation.DisplayTypeName = new RichText("= " + elementValue, EnumValueStyle);
+
+            var caseValue = item.Info.CaseValue;
+            if (caseValue.Length <= 32)
+              presentation.DisplayTypeName = new RichText("= " + caseValue, EnumValueStyle);
+
             return presentation;
           })
           .WithMatcher(item => new DeclaredElementMatcher(item.Info, IdentifierMatchingStyle.Default))
-          .WithBehavior(item => new EnumCaseCheckBehavior(item.Info, isFlagsEnum));
+          .WithBehavior(item => new EnumCaseCheckBehavior(item.Info));
 
         collector.Add(lookupItem);
       }
@@ -200,14 +199,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return string.Empty;
     }
 
-    private sealed class EnumCaseCheckBehavior : LookupItemAspect<CSharpDeclaredElementInfo>, ILookupItemBehavior
+    private sealed class EnumCaseInfo : CSharpDeclaredElementInfo
     {
-      private readonly bool myIsFlagsEnum;
-
-      public EnumCaseCheckBehavior([NotNull] CSharpDeclaredElementInfo info, bool isFlagsEnum) : base(info)
+      public EnumCaseInfo([NotNull] DeclaredElementInstance instance, [NotNull] CSharpCodeCompletionContext context, bool isFlagsEnum, [NotNull] string caseValue)
+        : base(instance.Element.ShortName, instance, context.BasicContext.LookupItemsOwner, context, context.BasicContext)
       {
-        myIsFlagsEnum = isFlagsEnum;
+        IsFlagsEnum = isFlagsEnum;
+        CaseValue = caseValue;
       }
+
+      public bool IsFlagsEnum { get; private set; }
+      [NotNull] public string CaseValue { get; private set; }
+
+      public bool IsZeroCase { get { return CaseValue.IndexOf('1') == -1; } }
+
+      public bool IsMultiBitFlagCase
+      {
+        get { return CaseValue.IndexOf('1') != CaseValue.LastIndexOf('1'); }
+      }
+    }
+
+    private sealed class EnumCaseCheckBehavior : LookupItemAspect<EnumCaseInfo>, ILookupItemBehavior
+    {
+      public EnumCaseCheckBehavior([NotNull] EnumCaseInfo info) : base(info) { }
 
       public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext) { return false; }
 
@@ -229,9 +243,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (invocationExpression == null) return;
 
         var factory = CSharpElementFactory.GetInstance(invocationExpression);
-        var template = myIsFlagsEnum ? "($0 & $1) != 0" : "$0 == $1";
+        var template = (Info.IsFlagsEnum && !Info.IsZeroCase)
+          ? (Info.IsMultiBitFlagCase ? "($0 & $1) != $1" : "($0 & $1) != 0")
+          : "$0 == $1";
+
         var referenceExpression = (IReferenceExpression) invocationExpression.InvokedExpression;
-        var enumMemberCheck = factory.CreateExpression(template, referenceExpression.QualifierExpression, enumMember);
+        var qualifierExpression = referenceExpression.QualifierExpression;
+
+        var enumMemberCheck = factory.CreateExpression(template, qualifierExpression, enumMember);
 
         var caretPointer = psiServices.DoTransaction(
           commandName: typeof(EnumCaseCheckBehavior).FullName,

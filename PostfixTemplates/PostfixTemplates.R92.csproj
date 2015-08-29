@@ -187,7 +187,6 @@
     <Compile Include="Infrastructure\PostfixTemplateAttribute.cs" />
     <Compile Include="Infrastructure\Behaviors\CSharp\CSharpExpressionPostfixTemplateBehavior.cs" />
     <Compile Include="Infrastructure\Behaviors\CSharp\CSharpStatementPostfixTemplateBehavior.cs" />
-    <Compile Include="LookupItems\PostfixLookupItemBase.cs" />
     <Compile Include="Infrastructure\Behaviors\PostfixTemplateBehavior.cs" />
     <Compile Include="Infrastructure\PostfixTemplateInfo.cs" />
     <Compile Include="LookupItems\PostfixTemplateMatcher.cs" />
