@@ -1,0 +1,27 @@
+﻿# 15 ITEMS #
+
+CompareTo
++ Equals
+GetHashCode
+GetType
+GetTypeCode
++ HasFlag
+ToString
+arg
+await
+cast
+foreach
+not
+par
+sel
+var
+# AUTOMATIC #
+# 7 ITEMS #
+
+CompareTo
++ Equals
+GetHashCode
+GetType
+GetTypeCode
++ HasFlag
+ToString

@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Matchers;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Presentations;
@@ -24,7 +23,6 @@ using JetBrains.ReSharper.Psi.CSharp.Impl.Resolve;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Managed;
 using JetBrains.ReSharper.Psi.Pointers;
-using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
 using JetBrains.ReSharper.Resources.Shell;
@@ -35,11 +33,6 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
-  // todo: test with generic enums
-  // todo: test with C# 6.0 ?.
-  // todo: test with ?.
-  // todo: ordering in enum members ordering
-
   [Language(typeof(CSharpLanguage))]
   public class CSharpEnumCaseItemProvider : CSharpItemsProviderBase<CSharpCodeCompletionContext>
   {
@@ -53,6 +46,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       var referenceExpression = context.UnterminatedContext.ToReferenceExpression() ??
                                 context.TerminatedContext.ToReferenceExpression();
       if (referenceExpression == null) return false;
+      if (referenceExpression.HasConditionalAccessSign) return false;
 
       var qualifierExpression = referenceExpression.QualifierExpression;
       if (qualifierExpression == null) return false;
