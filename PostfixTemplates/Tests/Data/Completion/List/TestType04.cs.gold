@@ -1,8 +1,12 @@
-﻿+ MaxValue
+﻿# 4 ITEMS #
+
++ MaxValue
 + MinValue
 + Parse
 + TryParse
 # AUTOMATIC #
+# 4 ITEMS #
+
 + MaxValue
 + MinValue
 + Parse

@@ -1,4 +1,6 @@
-﻿+ Bar
+﻿# 26 ITEMS #
+
++ Bar
 + Equals
 + GetHashCode
 + GetType
@@ -25,6 +27,8 @@
 + while
 + yield
 # AUTOMATIC #
+# 7 ITEMS #
+
 + Bar
 + Equals
 + GetHashCode

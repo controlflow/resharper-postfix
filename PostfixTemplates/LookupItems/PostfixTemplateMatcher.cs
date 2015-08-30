@@ -20,7 +20,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     public MatchingResult Match(PrefixMatcher prefixMatcher, ITextControl textControl)
     {
-      var text = Info.Text;
+      var text = Info.Shortcut;
       if (text == null) return new MatchingResult();
 
       return prefixMatcher.Matcher(text);

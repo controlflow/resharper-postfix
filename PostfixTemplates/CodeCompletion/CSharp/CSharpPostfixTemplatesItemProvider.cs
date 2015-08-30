@@ -5,6 +5,8 @@ using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 
+// todo: additional namespace filter
+
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
   [Language(typeof(CSharpLanguage))]

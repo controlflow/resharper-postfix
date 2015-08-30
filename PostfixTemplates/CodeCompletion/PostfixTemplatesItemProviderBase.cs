@@ -101,14 +101,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
         var postfixTemplateInfo = templateProvider.TryCreateInfo(context);
         if (postfixTemplateInfo == null) continue;
 
-        // todo: enforce
-        //Assertion.Assert(templateRegistration.Metadata.TemplateName == postfixTemplateInfo.Text, "TODO: AAAA");
+        var templateName = templateRegistration.Metadata.TemplateName;
+
+        Assertion.Assert(
+          string.Equals(templateName, postfixTemplateInfo.Text, StringComparison.Ordinal),
+          "Template text '{0}' should match declared template name '{1}'",
+          postfixTemplateInfo.Text, templateName);
 
         yield return LookupItemFactory
           .CreateLookupItem(postfixTemplateInfo)
-          .WithMatcher(x => new PostfixTemplateMatcher(x.Info))
-          .WithBehavior(x => templateProvider.CreateBehavior(x.Info))
-          .WithPresentation(x => new PostfixTemplatePresentation(x.Info.Text));
+          .WithMatcher(item => new PostfixTemplateMatcher(item.Info))
+          .WithBehavior(item => templateProvider.CreateBehavior(item.Info))
+          .WithPresentation(item => new PostfixTemplatePresentation(item.Info.Text));
       }
     }
   }

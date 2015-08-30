@@ -32,7 +32,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
   // todo: detect type by indexer return type, like F# do?
 
   [PostfixTemplate(
-    templateName: "forEach",
+    templateName: "foreach",
     description: "Iterates over enumerable collection",
     example: "foreach (var x in expr)")]
   public class ForEachLoopTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
@@ -49,7 +49,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
 
       var target = expressionContext.CanBeStatement ? PostfixTemplateTarget.Statement : PostfixTemplateTarget.Expression;
-      return new PostfixTemplateInfo("foreach", expressionContext, target: target);
+      return new PostfixTemplateInfo("forEach", expressionContext, target: target);
     }
 
     private static bool IsEnumerable([NotNull] CSharpPostfixExpressionContext context)

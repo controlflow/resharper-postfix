@@ -107,36 +107,5 @@ namespace JetBrains.ReSharper.PostfixTemplates
         }
       }
     }
-
-    //[NotNull]
-    //public IList<ILookupItem> CollectItems([NotNull] TPostfixTemplateContext context, [CanBeNull] string templateName = null)
-    //{
-    //  var lookupItems = new List<ILookupItem>();
-    //  foreach (var templateRegistration in GetEnabledTemplates(context))
-    //  {
-    //    if (templateName != null)
-    //    {
-    //      var name = templateRegistration.Metadata.TemplateName;
-    //      if (!string.Equals(templateName, name, StringComparison.Ordinal)) continue;
-    //    }
-    //
-    //    var templateProvider = templateRegistration.Template;
-    //
-    //    var postfixTemplateInfo = templateProvider.TryCreateInfo(context);
-    //    if (postfixTemplateInfo == null) continue;
-    //
-    //    Assertion.Assert(templateRegistration.Metadata.TemplateName == postfixTemplateInfo.Text, "TODO: AAAA");
-    //
-    //    var lookupItem = LookupItemFactory
-    //      .CreateLookupItem(postfixTemplateInfo)
-    //      .WithMatcher(x => new PostfixTemplateMatcher(x.Info))
-    //      .WithBehavior(x => templateProvider.CreateBehavior(x.Info))
-    //      .WithPresentation(x => new PostfixTemplatePresentation(x.Info.Text));
-    //
-    //    lookupItems.Add(lookupItem);
-    //  }
-    //
-    //  return lookupItems;
-    //}
   }
 }

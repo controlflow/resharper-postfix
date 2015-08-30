@@ -17,6 +17,8 @@ using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
 
+// todo: placement is based on lookup item info
+
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
   [Language(typeof(CSharpLanguage))]

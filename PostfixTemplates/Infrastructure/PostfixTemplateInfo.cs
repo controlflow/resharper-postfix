@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -13,22 +14,37 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
   public class PostfixTemplateInfo : UserDataHolder, ILookupItemInfo
   {
-    [NotNull] private readonly string myText;
+    [NotNull] private readonly string myText, myShortcut;
     [NotNull] private readonly IList<PostfixExpressionContextImage> myImages;
     [NotNull] private readonly PostfixTemplateExecutionContext myExecutionContext;
     private readonly PostfixTemplateTarget myTarget;
 
-    public PostfixTemplateInfo([NotNull] string text, [NotNull] IEnumerable<PostfixExpressionContext> expressions, PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
+    [SuppressMessage("ReSharper", "NotNullMemberIsNotInitialized")]
+    public PostfixTemplateInfo(
+      [NotNull] string text, [NotNull] IEnumerable<PostfixExpressionContext> expressions,
+      PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
     {
-      myText = text;
+      myText = text.ToLowerInvariant();
+      myShortcut = text;
       myTarget = target;
-      myImages = expressions.ToList(x => new PostfixExpressionContextImage(x));
-      myExecutionContext = expressions.First().PostfixContext.ExecutionContext; // ewww
+
+      myImages = new List<PostfixExpressionContextImage>();
+      foreach (var expressionContext in expressions)
+      {
+        myImages.Add(new PostfixExpressionContextImage(expressionContext));
+        myExecutionContext = expressionContext.PostfixContext.ExecutionContext;
+      }
+
+      if (myExecutionContext == null)
+        throw new ArgumentException("Expecting non-empty sequence of expressions", "expressions");
     }
 
-    public PostfixTemplateInfo([NotNull] string text, [NotNull] PostfixExpressionContext expression, PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
+    public PostfixTemplateInfo(
+      [NotNull] string text, [NotNull] PostfixExpressionContext expression,
+      PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
     {
-      myText = text;
+      myText = text.ToLowerInvariant();
+      myShortcut = text;
       myTarget = target;
       myImages = new[] {new PostfixExpressionContextImage(expression)};
       myExecutionContext = expression.PostfixContext.ExecutionContext;
@@ -37,6 +53,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     public string Text
     {
       get { return myText; }
+    }
+
+    public string Shortcut
+    {
+      get { return myShortcut; }
     }
 
     [NotNull] public PostfixTemplateExecutionContext ExecutionContext

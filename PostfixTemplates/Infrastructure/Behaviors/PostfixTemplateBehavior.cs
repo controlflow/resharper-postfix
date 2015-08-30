@@ -56,13 +56,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       solution.GetPsiServices().Files.CommitAllDocuments();
 
-      var offset = nameRange.EndOffset + reparseString.Length;
       var execContext = new PostfixTemplateExecutionContext(
         solution, textControl, Info.ExecutionContext.SettingsStore, Info.ReparseString, Info.ExecutionContext.IsPreciseMode);
 
       PostfixTemplateContext postfixContext = null;
 
-      foreach (var element in TextControlToPsi.GetElements<ITreeNode>(solution, textControl.Document, offset))
+      foreach (var element in TextControlToPsi.GetElements<ITreeNode>(solution, textControl.Document, nameRange.EndOffset))
       {
         var contextFactory = LanguageManager.Instance.TryGetService<IPostfixTemplateContextFactory>(element.Language);
         if (contextFactory == null) continue;

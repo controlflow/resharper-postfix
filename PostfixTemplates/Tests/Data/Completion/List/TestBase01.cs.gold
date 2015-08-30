@@ -1,4 +1,6 @@
-﻿+ Equals
+﻿# 25 ITEMS #
+
++ Equals
 + GetHashCode
 + GetType
 + MemberwiseClone
@@ -24,6 +26,8 @@
 + while
 + yield
 # AUTOMATIC #
+# 7 ITEMS #
+
 + Equals
 + GetHashCode
 + GetType

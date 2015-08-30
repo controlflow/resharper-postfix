@@ -1,7 +1,9 @@
-﻿+ Equals
+﻿# 28 ITEMS #
+
++ Equals
 + GetHashCode
 + GetType
-Main
++ Main
 + MemberwiseClone
 + ToString
 + arg
@@ -27,10 +29,12 @@ Main
 + while
 + yield
 # AUTOMATIC #
+# 13 ITEMS #
+
 + Equals
 + GetHashCode
 + GetType
-Main
++ Main
 + MemberwiseClone
 + ToString
 + else
