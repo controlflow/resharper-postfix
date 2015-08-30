@@ -3,6 +3,7 @@ using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Matchers;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Presentations;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.Match;
@@ -14,10 +15,10 @@ using JetBrains.ReSharper.PostfixTemplates.Settings;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.Tree;
+using JetBrains.Text;
 using JetBrains.TextControl;
 using JetBrains.UI.Icons;
-
-// todo: placement is based on lookup item info
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
@@ -41,7 +42,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       var settingsStore = referenceExpression.GetSettingsStore();
       if (!settingsStore.GetValue(PostfixTemplatesSettingsAccessor.ShowLengthCountItems)) return;
 
-      IAspectLookupItem<CSharpDeclaredElementInfo> existingItem = null;
+      CSharpDeclaredElementInfo existingInfo = null;
 
       foreach (var lookupItem in collector.Items)
       {
@@ -49,19 +50,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (aspectLookupItem != null && IsLengthOrCountProperty(aspectLookupItem.Info))
         {
           // do nothing if both 'Length' and 'Count' or multiple 'Length'/'Count' items exists
-          if (existingItem != null) return;
+          if (existingInfo != null) return;
 
-          existingItem = aspectLookupItem;
+          existingInfo = aspectLookupItem.Info;
         }
       }
 
-      if (existingItem != null)
+      if (existingInfo != null)
       {
-        var invertedItem = LookupItemFactory
-          .CreateLookupItem(existingItem.Info)
-          .WithBehavior(item => existingItem.Behavior)
-          .WithMatcher(item => new SimpleTextualMatcher(InvertName(item.Info)))
-          .WithPresentation(item => new SimplePresentation(item.Info));
+        var invertedInfo = new CSharpDeclaredElementInfo(
+          existingInfo.ShortName, existingInfo.PreferredDeclaredElement.NotNull(),
+          context.BasicContext.LookupItemsOwner, context, context.BasicContext);
+
+        invertedInfo.Ranges = context.CompletionRanges;
+        invertedInfo.Placement = new LookupItemPlacement(InvertName(existingInfo));
+
+        var invertedItem = LookupItemFactory.CreateLookupItem(invertedInfo)
+          .WithPresentation(item => new InvertedItemPresentation(item.Info))
+          .WithMatcher(item => new InvertedTextualMatcher(item.Info))
+          .WithBehavior(item => new CSharpDeclaredElementBehavior<CSharpDeclaredElementInfo>(item.Info));
 
         collector.Add(invertedItem);
       }
@@ -95,11 +102,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return (info.ShortName == COUNT) ? LENGTH : COUNT;
     }
 
-    private sealed class SimpleTextualMatcher : ILookupItemMatcher
+    private sealed class InvertedTextualMatcher : ILookupItemMatcher
     {
       [NotNull] private readonly string myText;
 
-      public SimpleTextualMatcher([NotNull] string text) { myText = text; }
+      public InvertedTextualMatcher([NotNull] CSharpDeclaredElementInfo info)
+      {
+        myText = InvertName(info);
+      }
 
       public bool IgnoreSoftOnSpace { get; set; }
 
@@ -109,9 +119,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       }
     }
 
-    private sealed class SimplePresentation : DeclaredElementPresentation<CSharpDeclaredElementInfo>
+    private sealed class InvertedItemPresentation : DeclaredElementPresentation<CSharpDeclaredElementInfo>
     {
-      public SimplePresentation(CSharpDeclaredElementInfo info) : base(InvertName(info), info) { }
+      public InvertedItemPresentation([NotNull] CSharpDeclaredElementInfo info)
+        : base(InvertName(info), info) { }
 
       public override IconId Image
       {
