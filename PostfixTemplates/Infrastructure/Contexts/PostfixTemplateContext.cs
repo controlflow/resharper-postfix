@@ -26,11 +26,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     [NotNull, ItemNotNull]
     public IList<PostfixExpressionContext> AllExpressions
     {
-      get { return myAllExpressions ?? (myAllExpressions = BuildAllExpressions()); }
+      get { return myAllExpressions ?? (myAllExpressions = new List<PostfixExpressionContext>(GetAllExpressionContexts())); }
     }
 
     [NotNull, ItemNotNull]
-    protected abstract IList<PostfixExpressionContext> BuildAllExpressions();
+    protected abstract IEnumerable<PostfixExpressionContext> GetAllExpressionContexts();
 
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {

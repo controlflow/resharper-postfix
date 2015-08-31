@@ -9,6 +9,7 @@ using JetBrains.ReSharper.Psi.CSharp.Util;
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
   // todo: make it work over anything awaitable?
+  // todo: this is all wrong: check for async closures!
 
   [PostfixTemplate(
     templateName: "await",

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using JetBrains.ActionManagement;
 using JetBrains.Annotations;
@@ -36,10 +37,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     example: "var x = expr;")]
   public sealed class IntroduceVariableTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
+    [SuppressMessage("ReSharper", "PossibleInvalidCastExceptionInForeachLoop")]
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
       var contexts = new List<CSharpPostfixExpressionContext>();
-      foreach (var expressionContext in context.ExpressionsOrTypes)
+
+      foreach (CSharpPostfixExpressionContext expressionContext in context.AllExpressions)
       {
         var expression = expressionContext.Expression;
         if (expression is IReferenceExpression)

@@ -11,14 +11,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
   public class CSharpPostfixTemplateContext : PostfixTemplateContext
   {
     [NotNull] private readonly ICSharpExpression myInnerExpression;
-    [CanBeNull] private IList<CSharpPostfixExpressionContext> myExpressions;
-    [CanBeNull] private CSharpPostfixExpressionContext myTypeExpression;
+    [NotNull] private readonly IList<CSharpPostfixExpressionContext> myExpressions;
+    [CanBeNull] private readonly CSharpPostfixExpressionContext myTypeExpression;
 
     protected CSharpPostfixTemplateContext(
       [NotNull] ITreeNode reference, [NotNull] ICSharpExpression expression, [NotNull] PostfixTemplateExecutionContext executionContext)
       : base(reference, executionContext)
     {
       myInnerExpression = expression;
+      myExpressions = BuildExpressions(Reference, out myTypeExpression);
     }
 
     [NotNull] // todo: do we need it?
@@ -27,27 +28,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       get
       {
         var expressions = Expressions; // force build
-        if (myTypeExpression == null) return expressions;
 
-        return expressions.Prepend(myTypeExpression);
+        return (myTypeExpression != null)
+          ? expressions.Prepend(myTypeExpression)
+          : expressions;
       }
     }
 
     [NotNull, ItemNotNull]
     public IList<CSharpPostfixExpressionContext> Expressions
     {
-      get
-      {
-        GC.KeepAlive(AllExpressions); // todo: hate this
-
-        return myExpressions ?? EmptyList<CSharpPostfixExpressionContext>.InstanceList;
-      }
+      get { return myExpressions; }
     }
 
-    protected override IList<PostfixExpressionContext> BuildAllExpressions()
+    [NotNull]
+    private IList<CSharpPostfixExpressionContext> BuildExpressions(
+      [NotNull] ITreeNode reference, [CanBeNull] out CSharpPostfixExpressionContext typeContext)
     {
-      var reference = Reference;
-
       // build expression contexts
       var expressionContexts = new List<CSharpPostfixExpressionContext>();
       var endOffset = ToDocumentRange(reference).TextRange.EndOffset;
@@ -82,9 +79,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
           if (!CSharpPostfixUtis.CanTypeBecameExpression(myInnerExpression)) continue;
           if (myTypeExpression != null) break; // should never happens
 
-          myTypeExpression = expressionContext; // yeah, time to stop
-          myExpressions = EmptyList<CSharpPostfixExpressionContext>.InstanceList;
-          return EmptyList<PostfixExpressionContext>.InstanceList;
+          typeContext = expressionContext; // yeah, time to stop
+          return EmptyList<CSharpPostfixExpressionContext>.InstanceList;
         }
 
         expressionContexts.Add(expressionContext);
@@ -92,8 +88,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
         if (expressionContext.CanBeStatement) break;
       }
 
-      myExpressions = expressionContexts.AsReadOnly();
-      return expressionContexts.ConvertAll(x => (PostfixExpressionContext) x).AsReadOnly();
+      typeContext = null;
+      return expressionContexts.AsReadOnly();
+    }
+
+    protected override IEnumerable<PostfixExpressionContext> GetAllExpressionContexts()
+    {
+      foreach (var expressionContext in Expressions)
+        yield return expressionContext;
+
+      if (TypeExpression != null)
+        yield return TypeExpression;
     }
 
     // Most inner expression: '0.var'
@@ -121,6 +126,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       get { return myTypeExpression; }
     }
 
+    // todo: review usages and drop
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {
       get { return myInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
