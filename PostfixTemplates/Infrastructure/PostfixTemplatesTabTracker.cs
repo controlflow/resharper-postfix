@@ -94,29 +94,34 @@ namespace JetBrains.ReSharper.PostfixTemplates
       public void Execute(IDataContext context, DelegateExecute nextExecute)
       {
         var solution = context.GetData(ProjectModel.DataContext.DataConstants.SOLUTION);
-        if (solution == null) return;
-
-        var textControl = context.GetData(TextControl.DataContext.DataConstants.TEXT_CONTROL);
-        if (textControl == null) return;
-
-        var lookupWindowManager = solution.TryGetComponent<ILookupWindowManager>();
-        if (lookupWindowManager != null && lookupWindowManager.CurrentLookup != null) return;
-
-        const string commandName = "Expanding postfix template with [Tab]";
-
-        var updateCookie = myChangeUnitFactory.CreateChangeUnit(textControl, commandName);
-
-        try
+        if (solution != null)
         {
-          using (myCommandProcessor.UsingCommand(commandName))
+          var textControl = context.GetData(TextControl.DataContext.DataConstants.TEXT_CONTROL);
+          if (textControl != null)
           {
-            IsAvailableOrExecuteEww(solution, textControl, execute: true);
+            var lookupWindowManager = solution.TryGetComponent<ILookupWindowManager>();
+            if (lookupWindowManager == null || lookupWindowManager.CurrentLookup == null)
+            {
+              const string commandName = "Expanding postfix template with [Tab]";
+
+              var updateCookie = myChangeUnitFactory.CreateChangeUnit(textControl, commandName);
+
+              try
+              {
+                using (myCommandProcessor.UsingCommand(commandName))
+                {
+                  IsAvailableOrExecuteEww(solution, textControl, execute: true);
+                }
+              }
+              catch
+              {
+                updateCookie.Dispose();
+                throw;
+              }
+
+              return;
+            }
           }
-        }
-        catch
-        {
-          updateCookie.Dispose();
-          throw;
         }
 
         nextExecute();
