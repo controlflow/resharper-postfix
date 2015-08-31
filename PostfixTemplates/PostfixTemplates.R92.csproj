@@ -225,7 +225,7 @@
     <Compile Include="Templates\CSharp\IntroduceVariableTemplate.cs" />
     <Compile Include="Templates\CSharp\LockStatementTemplate.cs" />
     <Compile Include="Templates\CSharp\NotExpressionTemplate.cs" />
-    <Compile Include="Templates\CSharp\ObjectCreationTypeTemplate.cs" />
+    <Compile Include="Templates\CSharp\ObjectCreationTemplate.cs" />
     <Compile Include="Templates\CSharp\ParenthesizedExpressionTemplate.cs" />
     <Compile Include="Templates\CSharp\ParseStringTemplate.cs" />
     <Compile Include="Templates\CSharp\ParseStringTemplateBase.cs" />
