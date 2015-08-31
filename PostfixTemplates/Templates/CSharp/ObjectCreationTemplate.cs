@@ -17,7 +17,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
     templateName: "new",
     description: "Produces instantiation expression for type",
     example: "new SomeType()")]
-  public class ObjectCreationTypeTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
+  public class ObjectCreationTemplate : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)
     {
@@ -116,7 +116,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        var settingsStore = expression.GetSettingsStore(); // todo: execution context?
+        var settingsStore = Info.ExecutionContext.SettingsStore;
         var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
 
         var template = string.Format("new {0}{1}", expression.GetText(), parenthesesType.GetParenthesesTemplate());
@@ -154,7 +154,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       protected override IObjectCreationExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        // yes, simply reinterpret expression as constructor call
+        // yes, simply reinterpret expression as IReferenceName in obect creation expression
         var template = string.Format("new {0}", expression.GetText());
         return (IObjectCreationExpression) factory.CreateExpressionAsIs(template, applyCodeFormatter: false);
       }
