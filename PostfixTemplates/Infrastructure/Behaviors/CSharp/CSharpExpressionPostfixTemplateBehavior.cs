@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.PostfixTemplates.Contexts;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
+using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.CSharp.Util;
@@ -19,8 +20,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     {
       var csharpContext = (CSharpPostfixExpressionContext) context;
       var psiModule = csharpContext.PostfixContext.PsiModule;
+      var psiServices = psiModule.GetPsiServices();
 
-      var expandedExpression = psiModule.GetPsiServices().DoTransaction(ExpandCommandName, () =>
+      var expandedExpression = psiServices.DoTransaction(ExpandCommandName, () =>
       {
         var factory = CSharpElementFactory.GetInstance(psiModule);
         var expression = csharpContext.Expression;
@@ -31,6 +33,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         var newExpression = CreateExpression(factory, operand);
 
         return expression.ReplaceBy(newExpression);
+
+        // todo: DecorateReplacedExpression()?
       });
 
       return expandedExpression;
@@ -39,7 +43,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
     [NotNull] // todo: pass postfix expression context
     protected abstract TExpression CreateExpression([NotNull] CSharpElementFactory factory, [NotNull] ICSharpExpression expression);
 
-    protected override void AfterComplete(ITextControl textControl, ITreeNode node)
+    protected sealed override void AfterComplete(ITextControl textControl, ITreeNode node)
     {
       AfterComplete(textControl, (TExpression) node);
     }

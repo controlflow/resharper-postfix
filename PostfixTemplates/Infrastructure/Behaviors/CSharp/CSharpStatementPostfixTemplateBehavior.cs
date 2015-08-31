@@ -23,6 +23,8 @@ using JetBrains.Util.Logging;
 
 namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 {
+  // todo: check templates with braces completed by '{' suffix
+
   public abstract class CSharpStatementPostfixTemplateBehavior<TStatement> : PostfixTemplateBehavior
     where TStatement : class, ICSharpStatement
   {
@@ -128,7 +130,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       return (statements.Count == 1) ? statements[0] : null;
     }
 
-    protected override void AfterComplete(ITextControl textControl, ITreeNode node)
+    protected sealed override void AfterComplete(ITextControl textControl, ITreeNode node)
     {
       AfterComplete(textControl, (TStatement) node);
     }
