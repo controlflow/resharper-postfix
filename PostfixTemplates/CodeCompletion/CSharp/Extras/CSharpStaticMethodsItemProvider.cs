@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
+using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
@@ -20,6 +21,7 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.CodeStyle.Suggest;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExpectedTypes;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
@@ -132,14 +134,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
       var replaceRange = context.ReplaceRangeWithJoinedArguments;
       var ranges = replaceRange.IsValid ? context.CompletionRanges.WithReplaceRange(replaceRange) : context.CompletionRanges;
+      
 
       foreach (var lookupItem in innerCollector.Items)
       {
         var declaredElementInfoItem = lookupItem as LookupItem<CSharpDeclaredElementInfo>;
         if (declaredElementInfoItem != null)
         {
+          declaredElementInfoItem.Info.Ranges = ranges;
           declaredElementInfoItem.WithBehavior(item => new StaticMethodBehavior(item.Info));
-          declaredElementInfoItem.WithInitializedRanges(ranges, context.BasicContext);
           declaredElementInfoItem.AdjustTextColor(Color.Gray);
 
           collector.Add(declaredElementInfoItem);
@@ -149,8 +152,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var methodsInfoItem = lookupItem as LookupItem<MethodsInfo>;
         if (methodsInfoItem != null)
         {
+          methodsInfoItem.Info.Ranges = ranges;
           methodsInfoItem.WithBehavior(item => new StaticMethodBehavior(item.Info));
-          methodsInfoItem.WithInitializedRanges(ranges, context.BasicContext);
           methodsInfoItem.AdjustTextColor(Color.Gray);
 
           collector.Add(methodsInfoItem);
@@ -160,7 +163,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return true;
     }
 
-    private sealed class StaticMethodBehavior : CSharpDeclaredElementBehavior<DeclaredElementInfo>
+    private sealed class StaticMethodBehavior : LookupItemAspect<DeclaredElementInfo>, ILookupItemBehavior
     {
       [NotNull] private readonly List<DeclaredElementInstance<IMethod>> myMethods = new List<DeclaredElementInstance<IMethod>>();
 
@@ -172,6 +175,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var method = instance.Element as IMethod;
         if (method != null)
           myMethods.Add(new DeclaredElementInstance<IMethod>(method, instance.Substitution));
+      }
+
+      public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
+      {
+        return false;
       }
 
       public StaticMethodBehavior([NotNull] MethodsInfo info) : base(info)
@@ -188,19 +196,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         }
       }
 
-      public override void Accept(
-        ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType, Suffix suffix, ISolution solution, bool keepCaretStill)
+      public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType, Suffix suffix, ISolution solution, bool keepCaretStill)
       {
         if (lookupItemInsertType == LookupItemInsertType.Insert)
         {
           if (Info.InsertText.IndexOf(')') == -1) Info.InsertText += ")";
+
+          textControl.Document.ReplaceText(Info.Ranges.InsertRange.JoinRight(nameRange), Info.Text + Info.InsertText);
         }
         else
         {
           if (Info.ReplaceText.IndexOf(')') == -1) Info.ReplaceText += ")";
-        }
 
-        base.Accept(textControl, nameRange, lookupItemInsertType, suffix, solution, keepCaretStill);
+          textControl.Document.ReplaceText(Info.Ranges.ReplaceRange.JoinRight(nameRange), Info.Text + Info.ReplaceText);
+        }
 
         var psiServices = solution.GetPsiServices();
         psiServices.Files.CommitAllDocuments();
@@ -227,11 +236,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
         if (newQualifierReference == null) return; // 'T.' is not found for some reason :\
 
-        var containingType = myMethods
-          .Select(instance => instance.Element)
-          .SelectNotNull(method => method.GetContainingType())
-          .FirstOrDefault();
-
+        var containingType = myMethods.Select(i => i.Element).SelectNotNull(m => m.GetContainingType()).FirstOrDefault();
         if (containingType == null) return;
 
         var psiServices = referenceExpression.GetPsiServices();
@@ -295,7 +300,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
               {
                 var rightParRange = rightPar.GetDocumentRange().TextRange;
 
-                PsiServices.Transactions.Execute(
+                invocationExpression.GetPsiServices().Transactions.Execute(
                   commandName: "AAA",
                   handler: () =>
                   {
