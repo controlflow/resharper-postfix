@@ -296,10 +296,20 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
             var containingType = ((IMethod) myMethods[0].Element).GetContainingType();
             // todo: without substitution? maybe with?
 
-            newQualifier.Reference.BindTo(containingType.NotNull());
+            psiServices.Transactions.Execute(
+              commandName: typeof(StaticMethodBehavior).FullName,
+              handler: () =>
+              {
+                newQualifier.Reference.BindTo(containingType.NotNull());
 
-            CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(treeNode);
-            CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(treeNode);
+                CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(treeNode);
+
+                var q = treeNode.QualifierExpression;
+                if (q != null && q.IsValid())
+                {
+                  CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(treeNode);
+                }
+              });
           }
         }
 
@@ -352,19 +362,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         //var newReference = referencePointer.GetTreeNode();
         //if (newReference != null)
         //{
-        //  var keyword = CSharpTypeFactory.GetTypeKeyword(ownerType.GetClrName());
-        //  if (keyword == null) // bind user type
-        //  {
-        //    var newQualifier = (IReferenceExpression)newReference.QualifierExpression;
-        //    if (newQualifier != null)
-        //    {
-        //      var elementInstance = lookupItem.GetDeclaredElement().NotNull("elementInstance != null");
-        //      newQualifier.Reference.BindTo(ownerType, elementInstance.Substitution);
-        //    }
-        //
-        //    range = newReference.NameIdentifier.GetDocumentRange().TextRange;
-        //    decoration = TextRange.InvalidRange;
-        //  }
         //
         //  // show parameter info when needed
         //  if (hasMoreParameters)
