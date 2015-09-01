@@ -257,11 +257,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
             }
           });
 
-        var checkExpression = caretPointer.GetTreeNode();
-        if (checkExpression != null)
+        if (caretPointer != null)
         {
-          var offset = checkExpression.GetDocumentRange().TextRange.EndOffset;
-          textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+          var checkExpression = caretPointer.GetTreeNode();
+          if (checkExpression != null)
+          {
+            var offset = checkExpression.GetDocumentRange().TextRange.EndOffset;
+            textControl.Caret.MoveTo(offset, CaretVisualPlacement.DontScrollIfVisible);
+          }
         }
       }
 

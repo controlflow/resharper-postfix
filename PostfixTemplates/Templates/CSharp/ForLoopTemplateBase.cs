@@ -35,38 +35,41 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
       if (expressionContext.Type is IArrayType)
       {
+        // todo: test with array of unresolved types
         lengthName = "Length";
+        return true;
       }
-      else
+
+      if (!expressionContext.Type.IsResolved) return false; // even in force mode
+
+      if (expressionContext.Type.IsPredefinedIntegralNumeric())
       {
-        if (!expressionContext.Type.IsResolved) return false; // even in force mode
+        if (expressionContext.PostfixContext.IsPreciseMode) return false;
 
-        var psiModule = expressionContext.PostfixContext.PsiModule;
-        var symbolTable = expressionContext.Type.GetSymbolTable(psiModule);
-
-        var publicProperties = symbolTable.Filter(
-          myPropertyFilter, OverriddenFilter.INSTANCE,
-          new AccessRightsFilter(new ElementAccessContext(expression)));
-
-        const string countPropertyName = "Count";
-
-        var resolveResult = publicProperties.GetResolveResult(countPropertyName);
-
-        var property = resolveResult.DeclaredElement as IProperty;
-        if (property != null)
-        {
-          if (property.IsStatic) return false;
-          if (!property.Type.IsInt()) return false;
-
-          lengthName = countPropertyName;
-        }
-        else
-        {
-          if (!expressionContext.Type.IsPredefinedIntegralNumeric()) return false;
-        }
+        return true;
       }
 
-      return true;
+      var psiModule = expressionContext.PostfixContext.PsiModule;
+      var symbolTable = expressionContext.Type.GetSymbolTable(psiModule);
+
+      var accessFilter = new AccessRightsFilter(new ElementAccessContext(expression));
+      var publicProperties = symbolTable.Filter(myPropertyFilter, OverriddenFilter.INSTANCE, accessFilter);
+
+      const string countPropertyName = "Count";
+
+      var resolveResult = publicProperties.GetResolveResult(countPropertyName);
+
+      var property = resolveResult.DeclaredElement as IProperty;
+      if (property != null)
+      {
+        if (property.IsStatic) return false;
+        if (!property.Type.IsInt()) return false;
+
+        lengthName = countPropertyName;
+        return true;
+      }
+
+      return false;
     }
 
     [NotNull] private readonly DeclaredElementTypeFilter myPropertyFilter =
@@ -113,17 +116,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var variable = (ILocalVariableDeclaration) newStatement.Initializer.Declaration.Declarators[0];
         var iterator = (IPostfixOperatorExpression) newStatement.Iterators.Expressions[0];
 
+        var nameField = new TemplateField("name", new NameSuggestionsExpression(variableNames), 0);
         var variableNameInfo = new HotspotInfo(
-          new TemplateField("name", new NameSuggestionsExpression(variableNames), 0),
-          variable.NameIdentifier.GetDocumentRange(),
-          condition.LeftOperand.GetDocumentRange(),
-          iterator.Operand.GetDocumentRange());
+          nameField, variable.NameIdentifier.GetDocumentRange(), condition.LeftOperand.GetDocumentRange(), iterator.Operand.GetDocumentRange());
 
         var endRange = new TextRange(textControl.Caret.Offset());
         var liveTemplatesManager = Info.ExecutionContext.LiveTemplatesManager;
         var session = liveTemplatesManager.CreateHotspotSessionAtopExistingText(
-          newStatement.GetSolution(), endRange, textControl,
-          LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, variableNameInfo);
+          newStatement.GetSolution(), endRange, textControl, LiveTemplatesManager.EscapeAction.LeaveTextAndCaret, variableNameInfo);
 
         session.Execute();
       }
@@ -135,11 +135,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var iteratorDeclaration = (ILocalVariableDeclaration) declarationMember;
         var namingManager = statement.GetPsiServices().Naming;
 
-        var policyProvider = namingManager.Policy.GetPolicyProvider(
-          iteratorDeclaration.Language, iteratorDeclaration.GetSourceFile());
-
-        var collection = namingManager.Suggestion.CreateEmptyCollection(
-          PluralityKinds.Single, iteratorDeclaration.Language, true, policyProvider);
+        var policyProvider = namingManager.Policy.GetPolicyProvider(iteratorDeclaration.Language, iteratorDeclaration.GetSourceFile());
+        var collection = namingManager.Suggestion.CreateEmptyCollection(PluralityKinds.Single, iteratorDeclaration.Language, true, policyProvider);
 
         var variableType = iteratorDeclaration.DeclaredElement.Type;
         if (variableType.IsResolved)
@@ -150,8 +147,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           });
         }
 
-        collection.Prepare(iteratorDeclaration.DeclaredElement,
-          new SuggestionOptions { UniqueNameContext = statement, DefaultName = "i" });
+        var suggestionOptions = new SuggestionOptions { UniqueNameContext = statement, DefaultName = "i" };
+        collection.Prepare(iteratorDeclaration.DeclaredElement, suggestionOptions);
 
         return collection.AllNames();
       }

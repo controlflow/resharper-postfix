@@ -125,6 +125,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
               var referenceName = TextControlToPsi
                 .GetElements<IReferenceName>(solution, textControl.Document, startOffset)
                 .FirstOrDefault(x => x.NameIdentifier != null && x.NameIdentifier.Name == typeParameterName);
+
               if (referenceName == null) return null;
 
               var methodDeclaration = referenceName.GetContainingNode<IMethodDeclaration>();

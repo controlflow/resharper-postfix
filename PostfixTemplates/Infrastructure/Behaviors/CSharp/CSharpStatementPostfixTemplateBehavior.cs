@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.Application.Progress;
 using JetBrains.Application.Settings;
@@ -174,12 +175,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
           var textRange = rangeMarker.DocumentRange.TextRange;
           if (textRange.IsValid)
           {
-            foreach (var newStatement in TextControlToPsi.GetElements<TStatement>(
-              psiServices.Solution, textControl.Document, textRange.StartOffset))
+            var newStatements = TextControlToPsi.GetElements<TStatement>(psiServices.Solution, textControl.Document, textRange.StartOffset);
+
+            foreach (var newStatement in newStatements)
             {
               var offset = newStatement.GetDocumentStartOffset();
-              if (offset.TextRange.StartOffset == textRange.StartOffset)
-                return newStatement;
+              if (offset.TextRange.StartOffset == textRange.StartOffset) return newStatement;
             }
           }
 

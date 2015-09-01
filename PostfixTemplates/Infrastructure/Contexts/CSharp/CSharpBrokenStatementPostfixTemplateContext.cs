@@ -44,7 +44,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       if (uncheckedExpression == null) return context;
 
       var operand = uncheckedExpression.Operand;
-      psiServices.DoTransaction(FixCommandName, () =>
+      psiServices.Transactions.Execute(FixCommandName, () =>
       {
         LowLevelModificationUtil.DeleteChild(operand);
         LowLevelModificationUtil.ReplaceChildRange(uncheckedExpression, uncheckedExpression, operand);

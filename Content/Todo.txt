@@ -1,6 +1,8 @@
 TODO: fix tab expansion
 TODO: fix double completion
 
+TODO: review templates in attributes
+
 
 TODO: Fix razor?
 TODO: Support code style var setting in 9.0 build;

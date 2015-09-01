@@ -52,12 +52,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       ICollection<string> toRemove = EmptyList<string>.InstanceList;
 
       // double completion support
-      var parameters = completionContext.Parameters;
-      var isDoubleCompletion = (parameters.CodeCompletionTypes.Length > 1);
+      var completionParameters = completionContext.Parameters;
+      var isDoubleCompletion = (completionParameters.CodeCompletionTypes.Length > 1);
 
-      if (!parameters.IsAutomaticCompletion && isDoubleCompletion)
+      if (!completionParameters.IsAutomaticCompletion && isDoubleCompletion)
       {
-        if (parameters.IsAutomaticCompletion) return false;
+        if (completionParameters.IsAutomaticCompletion) return false;
 
         // run postfix templates like we are in auto completion
         
@@ -70,22 +70,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           toRemove = new JetHashSet<string>(StringComparer.Ordinal);
 
           foreach (var lookupItem in automaticPostfixItems)
-            toRemove.Add(lookupItem.Info.Text);
+          {
+            toRemove.Add(lookupItem.Info.Shortcut);
+          }
         }
       }
 
       foreach (var lookupItem in lookupItems)
       {
-        if (toRemove.Contains(lookupItem.Info.Text)) continue;
+        if (toRemove.Contains(lookupItem.Info.Shortcut)) continue;
 
-        if (isDoubleCompletion)
-        {
-          collector.Add(lookupItem);
-        }
-        else
-        {
-          collector.Add(lookupItem);
-        }
+        // todo: add to bottom in double completion
+        collector.Add(lookupItem);
       }
 
       return (lookupItems.Count > 0);

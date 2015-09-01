@@ -22,23 +22,37 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       myExpressions = BuildExpressions(Reference, out myTypeExpression);
     }
 
-    [NotNull] // todo: do we need it?
-    public IEnumerable<CSharpPostfixExpressionContext> ExpressionsOrTypes
-    {
-      get
-      {
-        var expressions = Expressions; // force build
-
-        return (myTypeExpression != null)
-          ? expressions.Prepend(myTypeExpression)
-          : expressions;
-      }
-    }
-
     [NotNull, ItemNotNull]
     public IList<CSharpPostfixExpressionContext> Expressions
     {
       get { return myExpressions; }
+    }
+
+    // Most inner expression: '0.var'
+    [CanBeNull] public CSharpPostfixExpressionContext InnerExpression
+    {
+      get
+      {
+        var contexts = Expressions;
+        return (contexts.Count == 0) ? null : contexts[0];
+      }
+    }
+
+    // Most outer expression: '(a + b.Length) > 0.var'
+    [CanBeNull] public CSharpPostfixExpressionContext OuterExpression
+    {
+      get
+      {
+        var contexts = Expressions;
+        return (contexts.Count == 0) ? null : contexts[contexts.Count - 1];
+      }
+    }
+
+    // Usage of some resolved type: 'StringBuilder.new'
+    [CanBeNull]
+    public CSharpPostfixExpressionContext TypeExpression
+    {
+      get { return myTypeExpression; }
     }
 
     [NotNull]
@@ -101,35 +115,28 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
         yield return TypeExpression;
     }
 
-    // Most inner expression: '0.var'
-    [CanBeNull] public CSharpPostfixExpressionContext InnerExpression
-    {
-      get
-      {
-        var contexts = Expressions;
-        return (contexts.Count == 0) ? null : contexts[0];
-      }
-    }
-
-    // Most outer expression: '(a + b.Length) > 0.var'
-    [CanBeNull] public CSharpPostfixExpressionContext OuterExpression
-    {
-      get
-      {
-        var contexts = Expressions;
-        return (contexts.Count == 0) ? null : contexts[contexts.Count - 1];
-      }
-    }
-
-    [CanBeNull] public CSharpPostfixExpressionContext TypeExpression
-    {
-      get { return myTypeExpression; }
-    }
-
     // todo: review usages and drop
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {
       get { return myInnerExpression.GetContainingNode<ICSharpFunctionDeclaration>(); }
+    }
+
+    [CanBeNull]
+    public ICSharpDeclaration ContainingReturnValueOwner
+    {
+      get
+      {
+        // todo: [R#] replace with type-relaxed M:JetBrains.ReSharper.Psi.CSharp.Util.ReturnStatementUtil.FindReturnOwnerDeclaration(JetBrains.ReSharper.Psi.CSharp.Tree.IReturnValueHolder)
+
+        foreach (var containingNode in myInnerExpression.ContainingNodes<ICSharpDeclaration>())
+        {
+          if (containingNode is ICSharpFunctionDeclaration) return containingNode;
+          if (containingNode is IExpressionBodyOwnerDeclaration) return containingNode;
+          if (containingNode is IAnonymousFunctionExpression) return containingNode;
+        }
+
+        return null;
+      }
     }
 
     public override PostfixExpressionContext FixExpression(PostfixExpressionContext context)

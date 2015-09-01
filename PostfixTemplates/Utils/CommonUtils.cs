@@ -17,38 +17,40 @@ namespace JetBrains.ReSharper.PostfixTemplates
   [PublicAPI]
   public static class CommonUtils
   {
-    // todo: [R#] get rid of this
-    public static void DoTransaction(
-      [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull, InstantHandle] Action action)
+    [CanBeNull]
+    public static TReturn DoTransaction<TReturn>(
+      [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull, InstantHandle] Func<TReturn> func)
     {
-      services.Transactions.Execute(commandName, action);
-    }
+      var value = default(TReturn);
+      services.Transactions.Execute(commandName, () =>
+      {
+        value = func();
+      });
 
-    // todo: [R#] get rid of this
-    public static T DoTransaction<T>(
-      [NotNull] this IPsiServices services, [NotNull] string commandName, [NotNull, InstantHandle] Func<T> func)
-    {
-      var value = default(T);
-      services.Transactions.Execute(commandName, () => value = func());
       return value;
     }
 
-    public static DocumentRange ToDocumentRange([CanBeNull] this ReparsedCodeCompletionContext context, [NotNull] ITreeNode treeNode)
+    public static DocumentRange ToDocumentRange([CanBeNull] this ReparsedCodeCompletionContext reparsedContext, [NotNull] ITreeNode treeNode)
     {
       var documentRange = treeNode.GetDocumentRange();
-      if (context == null) return documentRange;
+
+      if (reparsedContext == null) return documentRange;
 
       var reparsedTreeRange = treeNode.GetTreeTextRange();
 
       var document = documentRange.Document;
       if (document != null)
       {
-        var originalDocRange = context.ToDocumentRange(reparsedTreeRange);
+        var originalDocRange = reparsedContext.ToDocumentRange(reparsedTreeRange);
         return new DocumentRange(document, originalDocRange);
       }
       else
       {
-        var originalGeneratedTreeRange = context.ToOriginalTreeRange(reparsedTreeRange);
+
+
+        // todo: maybe rewrite this without range translator knowledge
+
+        var originalGeneratedTreeRange = reparsedContext.ToOriginalTreeRange(reparsedTreeRange);
         var sandBox = treeNode.GetContainingNode<ISandBox>().NotNull("sandBox != null");
 
         var contextNode = sandBox.ContextNode.NotNull("sandBox.ContextNode != null");
@@ -76,6 +78,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return atStatementEnd ? "();" : "()";
     }
 
+    // todo: remove
     [NotNull]
     public static IEnumerable<DeclaredElementInstance> GetAllDeclaredElementInstances([NotNull] this ILookupItem lookupItem)
     {
@@ -85,6 +88,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       return EmptyList<DeclaredElementInstance>.InstanceList;
     }
 
+    // todo: remove
     [CanBeNull]
     public static DeclaredElementInstance GetDeclaredElement([NotNull] this ILookupItem lookupItem)
     {
