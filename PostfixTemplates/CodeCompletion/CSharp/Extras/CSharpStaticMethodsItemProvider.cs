@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
@@ -28,9 +29,10 @@ using JetBrains.TextControl;
 using JetBrains.Util;
 
 // todo: caret placement after completing generic method<>
-// todo: gray color sometimes missing in 9.0 for bold items
-// todo: AdjustTextColor
 // todo: disable for ?.
+// todo: replay suffix
+// todo: generic type parameters (check if inferable)
+// todo: invoke parameter info
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
@@ -149,92 +151,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return true;
     }
 
-/*
-    [NotNull]
-    private static AfterCompletionHandler BakeAfterComplete([NotNull] ILookupItem lookupItem, [NotNull] ISolution solution, int argumentsCount)
-    {
-      // sorry, ugly as fuck :(
-      return (ITextControl textControl, ref TextRange range, ref TextRange decoration,
-              TailType tailType, ref Suffix suffix, ref IRangeMarker caretMarker) =>
-      {
-        var psiServices = solution.GetPsiServices();
-        psiServices.Files.CommitAllDocuments();
-
-        var allMethods = GetAllTargetMethods(lookupItem);
-        if (allMethods.Count == 0) return;
-
-        var reference = TextControlToPsi.GetElement<IReferenceExpression>(solution, textControl.Document, range.StartOffset);
-        if (reference == null) return;
-
-        var decorationText = textControl.Document.GetText(decoration);
-        var decorationRange = new DocumentRange(textControl.Document, decoration);
-
-        var hasMoreParameters = HasMoreParameters(allMethods, argumentsCount);
-        if (!hasMoreParameters) // put caret 'foo(arg){here};'
-        {
-          caretMarker = decorationRange.EndOffsetRange().CreateRangeMarker();
-        }
-        else if (argumentsCount > 0)
-        {
-          var parenthesisCloseIndex = decorationText.LastIndexOf(')');
-          if (parenthesisCloseIndex >= 0)
-          {
-            var delta = decoration.Length - parenthesisCloseIndex;
-            caretMarker = decorationRange.EndOffsetRange().Shift(-delta).CreateRangeMarker();
-          }
-        }
-
-        var qualifierExpression = reference.QualifierExpression.NotNull("qualifierExpression != null");
-        var referencePointer = reference.CreateTreeElementPointer();
-
-        var qualifierText = InsertQualifierAsArgument(
-          qualifierExpression, allMethods, argumentsCount, textControl, decoration, decorationText);
-
-        // TODO: mmm?
-        if (!hasMoreParameters && !decorationText.EndsWith(")", StringComparison.Ordinal))
-        {
-          caretMarker = caretMarker.DocumentRange.Shift(+qualifierText.Length).CreateRangeMarker();
-        }
-
-        // replace qualifier with type (predefined/user type)
-        var ownerType = allMethods[0].GetContainingType().NotNull("ownerType != null");
-        FixQualifierExpression(textControl, qualifierExpression, ownerType);
-
-        psiServices.Files.CommitAllDocuments();
-
-        var newReference = referencePointer.GetTreeNode();
-        if (newReference != null)
-        {
-          var keyword = CSharpTypeFactory.GetTypeKeyword(ownerType.GetClrName());
-          if (keyword == null) // bind user type
-          {
-            var newQualifier = (IReferenceExpression) newReference.QualifierExpression;
-            if (newQualifier != null)
-            {
-              var elementInstance = lookupItem.GetDeclaredElement().NotNull("elementInstance != null");
-              newQualifier.Reference.BindTo(ownerType, elementInstance.Substitution);
-            }
-
-            range = newReference.NameIdentifier.GetDocumentRange().TextRange;
-            decoration = TextRange.InvalidRange;
-          }
-
-          // show parameter info when needed
-          if (hasMoreParameters)
-          {
-            var factory = solution.GetComponent<LookupItemsOwnerFactory>();
-            var lookupItemsOwner = factory.CreateLookupItemsOwner(textControl);
-
-            LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
-          }
-        }
-
-        TipsManager.Instance.FeatureIsUsed(
-          "Plugin.ControlFlow.PostfixTemplates.<static>", textControl.Document, solution);
-      };
-    }
-*/
-
     private sealed class StaticMethodBehavior : LookupItemAspect<DeclaredElementInfo>, ILookupItemBehavior
     {
       [NotNull] private readonly List<DeclaredElementInstance> myMethods = new List<DeclaredElementInstance>();
@@ -257,37 +173,30 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType,
         Suffix suffix, ISolution solution, bool keepCaretStill)
       {
-        textControl.Document.ReplaceText(nameRange, Info.ShortName);
+        textControl.Document.ReplaceText(nameRange, Info.ShortName + "()");
 
         var psiServices = solution.GetPsiServices();
         psiServices.Files.CommitAllDocuments();
 
         var referenceExpression = TextControlToPsi.GetElement<IReferenceExpression>(solution, textControl.Document, nameRange.StartOffset);
-        if (referenceExpression == null)
-        {
-          textControl.Document.InsertText(nameRange.EndOffset + nameRange.Length, ";");
-
-          referenceExpression = TextControlToPsi.GetElement<IReferenceExpression>(solution, textControl.Document, nameRange.StartOffset);
-          if (referenceExpression == null) return; // shit happens
-        }
+        if (referenceExpression == null) return;
 
         if (myMethods.Count == 0) return;
 
         var argumentsCount = GetExistingArgumentsCount(referenceExpression);
+
+
         var hasMoreParameters = HasMoreParametersToPass(argumentsCount);
-        if (!hasMoreParameters)
-        {
-          // todo: put caret 'foo(arg){here}'
-        }
-        else if (argumentsCount > 0)
-        {
-          // todo: put caret 'foo(arg{here})'
-        }
+        //if (!hasMoreParameters)
+        //{
+        //  // todo: put caret 'foo(arg){here}'
+        //}
+        //else if (argumentsCount > 0)
+        //{
+        //  // todo: put caret 'foo(arg{here})'
+        //}
 
-        //var qualifierExpression = referenceExpression.QualifierExpression.NotNull("qualifierExpression != null");
         var referencePointer = referenceExpression.CreateTreeElementPointer();
-
-
 
         InsertQualifierAsArgument(referenceExpression, argumentsCount, textControl);
 
@@ -296,79 +205,49 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var treeNode = referencePointer.GetTreeNode();
         if (treeNode != null)
         {
-          var newQualifier = treeNode.QualifierExpression as IReferenceExpression;
-          if (newQualifier != null)
+          BindQualifierType(treeNode, psiServices);
+        }
+
+        var treeNode2 = referencePointer.GetTreeNode();
+        if (treeNode2 != null)
+        {
+          textControl.Caret.MoveTo(
+            offset: treeNode2.GetDocumentRange().TextRange.EndOffset,
+            visualplace: CaretVisualPlacement.DontScrollIfVisible);
+
+          var invocationExpression = InvocationExpressionNavigator.GetByInvokedExpression(treeNode2);
+          if (invocationExpression != null && invocationExpression.RPar != null)
           {
-            var containingType = ((IMethod) myMethods[0].Element).GetContainingType();
-            // todo: without substitution? maybe with?
+            var settingsStore = treeNode2.GetSettingsStore();
+            var parenthesesInsertType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
 
-            psiServices.Transactions.Execute(
-              commandName: typeof(StaticMethodBehavior).FullName,
-              handler: () =>
+            switch (parenthesesInsertType)
+            {
+              case ParenthesesInsertType.Both:
               {
-                newQualifier.Reference.BindTo(containingType.NotNull());
-
-                CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(treeNode);
-
-                var q = treeNode.QualifierExpression;
-                if (q != null && q.IsValid())
+                if (hasMoreParameters)
                 {
-                  CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(treeNode);
+                  
                 }
-              });
+                else
+                {
+                
+                }
+
+                break;
+              }
+
+              case ParenthesesInsertType.Left:
+              case ParenthesesInsertType.None:
+              {
+              
+
+                break;
+              }
+            }
           }
         }
 
-
-        // replace qualifier with type (predefined/user type)
-        //var ownerType = ((IMethod) myMethods[0].Element).GetContainingType().NotNull("ownerType != null");
-
-        // todo: store pointer to reference expression
-
-        //FixQualifierExpression(textControl, referenceExpression.QualifierExpression, ownerType);
-
-
-
-        //var decorationText = textControl.Document.GetText(decoration);
-        //var decorationRange = new DocumentRange(textControl.Document, decoration);
-
-        //var hasMoreParameters = HasMoreParameters(allMethods, argumentsCount);
-        //if (!hasMoreParameters) // put caret 'foo(arg){here};'
-        //{
-        //  caretMarker = decorationRange.EndOffsetRange().CreateRangeMarker();
-        //}
-        //else if (argumentsCount > 0)
-        //{
-        //  var parenthesisCloseIndex = decorationText.LastIndexOf(')');
-        //  if (parenthesisCloseIndex >= 0)
-        //  {
-        //    var delta = decoration.Length - parenthesisCloseIndex;
-        //    caretMarker = decorationRange.EndOffsetRange().Shift(-delta).CreateRangeMarker();
-        //  }
-        //}
-
-        //var qualifierExpression = reference.QualifierExpression.NotNull("qualifierExpression != null");
-        //var referencePointer = reference.CreateTreeElementPointer();
-        //
-        //var qualifierText = InsertQualifierAsArgument(
-        //  qualifierExpression, allMethods, argumentsCount, textControl, decoration, decorationText);
-        //
-        //// TODO: mmm?
-        //if (!hasMoreParameters && !decorationText.EndsWith(")", StringComparison.Ordinal))
-        //{
-        //  caretMarker = caretMarker.DocumentRange.Shift(+qualifierText.Length).CreateRangeMarker();
-        //}
-        //
-        //// replace qualifier with type (predefined/user type)
-        //var ownerType = allMethods[0].GetContainingType().NotNull("ownerType != null");
-        //FixQualifierExpression(textControl, qualifierExpression, ownerType);
-        //
-        //psiServices.Files.CommitAllDocuments();
-        //
-        //var newReference = referencePointer.GetTreeNode();
-        //if (newReference != null)
-        //{
-        //
         //  // show parameter info when needed
         //  if (hasMoreParameters)
         //  {
@@ -380,7 +259,33 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         //}
       }
 
-      [Pure] private bool HasMoreParametersToPass(int argumentsCount)
+      private void BindQualifierType(IReferenceExpression treeNode, IPsiServices psiServices)
+      {
+        var newQualifier = treeNode.QualifierExpression as IReferenceExpression;
+        if (newQualifier != null)
+        {
+          var containingType = ((IMethod) myMethods[0].Element).GetContainingType();
+          // todo: without substitution? maybe with?
+
+          psiServices.Transactions.Execute(
+            commandName: typeof (StaticMethodBehavior).FullName,
+            handler: () =>
+            {
+              newQualifier.Reference.BindTo(containingType.NotNull());
+
+              CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(treeNode);
+
+              var q = treeNode.QualifierExpression;
+              if (q != null && q.IsValid())
+              {
+                CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(q);
+              }
+            });
+        }
+      }
+
+      [Pure]
+      private bool HasMoreParametersToPass(int argumentsCount)
       {
         foreach (var methodInstance in myMethods)
         {
@@ -400,7 +305,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         return false;
       }
 
-      [Pure] private bool HasOnlyMultipleParameters()
+      [Pure]
+      private bool HasOnlyMultipleParameters()
       {
         foreach (var methodInstance in myMethods)
         {
@@ -413,7 +319,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         return true;
       }
 
-      [Pure] private bool IsFirstArgumentAlwaysPassedByRef()
+      [Pure]
+      private bool IsFirstArgumentAlwaysPassedByRef()
       {
         foreach (var methodInstance in myMethods)
         {
@@ -430,8 +337,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         return true;
       }
 
-      private void InsertQualifierAsArgument(
-        [NotNull] IReferenceExpression referenceExpression, int argumentsCount, [NotNull] ITextControl textControl)
+      private void InsertQualifierAsArgument([NotNull] IReferenceExpression referenceExpression, int argumentsCount, [NotNull] ITextControl textControl)
       {
         var qualifierExpression = referenceExpression.QualifierExpression.NotNull("qualifierExpression != null");
         var qualifierText = qualifierExpression.GetText();
@@ -449,7 +355,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
         if (argumentsCount > 0 || HasOnlyMultipleParameters())
         {
-          qualifierText += ", ";
+          qualifierText += ",PLEASE_REPORT_IF_YOU_SEE_THIS";
         }
 
         TextRange argPosition;
@@ -471,38 +377,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
         textControl.Document.ReplaceText(argPosition, qualifierText);
         textControl.Document.ReplaceText(qualifierDocumentRange.TextRange, "T");
-
-
-        // insert qualifier as first argument
-        //var shift = (parenthesisOpenIndex >= 0) ? parenthesisOpenIndex + 1 : decoration.Length;
-        //var argPosition = TextRange.FromLength(decoration.StartOffset + shift, 0);
-
-        
-        return;
       }
-    }
-
-    [NotNull]
-    private static IList<IMethod> GetAllTargetMethods([NotNull] ILookupItem lookupItem)
-    {
-      var results = new LocalList<IMethod>();
-
-      foreach (var instance in lookupItem.GetAllDeclaredElementInstances())
-      {
-        var method = instance.Element as IMethod;
-        if (method != null) results.Add(method);
-      }
-
-      return results.ResultingList();
     }
 
     private sealed class DeclaredTypesCollector : TypeVisitor
     {
-      private DeclaredTypesCollector() { }
+      private DeclaredTypesCollector()
+      {
+      }
 
-      [NotNull] readonly HashSet<IDeclaredType> myTypes = new HashSet<IDeclaredType>();
+      [NotNull] private readonly HashSet<IDeclaredType> myTypes = new HashSet<IDeclaredType>();
 
-      [NotNull] public static HashSet<IDeclaredType> Accept([NotNull] IType type)
+      [NotNull]
+      public static HashSet<IDeclaredType> Accept([NotNull] IType type)
       {
         var collector = new DeclaredTypesCollector();
         type.Accept(collector);
@@ -540,11 +427,25 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (systemArray.IsResolved) systemArray.Accept(this);
       }
 
-      public override void VisitType(IType type) {}
-      public override void VisitMultitype(IMultitype multitype) {}
-      public override void VisitDynamicType(IDynamicType dynamicType) {}
-      public override void VisitPointerType(IPointerType pointerType) { }
-      public override void VisitAnonymousType(IAnonymousType anonymousType) {}
+      public override void VisitType(IType type)
+      {
+      }
+
+      public override void VisitMultitype(IMultitype multitype)
+      {
+      }
+
+      public override void VisitDynamicType(IDynamicType dynamicType)
+      {
+      }
+
+      public override void VisitPointerType(IPointerType pointerType)
+      {
+      }
+
+      public override void VisitAnonymousType(IAnonymousType anonymousType)
+      {
+      }
     }
 
     private sealed class StaticMethodsByFirstArgumentTypeFilter : SimpleSymbolFilter
@@ -570,7 +471,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         }
       }
 
-      public override ResolveErrorType ErrorType { get { return ResolveErrorType.NOT_RESOLVED; } }
+      public override ResolveErrorType ErrorType
+      {
+        get { return ResolveErrorType.NOT_RESOLVED; }
+      }
 
       public override bool Accepts(IDeclaredElement declaredElement, ISubstitution substitution)
       {
