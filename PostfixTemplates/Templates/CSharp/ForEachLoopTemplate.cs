@@ -4,6 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.DocumentModel;
+using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Feature.Services.LinqTools;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
 using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
@@ -49,6 +50,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       }
 
       var target = expressionContext.CanBeStatement ? PostfixTemplateTarget.Statement : PostfixTemplateTarget.Expression;
+
       return new PostfixTemplateInfo("forEach", expressionContext, target: target);
     }
 

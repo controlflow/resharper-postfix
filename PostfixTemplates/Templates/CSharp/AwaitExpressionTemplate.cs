@@ -10,6 +10,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
   // todo: make it work over anything awaitable?
   // todo: this is all wrong: check for async closures!
+  // todo: insert 'async' modifier when needed + wrap type
 
   [PostfixTemplate(
     templateName: "await",
@@ -22,12 +23,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var expressionContext = context.InnerExpression;
       if (expressionContext == null) return null;
 
-      var containingFunction = context.ContainingFunction;
-      if (containingFunction == null) return null;
+      var returnValueOwner = context.ContainingReturnValueOwner;
+      if (returnValueOwner == null) return null;
+      
+      // 'await' is not available in initializers/attributes/constructors
 
       if (context.IsPreciseMode)
       {
-        if (!containingFunction.IsAsync) return null;
+        bool isAsync;
+        var returnType = ReturnStatementUtil.FindExpectedReturnType(returnValueOwner, out isAsync);
+
+        if (!isAsync) return null;
 
         var type = expressionContext.Type;
         if (!type.IsUnknown && !IsAwaitableType(type)) return null;
@@ -48,7 +54,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       if (declaredType.IsConfigurableAwaitable()) return true;
       if (declaredType.IsGenericConfigurableAwaitable()) return true;
 
-      return false;
+      return false; // todo: can we do better?
     }
 
     private static bool IsAlreadyAwaited([NotNull] CSharpPostfixExpressionContext context)
@@ -73,6 +79,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       {
         return (IAwaitExpression) factory.CreateExpression("await $0", expression);
       }
+
+      // todo: decorate with ';' if awaited expression is of void type?
+      // todo: check with ';' suffix
     }
   }
 }
