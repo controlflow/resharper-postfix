@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
@@ -118,7 +119,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
     private static int GetExistingArgumentsCount([NotNull] IReferenceExpression referenceExpression)
     {
       var invocationExpression = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
-      if (invocationExpression == null) return 0;
+      if (invocationExpression == null) return 0; // todo: -1 to indicate there is no invocation after?
 
       return invocationExpression.Arguments.Count;
     }
@@ -161,24 +162,44 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
     private sealed class StaticMethodBehavior : CSharpDeclaredElementBehavior<DeclaredElementInfo>
     {
-      // todo: refactor to 'DeclaredElementInstance<IMethod>'
-      [NotNull] private readonly List<DeclaredElementInstance> myMethods = new List<DeclaredElementInstance>();
+      [NotNull] private readonly List<DeclaredElementInstance<IMethod>> myMethods = new List<DeclaredElementInstance<IMethod>>();
 
       public StaticMethodBehavior([NotNull] CSharpDeclaredElementInfo info) : base(info)
       {
-        var elementInstance = info.PreferredDeclaredElement;
-        if (elementInstance != null) myMethods.Add(elementInstance);
+        var instance = info.PreferredDeclaredElement;
+        if (instance == null) return;
+
+        var method = instance.Element as IMethod;
+        if (method != null)
+          myMethods.Add(new DeclaredElementInstance<IMethod>(method, instance.Substitution));
       }
 
       public StaticMethodBehavior([NotNull] MethodsInfo info) : base(info)
       {
-        var elementInstances = info.AllDeclaredElements;
-        if (elementInstances != null) myMethods.AddRange(elementInstances);
+        var instances = info.AllDeclaredElements;
+        if (instances == null) return;
+
+        foreach (var instance in instances)
+        {
+          var method = instance.Element as IMethod;
+          if (method == null) continue;
+
+          myMethods.Add(new DeclaredElementInstance<IMethod>(method, instance.Substitution));
+        }
       }
 
       public override void Accept(
         ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType, Suffix suffix, ISolution solution, bool keepCaretStill)
       {
+        if (lookupItemInsertType == LookupItemInsertType.Insert)
+        {
+          if (Info.InsertText.IndexOf(')') == -1) Info.InsertText += ")";
+        }
+        else
+        {
+          if (Info.ReplaceText.IndexOf(')') == -1) Info.ReplaceText += ")";
+        }
+
         base.Accept(textControl, nameRange, lookupItemInsertType, suffix, solution, keepCaretStill);
 
         var psiServices = solution.GetPsiServices();
@@ -207,8 +228,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (newQualifierReference == null) return; // 'T.' is not found for some reason :\
 
         var containingType = myMethods
-          .SelectNotNull(instance => instance.Element as IMethod)
-          .SelectNotNull(method => method.GetContainingType()).FirstOrDefault();
+          .Select(instance => instance.Element)
+          .SelectNotNull(method => method.GetContainingType())
+          .FirstOrDefault();
 
         if (containingType == null) return;
 
@@ -273,32 +295,36 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
               {
                 var rightParRange = rightPar.GetDocumentRange().TextRange;
 
-                using (WriteLockCookie.Create())
-                  LowLevelModificationUtil.DeleteChild(rightPar);
+                PsiServices.Transactions.Execute(
+                  commandName: "AAA",
+                  handler: () =>
+                  {
+                    using (WriteLockCookie.Create())
+                    {
+                      LowLevelModificationUtil.DeleteChild(rightPar);
+                    }
+                  });
 
                 textControl.Caret.MoveTo(rightParRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
               }
             }
-
 
             break;
           }
         }
       }
 
-      [Pure]
-      private bool HasMoreParametersToPass(int existingArgumentsCount)
+      [Pure] private bool HasMoreParametersToPass(int existingArgumentsCount)
       {
         foreach (var methodInstance in myMethods)
         {
-          var method = methodInstance.Element as IMethod;
-          if (method == null) continue;
-
-          var parameters = method.Parameters;
+          var parameters = methodInstance.Element.Parameters;
           if (parameters.Count > 1 + existingArgumentsCount) return true;
+
           if (parameters.Count > 0)
           {
             var lastIndex = parameters.Count - 1;
+
             var lastParameter = parameters[lastIndex];
             if (lastParameter.IsParameterArray) return true;
           }
@@ -307,29 +333,22 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         return false;
       }
 
-      [Pure]
-      private bool HasOnlyMultipleParameters()
+      [Pure] private bool HasOnlyMultipleParameters()
       {
         foreach (var methodInstance in myMethods)
         {
-          var method = methodInstance.Element as IMethod;
-          if (method == null) continue;
-
+          var method = methodInstance.Element;
           if (method.Parameters.Count <= 1) return false;
         }
 
         return true;
       }
 
-      [Pure]
-      private bool IsFirstArgumentAlwaysPassedByRef()
+      [Pure] private bool IsFirstArgumentAlwaysPassedByRef()
       {
         foreach (var methodInstance in myMethods)
         {
-          var method = methodInstance.Element as IMethod;
-          if (method == null) continue;
-
-          var parameters = method.Parameters;
+          var parameters = methodInstance.Element.Parameters;
           if (parameters.Count == 0) return false;
 
           var firstParameter = parameters[0];
@@ -339,7 +358,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         return true;
       }
 
-      private void InsertQualifierAsArgument([NotNull] IReferenceExpression referenceExpression, int argumentsCount, [NotNull] ITextControl textControl)
+      private void InsertQualifierAsArgument([NotNull] IReferenceExpression referenceExpression, int existingArgumentsCount, [NotNull] ITextControl textControl)
       {
         var qualifierExpression = referenceExpression.QualifierExpression.NotNull("qualifierExpression != null");
         var qualifierText = qualifierExpression.GetText();
@@ -355,13 +374,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           qualifierText = "ref " + qualifierText;
         }
 
-        if (argumentsCount > 0 || HasOnlyMultipleParameters())
+        if (existingArgumentsCount > 0 || HasOnlyMultipleParameters())
         {
           qualifierText += ", ";
         }
 
         TextRange argPosition;
 
+        // todo: not relible!
         var invokedExpression = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
         if (invokedExpression == null)
         {
@@ -369,6 +389,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           argPosition = referenceExpression.GetDocumentRange().EndOffsetRange().TextRange;
 
           // todo: check pars decoration setting
+          // todo: insert ')' if it's insertion is disabled
+
+
         }
         else
         {
