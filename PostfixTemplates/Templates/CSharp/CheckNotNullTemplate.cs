@@ -21,7 +21,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
             return null; // reduce noise
 
           return new CheckForNullPostfixTemplateInfo(
-            "notnull", outerExpression, checkNotNull: true, target: PostfixTemplateTarget.Statement);
+            "notNull", outerExpression, checkNotNull: true, target: PostfixTemplateTarget.Statement);
         }
       }
       else if (!context.IsPreciseMode)
@@ -38,7 +38,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           nullableExpressions.Reverse();
 
           return new CheckForNullPostfixTemplateInfo(
-            "notnull", nullableExpressions, checkNotNull: true, target: PostfixTemplateTarget.Expression);
+            "notNull", nullableExpressions, checkNotNull: true, target: PostfixTemplateTarget.Expression);
         }
       }
 
