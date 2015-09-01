@@ -263,7 +263,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         psiServices.Files.CommitAllDocuments();
 
         var referenceExpression = TextControlToPsi.GetElement<IReferenceExpression>(solution, textControl.Document, nameRange.StartOffset);
-        if (referenceExpression == null) return;
+        if (referenceExpression == null)
+        {
+          textControl.Document.InsertText(nameRange.EndOffset + nameRange.Length, ";");
+
+          referenceExpression = TextControlToPsi.GetElement<IReferenceExpression>(solution, textControl.Document, nameRange.StartOffset);
+          if (referenceExpression == null) return; // shit happens
+        }
 
         if (myMethods.Count == 0) return;
 
