@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ProjectModel;
@@ -19,12 +19,14 @@ using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.CSharp.CodeStyle.Suggest;
 using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Resolve.Filters;
 using JetBrains.ReSharper.Psi.Pointers;
 using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Util;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.TextControl;
 using JetBrains.Util;
 
@@ -33,6 +35,7 @@ using JetBrains.Util;
 // todo: replay suffix
 // todo: generic type parameters (check if inferable)
 // todo: invoke parameter info
+// todo: format!
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
@@ -86,13 +89,13 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         symbolTable = symbolTable.Merge(type.GetSymbolTable(psiModule));
       }
 
-      var argumentsCount = GetExistingArgumentsCount(referenceExpression);
+      var existingArgumentsCount = GetExistingArgumentsCount(referenceExpression);
 
       // prepare symbol table of suitable static methods
       var accessFilter = new AccessRightsFilter(referenceExpression.Reference.GetAccessContext());
       var qualifierExpression = referenceExpression.QualifierExpression.NotNull("qualifierExpression != null");
 
-      var staticMethodsFilter = new StaticMethodsByFirstArgumentTypeFilter(firstArgumentType, qualifierExpression, argumentsCount);
+      var staticMethodsFilter = new StaticMethodsByFirstArgumentTypeFilter(firstArgumentType, qualifierExpression, existingArgumentsCount);
       var filteredSymbolTable = symbolTable.Filter(staticMethodsFilter, OverriddenFilter.INSTANCE, accessFilter);
 
       return filteredSymbolTable;
@@ -126,12 +129,16 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       var innerCollector = context.BasicContext.CreateCollector();
       GetLookupItemsFromSymbolTable(staticsSymbolTable, innerCollector, context, includeFollowingExpression: false);
 
+      var replaceRange = context.ReplaceRangeWithJoinedArguments;
+      var ranges = replaceRange.IsValid ? context.CompletionRanges.WithReplaceRange(replaceRange) : context.CompletionRanges;
+
       foreach (var lookupItem in innerCollector.Items)
       {
         var declaredElementInfoItem = lookupItem as LookupItem<CSharpDeclaredElementInfo>;
         if (declaredElementInfoItem != null)
         {
           declaredElementInfoItem.WithBehavior(item => new StaticMethodBehavior(item.Info));
+          declaredElementInfoItem.WithInitializedRanges(ranges, context.BasicContext);
           declaredElementInfoItem.AdjustTextColor(Color.Gray);
 
           collector.Add(declaredElementInfoItem);
@@ -142,6 +149,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (methodsInfoItem != null)
         {
           methodsInfoItem.WithBehavior(item => new StaticMethodBehavior(item.Info));
+          methodsInfoItem.WithInitializedRanges(ranges, context.BasicContext);
           methodsInfoItem.AdjustTextColor(Color.Gray);
 
           collector.Add(methodsInfoItem);
@@ -151,8 +159,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       return true;
     }
 
-    private sealed class StaticMethodBehavior : LookupItemAspect<DeclaredElementInfo>, ILookupItemBehavior
+    private sealed class StaticMethodBehavior : CSharpDeclaredElementBehavior<DeclaredElementInfo>
     {
+      // todo: refactor to 'DeclaredElementInstance<IMethod>'
       [NotNull] private readonly List<DeclaredElementInstance> myMethods = new List<DeclaredElementInstance>();
 
       public StaticMethodBehavior([NotNull] CSharpDeclaredElementInfo info) : base(info)
@@ -167,125 +176,118 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (elementInstances != null) myMethods.AddRange(elementInstances);
       }
 
-      public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext) { return false; }
-
-      public void Accept(
-        ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType,
-        Suffix suffix, ISolution solution, bool keepCaretStill)
+      public override void Accept(
+        ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType, Suffix suffix, ISolution solution, bool keepCaretStill)
       {
-        textControl.Document.ReplaceText(nameRange, Info.ShortName + "()");
+        base.Accept(textControl, nameRange, lookupItemInsertType, suffix, solution, keepCaretStill);
 
         var psiServices = solution.GetPsiServices();
         psiServices.Files.CommitAllDocuments();
 
         var referenceExpression = TextControlToPsi.GetElement<IReferenceExpression>(solution, textControl.Document, nameRange.StartOffset);
-        if (referenceExpression == null) return;
+        if (referenceExpression == null || myMethods.Count == 0) return;
 
-        if (myMethods.Count == 0) return;
-
-        var argumentsCount = GetExistingArgumentsCount(referenceExpression);
-
-
-        var hasMoreParameters = HasMoreParametersToPass(argumentsCount);
-        //if (!hasMoreParameters)
-        //{
-        //  // todo: put caret 'foo(arg){here}'
-        //}
-        //else if (argumentsCount > 0)
-        //{
-        //  // todo: put caret 'foo(arg{here})'
-        //}
-
+        var existingArgumentsCount = GetExistingArgumentsCount(referenceExpression);
         var referencePointer = referenceExpression.CreateTreeElementPointer();
 
-        InsertQualifierAsArgument(referenceExpression, argumentsCount, textControl);
+        InsertQualifierAsArgument(referenceExpression, existingArgumentsCount, textControl);
 
         psiServices.Files.CommitAllDocuments();
 
-        var treeNode = referencePointer.GetTreeNode();
-        if (treeNode != null)
-        {
-          BindQualifierType(treeNode, psiServices);
-        }
+        var reference1 = referencePointer.GetTreeNode();
+        if (reference1 != null) BindQualifierTypeExpression(reference1);
 
-        var treeNode2 = referencePointer.GetTreeNode();
-        if (treeNode2 != null)
-        {
-          textControl.Caret.MoveTo(
-            offset: treeNode2.GetDocumentRange().TextRange.EndOffset,
-            visualplace: CaretVisualPlacement.DontScrollIfVisible);
-
-          var invocationExpression = InvocationExpressionNavigator.GetByInvokedExpression(treeNode2);
-          if (invocationExpression != null && invocationExpression.RPar != null)
-          {
-            var settingsStore = treeNode2.GetSettingsStore();
-            var parenthesesInsertType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
-
-            switch (parenthesesInsertType)
-            {
-              case ParenthesesInsertType.Both:
-              {
-                if (hasMoreParameters)
-                {
-                  
-                }
-                else
-                {
-                
-                }
-
-                break;
-              }
-
-              case ParenthesesInsertType.Left:
-              case ParenthesesInsertType.None:
-              {
-              
-
-                break;
-              }
-            }
-          }
-        }
-
-        //  // show parameter info when needed
-        //  if (hasMoreParameters)
-        //  {
-        //    var factory = solution.GetComponent<LookupItemsOwnerFactory>();
-        //    var lookupItemsOwner = factory.CreateLookupItemsOwner(textControl);
-        //
-        //    LookupUtil.ShowParameterInfo(solution, textControl, lookupItemsOwner);
-        //  }
-        //}
+        var reference2 = referencePointer.GetTreeNode();
+        if (reference2 != null) PlaceCaretAfterCompletion(textControl, reference2, existingArgumentsCount, lookupItemInsertType);
       }
 
-      private void BindQualifierType(IReferenceExpression treeNode, IPsiServices psiServices)
+      private void BindQualifierTypeExpression([NotNull] IReferenceExpression referenceExpression)
       {
-        var newQualifier = treeNode.QualifierExpression as IReferenceExpression;
-        if (newQualifier != null)
-        {
-          var containingType = ((IMethod) myMethods[0].Element).GetContainingType();
-          // todo: without substitution? maybe with?
+        var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
+        if (newQualifierReference == null) return; // 'T.' is not found for some reason :\
 
-          psiServices.Transactions.Execute(
-            commandName: typeof (StaticMethodBehavior).FullName,
-            handler: () =>
+        var containingType = myMethods
+          .SelectNotNull(instance => instance.Element as IMethod)
+          .SelectNotNull(method => method.GetContainingType()).FirstOrDefault();
+
+        if (containingType == null) return;
+
+        var psiServices = referenceExpression.GetPsiServices();
+        psiServices.Transactions.Execute(
+          commandName: typeof (StaticMethodBehavior).FullName,
+          handler: () =>
+          {
+            newQualifierReference.Reference.BindTo(containingType.NotNull());
+
+            CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(referenceExpression);
+
+            var qualifierExpression = referenceExpression.QualifierExpression;
+            if (qualifierExpression != null && qualifierExpression.IsValid())
             {
-              newQualifier.Reference.BindTo(containingType.NotNull());
+              CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(qualifierExpression);
+            }
+          });
+      }
 
-              CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(treeNode);
+      private void PlaceCaretAfterCompletion(
+        [NotNull] ITextControl textControl, [NotNull] IReferenceExpression referenceExpression, int existingArgumentsCount, LookupItemInsertType insertType)
+      {
+        var referenceRange = referenceExpression.GetDocumentRange();
+        textControl.Caret.MoveTo(referenceRange.TextRange.EndOffset, CaretVisualPlacement.DontScrollIfVisible);
 
-              var q = treeNode.QualifierExpression;
-              if (q != null && q.IsValid())
+        var invocationExpression = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
+        if (invocationExpression == null) return;
+
+        var invocationRange = invocationExpression.GetDocumentRange();
+        textControl.Caret.MoveTo(invocationRange.TextRange.EndOffset, CaretVisualPlacement.DontScrollIfVisible);
+
+        var settingsStore = referenceExpression.GetSettingsStore();
+        var parenthesesInsertType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
+        var hasMoreParametersToPass = HasMoreParametersToPass(existingArgumentsCount);
+
+        switch (parenthesesInsertType)
+        {
+          case ParenthesesInsertType.Both:
+          {
+            if (hasMoreParametersToPass)
+            {
+              var rightPar = invocationExpression.RPar;
+              if (rightPar != null)
               {
-                CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(q);
+                var rightParRange = rightPar.GetDocumentRange().TextRange;
+                textControl.Caret.MoveTo(rightParRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
               }
-            });
+            }
+
+            break;
+          }
+
+          case ParenthesesInsertType.Left:
+          case ParenthesesInsertType.None:
+          {
+            // if in insert mode - drop right par and set caret to it's start offest
+            if (insertType == LookupItemInsertType.Insert)
+            {
+              var rightPar = invocationExpression.RPar;
+              if (rightPar != null)
+              {
+                var rightParRange = rightPar.GetDocumentRange().TextRange;
+
+                using (WriteLockCookie.Create())
+                  LowLevelModificationUtil.DeleteChild(rightPar);
+
+                textControl.Caret.MoveTo(rightParRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
+              }
+            }
+
+
+            break;
+          }
         }
       }
 
       [Pure]
-      private bool HasMoreParametersToPass(int argumentsCount)
+      private bool HasMoreParametersToPass(int existingArgumentsCount)
       {
         foreach (var methodInstance in myMethods)
         {
@@ -293,7 +295,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           if (method == null) continue;
 
           var parameters = method.Parameters;
-          if (parameters.Count > 1 + argumentsCount) return true;
+          if (parameters.Count > 1 + existingArgumentsCount) return true;
           if (parameters.Count > 0)
           {
             var lastIndex = parameters.Count - 1;
@@ -355,7 +357,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
         if (argumentsCount > 0 || HasOnlyMultipleParameters())
         {
-          qualifierText += ",PLEASE_REPORT_IF_YOU_SEE_THIS";
+          qualifierText += ", ";
         }
 
         TextRange argPosition;
