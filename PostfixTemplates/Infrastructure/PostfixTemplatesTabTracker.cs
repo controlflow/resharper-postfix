@@ -25,6 +25,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
   // todo: [R#] press Tab to expand postfix template hint
   // todo: [R#] availability check without commit like in live templates
   // todo: [R#] merge with live templates availability check?
+  // todo: [R#] looks like previous tab handler do not propagates changes to this one, test with templates like 'to'
 
   [ShellComponent]
   public sealed class PostfixTemplatesTabTracker

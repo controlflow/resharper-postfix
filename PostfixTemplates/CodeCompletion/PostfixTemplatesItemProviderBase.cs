@@ -14,6 +14,8 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 {
+  // todo: add check for 'if (myHotspotSessionExecutor.CurrentSession != null) return false;'?
+
   public abstract class PostfixTemplatesItemProviderBase<TCodeCompletionContext, TPostfixTemplateContext> : ItemsProviderOfSpecificContext<TCodeCompletionContext>
     where TCodeCompletionContext : class, ISpecificCodeCompletionContext
     where TPostfixTemplateContext : PostfixTemplateContext
