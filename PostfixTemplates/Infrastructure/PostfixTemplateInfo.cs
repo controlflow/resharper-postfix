@@ -24,6 +24,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       [NotNull] string text, [NotNull] IEnumerable<PostfixExpressionContext> expressions,
       PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
     {
+      Multiplier = 0;
       myText = text.ToLowerInvariant();
       myShortcut = text;
       myTarget = target;
@@ -43,6 +44,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       [NotNull] string text, [NotNull] PostfixExpressionContext expression,
       PostfixTemplateTarget target = PostfixTemplateTarget.Expression)
     {
+      Multiplier = 0;
       myText = text.ToLowerInvariant();
       myShortcut = text;
       myTarget = target;
@@ -76,7 +78,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
       get { return myTarget; }
     }
 
-    public int Multiplier { get { return 0; } }
+    public int Multiplier { get; internal set; }
 
     public EvaluationMode EvaluationMode
     {

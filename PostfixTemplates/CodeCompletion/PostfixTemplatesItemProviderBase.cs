@@ -31,8 +31,23 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
 
     protected sealed override bool IsAvailable(TCodeCompletionContext context)
     {
-      return context.BasicContext.CodeCompletionType == CodeCompletionType.BasicCompletion;
+      var completionTypes = context.BasicContext.Parameters.CodeCompletionTypes;
+
+      switch (completionTypes.Length)
+      {
+        case 1:
+          return completionTypes[0] == CodeCompletionType.BasicCompletion;
+
+        case 2:
+          return completionTypes[0] == CodeCompletionType.BasicCompletion &&
+                 completionTypes[1] == CodeCompletionType.BasicCompletion;
+
+        default:
+          return false;
+      }
     }
+
+    public override CompletionMode SupportedCompletionMode { get { return CompletionMode.All; } }
 
     protected sealed override bool AddLookupItems(TCodeCompletionContext context, GroupedItemsCollector collector)
     {
@@ -48,50 +63,42 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       // check if there is no expression detected and do nothing if so
       if (postfixContext.AllExpressions.Count == 0) return false;
 
-      var lookupItems = BuildLookupItems(postfixContext).ToList();
+      var lookupItems = BuildLookupItems(postfixContext, completionContext);
       if (lookupItems.Count == 0) return false;
 
       ICollection<string> toRemove = EmptyList<string>.InstanceList;
 
       // double completion support
-      var completionParameters = completionContext.Parameters;
-      var isDoubleCompletion = (completionParameters.CodeCompletionTypes.Length > 1);
-
-      if (!completionParameters.IsAutomaticCompletion && isDoubleCompletion)
+      if (completionContext.Parameters.CodeCompletionTypes.Length > 1)
       {
-        if (completionParameters.IsAutomaticCompletion) return false;
-
         // run postfix templates like we are in auto completion
-        
+        postfixContext.ExecutionContext.IsPreciseMode = true; // ewww mutability
 
-        // todo: re-create execution context with IsAuto disabled?
-
-        var automaticPostfixItems = BuildLookupItems(postfixContext).ToList();
+        var automaticPostfixItems = BuildLookupItems(postfixContext, completionContext);
         if (automaticPostfixItems.Count > 0)
         {
           toRemove = new JetHashSet<string>(StringComparer.Ordinal);
 
           foreach (var lookupItem in automaticPostfixItems)
-          {
-            toRemove.Add(lookupItem.Info.Shortcut);
-          }
+            toRemove.Add(lookupItem.Info.Text);
         }
       }
 
       foreach (var lookupItem in lookupItems)
       {
-        if (toRemove.Contains(lookupItem.Info.Shortcut)) continue;
-
-        // todo: add to bottom in double completion
-        collector.Add(lookupItem);
+        if (!toRemove.Contains(lookupItem.Info.Text))
+          collector.Add(lookupItem);
       }
 
       return (lookupItems.Count > 0);
     }
 
     [NotNull]
-    private IEnumerable<LookupItem<PostfixTemplateInfo>> BuildLookupItems([NotNull] TPostfixTemplateContext context)
+    private IList<LookupItem<PostfixTemplateInfo>> BuildLookupItems([NotNull] TPostfixTemplateContext context, [NotNull] CodeCompletionContext completionContext)
     {
+      var items = new LocalList<LookupItem<PostfixTemplateInfo>>();
+      var multiplier = completionContext.Parameters.CodeCompletionTypes.Length;
+
       foreach (var templateRegistration in myTemplatesManager.GetEnabledTemplates(context))
       {
         var templateProvider = templateRegistration.Template;
@@ -106,12 +113,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           "Template text '{0}' should match declared template name '{1}'",
           postfixTemplateInfo.Text, templateName);
 
-        yield return LookupItemFactory
-          .CreateLookupItem(postfixTemplateInfo)
+        postfixTemplateInfo.Multiplier = multiplier;
+
+        items.Add(LookupItemFactory.CreateLookupItem(postfixTemplateInfo)
           .WithMatcher(item => new PostfixTemplateMatcher(item.Info))
           .WithBehavior(item => templateProvider.CreateBehavior(item.Info))
-          .WithPresentation(item => new PostfixTemplatePresentation(item.Info.Text));
+          .WithPresentation(item => new PostfixTemplatePresentation(item.Info.Text)));
       }
+
+      return items.ResultingList();
     }
   }
 }
