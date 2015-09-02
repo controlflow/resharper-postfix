@@ -42,7 +42,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
     public bool AcceptIfOnlyMatched(LookupItemAcceptanceContext itemAcceptanceContext)
     {
-      return false;
+      return false; // TODO: [R#] test why is this is not working
     }
 
     public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType insertType,

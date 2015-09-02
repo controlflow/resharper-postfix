@@ -199,17 +199,27 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
       public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType, Suffix suffix, ISolution solution, bool keepCaretStill)
       {
+        string text;
+
         if (lookupItemInsertType == LookupItemInsertType.Insert)
         {
           if (Info.InsertText.IndexOf(')') == -1) Info.InsertText += ")";
 
-          textControl.Document.ReplaceText(Info.Ranges.InsertRange.JoinRight(nameRange), Info.Text + Info.InsertText);
+          text = Info.Text + Info.InsertText;
+          textControl.Document.ReplaceText(Info.Ranges.InsertRange.JoinRight(nameRange), text);
         }
         else
         {
           if (Info.ReplaceText.IndexOf(')') == -1) Info.ReplaceText += ")";
 
-          textControl.Document.ReplaceText(Info.Ranges.ReplaceRange.JoinRight(nameRange), Info.Text + Info.ReplaceText);
+          text = Info.Text + Info.ReplaceText;
+          textControl.Document.ReplaceText(Info.Ranges.ReplaceRange.JoinRight(nameRange), text);
+        }
+
+        var tailType = Info.TailType;
+        if (tailType != null)
+        {
+          LookupUtil.InsertTailType(textControl, nameRange.StartOffset + text.Length, tailType, solution, emulateTypingOfSpace: false);
         }
 
         var psiServices = solution.GetPsiServices();
@@ -226,12 +236,30 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         psiServices.Files.CommitAllDocuments();
 
         var reference1 = referencePointer.GetTreeNode();
-        if (reference1 != null) BindQualifierTypeExpression(reference1, textControl);
+        if (reference1 != null)
+        {
+          var caretPositionMarker = RangeMarker.InvalidMarker;
+          var textRange = reference1.NameIdentifier.GetDocumentRange().TextRange;
+          var pointers = Info.DeclaredElementPointers.ToList();
 
-        psiServices.Files.CommitAllDocuments();
+          LookupUtil.BindRange(solution, textControl, textRange, pointers, reference1.Language, ref caretPositionMarker);
 
-        var reference2 = referencePointer.GetTreeNode();
-        if (reference2 != null) PlaceCaretAfterCompletion(textControl, reference2, existingArgumentsCount, lookupItemInsertType);
+          psiServices.Files.CommitAllDocuments();
+
+          var reference3 = referencePointer.GetTreeNode();
+          if (reference3 != null)
+          {
+            BindQualifierTypeExpression(reference3, textControl);
+
+            psiServices.Files.CommitAllDocuments();
+
+            var reference2 = referencePointer.GetTreeNode();
+            if (reference2 != null)
+            {
+              PlaceCaretAfterCompletion(textControl, reference2, existingArgumentsCount, lookupItemInsertType);
+            }
+          }
+        }
       }
 
       [Pure] private bool HasMoreParametersToPass(int existingArgumentsCount)
@@ -346,43 +374,33 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         //if (containingType == null) return;
 
         var psiServices = referenceExpression.GetPsiServices();
-        psiServices.Files.CommitAllDocuments();
-
-        var caretPositionRangeMarker = RangeMarker.InvalidMarker;
-        LookupUtil.BindRange(
-          referenceExpression.GetSolution(), textControl,
-          referenceExpression.NameIdentifier.GetDocumentRange().TextRange,
-          Info.DeclaredElementPointers.ToList(),
-          referenceExpression.Language, ref caretPositionRangeMarker);
+        //psiServices.Files.CommitAllDocuments();
 
         
-        //psiServices.Transactions.Execute(
-        //  commandName: typeof (StaticMethodBehavior).FullName,
-        //  handler: () =>
-        //  {
-        //    
-        //
-        //    
-        //
-        //
-        //    //var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
-        //    //if (newQualifierReference != null)
-        //    //{
-        //    //  var typeElement = containingType.GetTypeElement();
-        //    //  if (typeElement != null)
-        //    //  {
-        //    //    newQualifierReference.Reference.BindTo(typeElement, containingType.GetSubstitution());
-        //    //  }
-        //    //}
-        //
-        //    //CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(referenceExpression);
-        //    //
-        //    //var qualifierExpression = referenceExpression.QualifierExpression;
-        //    //if (qualifierExpression != null && qualifierExpression.IsValid())
-        //    //{
-        //    //  CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(qualifierExpression);
-        //    //}
-        //  });
+
+        
+        psiServices.Transactions.Execute(
+          commandName: typeof (StaticMethodBehavior).FullName,
+          handler: () =>
+          {
+            //var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
+            //if (newQualifierReference != null)
+            //{
+            //  var typeElement = containingType.GetTypeElement();
+            //  if (typeElement != null)
+            //  {
+            //    newQualifierReference.Reference.BindTo(typeElement, containingType.GetSubstitution());
+            //  }
+            //}
+        
+            CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(referenceExpression);
+            //
+            var qualifierExpression = referenceExpression.QualifierExpression;
+            if (qualifierExpression != null && qualifierExpression.IsValid())
+            {
+              CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(qualifierExpression);
+            }
+          });
       }
 
       private void PlaceCaretAfterCompletion(

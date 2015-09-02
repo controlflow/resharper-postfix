@@ -16,7 +16,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
              textControl: context.TextControl,
              settingsStore: context.ContextBoundSettingsStore,
              reparseString: reparseString,
-             isPreciseMode: context.Parameters.CodeCompletionTypes.Length == 1)
+           //isPreciseMode: context.Parameters.CodeCompletionTypes.Length == 1
+             isPreciseMode: context.Parameters.IsAutomaticCompletion
+            )
     {
       myReparsedContext = reparsedContext;
     }

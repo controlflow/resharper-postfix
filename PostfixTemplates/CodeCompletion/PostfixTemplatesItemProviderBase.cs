@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
@@ -69,6 +68,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       var lookupItems = BuildLookupItems(postfixContext, completionContext);
       if (lookupItems.Count == 0) return false;
 
+      /*
       ICollection<string> toRemove = EmptyList<string>.InstanceList;
 
       // double completion support
@@ -86,10 +86,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
             toRemove.Add(lookupItem.Info.Text);
         }
       }
+      */
 
       foreach (var lookupItem in lookupItems)
       {
-        if (!toRemove.Contains(lookupItem.Info.Text))
+        //if (!toRemove.Contains(lookupItem.Info.Text))
           collector.Add(lookupItem);
       }
 
@@ -100,7 +101,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
     private IList<LookupItem<PostfixTemplateInfo>> BuildLookupItems([NotNull] TPostfixTemplateContext context, [NotNull] CodeCompletionContext completionContext)
     {
       var items = new LocalList<LookupItem<PostfixTemplateInfo>>();
-      var multiplier = completionContext.Parameters.CodeCompletionTypes.Length;
+      //var multiplier = completionContext.Parameters.CodeCompletionTypes.Length;
 
       foreach (var templateRegistration in myTemplatesManager.GetEnabledTemplates(context))
       {
@@ -116,7 +117,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
           "Template text '{0}' should match declared template name '{1}'",
           postfixTemplateInfo.Text, templateName);
 
-        postfixTemplateInfo.Multiplier = multiplier;
+        //postfixTemplateInfo.Multiplier = multiplier;
 
         items.Add(LookupItemFactory.CreateLookupItem(postfixTemplateInfo)
           .WithMatcher(item => new PostfixTemplateMatcher(item.Info))
