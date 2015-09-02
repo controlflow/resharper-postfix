@@ -1,0 +1,14 @@
+﻿// ${COMPLETE_ITEM:M2}
+
+class Foo : GenericBase<int>
+{
+  void Bar(Foo foo)
+  {
+    GenericBase<int>.M2(foo, {caret})
+  }
+}
+
+class GenericBase<T>
+{
+  public static void M2(GenericBase<T> foo, T x) { }
+}

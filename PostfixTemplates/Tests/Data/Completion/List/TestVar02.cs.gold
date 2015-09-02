@@ -1,4 +1,5 @@
-﻿+ ToString
+﻿# 26 ITEMS #
+
 Append
 AppendFormat
 AppendLine
@@ -15,6 +16,7 @@ Length
 MaxCapacity
 Remove
 Replace
++ ToString
 []
 arg
 await
@@ -25,7 +27,8 @@ par
 sel
 var
 # AUTOMATIC #
-+ ToString
+# 19 ITEMS #
+
 Append
 AppendFormat
 AppendLine
@@ -42,5 +45,6 @@ Length
 MaxCapacity
 Remove
 Replace
++ ToString
 []
 var

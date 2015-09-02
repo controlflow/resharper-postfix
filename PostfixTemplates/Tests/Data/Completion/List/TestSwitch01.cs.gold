@@ -1,9 +1,11 @@
-﻿+ GetType
-+ ToString
+﻿# 24 ITEMS #
+
 CompareTo
 Equals
 GetHashCode
++ GetType
 GetTypeCode
++ ToString
 arg
 await
 cast
@@ -23,10 +25,12 @@ var
 while
 yield
 # AUTOMATIC #
-+ GetType
-+ ToString
+# 7 ITEMS #
+
 CompareTo
 Equals
 GetHashCode
++ GetType
 GetTypeCode
++ ToString
 var

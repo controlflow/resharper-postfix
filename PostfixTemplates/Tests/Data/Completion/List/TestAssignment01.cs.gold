@@ -1,18 +1,5 @@
-﻿+ Insert
-+ Normalize
-+ PadLeft
-+ PadRight
-+ Remove
-+ Replace
-+ Substring
-+ ToLower
-+ ToLowerInvariant
-+ ToString
-+ ToUpper
-+ ToUpperInvariant
-+ Trim
-+ TrimEnd
-+ TrimStart
+﻿# 69 ITEMS #
+
 Clone
 Compare
 CompareOrdinal
@@ -32,6 +19,7 @@ GetType
 GetTypeCode
 IndexOf
 IndexOfAny
++ Insert
 Intern
 IsInterned
 IsNormalized
@@ -41,9 +29,23 @@ Join
 LastIndexOf
 LastIndexOfAny
 Length
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
 Split
 StartsWith
++ Substring
 ToCharArray
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
 []
 arg
 await
@@ -68,21 +70,8 @@ var
 while
 yield
 # AUTOMATIC #
-+ Insert
-+ Normalize
-+ PadLeft
-+ PadRight
-+ Remove
-+ Replace
-+ Substring
-+ ToLower
-+ ToLowerInvariant
-+ ToString
-+ ToUpper
-+ ToUpperInvariant
-+ Trim
-+ TrimEnd
-+ TrimStart
+# 51 ITEMS #
+
 Clone
 Compare
 CompareOrdinal
@@ -102,6 +91,7 @@ GetType
 GetTypeCode
 IndexOf
 IndexOfAny
++ Insert
 Intern
 IsInterned
 IsNormalized
@@ -111,9 +101,23 @@ Join
 LastIndexOf
 LastIndexOfAny
 Length
++ Normalize
++ PadLeft
++ PadRight
++ Remove
++ Replace
 Split
 StartsWith
++ Substring
 ToCharArray
++ ToLower
++ ToLowerInvariant
++ ToString
++ ToUpper
++ ToUpperInvariant
++ Trim
++ TrimEnd
++ TrimStart
 []
 foreach
 parse

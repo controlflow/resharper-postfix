@@ -10,7 +10,7 @@
 </head>
 <body>
   <div>
-    
+
     @{
       var model = Model;
     }

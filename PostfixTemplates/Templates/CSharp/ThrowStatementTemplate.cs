@@ -2,7 +2,6 @@
 using JetBrains.Application.Settings;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.Lookup;
-using JetBrains.ReSharper.PostfixTemplates.CodeCompletion;
 using JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp;
 using JetBrains.ReSharper.PostfixTemplates.LookupItems;
 using JetBrains.ReSharper.PostfixTemplates.Settings;
@@ -12,6 +11,7 @@ using JetBrains.ReSharper.Psi.CSharp.Impl;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.TextControl;
+using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
@@ -34,11 +34,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (context.IsPreciseMode && !IsInstantiableExceptionType(referencedType, expression))
           return null;
 
-        //var canInstantiate = TypeUtils.CanInstantiateType(referencedType, expression);
-        //var hasParameters = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
-
         return new PostfixTemplateInfo("throw", expressionContext, target: PostfixTemplateTarget.TypeUsage);
-        //return new ThrowByTypeItem(expressionContext, hasParameters);
       }
 
       bool needFixWithNew;
@@ -48,11 +44,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         if (reference != null && CSharpPostfixUtis.IsReferenceExpressionsChain(reference))
         {
           return new PostfixTemplateInfo("throw", expressionContext, target: PostfixTemplateTarget.TypeUsage);
-          //return new ThrowByTypeItem(expressionContext, hasRequiredArguments: true);
         }
 
-        return new PostfixTemplateInfo("throw", expressionContext);
-        //return new ThrowExpressionItem(expressionContext, needFixWithNew);
+        var info = new PostfixTemplateInfo("throw", expressionContext);
+        if (needFixWithNew) info.PutData(NeedFixWithNewKey, info);
+        return info;
       }
 
       return null;
@@ -110,16 +106,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       return new CSharpPostfixThrowStatementBehavior(info);
     }
 
+    [NotNull] private static readonly Key NeedFixWithNewKey = new Key(typeof(ThrowStatementNavigator).FullName + ".NeedFixWithNew");
+
     private sealed class CSharpPostfixThrowStatementBehavior : CSharpStatementPostfixTemplateBehavior<IThrowStatement>
     {
       public CSharpPostfixThrowStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IThrowStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
-        // todo: fix this
-        var myInsertNewExpression = false;
+        var insertNewExpression = Info.GetData(NeedFixWithNewKey) != null;
 
-        var template = myInsertNewExpression ? "throw new $0;" : "throw $0;";
+        var template = insertNewExpression ? "throw new $0;" : "throw $0;";
         return (IThrowStatement) factory.CreateStatement(template, expression.GetText());
       }
     }

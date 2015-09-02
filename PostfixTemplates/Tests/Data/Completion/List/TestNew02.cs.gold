@@ -1,4 +1,6 @@
-﻿+ MaxValue
+﻿# 8 ITEMS #
+
++ MaxValue
 + MinValue
 + Parse
 + TryParse
@@ -7,6 +9,8 @@
 + typeof
 + var
 # AUTOMATIC #
+# 5 ITEMS #
+
 + MaxValue
 + MinValue
 + Parse

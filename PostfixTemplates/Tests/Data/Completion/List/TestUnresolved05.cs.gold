@@ -1,16 +1,18 @@
-﻿+ Clone
-Compare
-CompareOrdinal
+﻿# 47 ITEMS #
+
++ Clone
++ Compare
++ CompareOrdinal
 + CompareTo
-Concat
++ Concat
 + Contains
-Copy
++ Copy
 + CopyTo
 + Count
 + EndsWith
 + Equals
-Equals
-Format
++ Equals
++ Format
 + GetEnumerator
 + GetHashCode
 + GetType
@@ -18,12 +20,12 @@ Format
 + IndexOf
 + IndexOfAny
 + Insert
-Intern
-IsInterned
++ Intern
++ IsInterned
 + IsNormalized
-IsNullOrEmpty
-IsNullOrWhiteSpace
-Join
++ IsNullOrEmpty
++ IsNullOrWhiteSpace
++ Join
 + LastIndexOf
 + LastIndexOfAny
 + Length
@@ -46,19 +48,21 @@ Join
 + TrimStart
 + []
 # AUTOMATIC #
+# 47 ITEMS #
+
 + Clone
-Compare
-CompareOrdinal
++ Compare
++ CompareOrdinal
 + CompareTo
-Concat
++ Concat
 + Contains
-Copy
++ Copy
 + CopyTo
 + Count
 + EndsWith
 + Equals
-Equals
-Format
++ Equals
++ Format
 + GetEnumerator
 + GetHashCode
 + GetType
@@ -66,12 +70,12 @@ Format
 + IndexOf
 + IndexOfAny
 + Insert
-Intern
-IsInterned
++ Intern
++ IsInterned
 + IsNormalized
-IsNullOrEmpty
-IsNullOrWhiteSpace
-Join
++ IsNullOrEmpty
++ IsNullOrWhiteSpace
++ Join
 + LastIndexOf
 + LastIndexOfAny
 + Length

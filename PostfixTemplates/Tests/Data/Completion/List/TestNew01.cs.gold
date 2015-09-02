@@ -1,20 +1,24 @@
-﻿+ A
-Format
-GetName
-IsDefined
-Parse
-ToObject
+﻿# 11 ITEMS #
+
++ A
++ Format
++ GetName
++ IsDefined
++ Parse
++ ToObject
 + TryParse
 + new
 + throw
 + typeof
 + var
 # AUTOMATIC #
+# 8 ITEMS #
+
 + A
-Format
-GetName
-IsDefined
-Parse
-ToObject
++ Format
++ GetName
++ IsDefined
++ Parse
++ ToObject
 + TryParse
 + typeof

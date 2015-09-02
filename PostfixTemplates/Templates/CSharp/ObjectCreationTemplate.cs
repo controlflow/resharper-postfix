@@ -130,8 +130,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
         var parenthesesType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
         if (parenthesesType == ParenthesesInsertType.None) return;
 
-        var canInstantiate = TypeUtils.CanInstantiateType(expression.Type(), expression);
-        var hasRequiredArguments = (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
+        var expressionType = expression.Type();
+        var canInstantiate = TypeUtils.CanInstantiateType(expressionType, expression);
+        var hasRequiredArguments = (canInstantiate == CanInstantiate.No)
+                                || (canInstantiate & CanInstantiate.ConstructorWithParameters) != 0;
 
         var caretNode = hasRequiredArguments ? expression.LPar : (ITreeNode) expression;
         var endOffset = caretNode.GetDocumentRange().TextRange.EndOffset;

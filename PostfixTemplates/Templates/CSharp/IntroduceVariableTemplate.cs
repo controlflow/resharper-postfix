@@ -9,6 +9,8 @@ using JetBrains.Application.Settings;
 using JetBrains.DataFlow;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.Hotspots;
+using JetBrains.ReSharper.Feature.Services.LiveTemplates.LiveTemplates;
 using JetBrains.ReSharper.Feature.Services.Lookup;
 using JetBrains.ReSharper.Feature.Services.Refactorings;
 using JetBrains.ReSharper.Feature.Services.Util;
@@ -152,9 +154,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     private sealed class CSharpPostfixIntroduceVariableInExpressionBehavior : CSharpExpressionPostfixTemplateBehavior<ICSharpExpression>
     {
-      public CSharpPostfixIntroduceVariableInExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info)
-      {
-      }
+      public CSharpPostfixIntroduceVariableInExpressionBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override ICSharpExpression CreateExpression(CSharpElementFactory factory, ICSharpExpression expression)
       {
@@ -191,9 +191,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
     private sealed class CSharpPostfixIntroduceVariableIsStatementBehavior : CSharpStatementPostfixTemplateBehavior<IExpressionStatement>
     {
-      public CSharpPostfixIntroduceVariableIsStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info)
-      {
-      }
+      public CSharpPostfixIntroduceVariableIsStatementBehavior([NotNull] PostfixTemplateInfo info) : base(info) { }
 
       protected override IExpressionStatement CreateStatement(CSharpElementFactory factory, ICSharpExpression expression)
       {
@@ -286,8 +284,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
       var settingsStore = expression.GetSettingsStore();
       var multipleOccurrences = settingsStore.GetValue(PostfixTemplatesSettingsAccessor.SearchVarOccurrences);
 
-      var definition = Lifetimes.Define(EternalLifetime.Instance, actionId);
-      try // note: uber ugly code down here
+      // note: uber ugly code down here
+      using (var definition = Lifetimes.Define(EternalLifetime.Instance, actionId))
       {
         var dataContexts = solution.GetComponent<DataContexts>();
         var dataContext = dataContexts.CreateWithDataRules(definition.Lifetime, rules);
@@ -300,7 +298,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
           {
             introduceAction.Execute(dataContext, delegate { });
 
-            if (executeAfter != null) SubscribeAfterExecute(executeAfter);
+            if (executeAfter != null) IntroduceVariableTemplate.SubscribeAfterExecute(executeAfter);
           }
         }
         else
@@ -310,12 +308,24 @@ namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 
           var finishedAction = executeAfter;
           if (finishedAction != null)
-            workflow.SuccessfullyFinished += delegate { finishedAction(); };
+          {
+            var currentSession = HotspotSessionExecutor.Instance.CurrentSession;
+            if (currentSession != null) // ugly hack
+            {
+              currentSession.HotspotSession.Closed.Advise(EternalLifetime.Definition, (e) =>
+              {
+                if (e.TerminationType == TerminationType.Finished)
+                {
+                  finishedAction();
+                }
+              });
+            }
+            else
+            {
+              finishedAction();
+            }
+          }
         }
-      }
-      finally
-      {
-        definition.Terminate();
       }
     }
 
