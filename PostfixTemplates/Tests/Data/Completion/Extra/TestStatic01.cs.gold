@@ -1,5 +1,7 @@
 ﻿// ${COMPLETE_ITEM:IsNullOrEmpty}
 
+using System;
+
 public class Foo
 {
   public void Bar(string personName)

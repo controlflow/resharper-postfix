@@ -1,10 +1,12 @@
 ﻿// ${COMPLETE_ITEM:IsNullOrEmpty}
 // ${PARENS:None}
 
+using System;
+
 public class Foo
 {
   public void Bar(string personName)
   {
-    string.IsNullOrEmpty(personName{caret}
+    string.IsNullOrEmpty(personName){caret}
   }
 }

@@ -1,5 +1,7 @@
 ﻿// ${COMPLETE_ITEM:IsNullOrEmpty}
 
+using System;
+
 class Foo {
   public void M(System.Action f, string str, int[] xs) {
     f(() => {

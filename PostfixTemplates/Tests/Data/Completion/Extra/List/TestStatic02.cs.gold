@@ -1,11 +1,13 @@
-﻿BaseMethod
+﻿# 30 ITEMS #
+
++ BaseMethod
 + Equals
-FooArgOverloaded
++ FooArgOverloaded
 + GetHashCode
 + GetType
-SingleFooArg
++ SingleFooArg
 + ToString
-TwoFooArg
++ TwoFooArg
 + arg
 + await
 + cast
@@ -29,13 +31,15 @@ TwoFooArg
 + while
 + yield
 # AUTOMATIC #
-BaseMethod
+# 10 ITEMS #
+
++ BaseMethod
 + Equals
-FooArgOverloaded
++ FooArgOverloaded
 + GetHashCode
 + GetType
-SingleFooArg
++ SingleFooArg
 + ToString
-TwoFooArg
++ TwoFooArg
 + notnull
 + null

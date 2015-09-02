@@ -4,7 +4,7 @@ class Foo : GenericBase<int>
 {
   void Bar(Foo foo)
   {
-    GenericBase<int>.M2(foo, {caret})
+    M2(foo, {caret});
   }
 }
 

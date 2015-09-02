@@ -2,6 +2,8 @@
 // ${COMPLETE_ITEM:IsNullOrEmpty}
 // ${PARENS:Left}
 
+using System;
+
 public class Foo
 {
   public void Bar(string personName)

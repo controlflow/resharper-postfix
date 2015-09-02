@@ -38,8 +38,7 @@ using JetBrains.Util;
 // todo: replay suffix
 // todo: generic type parameters (check if inferable)
 // todo: invoke parameter info
-// todo: format!
-// todo: semicolon if all methods are void
+// todo: format?
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
@@ -135,7 +134,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
       var replaceRange = context.ReplaceRangeWithJoinedArguments;
       var ranges = replaceRange.IsValid ? context.CompletionRanges.WithReplaceRange(replaceRange) : context.CompletionRanges;
-      
 
       foreach (var lookupItem in innerCollector.Items)
       {
@@ -199,6 +197,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
       public void Accept(ITextControl textControl, TextRange nameRange, LookupItemInsertType lookupItemInsertType, Suffix suffix, ISolution solution, bool keepCaretStill)
       {
+        /* PLEASE DO NOT OBSERVE THIS */
         string text;
 
         if (lookupItemInsertType == LookupItemInsertType.Insert)
@@ -221,6 +220,8 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         {
           LookupUtil.InsertTailType(textControl, nameRange.StartOffset + text.Length, tailType, solution, emulateTypingOfSpace: false);
         }
+
+        /* PLEASE DO NOT OBSERVE THIS */
 
         var psiServices = solution.GetPsiServices();
         psiServices.Files.CommitAllDocuments();
@@ -253,7 +254,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           var reference3 = referencePointer.GetTreeNode();
           if (reference3 != null)
           {
-            BindQualifierTypeExpression(reference3, textControl);
+            ApplyQualifierCodeStyle(reference3);
 
             psiServices.Files.CommitAllDocuments();
 
@@ -352,53 +353,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var qualifierWithDelimiter = qualifierDocumentRange.JoinRight(referenceExpression.NameIdentifier.GetDocumentStartOffset());
 
         textControl.Document.ReplaceText(argPosition, qualifierText);
-
-        var containingType = myMethods.SelectNotNull(i => i.GetContainingType()).FirstOrDefault();
-        //if (containingType != null)
-
-        //var typeKeyword = CSharpTypeFactory.GetTypeKeyword(containingType.GetClrName());
-        //if (typeKeyword != null)
-        //{
-        //  textControl.Document.ReplaceText(qualifierDocumentRange.TextRange, typeKeyword);
-        //}
-        //else
-        {
-          // if one - 
-
-          
-
-          textControl.Document.DeleteText(qualifierWithDelimiter.TextRange);
-          //textControl.Document.ReplaceText(qualifierWithDelimiter.TextRange, Info.MakeSafe(containingType.GetClrName().ShortName));
-        }
+        textControl.Document.DeleteText(qualifierWithDelimiter.TextRange);
       }
 
-      private void BindQualifierTypeExpression([NotNull] IReferenceExpression referenceExpression, ITextControl textControl)
+      private void ApplyQualifierCodeStyle([NotNull] IReferenceExpression referenceExpression)
       {
-        //var containingType = myMethods.SelectNotNull(m => m.GetContainingType()).FirstOrDefault();
-        //if (containingType == null) return;
-
         var psiServices = referenceExpression.GetPsiServices();
-        //psiServices.Files.CommitAllDocuments();
 
-        
-
-        
         psiServices.Transactions.Execute(
           commandName: typeof (StaticMethodBehavior).FullName,
           handler: () =>
           {
-            //var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
-            //if (newQualifierReference != null)
-            //{
-            //  var typeElement = containingType.GetTypeElement();
-            //  if (typeElement != null)
-            //  {
-            //    newQualifierReference.Reference.BindTo(typeElement, containingType.GetSubstitution());
-            //  }
-            //}
-        
             CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(referenceExpression);
-            //
+
             var qualifierExpression = referenceExpression.QualifierExpression;
             if (qualifierExpression != null && qualifierExpression.IsValid())
             {
@@ -452,13 +419,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
                 var rightParRange = rightPar.GetDocumentRange().TextRange;
 
                 invocationExpression.GetPsiServices().Transactions.Execute(
-                  commandName: "AAA",
+                  commandName: typeof(StaticMethodBehavior).FullName,
                   handler: () =>
                   {
                     using (WriteLockCookie.Create())
-                    {
                       LowLevelModificationUtil.DeleteChild(rightPar);
-                    }
                   });
 
                 textControl.Caret.MoveTo(rightParRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
@@ -597,18 +562,17 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (expressionType.IsImplicitlyConvertibleTo(parameterType, myConversionRule))
           return true;
 
-        //var declaredType = parameterType as IDeclaredType;
-        //if (declaredType != null)
-        //{
-        //  // todo: not sure what is this used for
-        //  var typeParameter = declaredType.GetTypeElement() as ITypeParameter;
-        //  if (typeParameter != null)
-        //  {
-        //    var effectiveType = typeParameter.EffectiveBaseClass();
-        //    if (effectiveType != null && expressionType.IsImplicitlyConvertibleTo(effectiveType, myConversionRule))
-        //      return true;
-        //  }
-        //}
+        var declaredType = parameterType as IDeclaredType;
+        if (declaredType != null)
+        {
+          var typeParameter = declaredType.GetTypeElement() as ITypeParameter;
+          if (typeParameter != null)
+          {
+            var effectiveType = typeParameter.EffectiveBaseClass();
+            if (effectiveType != null && expressionType.IsImplicitlyConvertibleTo(effectiveType, myConversionRule))
+              return true;
+          }
+        }
 
         var parameterArrayType = parameterType as IArrayType;
         if (parameterArrayType != null)

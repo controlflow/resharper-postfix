@@ -1,5 +1,7 @@
 ﻿// ${COMPLETE_ITEM:CompareOrdinal}
 
+using System;
+
 class C {
   public int Compare(object l, object r) {
     return string.CompareOrdinal(((string)l), (string)r{caret});
