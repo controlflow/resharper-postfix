@@ -115,6 +115,19 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
         yield return TypeExpression;
     }
 
+    public override bool IsSemanticallyMakeSence()
+    {
+      // todo: what about extern aliases?
+
+      var innerExpression = InnerExpression; // shit happens
+      if (innerExpression != null && innerExpression.ReferencedElement is INamespace)
+      {
+        return false;
+      }
+
+      return base.IsSemanticallyMakeSence();
+    }
+
     // todo: review usages and drop
     [CanBeNull] public ICSharpFunctionDeclaration ContainingFunction
     {

@@ -23,35 +23,10 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       var referenceExpression = position.Parent as IReferenceExpression;
       if (referenceExpression != null && referenceExpression.Delimiter != null)
       {
-        var expression = referenceExpression.QualifierExpression;
-        if (expression != null)
+        var qualifierExpression = referenceExpression.QualifierExpression;
+        if (qualifierExpression != null)
         {
-          // protect from 'o.M(.var)'
-          var invocation = expression as IInvocationExpression;
-          if (invocation != null && invocation.LPar != null && invocation.RPar == null)
-          {
-            var argument = invocation.Arguments.LastOrDefault();
-            if (argument != null && argument.Expression == null) return null;
-          }
-
-          // protect from 'smth.var\n(someCode).InBraces()'
-          invocation = referenceExpression.Parent as IInvocationExpression;
-          if (invocation != null)
-          {
-            for (ITokenNode lpar = invocation.LPar,
-              token = invocation.InvokedExpression.NextSibling as ITokenNode;
-              token != null && token != lpar && token.IsFiltered();
-              token = token.NextSibling as ITokenNode)
-            {
-              if (token.GetTokenType() == CSharpTokenType.NEW_LINE) return null;
-            }
-          }
-
-          // protect from 'doubleDot..var'
-          var qualifierReference = expression as IReferenceExpression;
-          if (qualifierReference != null && qualifierReference.NameIdentifier == null) return null;
-
-          return new CSharpReferenceExpressionPostfixTemplateContext(referenceExpression, expression, executionContext);
+          return TryCreateFromReferenceExpression(executionContext, qualifierExpression, referenceExpression);
         }
       }
 
@@ -86,6 +61,38 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       }
 
       return null;
+    }
+
+    [CanBeNull]
+    private static PostfixTemplateContext TryCreateFromReferenceExpression(
+      [NotNull] PostfixTemplateExecutionContext executionContext, [NotNull] ICSharpExpression qualifierExpression, [NotNull] IReferenceExpression referenceExpression)
+    {
+      // protect from 'o.M(.var)'
+      var invocation = qualifierExpression as IInvocationExpression;
+      if (invocation != null && invocation.LPar != null && invocation.RPar == null)
+      {
+        var argument = invocation.Arguments.LastOrDefault();
+        if (argument != null && argument.Expression == null) return null;
+      }
+
+      // protect from 'smth.var\n(someCode).InBraces()'
+      invocation = referenceExpression.Parent as IInvocationExpression;
+      if (invocation != null)
+      {
+        for (ITokenNode lpar = invocation.LPar,
+          token = invocation.InvokedExpression.NextSibling as ITokenNode;
+          token != null && token != lpar && token.IsFiltered();
+          token = token.NextSibling as ITokenNode)
+        {
+          if (token.GetTokenType() == CSharpTokenType.NEW_LINE) return null;
+        }
+      }
+
+      // protect from 'doubleDot..var'
+      var qualifierReference = qualifierExpression as IReferenceExpression;
+      if (qualifierReference != null && qualifierReference.NameIdentifier == null) return null;
+
+      return new CSharpReferenceExpressionPostfixTemplateContext(referenceExpression, qualifierExpression, executionContext);
     }
 
     [CanBeNull]

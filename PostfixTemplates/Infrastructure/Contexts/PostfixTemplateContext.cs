@@ -32,6 +32,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
     [NotNull, ItemNotNull]
     protected abstract IEnumerable<PostfixExpressionContext> GetAllExpressionContexts();
 
+    public virtual bool IsSemanticallyMakeSence()
+    {
+      return true;
+    }
+
     internal DocumentRange ToDocumentRange(ITreeNode node)
     {
       return ExecutionContext.GetDocumentRange(node);

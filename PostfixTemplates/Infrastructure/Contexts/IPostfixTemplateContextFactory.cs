@@ -6,6 +6,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts
   public interface IPostfixTemplateContextFactory
   {
     [NotNull] string[] GetReparseStrings();
+
     [CanBeNull] PostfixTemplateContext TryCreate([NotNull] ITreeNode position, [NotNull] PostfixTemplateExecutionContext executionContext);
   }
 }

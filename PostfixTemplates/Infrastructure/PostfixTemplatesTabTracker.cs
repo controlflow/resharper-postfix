@@ -148,6 +148,8 @@ namespace JetBrains.ReSharper.PostfixTemplates
             var templateContext = TryReparseWith(solution, textControl, reparseString);
             if (templateContext != null)
             {
+              if (!templateContext.IsSemanticallyMakeSence()) return false;
+
               var templatesManager = LanguageManager.Instance.GetService<IPostfixTemplatesManager>(psiLanguageType);
 
               if (execute)
@@ -166,7 +168,7 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       [CanBeNull]
-      private PostfixTemplateContext TryReparseWith([NotNull] ISolution solution, [NotNull] ITextControl textControl, [NotNull] string reparseString)
+      private static PostfixTemplateContext TryReparseWith([NotNull] ISolution solution, [NotNull] ITextControl textControl, [NotNull] string reparseString)
       {
         var offset = textControl.Caret.Offset();
         var document = textControl.Document;

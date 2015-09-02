@@ -63,6 +63,9 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion
       // check if there is no expression detected and do nothing if so
       if (postfixContext.AllExpressions.Count == 0) return false;
 
+      // additional semantic checks
+      if (!postfixContext.IsSemanticallyMakeSence()) return false;
+
       var lookupItems = BuildLookupItems(postfixContext, completionContext);
       if (lookupItems.Count == 0) return false;
 

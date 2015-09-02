@@ -56,7 +56,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
 
       solution.GetPsiServices().Files.CommitAllDocuments();
 
-      var execContext = new PostfixTemplateExecutionContext(
+      var executionContext = new PostfixTemplateExecutionContext(
         solution, textControl, Info.ExecutionContext.SettingsStore, Info.ReparseString, Info.ExecutionContext.IsPreciseMode);
 
       PostfixTemplateContext postfixContext = null;
@@ -66,7 +66,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
         var contextFactory = LanguageManager.Instance.TryGetService<IPostfixTemplateContextFactory>(element.Language);
         if (contextFactory == null) continue;
 
-        postfixContext = contextFactory.TryCreate(element, execContext);
+        postfixContext = contextFactory.TryCreate(element, executionContext);
         if (postfixContext != null) break;
       }
 
@@ -111,7 +111,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.LookupItems
                   textControl.Document.InsertText( // bring back ".name__"
                     postfixRange.StartOffset, text, TextModificationSide.RightSide);
 
-                  // ah!
+                  // argh!
                   Accept(textControl, nameRange, insertType, suffix, solution, keepCaretStill);
                 }
               });
