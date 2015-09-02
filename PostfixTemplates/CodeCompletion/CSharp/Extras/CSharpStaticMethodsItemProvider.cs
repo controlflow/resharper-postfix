@@ -226,99 +226,12 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         psiServices.Files.CommitAllDocuments();
 
         var reference1 = referencePointer.GetTreeNode();
-        if (reference1 != null) BindQualifierTypeExpression(reference1);
+        if (reference1 != null) BindQualifierTypeExpression(reference1, textControl);
+
+        psiServices.Files.CommitAllDocuments();
 
         var reference2 = referencePointer.GetTreeNode();
         if (reference2 != null) PlaceCaretAfterCompletion(textControl, reference2, existingArgumentsCount, lookupItemInsertType);
-      }
-
-      private void BindQualifierTypeExpression([NotNull] IReferenceExpression referenceExpression)
-      {
-        var containingType = myMethods.Select(i => i.Element).SelectNotNull(m => m.GetContainingType()).FirstOrDefault();
-        if (containingType == null) return;
-
-        var psiServices = referenceExpression.GetPsiServices();
-        psiServices.Transactions.Execute(
-          commandName: typeof (StaticMethodBehavior).FullName,
-          handler: () =>
-          {
-            var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
-            if (newQualifierReference != null)
-            {
-              newQualifierReference.Reference.BindTo(containingType.NotNull());
-            }
-
-            CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(referenceExpression);
-
-            var qualifierExpression = referenceExpression.QualifierExpression;
-            if (qualifierExpression != null && qualifierExpression.IsValid())
-            {
-              CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(qualifierExpression);
-            }
-          });
-      }
-
-      private void PlaceCaretAfterCompletion(
-        [NotNull] ITextControl textControl, [NotNull] IReferenceExpression referenceExpression, int existingArgumentsCount, LookupItemInsertType insertType)
-      {
-        var referenceRange = referenceExpression.GetDocumentRange();
-        textControl.Caret.MoveTo(referenceRange.TextRange.EndOffset, CaretVisualPlacement.DontScrollIfVisible);
-
-        var invocationExpression = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
-        if (invocationExpression == null) return;
-
-        var invocationRange = invocationExpression.GetDocumentRange();
-        textControl.Caret.MoveTo(invocationRange.TextRange.EndOffset, CaretVisualPlacement.DontScrollIfVisible);
-
-        var settingsStore = referenceExpression.GetSettingsStore();
-        var parenthesesInsertType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
-        var hasMoreParametersToPass = HasMoreParametersToPass(existingArgumentsCount);
-
-        switch (parenthesesInsertType)
-        {
-          case ParenthesesInsertType.Both:
-          {
-            if (hasMoreParametersToPass)
-            {
-              var rightPar = invocationExpression.RPar;
-              if (rightPar != null)
-              {
-                var rightParRange = rightPar.GetDocumentRange().TextRange;
-                textControl.Caret.MoveTo(rightParRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
-              }
-            }
-
-            break;
-          }
-
-          case ParenthesesInsertType.Left:
-          case ParenthesesInsertType.None:
-          {
-            // if in insert mode - drop right par and set caret to it's start offest
-            if (insertType == LookupItemInsertType.Insert)
-            {
-              var rightPar = invocationExpression.RPar;
-              if (rightPar != null)
-              {
-                var rightParRange = rightPar.GetDocumentRange().TextRange;
-
-                invocationExpression.GetPsiServices().Transactions.Execute(
-                  commandName: "AAA",
-                  handler: () =>
-                  {
-                    using (WriteLockCookie.Create())
-                    {
-                      LowLevelModificationUtil.DeleteChild(rightPar);
-                    }
-                  });
-
-                textControl.Caret.MoveTo(rightParRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
-              }
-            }
-
-            break;
-          }
-        }
       }
 
       [Pure] private bool HasMoreParametersToPass(int existingArgumentsCount)
@@ -388,7 +301,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
         TextRange argPosition;
 
-        // todo: not relible!
+        // todo: not reliable?
         var invokedExpression = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
         if (invokedExpression == null)
         {
@@ -404,20 +317,134 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         }
 
         var qualifierDocumentRange = qualifierExpression.GetDocumentRange();
+        var qualifierWithDelimiter = qualifierDocumentRange.JoinRight(referenceExpression.NameIdentifier.GetDocumentStartOffset());
 
         textControl.Document.ReplaceText(argPosition, qualifierText);
 
-        var containingType = myMethods.Select(i => i.Element).SelectNotNull(m => m.GetContainingType()).FirstOrDefault();
+        var containingType = myMethods.SelectNotNull(i => i.GetContainingType()).FirstOrDefault();
         //if (containingType != null)
 
-        var typeKeyword = CSharpTypeFactory.GetTypeKeyword(containingType.GetClrName());
-        if (typeKeyword != null)
+        //var typeKeyword = CSharpTypeFactory.GetTypeKeyword(containingType.GetClrName());
+        //if (typeKeyword != null)
+        //{
+        //  textControl.Document.ReplaceText(qualifierDocumentRange.TextRange, typeKeyword);
+        //}
+        //else
         {
-          textControl.Document.ReplaceText(qualifierDocumentRange.TextRange, typeKeyword);
+          // if one - 
+
+          
+
+          textControl.Document.DeleteText(qualifierWithDelimiter.TextRange);
+          //textControl.Document.ReplaceText(qualifierWithDelimiter.TextRange, Info.MakeSafe(containingType.GetClrName().ShortName));
         }
-        else
+      }
+
+      private void BindQualifierTypeExpression([NotNull] IReferenceExpression referenceExpression, ITextControl textControl)
+      {
+        //var containingType = myMethods.SelectNotNull(m => m.GetContainingType()).FirstOrDefault();
+        //if (containingType == null) return;
+
+        var psiServices = referenceExpression.GetPsiServices();
+        psiServices.Files.CommitAllDocuments();
+
+        var caretPositionRangeMarker = RangeMarker.InvalidMarker;
+        LookupUtil.BindRange(
+          referenceExpression.GetSolution(), textControl,
+          referenceExpression.NameIdentifier.GetDocumentRange().TextRange,
+          Info.DeclaredElementPointers.ToList(),
+          referenceExpression.Language, ref caretPositionRangeMarker);
+
+        
+        //psiServices.Transactions.Execute(
+        //  commandName: typeof (StaticMethodBehavior).FullName,
+        //  handler: () =>
+        //  {
+        //    
+        //
+        //    
+        //
+        //
+        //    //var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
+        //    //if (newQualifierReference != null)
+        //    //{
+        //    //  var typeElement = containingType.GetTypeElement();
+        //    //  if (typeElement != null)
+        //    //  {
+        //    //    newQualifierReference.Reference.BindTo(typeElement, containingType.GetSubstitution());
+        //    //  }
+        //    //}
+        //
+        //    //CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(referenceExpression);
+        //    //
+        //    //var qualifierExpression = referenceExpression.QualifierExpression;
+        //    //if (qualifierExpression != null && qualifierExpression.IsValid())
+        //    //{
+        //    //  CodeStyleUtil.ApplyStyle<IBuiltInTypeReferenceStyleSuggestion>(qualifierExpression);
+        //    //}
+        //  });
+      }
+
+      private void PlaceCaretAfterCompletion(
+        [NotNull] ITextControl textControl, [NotNull] IReferenceExpression referenceExpression, int existingArgumentsCount, LookupItemInsertType insertType)
+      {
+        var referenceRange = referenceExpression.GetDocumentRange();
+        textControl.Caret.MoveTo(referenceRange.TextRange.EndOffset, CaretVisualPlacement.DontScrollIfVisible);
+
+        var invocationExpression = InvocationExpressionNavigator.GetByInvokedExpression(referenceExpression);
+        if (invocationExpression == null) return;
+
+        var invocationRange = invocationExpression.GetDocumentRange();
+        textControl.Caret.MoveTo(invocationRange.TextRange.EndOffset, CaretVisualPlacement.DontScrollIfVisible);
+
+        var settingsStore = referenceExpression.GetSettingsStore();
+        var parenthesesInsertType = settingsStore.GetValue(CodeCompletionSettingsAccessor.ParenthesesInsertType);
+        var hasMoreParametersToPass = HasMoreParametersToPass(existingArgumentsCount);
+
+        switch (parenthesesInsertType)
         {
-          textControl.Document.ReplaceText(qualifierDocumentRange.TextRange, Info.MakeSafe(containingType.ShortName));
+          case ParenthesesInsertType.Both:
+          {
+            if (hasMoreParametersToPass)
+            {
+              var rightPar = invocationExpression.RPar;
+              if (rightPar != null)
+              {
+                var rightParRange = rightPar.GetDocumentRange().TextRange;
+                textControl.Caret.MoveTo(rightParRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
+              }
+            }
+
+            break;
+          }
+
+          case ParenthesesInsertType.Left:
+          case ParenthesesInsertType.None:
+          {
+            // if in insert mode - drop right par and set caret to it's start offest
+            if (insertType == LookupItemInsertType.Insert)
+            {
+              var rightPar = invocationExpression.RPar;
+              if (rightPar != null)
+              {
+                var rightParRange = rightPar.GetDocumentRange().TextRange;
+
+                invocationExpression.GetPsiServices().Transactions.Execute(
+                  commandName: "AAA",
+                  handler: () =>
+                  {
+                    using (WriteLockCookie.Create())
+                    {
+                      LowLevelModificationUtil.DeleteChild(rightPar);
+                    }
+                  });
+
+                textControl.Caret.MoveTo(rightParRange.StartOffset, CaretVisualPlacement.DontScrollIfVisible);
+              }
+            }
+
+            break;
+          }
         }
       }
     }
@@ -531,7 +558,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           if (firstParameter.Kind != ParameterKind.REFERENCE) return false;
         }
 
-        var parameterType = firstParameter.Type;
+        var parameterType = substitution[firstParameter.Type];
 
         if (firstParameter.IsParameterArray)
         {
@@ -548,18 +575,18 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (expressionType.IsImplicitlyConvertibleTo(parameterType, myConversionRule))
           return true;
 
-        var declaredType = parameterType as IDeclaredType;
-        if (declaredType != null)
-        {
-          // todo: not sure what is this used for
-          var typeParameter = declaredType.GetTypeElement() as ITypeParameter;
-          if (typeParameter != null)
-          {
-            var effectiveType = typeParameter.EffectiveBaseClass();
-            if (effectiveType != null && expressionType.IsImplicitlyConvertibleTo(effectiveType, myConversionRule))
-              return true;
-          }
-        }
+        //var declaredType = parameterType as IDeclaredType;
+        //if (declaredType != null)
+        //{
+        //  // todo: not sure what is this used for
+        //  var typeParameter = declaredType.GetTypeElement() as ITypeParameter;
+        //  if (typeParameter != null)
+        //  {
+        //    var effectiveType = typeParameter.EffectiveBaseClass();
+        //    if (effectiveType != null && expressionType.IsImplicitlyConvertibleTo(effectiveType, myConversionRule))
+        //      return true;
+        //  }
+        //}
 
         var parameterArrayType = parameterType as IArrayType;
         if (parameterArrayType != null)
