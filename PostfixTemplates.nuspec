@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>$PackageId$</id>
-    <version>2.2.2-beta</version>
+    <version>2.2.3-beta</version>
     <!-- update plugin ver in AssemblyInfo.cs plz -->
     <title>Postfix Templates</title>
     <authors>Alexander Shvedov</authors>
