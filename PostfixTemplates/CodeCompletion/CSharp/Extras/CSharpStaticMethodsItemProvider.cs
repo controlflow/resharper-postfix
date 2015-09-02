@@ -238,11 +238,15 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var reference1 = referencePointer.GetTreeNode();
         if (reference1 != null)
         {
-          var caretPositionMarker = RangeMarker.InvalidMarker;
           var textRange = reference1.NameIdentifier.GetDocumentRange().TextRange;
           var pointers = Info.DeclaredElementPointers.ToList();
 
+#if RESHARPER92
+          var caretPositionMarker = RangeMarker.InvalidMarker;
           LookupUtil.BindRange(solution, textControl, textRange, pointers, reference1.Language, ref caretPositionMarker);
+#else
+          LookupUtil.BindRange(solution, textControl, textRange, pointers, reference1.Language);
+#endif
 
           psiServices.Files.CommitAllDocuments();
 

@@ -118,7 +118,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
       if (enumTypeElement == null) return false;
 
       var enumSubstitution = enumerationType.GetSubstitution();
-      var enumMembersWithValues = new List<DeclaredElementInstance, string>();
+      var enumMembersWithValues = new List<Pair<DeclaredElementInstance, string>>(); // todo: [R#] List<T1, T2>
 
       var isFlagsEnum = enumTypeElement.HasAttributeInstance(PredefinedType.FLAGS_ATTRIBUTE_CLASS, false);
 
@@ -130,12 +130,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (isFlagsEnum)
         {
           var convertible = enumValue as IConvertible;
-          if (convertible != null) enumMembersWithValues.Add(enumCase, GetBinaryRepresentation(convertible));
+          if (convertible != null)
+            enumMembersWithValues.Add(Pair.Of(enumCase, GetBinaryRepresentation(convertible)));
         }
         else
         {
           var formattable = enumValue as IFormattable;
-          if (formattable != null) enumMembersWithValues.Add(enumCase, formattable.ToString("D", CultureInfo.InvariantCulture));
+          if (formattable != null)
+            enumMembersWithValues.Add(Pair.Of(enumCase, formattable.ToString("D", CultureInfo.InvariantCulture)));
         }
       }
 
