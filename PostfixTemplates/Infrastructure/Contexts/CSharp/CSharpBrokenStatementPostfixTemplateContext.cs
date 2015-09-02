@@ -1,6 +1,4 @@
 using JetBrains.Annotations;
-using JetBrains.Application.Progress;
-using JetBrains.DocumentManagers.Transactions;
 using JetBrains.ReSharper.Feature.Services.Util;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
@@ -30,13 +28,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       if (indexOfReferenceDot <= 0) return context;
 
       var realReferenceRange = referenceRange.SetStartTo(expressionRange.TextRange.StartOffset + indexOfReferenceDot);
+
+      var transactionManager = psiServices.Transactions.DocumentTransactionManager;
       var document = expressionRange.Document;
 
-      using (psiServices.Solution.CreateTransactionCookie(DefaultAction.Commit, FixCommandName, NullProgressIndicator.Instance))
+      // todo: make sure this is not in undo stack!
+      using (transactionManager.CreateTransactionCookie(DefaultAction.Commit, FixCommandName))
       {
         document.ReplaceText(realReferenceRange.TextRange, ")");
         document.InsertText(expressionRange.TextRange.StartOffset, "unchecked(");
       }
+
+      //using (psiServices.Solution.CreateTransactionCookie(DefaultAction.Commit, FixCommandName, NullProgressIndicator.Instance))
+      //{
+      //  
+      //}
 
       psiServices.Files.CommitAllDocuments();
 

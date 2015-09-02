@@ -3,6 +3,7 @@ TODO: fix double completion
 
 TODO: review templates in attributes
 TODO: hide source templates from compiled code
+TODO: make sure no bind or formatting happens during context fix!
 
 TODO: Fix razor?
 TODO: Support code style var setting in 9.0 build;

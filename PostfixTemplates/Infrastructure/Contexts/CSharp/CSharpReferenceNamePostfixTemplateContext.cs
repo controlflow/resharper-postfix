@@ -17,14 +17,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
       var expression = context.Expression;
       if (expression.Contains(Reference)) // x is T.bar => x is T
       {
-        expression.GetPsiServices().DoTransaction(FixCommandName, () =>
+        var psiServices = expression.GetPsiServices();
+        psiServices.Transactions.Execute(FixCommandName, () =>
         {
           var referenceName = (IReferenceName) Reference;
           var qualifier = referenceName.Qualifier;
 
           LowLevelModificationUtil.DeleteChild(qualifier); // remove first
-
-          return referenceName.ReplaceBy(qualifier);
+          LowLevelModificationUtil.ReplaceChildRange(referenceName, referenceName, qualifier);
         });
       }
 

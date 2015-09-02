@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using JetBrains.ReSharper.Psi.CSharp.Tree;
+using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
@@ -14,22 +15,21 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
 
     public override CSharpPostfixExpressionContext FixExpression(CSharpPostfixExpressionContext context)
     {
-      var referenceExpression = (IReferenceExpression)Reference;
+      var referenceExpression = (IReferenceExpression) Reference;
 
       var expression = context.Expression;
       if (expression.Parent == referenceExpression) // foo.bar => foo
       {
         var psiServices = expression.GetPsiServices();
 
-        var newExpression = psiServices.DoTransaction(FixCommandName, () =>
+        psiServices.Transactions.Execute(FixCommandName, () =>
         {
-          return referenceExpression.ReplaceBy(expression);
+          LowLevelModificationUtil.DeleteChild(expression);
+          LowLevelModificationUtil.ReplaceChildRange(referenceExpression, referenceExpression, expression);
         });
 
-        Assertion.AssertNotNull(newExpression, "newExpression != null");
-        Assertion.Assert(newExpression.IsPhysical(), "newExpression.IsPhysical()");
-
-        return new CSharpPostfixExpressionContext(this, newExpression);
+        Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
+        return new CSharpPostfixExpressionContext(this, expression);
       }
 
       if (expression.Contains(referenceExpression)) // boo > foo.bar => boo > foo
@@ -37,13 +37,14 @@ namespace JetBrains.ReSharper.PostfixTemplates.Contexts.CSharp
         var qualifier = referenceExpression.QualifierExpression;
         var psiServices = expression.GetPsiServices();
 
-        var newExpression = psiServices.DoTransaction(FixCommandName, () =>
+        psiServices.Transactions.Execute(FixCommandName, () =>
         {
-          return referenceExpression.ReplaceBy(qualifier.NotNull());
+          LowLevelModificationUtil.DeleteChild(qualifier);
+          LowLevelModificationUtil.ReplaceChildRange(referenceExpression, referenceExpression, qualifier);
         });
 
-        Assertion.AssertNotNull(newExpression, "newExpression != null");
-        Assertion.Assert(expression.IsPhysical(), "expression.IsPhysical()");
+        Assertion.AssertNotNull(qualifier, "qualifier != null");
+        Assertion.Assert(qualifier.IsPhysical(), "qualifier.IsPhysical()");
       }
 
       return context;
