@@ -18,6 +18,8 @@ using JetBrains.Util;
 
 namespace JetBrains.ReSharper.PostfixTemplates.Templates.CSharp
 {
+  // todo: make sure templates are not available in auto from closures in ctors
+
   public abstract class IntroduceMemberTemplateBase : IPostfixTemplate<CSharpPostfixTemplateContext>
   {
     public PostfixTemplateInfo TryCreateInfo(CSharpPostfixTemplateContext context)

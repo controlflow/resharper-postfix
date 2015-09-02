@@ -39,6 +39,7 @@ using JetBrains.Util;
 // todo: generic type parameters (check if inferable)
 // todo: invoke parameter info
 // todo: format!
+// todo: semicolon if all methods are void
 
 namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 {
@@ -233,9 +234,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
       private void BindQualifierTypeExpression([NotNull] IReferenceExpression referenceExpression)
       {
-        var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
-        if (newQualifierReference == null) return; // 'T.' is not found for some reason :\
-
         var containingType = myMethods.Select(i => i.Element).SelectNotNull(m => m.GetContainingType()).FirstOrDefault();
         if (containingType == null) return;
 
@@ -244,7 +242,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
           commandName: typeof (StaticMethodBehavior).FullName,
           handler: () =>
           {
-            newQualifierReference.Reference.BindTo(containingType.NotNull());
+            var newQualifierReference = referenceExpression.QualifierExpression as IReferenceExpression;
+            if (newQualifierReference != null)
+            {
+              newQualifierReference.Reference.BindTo(containingType.NotNull());
+            }
 
             CodeStyleUtil.ApplyStyle<StaticQualifierStyleSuggestion>(referenceExpression);
 
@@ -395,8 +397,6 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
 
           // todo: check pars decoration setting
           // todo: insert ')' if it's insertion is disabled
-
-
         }
         else
         {
@@ -406,20 +406,29 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         var qualifierDocumentRange = qualifierExpression.GetDocumentRange();
 
         textControl.Document.ReplaceText(argPosition, qualifierText);
-        textControl.Document.ReplaceText(qualifierDocumentRange.TextRange, "T");
+
+        var containingType = myMethods.Select(i => i.Element).SelectNotNull(m => m.GetContainingType()).FirstOrDefault();
+        //if (containingType != null)
+
+        var typeKeyword = CSharpTypeFactory.GetTypeKeyword(containingType.GetClrName());
+        if (typeKeyword != null)
+        {
+          textControl.Document.ReplaceText(qualifierDocumentRange.TextRange, typeKeyword);
+        }
+        else
+        {
+          textControl.Document.ReplaceText(qualifierDocumentRange.TextRange, Info.MakeSafe(containingType.ShortName));
+        }
       }
     }
 
     private sealed class DeclaredTypesCollector : TypeVisitor
     {
-      private DeclaredTypesCollector()
-      {
-      }
+      private DeclaredTypesCollector() { }
 
       [NotNull] private readonly HashSet<IDeclaredType> myTypes = new HashSet<IDeclaredType>();
 
-      [NotNull]
-      public static HashSet<IDeclaredType> Accept([NotNull] IType type)
+      [NotNull] public static HashSet<IDeclaredType> Accept([NotNull] IType type)
       {
         var collector = new DeclaredTypesCollector();
         type.Accept(collector);
@@ -457,25 +466,11 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         if (systemArray.IsResolved) systemArray.Accept(this);
       }
 
-      public override void VisitType(IType type)
-      {
-      }
-
-      public override void VisitMultitype(IMultitype multitype)
-      {
-      }
-
-      public override void VisitDynamicType(IDynamicType dynamicType)
-      {
-      }
-
-      public override void VisitPointerType(IPointerType pointerType)
-      {
-      }
-
-      public override void VisitAnonymousType(IAnonymousType anonymousType)
-      {
-      }
+      public override void VisitType(IType type) { }
+      public override void VisitMultitype(IMultitype multitype) { }
+      public override void VisitDynamicType(IDynamicType dynamicType) { }
+      public override void VisitPointerType(IPointerType pointerType) { }
+      public override void VisitAnonymousType(IAnonymousType anonymousType) { }
     }
 
     private sealed class StaticMethodsByFirstArgumentTypeFilter : SimpleSymbolFilter
@@ -501,10 +496,7 @@ namespace JetBrains.ReSharper.PostfixTemplates.CodeCompletion.CSharp
         }
       }
 
-      public override ResolveErrorType ErrorType
-      {
-        get { return ResolveErrorType.NOT_RESOLVED; }
-      }
+      public override ResolveErrorType ErrorType { get { return ResolveErrorType.NOT_RESOLVED; } }
 
       public override bool Accepts(IDeclaredElement declaredElement, ISubstitution substitution)
       {
