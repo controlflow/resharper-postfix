@@ -53,18 +53,24 @@ Also Postfix Templates including two features sharing the same idea:
 
 ![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_static_methods.gif)
 
-* **Enum members** are available over values of enumeration types and produce equality/flag checks:
+* **Enum members** are available over values of enumeration types to produce equality/flag checks:
 
-![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enum.gif)
+![Enum members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enums.gif)
 
-* TODO: .Length <==> .Count feature
-* TODO: create type parameter in a postfix way feature
+* **Length/Count** code completion solves one of the most common mistypings when dealing with arrays or collections:
+
+![Length/Count completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_lengthcount.gif)
+
+* Create **type parameter from usage** helps declaring generic methods in a postfix way:
+
+![Type parameter completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_generics.gif)
 
 #### Notes
 
 * By now it supports only **C# language** (including C# in **Razor markup**)
 * Templates can be **expanded by `Tab` key** just like ReSharper live templates
 * You can use ReSharper 8 **double completion** feature to list and invoke all the templates are not normally available in current context
+* ReSharper 9.0 code completion filters can filter items introduced by postfix templates
 * **Options page** allows to enable/disable specific templates and control braces insertion:
 ![options](https://github.com/controlflow/resharper-postfix/blob/master/Content/options.png)
 * You may also try out similar [postfix completion](http://blog.jetbrains.com/idea/2014/03/postfix-completion/) feature in **IntelliJ IDEA** 14 (later supported in [WebStorm 9](http://blog.jetbrains.com/webstorm/2014/08/javascript-postfix-completion/) and [PHPStorm 9](http://blog.jetbrains.com/phpstorm/2015/05/postfix-code-completion-for-php-in-phpstorm-9-eap/))
