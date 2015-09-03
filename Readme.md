@@ -50,9 +50,13 @@ Available templates:
 Also Postfix Templates including two features sharing the same idea:
 
 * **Static members** of first argument type capatible available just like instance members:
-![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_static.gif)
+
+![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_static_methods.gif)
+
 * **Enum members** are available over values of enumeration types and produce equality/flag checks:
+
 ![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enum.gif)
+
 * TODO: .Length <==> .Count feature
 * TODO: create type parameter in a postfix way feature
 
