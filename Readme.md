@@ -46,19 +46,23 @@ Available templates:
 * `.lock` – surrounds expression with statement `lock (expr)`
 * `.sel` – selects expression in editor
 
-Also Postfix Templates including two features sharing the same idea:
+Also Postfix Templates including more C# code completion features sharing the same idea:
 
-* **Static members** of first argument type capatible available just like instance members:
-  ![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_static_methods.gif)
+**Static members** of first argument type capatible available just like instance members:
 
-* **Enum members** are available over values of enumeration types to produce equality/flag checks:
-  ![Enum members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enums.gif)
+![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_static_methods.gif)
 
-* **Length/Count** code completion solves one of the most common mistypings when dealing with arrays or collections:
-  ![Length/Count completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_lengthcount.gif)
+**Enum members** are available over values of enumeration types to produce equality/flag checks:
 
-* Create **type parameter from usage** helps declaring generic methods in a postfix way:
-  ![Type parameter completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_generics.gif)
+![Enum members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enums.gif)
+
+**Length/Count** code completion solves one of the most common mistypings when dealing with arrays or collections:
+
+![Length/Count completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_lengthcount.gif)
+
+**Create type parameter from usage** helps declaring generic methods in a postfix way:
+
+![Type parameter completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_generics.gif)
 
 #### Notes
 
