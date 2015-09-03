@@ -5,7 +5,7 @@ The basic idea is to prevent caret jumps backwards while typing C# code.
 Kind of surround templates on steroids baked with code completion.
 
 
-![Demo](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix.gif)
+![Demo](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix2.gif)
 
 #### Download
 
@@ -35,7 +35,7 @@ Available templates:
 * `.field` – intoduces field for expression `_field = expr;`
 * `.prop` – introduces property for expression `Prop = expr;`
 * `.new` – produces instantiation expression for type `new T()`
-* `.paren` – surrounds outer expression with parentheses `(expr)`
+* `.par` – surrounds outer expression with parentheses `(expr)`
 * `.parse` – parses string as value of some type `int.Parse(expr)`
 * `.return` – returns value from method/property `return expr;`
 * `.typeof` – wraps type usage with typeof-expression `typeof(TExpr)`
@@ -50,19 +50,14 @@ Available templates:
 Also Postfix Templates including two features sharing the same idea:
 
 * **Static members** of first argument type capatible available just like instance members:
-
-![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_static_methods.gif)
+  ![Static members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_static_methods.gif)
 
 * **Enum members** are available over values of enumeration types to produce equality/flag checks:
-
-![Enum members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enums.gif)
+  ![Enum members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enums.gif)
 
 * **Length/Count** code completion solves one of the most common mistypings when dealing with arrays or collections:
-
 ![Length/Count completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_lengthcount.gif)
-
 * Create **type parameter from usage** helps declaring generic methods in a postfix way:
-
 ![Type parameter completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_generics.gif)
 
 #### Notes
