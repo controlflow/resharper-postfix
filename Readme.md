@@ -4,7 +4,6 @@
 The basic idea is to prevent caret jumps backwards while typing C# code.
 Kind of surround templates on steroids baked with code completion.
 
-
 ![Demo](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix2.gif)
 
 #### Download
@@ -56,9 +55,10 @@ Also Postfix Templates including two features sharing the same idea:
   ![Enum members completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_enums.gif)
 
 * **Length/Count** code completion solves one of the most common mistypings when dealing with arrays or collections:
-![Length/Count completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_lengthcount.gif)
+  ![Length/Count completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_lengthcount.gif)
+
 * Create **type parameter from usage** helps declaring generic methods in a postfix way:
-![Type parameter completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_generics.gif)
+  ![Type parameter completion](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix_generics.gif)
 
 #### Notes
 
@@ -73,5 +73,3 @@ Also Postfix Templates including two features sharing the same idea:
 #### Feedback
 
 Feel free to post any issues or feature requests in [YouTrack](http://youtrack.jetbrains.com/issues/RSPL) (use *"PostfixCompletion"* subsystem).
-
-Or contact directly: *alexander.shvedov[at]jetbrains.com*
