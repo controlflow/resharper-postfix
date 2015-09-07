@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using JetBrains.DocumentModel;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion;
 using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.BaseInfrastructure;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.AspectLookupItems.Info;
-using JetBrains.ReSharper.Feature.Services.CodeCompletion.Infrastructure.LookupItems;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.Psi.Web.CodeBehindSupport;
@@ -46,8 +42,6 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
       else
       {
-
-
         // todo: maybe rewrite this without range translator knowledge
 
         var originalGeneratedTreeRange = reparsedContext.ToOriginalTreeRange(reparsedTreeRange);
@@ -76,26 +70,6 @@ namespace JetBrains.ReSharper.PostfixTemplates
       }
 
       return atStatementEnd ? "();" : "()";
-    }
-
-    // todo: remove
-    [NotNull]
-    public static IEnumerable<DeclaredElementInstance> GetAllDeclaredElementInstances([NotNull] this ILookupItem lookupItem)
-    {
-      var wrapper = lookupItem as IAspectLookupItem<DeclaredElementInfo>;
-      if (wrapper != null) return wrapper.Info.AllDeclaredElements;
-
-      return EmptyList<DeclaredElementInstance>.InstanceList;
-    }
-
-    // todo: remove
-    [CanBeNull]
-    public static DeclaredElementInstance GetDeclaredElement([NotNull] this ILookupItem lookupItem)
-    {
-      var wrapper = lookupItem as IAspectLookupItem<DeclaredElementInfo>;
-      if (wrapper == null) return null;
-
-      return wrapper.Info.PreferredDeclaredElement;
     }
   }
 }
