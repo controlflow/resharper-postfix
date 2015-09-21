@@ -6,9 +6,15 @@ Kind of surround templates on steroids baked with code completion.
 
 ![Demo](https://github.com/controlflow/resharper-postfix/blob/master/Content/postfix2.gif)
 
+#### ReSharper 10
+
+I'm excited to announce that **this plugin is now integral part of ReSharper 10!**
+
+Further Postfix Templates development happens inside ReSharper codebase, so this repository is no longer maintained and intended to use as a source of code examples for ReSharper plugin development.
+
 #### Download
 
-* Currently supported ReSharper versions are `9.1` and `9.2`;
+* ReSharper versions currently supported by plugin are `9.1` and `9.2`;
 * This plugin is available for download in ReSharper [extensions gallery](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix.R90/);
 * ReSharper `8.x` and `9.0` is no longer supported, check [extension manager](http://resharper-plugins.jetbrains.com/packages/ReSharper.Postfix/) for latest versions;
 * ReSharper `7.1` is no longer supported, last build is [available here](https://dl.dropboxusercontent.com/u/2209105/PostfixCompletion/bin.R7/PostfixCompletion.dll);
